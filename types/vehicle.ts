@@ -1,7 +1,10 @@
-// types/vehicle.ts
-
 export type Vehicle = {
   id: string;
-  registrationNumber: string;
-  nextInspection: string;
+  registration: string;
+  euDate: string;
+};
+
+// TODO: input shape for creating a vehicle
+export type NewVehicle = {
+  registration: string;
 };

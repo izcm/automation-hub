@@ -10,6 +10,20 @@
   --font-mono: var(--font-geist-mono);
 }
 
+:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--bg-primary),
+    0 0 0 3px var(--accent);
+}
+
+input:focus {
+  outline: none;
+  border-color: color-mix(in oklab, var(--accent) 35%, var(--border-default));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent) 5%, transparent);
+  background: color-mix(in oklab, var(--bg-surface) 8%, var(--accent) 5%);
+}
+
 /* ---------------------------------------------------------------------------
  * Custom themes. Variable names must match exactly — the @theme mapping in
  * node_modules/@a2zb/styles/theme.css references them literally.
