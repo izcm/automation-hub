@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,8 +23,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {/* Set the theme before first paint: saved choice, else OS preference.
+            Landing dark-preferring users on upbeat-dark also opts them out of
+            the browser's force-dark inversion (color-scheme: dark). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `!function(){try{var k="theme",t=localStorage.getItem(k);if(t!=="upbeat"&&t!=="upbeat-dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"upbeat-dark":"upbeat";localStorage.setItem(k,t)}document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme="upbeat"}}()`,
+          }}
+        />
+        {children}
+        <Toaster position="top-center" />
+      </body>
     </html>
   );
 }

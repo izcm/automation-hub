@@ -1,26 +1,98 @@
-@import "tailwindcss";
+@import "@a2zb/styles";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* Tailwind ignores node_modules by default — scan a2zb's components so the
+ * utility classes they use inline (TabNavItem, Tabs, Gallery, …) get generated. */
+@source "../node_modules/@a2zb/react/dist";
 
+/* Map the Geist fonts loaded in layout.tsx onto the a2zb tokens */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ---------------------------------------------------------------------------
+ * Custom themes. Variable names must match exactly — the @theme mapping in
+ * node_modules/@a2zb/styles/theme.css references them literally.
+ * ------------------------------------------------------------------------- */
+
+/* upbeat — light: white + orange */
+:root[data-theme="upbeat"] {
+  color-scheme: light;
+
+  /* backgrounds → bg-primary / bg-secondary / bg-surface / bg-card */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f7f6f4;
+  --bg-surface: #fafafa;
+  --bg-card: #ffffff;
+  --bg-muted: rgba(255, 122, 26, 0.06);
+
+  /* text → text-fg / text-subtle / text-muted */
+  --text-primary: rgba(28, 24, 20, 0.94);
+  --text-subtle: rgba(28, 24, 20, 0.68);
+  --text-muted: rgba(28, 24, 20, 0.5);
+
+  /* borders → border-default / border-soft */
+  --border-default: rgba(28, 24, 20, 0.16);
+  --border-soft: rgba(28, 24, 20, 0.09);
+
+  /* accent → text/bg/border-accent (+ -strong / -weak) */
+  --accent: #ff7a1a;
+  --accent-strong: #e85d00;
+  --accent-weak: rgba(255, 122, 26, 0.6);
+  --accent-neutral: #ffab5c;
+  --accent-neutral-weak: rgba(255, 171, 92, 0.5);
+
+  /* status → success / warning / failure (+ -weak) */
+  --success: #12a150;
+  --success-weak: rgba(18, 161, 80, 0.55);
+  --warning: #d99400;
+  --warning-weak: rgba(217, 148, 0, 0.55);
+  --failure: #e5484d;
+  --failure-weak: rgba(229, 72, 77, 0.6);
+
+  --panel-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+/* upbeat-dark — dark: dark grey + orange */
+:root[data-theme="upbeat-dark"] {
+  color-scheme: dark;
+
+  /* backgrounds → bg-primary / bg-secondary / bg-surface / bg-card */
+  --bg-primary: #16171a;
+  --bg-secondary: #1e2024;
+  --bg-surface: #191b1e;
+  --bg-card: #212327;
+  --bg-muted: rgba(255, 138, 61, 0.08);
+
+  /* text → text-fg / text-subtle / text-muted */
+  --text-primary: rgba(238, 236, 233, 0.94);
+  --text-subtle: rgba(210, 208, 204, 0.72);
+  --text-muted: rgba(180, 178, 174, 0.56);
+
+  /* borders → border-default / border-soft */
+  --border-default: rgba(255, 255, 255, 0.16);
+  --border-soft: rgba(255, 255, 255, 0.09);
+
+  /* accent → text/bg/border-accent (+ -strong / -weak) */
+  --accent: #ff8a3d;
+  --accent-strong: #ffa866;
+  --accent-weak: rgba(255, 138, 61, 0.6);
+  --accent-neutral: #ffb066;
+  --accent-neutral-weak: rgba(255, 176, 102, 0.5);
+
+  /* status → success / warning / failure (+ -weak) */
+  --success: #4cff9a;
+  --success-weak: rgba(76, 255, 154, 0.6);
+  --warning: #ffc12f;
+  --warning-weak: rgba(255, 193, 47, 0.6);
+  --failure: #ff5470;
+  --failure-weak: rgba(255, 84, 112, 0.6);
+
+  --panel-shadow:
+    0 0 24px rgba(255, 138, 61, 0.18), 0 0 80px rgba(255, 138, 61, 0.08);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
