@@ -27,15 +27,15 @@ export async function GET(request: Request) {
   const API_KEY = process.env.VEGVESEN_API_KEY;
   if (!API_KEY) throw new Error("Missing VEGVESEN_API_KEY");
 
-  const registration = new URL(request.url).searchParams.get("registration");
-  if (!registration) {
-    return Response.json({ error: "Missing 'registration'" }, { status: 400 });
+  const plateNumber = new URL(request.url).searchParams.get("plateNumber");
+  if (!plateNumber) {
+    return Response.json({ error: "Missing 'plateNumber'" }, { status: 400 });
   }
 
   const headers = new Headers({ "SVV-Authorization": `Apikey ${API_KEY}` });
 
   const result = await fetchJSON<SvvResponse>(
-    `${BASE_URL}?kjennemerke=${encodeURIComponent(registration)}`,
+    `${BASE_URL}?kjennemerke=${encodeURIComponent(plateNumber)}`,
     { headers },
   );
 

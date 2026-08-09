@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Details, Spinner, TextInput } from "@a2zb/react";
-import { rejectWith } from "@/lib/toast";
+import { rejectWith } from "@lib/toast";
 
 // internal type – essential characteristics
 // so user can confirm lookup is correct
@@ -15,7 +15,7 @@ type LookupResult = {
 };
 
 type Props = {
-  onDone: (registration: string) => void;
+  onDone: (plateNumber: string) => void;
 };
 
 export function VehicleLookup({ onDone }: Props) {
@@ -25,13 +25,13 @@ export function VehicleLookup({ onDone }: Props) {
   const [vehicle, setVehicle] = useState<LookupResult | null>(null);
 
   const handleLookup = async () => {
-    const regInput = focusRef.current?.value ?? "";
+    const plateInput = focusRef.current?.value ?? "";
     let vehicle;
 
     setLoading(true);
 
     try {
-      const res = await fetch(`/api/vehicles/lookup?registration=${regInput}`);
+      const res = await fetch(`/api/vehicles/lookup?plateNumber=${plateInput}`);
       const body = await res.json();
 
       if (!res.ok) {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTheme } from "@a2zb/react";
-import { TAB } from "../app/labels";
+import { TAB } from "@features/tab-config";
 import { DarkThemeIcon, LightThemeIcon } from "./icons";
 
 // useTheme() reads localStorage during render, which isn't available during

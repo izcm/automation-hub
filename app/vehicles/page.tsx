@@ -4,13 +4,14 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Gallery, ImageRow, Modal, TabNavItem } from "@a2zb/react";
 
-import { confirmWith, rejectWith } from "@/lib/toast";
-import { TAB } from "../labels";
-import { cn } from "../cn";
+import { confirmWith, rejectWith } from "@lib/toast";
+import { cn } from "@lib/cn";
 
-import { ThemeToggle } from "../../components/ThemeToggle";
-import { VehicleLookup } from "../../components/VehicleLookup";
-import { LogOutIcon, NewVehicleIcon } from "../../components/icons";
+import { TAB } from "@features/tab-config";
+
+import { ThemeToggle } from "@components/ThemeToggle";
+import { VehicleLookup } from "@components/VehicleLookup";
+import { LogOutIcon, NewVehicleIcon } from "@components/icons";
 
 // Tiny placeholder car — inline SVG data URI, swap for real images later.
 const CAR = `data:image/svg+xml,${encodeURIComponent(
@@ -42,11 +43,11 @@ export default function VehiclesPage() {
 
   // POST vehicle
   const addVehicle = useMutation({
-    mutationFn: async (regNumber: string) => {
+    mutationFn: async (plateNumber: string) => {
       const res = await fetch("/api/vehicles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ regNumber }),
+        body: JSON.stringify({ plateNumber }),
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body.error ?? "Noe gikk galt");
