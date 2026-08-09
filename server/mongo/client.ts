@@ -1,36 +1,29 @@
-import { Db, MongoClient } from "mongodb";
+import { MongoClient } from "mongodb";
 
-let db: Db | null = null;
-
-// === mongo drivers ===
-
-export function getDb(): Db {
-  if (!db) {
-    throw new Error("DB not initialized");
-  }
-  return db;
+// https://www.typescriptlang.org/docs/handbook/declaration-merging.html#global-augmentation
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+declare global {
+  var _mongoClient: MongoClient | undefined;
 }
 
-// === di ===
+const uri = process.env.MONGODB_URI;
+const dbName = process.env.DB_NAME ?? "miniapp_db";
 
-export function setDb(_db: Db) {
-  db = _db;
-}
+if (!uri) throw new Error("Missing MONGODB_URI");
 
-// === initializer ===
+// IMPORTANT
+// The Node.js driver automatically calls MongoClient.connect() the first time
+// you use the client for a CRUD operation — so we don't need to call connect()
+// ourselves. Call it explicitly only if you want to verify the connection up front.
+// https://www.mongodb.com/docs/drivers/node/current/connect/mongoclient/
+const createClient = () => {
+  console.log("🤵 NEW MongoClient CREATED");
+  return new MongoClient(uri);
+};
 
-export async function initDb() {
-  const MONGODB_URI = process.env.MONGODB_URI;
-  const DB_NAME = "dmrkt";
+const client =
+  process.env.NODE_ENV === "development"
+    ? (globalThis._mongoClient ??= createClient())
+    : createClient();
 
-  if (!MONGODB_URI) {
-    throw new Error("Error reading db config from .env");
-  }
-
-  const client = new MongoClient(MONGODB_URI, { timeoutMS: 10_000 });
-  await client.connect();
-
-  db = client.db(DB_NAME);
-
-  // await ensureIndexes();
-}
+export const db = client.db(dbName);

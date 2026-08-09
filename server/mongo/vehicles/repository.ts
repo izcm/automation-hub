@@ -24,6 +24,7 @@ export const vehicleRepo: VehiclePort = {
       {
         plateNumber,
       },
+      {},
       {
         upsert: true,
       },

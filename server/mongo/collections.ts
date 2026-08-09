@@ -1,4 +1,4 @@
-import { getDb } from "./client";
+import { db } from "./client";
 import { VehicleDoc } from "./vehicles/vehicle-doc";
 
-export const vehicles = () => getDb().collection<VehicleDoc>("vehicles");
+export const vehicles = () => db.collection<VehicleDoc>("vehicles");
