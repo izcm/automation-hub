@@ -34,14 +34,15 @@ export async function GET(request: Request) {
 
   const headers = new Headers({ "SVV-Authorization": `Apikey ${API_KEY}` });
 
-  const res = await fetchJSON<SvvResponse>(
+  const result = await fetchJSON<SvvResponse>(
     `${BASE_URL}?kjennemerke=${encodeURIComponent(registration)}`,
     { headers },
   );
 
-  if (!res.ok) return Response.json(res, { status: 502 });
+  if (!result.ok)
+    return Response.json({ error: result.error }, { status: 502 });
 
-  const v = res.data.kjoretoydataListe?.[0];
+  const v = result.data.kjoretoydataListe?.[0];
   const teknisk = v?.godkjenning?.tekniskGodkjenning?.tekniskeData;
 
   const vehicle = {

@@ -2,9 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Details, Spinner, TextInput } from "@a2zb/react";
+import { rejectWith } from "@/lib/toast";
 
-type Vehicle = {
-  reg?: string;
+// internal type – essential characteristics
+// so user can confirm lookup is correct
+type LookupResult = {
+  reg: string;
   make?: string;
   model?: string;
   color?: string;
@@ -12,22 +15,39 @@ type Vehicle = {
 };
 
 type Props = {
-  onDone: () => void;
+  onDone: (registration: string) => void;
 };
 
-export function RegistrateVehicle({ onDone }: Props) {
+export function VehicleLookup({ onDone }: Props) {
   const focusRef = useRef<HTMLInputElement | HTMLButtonElement>(null);
 
   const [loading, setLoading] = useState(false);
-  const [vehicle, setVehicle] = useState<Vehicle | null>(null);
+  const [vehicle, setVehicle] = useState<LookupResult | null>(null);
 
   const handleLookup = async () => {
     const regInput = focusRef.current?.value ?? "";
+    let vehicle;
+
     setLoading(true);
-    const res = await fetch(`/api/vehicles/lookup?registration=${regInput}`);
-    const data = await res.json();
+
+    try {
+      const res = await fetch(`/api/vehicles/lookup?registration=${regInput}`);
+      const body = await res.json();
+
+      if (!res.ok) {
+        rejectWith("Noe galt skjedde", body.error);
+        vehicle = null;
+      } else {
+        vehicle = body;
+      }
+    } catch {
+      // config errors
+      rejectWith("Kontakt IT Support", "Noe gikk galt");
+      vehicle = null;
+    }
+
     setLoading(false);
-    setVehicle(data);
+    setVehicle(vehicle);
   };
 
   useEffect(() => {
@@ -65,7 +85,7 @@ export function RegistrateVehicle({ onDone }: Props) {
               focusRef.current = el;
             }}
             className="btn btn-primary flex-1"
-            onClick={onDone}
+            onClick={() => onDone(vehicle.reg)}
           >
             Ja
           </button>

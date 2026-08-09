@@ -103,10 +103,16 @@ input:focus {
   --failure-weak: rgba(255, 84, 112, 0.6);
 
   --panel-shadow:
-    0 0 24px rgba(255, 138, 61, 0.18), 0 0 80px rgba(255, 138, 61, 0.08);
+    0 8px 24px rgba(0, 0, 0, 0.35), 0 0 20px rgba(255, 138, 61, 0.08);
 }
 
 body {
   background: var(--bg-primary);
   color: var(--text-primary);
+}
+
+/* btn-menu gets an accent background only in the light theme */
+:root[data-theme="upbeat"] .btn-menu {
+  background: color-mix(in oklab, var(--accent) 72%, transparent);
+  color: var(--bg-primary);
 }

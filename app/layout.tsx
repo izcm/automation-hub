@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+
 import { Toaster } from "sonner";
+
+import { Providers } from "./providers";
+import "./globals.css";
+import { ClientToaster } from "./ClientToaster";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,8 +38,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             __html: `!function(){try{var k="theme",t=localStorage.getItem(k);if(t!=="upbeat"&&t!=="upbeat-dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"upbeat-dark":"upbeat";localStorage.setItem(k,t)}document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme="upbeat"}}()`,
           }}
         />
-        {children}
-        <Toaster position="top-center" />
+        <Providers>
+          {children}
+          <ClientToaster />
+        </Providers>
       </body>
     </html>
   );

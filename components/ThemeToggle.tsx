@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "@a2zb/react";
 import { TAB } from "../app/labels";
+import { DarkThemeIcon, LightThemeIcon } from "./icons";
 
 // useTheme() reads localStorage during render, which isn't available during
 // Next's SSR — so gate the hook behind a mount check. The no-flash script in
@@ -27,9 +28,10 @@ function ThemeToggleInner() {
 
   return (
     <button
-      className="btn btn-menu border-accent-weak/60"
+      className="btn btn-menu border-accent-weak/60 flex items-center gap-2"
       onClick={() => applyTheme(isDark ? "upbeat" : "upbeat-dark")}
     >
+      {isDark ? <LightThemeIcon size={16} /> : <DarkThemeIcon size={16} />}
       {isDark ? TAB.theme.toLight : TAB.theme.toDark}
     </button>
   );

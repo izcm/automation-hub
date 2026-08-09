@@ -1,11 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { Gallery, ImageRow, Modal, TabNavItem } from "@a2zb/react";
+
+import { confirmWith, rejectWith } from "@/lib/toast";
 import { TAB } from "../labels";
-import { ThemeToggle } from "../../components/ThemeToggle";
-import { RegistrateVehicle } from "../../components/RegistrateVehicle";
 import { cn } from "../cn";
+
+import { ThemeToggle } from "../../components/ThemeToggle";
+import { VehicleLookup } from "../../components/VehicleLookup";
+import { LogOutIcon, NewVehicleIcon } from "../../components/icons";
 
 // Tiny placeholder car — inline SVG data URI, swap for real images later.
 const CAR = `data:image/svg+xml,${encodeURIComponent(
@@ -35,6 +40,22 @@ export default function VehiclesPage() {
 
   const [modalOpen, setModalOpen] = useState(false);
 
+  // POST vehicle
+  const addVehicle = useMutation({
+    mutationFn: async (regNumber: string) => {
+      const res = await fetch("/api/vehicles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ regNumber }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error ?? "Noe gikk galt");
+      return body;
+    },
+    onSuccess: () => confirmWith("Kjøretøy lagt til"),
+    onError: (error) => rejectWith("Det har skjedd en feil", error.message),
+  });
+
   const items =
     tab === "upcoming"
       ? [...VEHICLES].sort((a, b) => a.euDate.localeCompare(b.euDate))
@@ -44,16 +65,18 @@ export default function VehiclesPage() {
     <>
       <main className="mx-auto w-full max-w-5xl flex flex-col gap-4 p-4">
         <div className="flex justify-between">
-          <button className="btn btn-menu border-accent-weak/60">
+          <button className="btn btn-menu border-accent-weak/60 flex items-center gap-2">
+            <LogOutIcon size={16} />
             Logg Ut
           </button>
           <div className="flex gap-2">
             <ThemeToggle />
             <button
-              className="btn btn-menu border-accent-weak/60"
+              className="btn btn-menu border-accent-weak/60 flex items-center gap-2"
               onClick={() => setModalOpen(true)}
             >
-              + Nytt Kjøretøy
+              <NewVehicleIcon size={16} />
+              Nytt Kjøretøy
             </button>
           </div>
         </div>
@@ -78,7 +101,7 @@ export default function VehiclesPage() {
             cn(
               "border-default",
               !isSelected && "hover:bg-accent/15",
-              isSelected && "bg-accent/25 hover:none",
+              isSelected && "bg-accent/40 hover:none",
             )
           }
           galleryItem={(v) => (
@@ -102,7 +125,12 @@ export default function VehiclesPage() {
         showCancelBtn={false}
         selfManagesFocus
       >
-        <RegistrateVehicle onDone={() => setModalOpen(false)} />
+        <VehicleLookup
+          onDone={(reg) => {
+            setModalOpen(false);
+            addVehicle.mutate(reg);
+          }}
+        />
       </Modal>
     </>
   );
