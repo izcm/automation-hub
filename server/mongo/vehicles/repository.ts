@@ -18,19 +18,23 @@ export const vehicleRepo: VehiclePort = {
 
   // === write ===
   ensure: async function (
-    plateNumber: string,
-  ): Promise<{ plateNumber: string; didUpsert: boolean }> {
+    plateNumber,
+  ): Promise<{ id: string; didUpsert: boolean }> {
     const res = await write.updateOne(
-      {
-        plateNumber,
-      },
-      {},
-      {
-        upsert: true,
-      },
+      { plateNumber },
+      { $setOnInsert: { withSvvData: false } },
+      { upsert: true },
     );
 
-    // todo: return id instead (update makeTsWrite)
-    return { plateNumber, didUpsert: !!res.upsertedCount };
+    const id =
+      res.upsertedId?.toString() ??
+      (await vehicles().findOne({ plateNumber }))?._id?.toString() ??
+      "";
+
+    return { id, didUpsert: !!res.upsertedCount };
+  },
+
+  enrich: async function (plateNumber, fields) {
+    await write.updateOne({ plateNumber }, { $set: fields });
   },
 };

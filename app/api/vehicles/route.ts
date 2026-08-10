@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
-// TODO: change to service (call vehicleService instead of the repo directly)
 import { vehicleRepo } from "@server/mongo/vehicles/repository";
+import { vehicleActions } from "@server/di";
 
 export async function GET() {
   // Expecting very few vehicles atm, so we'll fetch all at once.
@@ -20,13 +20,16 @@ export async function GET() {
 export async function POST(request: Request) {
   const { plateNumber } = await request.json();
 
-  if (!plateNumber) {
+  if (!plateNumber || !/^[A-Z]{2} ?\d{5}$/.test(plateNumber)) {
     return NextResponse.json(
-      { error: "Missing 'plateNumber'" },
+      { error: "Ugyldig registreringsnummer" },
       { status: 400 },
     );
   }
 
-  const result = await vehicleRepo.ensure(plateNumber);
-  return NextResponse.json(result, { status: 201 });
+  // Save the bare vehicle now; enrichment runs fire-and-forget in the action.
+  const result = await vehicleActions.ingestVehicle(plateNumber);
+
+  // 201 when newly created, 200 when it already existed.
+  return NextResponse.json(result, { status: result.didUpsert ? 201 : 200 });
 }

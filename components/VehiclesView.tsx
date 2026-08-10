@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Gallery, ImageRow, Modal, TabNavItem } from "@a2zb/react";
+import { Gallery, Modal, TabNavItem } from "@a2zb/react";
 
 import type { Vehicle } from "@/types/vehicle";
 import { confirmWith, rejectWith } from "@lib/toast";
@@ -13,6 +13,10 @@ import { TAB } from "@features/tab-config";
 import { ThemeToggle } from "@components/ThemeToggle";
 import { VehicleLookup } from "@components/VehicleLookup";
 import { LogOutIcon, NewVehicleIcon } from "@components/icons";
+
+import { SimpleRow } from "./SimpleRow";
+import { DateStamp } from "./DateStamp";
+import { MediaImage } from "./MediaImage";
 
 // Tiny placeholder car — inline SVG data URI, swap for real images later.
 const CAR = `data:image/svg+xml,${encodeURIComponent(
@@ -55,12 +59,16 @@ export function VehiclesView({ vehicles }: Props) {
 
   const items =
     tab === "upcoming"
-      ? [...vehicles].sort((a, b) => a.euDate.localeCompare(b.euDate))
+      ? [...vehicles]
+          .filter(
+            (v): v is Vehicle & { euDate: string } => v.euDate !== undefined,
+          )
+          .sort((a, b) => a.euDate.localeCompare(b.euDate))
       : vehicles;
 
   return (
     <>
-      <main className="mx-auto w-full max-w-5xl flex flex-col gap-4 p-4">
+      <main className="mx-auto w-full max-w-4xl flex flex-col gap-4 px-2 p-6">
         <div className="flex justify-between">
           <button className="btn btn-menu border-accent-weak/60 flex items-center gap-2">
             <LogOutIcon size={16} />
@@ -97,14 +105,19 @@ export function VehiclesView({ vehicles }: Props) {
           itemClassName={(isSelected) =>
             cn(
               "border-default",
-              !isSelected && "hover:bg-accent/15",
+              !isSelected && "hover:bg-accent/20",
               isSelected && "bg-accent/40 hover:none",
             )
           }
           galleryItem={(v) => (
-            <ImageRow
-              image={CAR}
-              imageSize={64}
+            <SimpleRow
+              media={
+                tab === "upcoming" ? (
+                  <DateStamp date={v.euDate} />
+                ) : (
+                  <MediaImage src={CAR} />
+                )
+              }
               title={v.plateNumber}
               subtitle={
                 <span className="text-subtle">

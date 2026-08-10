@@ -2,13 +2,15 @@ import { Vehicle } from "@/types/vehicle";
 import { ByKey, Countable, Pageable } from "@a2zb/mongo";
 
 export interface VehiclePort
-  extends ByKey<Vehicle, string>, Pageable<Vehicle>, Countable {
+  extends ByKey<Vehicle, string>,
+    Pageable<Vehicle>,
+    Countable {
   /**
-   * Provide vehicle plate number
-   * Background workers enrich additional vehicle data
-   * @param plateNumber vehicle plate number
+   * Upsert a bare vehicle by plate number. Returns its Mongo id.
+   * Enrichment (make/model/…) happens afterwards.
    */
-  ensure(
-    plateNumber: string,
-  ): Promise<{ plateNumber: string; didUpsert: boolean }>;
+  ensure(plateNumber: string): Promise<{ id: string; didUpsert: boolean }>;
+
+  /** Attach Vegvesenet metadata to an existing vehicle. */
+  enrich(plateNumber: string, fields: Partial<Vehicle>): Promise<void>;
 }
