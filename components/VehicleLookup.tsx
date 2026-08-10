@@ -24,10 +24,21 @@ export function VehicleLookup({ onDone }: Props) {
   const [loading, setLoading] = useState(false);
   const [vehicle, setVehicle] = useState<LookupResult | null>(null);
 
+  const [hasError, setHasError] = useState<boolean>(false);
+
+  // const [plateNumber, setPlateNumber] = useState<string | null>(null);
+  // const hasError = plateNumber !== null && plateNumber?.match(/^[A-Z] ?\d{5}$/);
+
   const handleLookup = async () => {
     const plateInput = focusRef.current?.value ?? "";
+    if (!plateInput?.match(/^[A-Z]{2} ?\d{5}$/)) {
+      setHasError(true);
+      return;
+    }
+
     let vehicle;
 
+    setHasError(false);
     setLoading(true);
 
     try {
@@ -103,6 +114,9 @@ export function VehicleLookup({ onDone }: Props) {
         }}
         onSubmit={handleLookup}
       />
+      {hasError && (
+        <span className="text-warning">Må være 2 bokstaver + 5 tall</span>
+      )}
       {loading ? (
         <button className="btn btn-ghost flex gap-3">
           <Spinner />

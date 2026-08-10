@@ -32,6 +32,14 @@ export async function GET(request: Request) {
     return Response.json({ error: "Missing 'plateNumber'" }, { status: 400 });
   }
 
+  // Norwegian plate: 2 letters + optional space + 5 digits. Bad input = 400.
+  if (!/^[A-Z]{2} ?\d{5}$/.test(plateNumber)) {
+    return Response.json(
+      { error: "Ugyldig registreringsnummer" },
+      { status: 400 },
+    );
+  }
+
   const headers = new Headers({ "SVV-Authorization": `Apikey ${API_KEY}` });
 
   const result = await fetchJSON<SvvResponse>(
