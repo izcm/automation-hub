@@ -1,7 +1,8 @@
 import { Vehicle } from "@/types/vehicle";
-import { ByKey, Countable } from "@a2zb/mongo";
+import { ByKey, Countable, Pageable } from "@a2zb/mongo";
 
-export interface VehiclePort extends ByKey<Vehicle, string>, Countable {
+export interface VehiclePort
+  extends ByKey<Vehicle, string>, Pageable<Vehicle>, Countable {
   /**
    * Provide vehicle plate number
    * Background workers enrich additional vehicle data
