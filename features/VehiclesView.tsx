@@ -20,8 +20,10 @@ import {
 } from "@components/icons";
 
 import { MediaImage } from "@/components/atoms";
-import { DateStamp, SimpleRow } from "@/components/molecules";
+import { DateStamp, Pagination, SimpleRow } from "@/components/molecules";
 import { BatchSelect, ThemeToggle } from "@/components/organisms";
+
+const PAGE_SIZE = 25;
 
 // Tiny placeholder car — inline SVG data URI, swap for real images later.
 const CAR = `data:image/svg+xml,${encodeURIComponent(
@@ -55,6 +57,15 @@ export function VehiclesView({ vehicles }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   const [batchSelected, setBatchSelected] = useState<string[]>([]);
 
+  // Page is remembered per tab, like the selection.
+  const [pageByTab, setPageByTab] = useState<Record<Tab, number>>({
+    upcoming: 1,
+    items: 1,
+  });
+  const page = pageByTab[tab];
+  const setPage = (p: number) =>
+    setPageByTab((prev) => ({ ...prev, [tab]: p }));
+
   // POST vehicle
   const addVehicle = useMutation({
     mutationFn: async (plateNumber: string) => {
@@ -81,6 +92,9 @@ export function VehiclesView({ vehicles }: Props) {
           )
           .sort((a, b) => a.euDate.localeCompare(b.euDate))
       : vehicles;
+
+  const pageCount = Math.ceil(items.length / PAGE_SIZE);
+  const pageItems = items.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   // use pages [1] [2] [3] not infinite scroll
   return (
@@ -131,7 +145,7 @@ export function VehiclesView({ vehicles }: Props) {
 
         {tab === "upcoming" && (
           <BatchSelect
-            items={items}
+            items={pageItems}
             getId={(v) => v.id}
             selected={selected}
             onSelect={setSelected}
@@ -176,7 +190,7 @@ export function VehiclesView({ vehicles }: Props) {
         {tab === "items" && (
           <Gallery
             getId={(v) => v.id}
-            items={items}
+            items={pageItems}
             selected={selected}
             onSelect={setSelected}
             itemClassName={(isSelected) =>
@@ -199,6 +213,15 @@ export function VehiclesView({ vehicles }: Props) {
             )}
           />
         )}
+
+        <Pagination
+          page={page}
+          pageCount={pageCount}
+          total={items.length}
+          pageSize={PAGE_SIZE}
+          onChange={setPage}
+          label={(from, to, total) => `Viser ${from}–${to} av ${total}`}
+        />
       </main>
 
       {/* MODAL  */}

@@ -11,5 +11,7 @@ export {
   Search as LookupIcon,
   SlidersHorizontal as Filter,
   Send as NotifyIcon,
+  ChevronLeft as PrevIcon,
+  ChevronRight as NextIcon,
   Plus,
 } from "lucide-react";
