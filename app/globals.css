@@ -13,15 +13,8 @@
 :focus-visible {
   outline: none;
   box-shadow:
-    0 0 0 2px var(--bg-primary),
+    0 0 0 2px var(--base),
     0 0 0 3px var(--accent);
-}
-
-input:focus {
-  outline: none;
-  border-color: color-mix(in oklab, var(--accent) 35%, var(--border-default));
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent) 5%, transparent);
-  background: color-mix(in oklab, var(--bg-surface) 8%, var(--accent) 5%);
 }
 
 /* ---------------------------------------------------------------------------
@@ -33,21 +26,15 @@ input:focus {
 :root[data-theme="upbeat"] {
   color-scheme: light;
 
-  /* backgrounds → bg-primary / bg-secondary / bg-surface / bg-card */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f7f6f4;
-  --bg-surface: #fafafa;
-  --bg-card: #ffffff;
-  --bg-muted: rgba(255, 122, 26, 0.06);
+  --base: #ffffff;
+  --raised: #fafafa;
 
-  /* text → text-fg / text-subtle / text-muted */
-  --text-primary: rgba(28, 24, 20, 0.94);
-  --text-subtle: rgba(28, 24, 20, 0.68);
-  --text-muted: rgba(28, 24, 20, 0.5);
+  --fg: rgba(28, 24, 20, 0.94);
+  --subtle: rgba(28, 24, 20, 0.68);
+  --muted: rgba(28, 24, 20, 0.5);
+  --faint: rgba(28, 24, 20, 0.3);
 
-  /* borders → border-default / border-soft */
-  --border-default: rgba(28, 24, 20, 0.16);
-  --border-soft: rgba(28, 24, 20, 0.09);
+  --line: rgba(28, 24, 20, 0.14);
 
   /* accent → text/bg/border-accent (+ -strong / -weak) */
   --accent: #ff7a1a;
@@ -71,21 +58,15 @@ input:focus {
 :root[data-theme="upbeat-dark"] {
   color-scheme: dark;
 
-  /* backgrounds → bg-primary / bg-secondary / bg-surface / bg-card */
-  --bg-primary: #16171a;
-  --bg-secondary: #1e2024;
-  --bg-surface: #191b1e;
-  --bg-card: #212327;
-  --bg-muted: rgba(255, 138, 61, 0.08);
+  --base: #16171a;
+  --raised: #191b1e;
 
-  /* text → text-fg / text-subtle / text-muted */
-  --text-primary: rgba(238, 236, 233, 0.94);
-  --text-subtle: rgba(210, 208, 204, 0.72);
-  --text-muted: rgba(180, 178, 174, 0.56);
+  --fg: rgba(238, 236, 233, 0.94);
+  --subtle: rgba(210, 208, 204, 0.75);
+  --muted: rgba(180, 178, 174, 0.6);
+  --faint: rgba(180, 178, 174, 0.4);
 
-  /* borders → border-default / border-soft */
-  --border-default: rgba(255, 255, 255, 0.16);
-  --border-soft: rgba(255, 255, 255, 0.09);
+  --line: rgba(255, 255, 255, 0.14);
 
   /* accent → text/bg/border-accent (+ -strong / -weak) */
   --accent: #ff8a3d;
@@ -107,12 +88,77 @@ input:focus {
 }
 
 body {
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  background: var(--base);
+  color: var(--fg);
+  font-family: var(--font-sans);
+}
+
+/* flex + center on both axes */
+@utility flex-center {
+  @apply flex items-center justify-center;
+}
+
+.btn-menu {
+  font-weight: 400;
+}
+
+.text-input {
+  background-color: var(--lowered);
 }
 
 /* btn-menu gets an accent background only in the light theme */
 :root[data-theme="upbeat"] .btn-menu {
   background: color-mix(in oklab, var(--accent) 72%, transparent);
   color: var(--bg-primary);
+}
+
+/* Override a2zb's filled btn-secondary with an outlined accent style:
+ * orange border + orange text on a transparent ground (the "Filtre" look). */
+/* Match every button's corner radius to the text input's rounded-lg */
+.btn {
+  border-radius: 0.5rem;
+}
+
+@layer components {
+  /* Solid, strong primary: orange fill + black text */
+
+  /* BTN primary STYLES */
+  .btn-primary {
+    color: #17130f;
+    font-weight: 600;
+    border-color: transparent;
+    background: var(--accent);
+    box-shadow: none;
+  }
+
+  .btn-primary:hover {
+    color: #17130f;
+    border-color: transparent;
+    background: var(--accent-strong);
+    box-shadow: none;
+  }
+
+  .btn-primary:active {
+    background: color-mix(in oklab, var(--accent) 88%, black);
+  }
+
+  /* BTN SECONDARY STYLES */
+  .btn-secondary {
+    color: var(--subtle);
+    border-color: color-mix(in oklab, var(--accent) 60%, transparent);
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .btn-secondary:hover {
+    color: var(--accent-strong);
+    border-color: color-mix(in oklab, var(--accent) 65%, transparent);
+    background: color-mix(in oklab, var(--accent) 10%, transparent);
+    box-shadow: none;
+  }
+
+  .btn-secondary:active {
+    background: color-mix(in oklab, var(--accent) 16%, transparent);
+    box-shadow: none;
+  }
 }

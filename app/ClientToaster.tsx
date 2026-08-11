@@ -15,6 +15,9 @@ import dynamic from "next/dynamic";
  * can safely import and render.
  */
 export const ClientToaster = dynamic(
-  () => import("@components/ResponsiveToaster").then((m) => m.ResponsiveToaster),
+  () =>
+    import("@/components/organisms/ResponsiveToaster").then(
+      (m) => m.ResponsiveToaster,
+    ),
   { ssr: false },
 );

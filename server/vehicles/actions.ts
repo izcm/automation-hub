@@ -16,8 +16,8 @@ export const makeVehicleActions = ({
   later,
 }: Deps) => {
   async function ingestVehicle(plateNumber: string) {
-    const created = await vehicles.ensure(plateNumber);
-    later(() => onVehicleCreated(plateNumber)); // fire-and-forget enrichment
+    const created = await vehicles.ensure(plateNumber); // TRY AND THROW "DATABASE ERROR CONSOLE ERROR"
+    later(() => onVehicleCreated(plateNumber)); // fire-and-forget enrichment // THIS SHOULD BE INTHE FINALLY BLOCK
     return created;
   }
 

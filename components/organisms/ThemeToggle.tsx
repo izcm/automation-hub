@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "@a2zb/react";
 import { TAB } from "@features/tab-config";
-import { DarkThemeIcon, LightThemeIcon } from "./icons";
+import { DarkThemeIcon, LightThemeIcon } from "../icons";
 
 // useTheme() reads localStorage during render, which isn't available during
 // Next's SSR — so gate the hook behind a mount check. The no-flash script in

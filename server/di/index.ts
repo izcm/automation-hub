@@ -1,4 +1,5 @@
-import { after } from "node:test";
+import { after } from "next/server";
+
 import { vehicleRepo } from "../mongo/vehicles/repository";
 import { lookupVehicle } from "../vegvesen/lookup";
 import { makeVehicleActions } from "../vehicles/actions";

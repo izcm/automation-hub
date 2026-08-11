@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 
-import { VehiclesView } from "@components/VehiclesView";
+import { VehiclesView } from "@/features/VehiclesView";
 import type { Vehicle } from "@/types/vehicle";
 
 // Server component: call the /api/vehicles GET, then hand the list to the client view.

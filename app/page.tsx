@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { TAB } from "@features/tab-config";
-import { ThemeToggle } from "@components/ThemeToggle";
+import { ThemeToggle } from "@/components/organisms/ThemeToggle";
 
 export default function Home() {
   return (

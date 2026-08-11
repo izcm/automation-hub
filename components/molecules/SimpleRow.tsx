@@ -7,6 +7,7 @@ type Props = {
   subtitle?: ReactNode;
   endContent?: ReactNode;
   className?: string;
+  onClick?: () => void;
 };
 
 export function SimpleRow({
@@ -15,9 +16,11 @@ export function SimpleRow({
   subtitle,
   endContent,
   className,
+  onClick,
 }: Props) {
   return (
     <div
+      onClick={onClick}
       className={cn(
         "grid grid-cols-[auto_1fr_auto] items-center gap-4 p-1",
         className,
