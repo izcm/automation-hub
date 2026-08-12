@@ -24,9 +24,10 @@ export function ResponsiveToaster() {
 
   return (
     <Toaster
-      position={isMobile ? "bottom-center" : "top-center"}
+      // top-center
+      position={isMobile ? "top-center" : "top-center"}
       closeButton
-      //   hotkey={["KeyK"]}
+      // hotkey={["KeyK"]}
       toastOptions={{
         classNames: {
           toast: "rounded-xl shadow-[var(--panel-shadow)]",

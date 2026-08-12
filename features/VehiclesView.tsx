@@ -1,16 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
 import { Gallery, Modal, TabNavItem, TextInput } from "@a2zb/react";
 
 import type { Vehicle } from "@/types/vehicle";
 
-import { confirmWith, rejectWith } from "@lib/toast";
 import { cn } from "@lib/cn";
 
 import { TAB } from "@features/tab-config";
 import { VehicleLookup } from "@/features/lookup/VehicleLookup";
+import { useAddVehicle } from "@features/vehicles/hooks";
+import { useSendNotifications } from "@features/notifications/hooks";
 
 import {
   Filter,
@@ -66,24 +66,11 @@ export function VehiclesView({ vehicles }: Props) {
   const setPage = (p: number) =>
     setPageByTab((prev) => ({ ...prev, [tab]: p }));
 
-  // POST vehicle
-  const addVehicle = useMutation({
-    mutationFn: async (plateNumber: string) => {
-      const res = await fetch("/api/vehicles", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plateNumber }),
-      });
-      const body = await res.json();
-      if (!res.ok) throw new Error(body.error ?? "Noe gikk galt");
-      return body;
-    },
-    onSuccess: () => confirmWith("Kjøretøy lagt til"),
-    onError: (error) => rejectWith("Det har skjedd en feil", error.message),
-  });
+  const addVehicle = useAddVehicle();
+  const sendNotifs = useSendNotifications();
 
-  // when showing upcoming maintenance controls, filter out non-enriched entities
-  // when user browses all vehicles (items) -> show every entity
+  // upcoming maintenance controls -> filter out non-enriched entities
+  // all vehicles -> show every entity
   const items =
     tab === "upcoming"
       ? [...vehicles]
@@ -96,7 +83,6 @@ export function VehiclesView({ vehicles }: Props) {
   const pageCount = Math.ceil(items.length / PAGE_SIZE);
   const pageItems = items.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  // use pages [1] [2] [3] not infinite scroll
   return (
     <>
       <main className="mx-auto w-full max-w-4xl flex flex-col gap-4 px-2 py-3">
@@ -157,7 +143,16 @@ export function VehiclesView({ vehicles }: Props) {
               {
                 label: `Varsle ${batchSelected.length} sjåfører`,
                 icon: <NotifyIcon size={15} />,
-                onClick: (ids) => console.log("varsle", ids),
+                onClick: (ids) => {
+                  // const receivers: string[] = [];
+                  // ids.forEach((id) => {
+                  //   const x = items.find(
+                  //     (item) => item.id === id,
+                  //   )?.maintenanceResponsibleId;
+                  //   if (x !== undefined) receivers.push(x);
+                  // });
+                  sendNotifs.mutate(ids);
+                },
               },
             ]}
             galleryItem={(v, picked) => (

@@ -32,7 +32,7 @@ export function Pagination({
 
   return (
     <div className="flex-center flex-col justify-center gap-6 py-2 text-sm">
-      <div className="flex-center gap-1">
+      <div className="flex-center gap-2">
         <button
           className={step}
           disabled={page === 1}

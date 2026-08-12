@@ -1,36 +1,128 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EU-Kontroll
 
-## Getting Started
+Fleet EU-inspection tracking: see which vehicles have controls coming up and
+notify the person responsible for each.
 
-First, run the development server:
+<!-- TODO: one screenshot -->
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+
+# .env.local
+#   MONGODB_URI=...           (required)
+#   DB_NAME=miniapp_db        (optional, defaults to miniapp_db)
+#   SEED_EMAIL=you@example.com (for seed:users)
+
+npm run seed            # seed vehicles
+npm run seed:users -- you@example.com   # seed 4 users (all → this inbox)
+
+npm run dev             # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Next.js** (app router) — note: a customized build, see `AGENTS.md`
+- **MongoDB** (`@a2zb/mongo` helpers)
+- **React Query** for client mutations/queries
+- **Tailwind v4** + `@a2zb/styles` design system
+- **Zod** for request validation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project structure
 
-## Learn More
+```
+app/            routes + API route handlers
+components/      UI — atoms / molecules / organisms (+ barrels)
+features/        feature-scoped UI + hooks (VehiclesView, notifications, …)
+server/          backend
+  <domain>/       port.ts (interface) + actions.ts (business logic)
+  mongo/<domain>/ repository.ts (adapter) + *-doc.ts (persistence shape)
+  di/             wires repos + adapters into actions
+lib/            shared client/server utils (http, cn, toast)
+types/          domain entities — the shared contract
+scripts/        seeds
+notes/          working design notes (not the source of truth)
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Architecture
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Ports & adapters (hexagonal)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Each domain model is the same five shapes:
 
-## Deploy on Vercel
+| shape            | lives in                         | knows about               |
+| ---------------- | -------------------------------- | ------------------------- |
+| entity           | `types/<x>.ts`                   | nothing (shared contract) |
+| port (interface) | `server/<x>/port.ts`             | the entity                |
+| actions (logic)  | `server/<x>/actions.ts`          | the port, other ports     |
+| repo (adapter)   | `server/mongo/<x>/repository.ts` | Mongo + the port          |
+| doc (row shape)  | `server/mongo/<x>/*-doc.ts`      | Mongo                     |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Actions depend on **ports**, never on repos. `server/di` is the only place
+ports meet concrete Mongo adapters — swap the DB by changing DI, nothing else.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Adding a new domain model
+
+1. `types/<x>.ts` — the entity
+2. `server/<x>/port.ts` — the interface
+3. `server/mongo/<x>/{repository,*-doc}.ts` — the Mongo adapter
+4. add the collection in `server/mongo/collections.ts`
+5. wire it in `server/di`
+
+<!-- TODO: link a real example commit -->
+
+## Data model
+
+- `vehicles` — the fleet; `maintenanceResponsibleId` references a user
+- `users` — `{ id, email }`
+- `notifications` — one per recipient per send; `queued → sent | failed`
+- `controlNotifications` — junction: `{ vehicleId, controlDate, notificationId }`
+  (report "how many notified per vehicle per control")
+
+## Architecture decisions
+
+Running log — append as we decide things. Format: decision + why.
+
+### 1. Client sends identifiers; the server resolves authoritative data
+
+The client posts `{ vehicleIds }` only — never `userId`, `email`, or `euDate`.
+The server looks those up from the vehicle row.
+**Why:** trust boundary (client input is attacker-controllable — letting it pick
+recipients is a hole), freshness (server value can't be stale), and single
+source of truth (derived data stays consistent with the vehicle record).
+
+### 2. Notifications are decoupled from vehicles
+
+`ingestNotificationRequests` takes `userIds`, not `vehicleIds`. Vehicles are the
+_incidental_ reason; the recipient (a user) is _intrinsic_.
+**Why:** coupling to the reason (vehicle) would re-tie the domain every time a new
+trigger appears. Coupling to the recipient (user) is honest and reusable. The
+vehicle↔notification link lives in the `controlNotifications` junction instead.
+
+### 3. `Result` at the core, `throw` at the React-Query boundary
+
+Helpers/actions return `Result` (explicit, typed). The one place that throws is
+inside a `mutationFn`, because React Query signals failure by throwing.
+**Why:** libraries return values; the app decides where to throw. Keeps the core
+explicit while giving React Query the error contract it expects.
+
+### 4. Domain types live in neutral `types/`, not `server/`
+
+`Vehicle`, `User`, `Notification` are a contract shared by client and server.
+**Why:** they're not server code. A neutral location removes the "client imports
+from server" hazard without a re-export layer. Persistence-only shapes (`*Doc`,
+`WithTimestamps`) stay in `server/mongo`.
+
+### 5. Junction/link data gets a repo, not an actions layer
+
+`controlNotifications` is glue, not behavior.
+**Why:** the port/actions ceremony is for models that _do_ things. A pure link
+just needs write + read. The write folds into the orchestrator that already has
+both vehicle and notification context.
+
+## Notes
+
+Design scratch lives in `notes/` (e.g. `NOTIF_BACKEND.md`,
+`NOTIFICATION_IMPORTANT.md`). These are thinking-in-progress, not authoritative —
+promote settled decisions up into "Architecture decisions" above.

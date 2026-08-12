@@ -57,7 +57,8 @@ export async function lookupVehicle(
       make: teknisk?.generelt?.merke?.[0]?.merke,
       model: teknisk?.generelt?.handelsbetegnelse?.[0],
       color: teknisk?.karosseriOgLasteplan?.rFarge?.[0]?.kodeNavn,
-      firstRegistered: v?.forstegangsregistrering?.registrertForstegangNorgeDato,
+      firstRegistered:
+        v?.forstegangsregistrering?.registrertForstegangNorgeDato,
     },
   };
 }

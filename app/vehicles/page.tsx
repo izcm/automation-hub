@@ -15,13 +15,7 @@ export default async function VehiclesPage() {
 
   // todo: make generic read layer similar to applyDtos dmrkt-indexer
   // here all _id => id transforms should happen + additional stuff
-  const vehicles: Vehicle[] = page.items.map(
-    (v: { _id: string; plateNumber: string; euDate: string }) => ({
-      id: v._id,
-      plateNumber: v.plateNumber,
-      euDate: v.euDate,
-    }),
-  );
+  const vehicles: Vehicle[] = page.items;
 
   return <VehiclesView vehicles={vehicles} />;
 }

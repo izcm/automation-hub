@@ -1,4 +1,4 @@
-import { vehicles } from "../server/mongo/collections";
+import { vehicles, users } from "../server/mongo/collections";
 import type { VehicleDoc } from "../server/mongo/vehicles/vehicle-doc";
 
 const now = Date.now();
@@ -86,15 +86,30 @@ const seedVehicles = [
     euDate: "2027-06-12",
     lastEuApproved: "2025-06-12",
   },
-].map((v) => ({ ...v, createdAt: now, updatedAt: now }));
+];
 
 async function seed() {
   const col = vehicles();
 
-  await col.deleteMany({}); // wipe first so re-running is idempotent
-  const res = await col.insertMany(seedVehicles as unknown as VehicleDoc[]);
+  // Need users to assign as maintenance-responsible. Seed them first.
+  const userDocs = await users().find().toArray();
+  if (userDocs.length === 0) {
+    throw new Error("No users found — run `npm run seed:users` first.");
+  }
+  const userIds = userDocs.map((u) => u._id.toString());
 
-  console.log(`✅ seeded ${res.insertedCount} vehicles`);
+  // Round-robin the users across vehicles so each has a responsible person.
+  const docs = seedVehicles.map((v, i) => ({
+    ...v,
+    maintenanceResponsibleId: userIds[i % userIds.length],
+    createdAt: now,
+    updatedAt: now,
+  }));
+
+  await col.deleteMany({}); // wipe first so re-running is idempotent
+  const res = await col.insertMany(docs as unknown as VehicleDoc[]);
+
+  console.log(`✅ seeded ${res.insertedCount} vehicles (linked to users)`);
   process.exit(0);
 }
 

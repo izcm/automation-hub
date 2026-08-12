@@ -1,14 +1,26 @@
+import { ObjectId, WithId } from "mongodb";
 import { makeReadRepo, makeTsWrite } from "@a2zb/mongo";
 
 import { VehicleDoc } from "./vehicle-doc";
-import { VehiclePort } from "../../vehicles/port";
 
+import { VehiclePort } from "../../vehicles/port";
 import { vehicles } from "../collections";
+import { Vehicle } from "@/types/vehicle";
 
 // Data-access layer for vehicles. TODO: back these with `db`.
-const baseRead = makeReadRepo<VehicleDoc, string>(vehicles, (key) => ({
-  plateNumber: key,
-}));
+// findByKey(s) look up by id — stored as `_id` (ObjectId), so wrap the string.
+const toVehicle = ({ _id, ...doc }: WithId<VehicleDoc>) => ({
+  ...doc,
+  id: _id.toString(),
+});
+
+const baseRead = makeReadRepo<VehicleDoc, string, Vehicle>(
+  vehicles,
+  (id) => ({
+    _id: new ObjectId(id),
+  }),
+  toVehicle,
+);
 
 const write = makeTsWrite(vehicles);
 
