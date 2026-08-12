@@ -7,8 +7,7 @@ import { VehiclePort } from "../../vehicles/port";
 import { vehicles } from "../collections";
 import { Vehicle } from "@/types/vehicle";
 
-// Data-access layer for vehicles. TODO: back these with `db`.
-// findByKey(s) look up by id — stored as `_id` (ObjectId), so wrap the string.
+// transform _id => id at repo layer
 const toVehicle = ({ _id, ...doc }: WithId<VehicleDoc>) => ({
   ...doc,
   id: _id.toString(),

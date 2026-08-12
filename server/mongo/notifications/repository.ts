@@ -8,6 +8,7 @@ import { NotificationPort } from "../../notifications/port";
 import { notifications } from "../collections";
 import { NotificationDoc } from "./notification-doc";
 
+// transform _id => id at repo layer
 const toNotification = ({ _id, ...doc }: WithId<NotificationDoc>) => ({
   ...doc,
   id: _id.toString(),
@@ -31,6 +32,7 @@ export const notificationRepo: NotificationPort = {
     const now = Date.now();
     const res = await notifications().insertOne({
       ...notification,
+      status: "queued",
       createdAt: now,
       updatedAt: now,
     });

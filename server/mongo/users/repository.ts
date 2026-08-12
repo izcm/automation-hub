@@ -8,6 +8,7 @@ import { UserPort } from "../../users/port";
 import { users } from "../collections";
 import { UserDoc } from "./user-doc";
 
+// transform _id => id at repo layer
 const toUser = ({ _id, ...doc }: WithId<UserDoc>) => ({
   ...doc,
   id: _id.toString(),

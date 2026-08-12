@@ -11,6 +11,8 @@ import { userRepo } from "../mongo/users/repository";
 // actions
 import { makeVehicleActions } from "../vehicles/actions";
 import { makeNotificationActions } from "../notifications/actions";
+import { makeMessageBuilder } from "../messaging/message-builder";
+import { builders } from "../messaging/builders";
 
 export const vehicleActions = makeVehicleActions({
   vehicles: vehicleRepo,
@@ -20,5 +22,9 @@ export const vehicleActions = makeVehicleActions({
 
 export const notificationActions = makeNotificationActions({
   notifications: notificationRepo,
-  users: userRepo,
 });
+
+export const messageBuilder = makeMessageBuilder(
+  { vehicles: vehicleRepo, users: userRepo },
+  builders,
+);

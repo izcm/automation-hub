@@ -1,12 +1,17 @@
 import * as z from "zod";
 
 // todo: make read layer
-import { vehicleRepo } from "@/server/mongo/vehicles/repository";
-import { notificationActions } from "@/server/di";
+import { messageBuilder, notificationActions } from "@/server/di";
+import { CHANNEL } from "@/server/messaging/types";
+import { MESSAGE_USE_CASES } from "@/server/messaging/templates";
 
 const NotificationBatchRequest = z.object({
-  vehicleIds: z.string().array(),
-  channel: z.literal("email"),
+  // `ids` is intentionally generic — each use case decides what they refer to.
+  // eu-control-reminder treats them as vehicle IDs, while a future
+  // party-at-my-place use case could treat them as user IDs.
+  ids: z.string().array(),
+  channel: z.enum(CHANNEL),
+  useCase: z.enum(MESSAGE_USE_CASES),
 });
 
 export async function POST(request: Request) {
@@ -24,31 +29,24 @@ export async function POST(request: Request) {
   }
 
   // this service will have the vehicle ids
-  const { vehicleIds, channel } = parsed.data;
+  const { ids: vehicleIds, channel, useCase } = parsed.data;
 
   try {
-    // get mainenance responsible users
-    const data = await vehicleRepo.findByKeys(vehicleIds);
-    console.log(data);
-    const receiverIds = (await vehicleRepo.findByKeys(vehicleIds)).flatMap(
-      (v) => (v.maintenanceResponsibleId ? v.maintenanceResponsibleId : []),
-    );
-
-    console.log(receiverIds);
-
-    const result = await notificationActions.ingestNoficationRequests(
-      receiverIds,
+    const messageRequests = await messageBuilder.buildMessages(
+      vehicleIds,
       channel,
+      useCase,
     );
 
-    console.log(result);
+    const result =
+      await notificationActions.ingestNotificationRequests(messageRequests);
 
     return Response.json({ ok: true, data: result });
   } catch (error) {
     console.error("Failed to send notifications:", error);
 
     return Response.json(
-      { error: "Kunne ikke sende varsler" },
+      { error: "Could not send notifications" },
       { status: 500 },
     );
   }
