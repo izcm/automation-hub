@@ -1,8 +1,8 @@
-import { euControlReminder } from "./templates";
+import { euInspectionReminder } from "./templates";
 import { Builders, getContact } from "./message-builder";
 
 export const builders: Builders = {
-  "eu-control-reminder": async ({ vehicles, users }, { ids, channel }) => {
+  "eu-inspection-reminder": async ({ vehicles, users }, { ids, channel }) => {
     const relevantVehicles = await vehicles.findByKeys(ids);
     const targets = relevantVehicles.flatMap((v) =>
       v.maintenanceResponsibleId && v.euDate
@@ -25,7 +25,7 @@ export const builders: Builders = {
         return {
           to: getContact[channel](user),
           channel,
-          ...euControlReminder(target.plateNumber, target.euDate),
+          ...euInspectionReminder(target.plateNumber, target.euDate),
         };
       }),
     );

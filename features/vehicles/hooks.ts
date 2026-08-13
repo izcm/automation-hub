@@ -7,7 +7,7 @@ export function useAddVehicle() {
   return useMutation({
     mutationFn: (plateNumber: string) =>
       postJson("/api/vehicles", { plateNumber }),
-    onSuccess: () => confirmWith("Kjøretøy lagt til"),
-    onError: (error) => rejectWith("Det har skjedd en feil", error.message),
+    onSuccess: () => confirmWith("Vehicle added"),
+    onError: (error) => rejectWith("Something went wrong", error.message),
   });
 }

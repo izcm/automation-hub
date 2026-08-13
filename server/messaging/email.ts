@@ -39,7 +39,7 @@ function getSender() {
 
 export async function sendEmail({ to, subject, text, html }: MessageRequest) {
   await getSender().sendMail({
-    from: "SoftwareHouse <varsling@softwarehouse.no>",
+    from: `SoftwareHouse <${getEmailConfig().user}>`,
     to,
     subject,
     text,

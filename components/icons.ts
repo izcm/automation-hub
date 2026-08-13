@@ -2,7 +2,6 @@
 // To swap an icon, change only the right-hand side; call sites stay the same.
 export {
   LogOut as LogOutIcon,
-  CarFront as NewVehicleIcon,
   Car as VehicleIcon,
   Sun as LightThemeIcon,
   Moon as DarkThemeIcon,
@@ -11,6 +10,8 @@ export {
   Search as LookupIcon,
   SlidersHorizontal as Filter,
   Send as NotifyIcon,
+  ArrowLeft as BackIcon,
+  ChevronDown as ChevronDownIcon,
   ChevronLeft as PrevIcon,
   ChevronRight as NextIcon,
   Plus,

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTheme } from "@a2zb/react";
-import { TAB } from "@features/tab-config";
+import { LABELS } from "@features/labels";
 import { DarkThemeIcon, LightThemeIcon } from "../icons";
 
 // useTheme() reads localStorage during render, which isn't available during
@@ -14,8 +14,12 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <button className="btn btn-menu border-accent-weak/60" aria-hidden>
-        {TAB.theme.toDark}
+      <button
+        className="btn btn-menu gap-2"
+        aria-hidden
+      >
+        <DarkThemeIcon size={16} />
+        {LABELS.theme.toDark}
       </button>
     );
   }
@@ -28,11 +32,11 @@ function ThemeToggleInner() {
 
   return (
     <button
-      className="btn btn-menu border-accent-weak/60 flex items-center gap-2"
+      className="btn btn-menu gap-2"
       onClick={() => applyTheme(isDark ? "upbeat" : "upbeat-dark")}
     >
       {isDark ? <LightThemeIcon size={16} /> : <DarkThemeIcon size={16} />}
-      {isDark ? TAB.theme.toLight : TAB.theme.toDark}
+      {isDark ? LABELS.theme.toLight : LABELS.theme.toDark}
     </button>
   );
 }

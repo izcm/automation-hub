@@ -99,7 +99,9 @@ body {
 }
 
 .btn-menu {
+  @apply border-accent-weak/60 items-center justify-start;
   font-weight: 400;
+  text-align: start;
 }
 
 .text-input {

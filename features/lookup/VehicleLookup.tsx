@@ -46,14 +46,14 @@ export function VehicleLookup({ onDone }: Props) {
       const body = await res.json();
 
       if (!res.ok) {
-        rejectWith("Noe galt skjedde", body.error);
+        rejectWith("Something went wrong", body.error);
         vehicle = null;
       } else {
         vehicle = body;
       }
     } catch {
       // config errors
-      rejectWith("Kontakt IT Support", "Noe gikk galt");
+      rejectWith("Contact IT Support", "Something went wrong");
       vehicle = null;
     }
 
@@ -68,17 +68,17 @@ export function VehicleLookup({ onDone }: Props) {
   if (vehicle) {
     return (
       <div className="flex flex-col gap-3">
-        <h2 className="text-subtle">Riktig kjøretøy?</h2>
+        <h2 className="text-subtle">Correct vehicle?</h2>
 
         <Details
           item={vehicle}
           detailsFields={[
-            { label: "Kjennemerke", getValue: (v) => v.reg },
-            { label: "Merke", getValue: (v) => v.make },
-            { label: "Modell", getValue: (v) => v.model },
-            { label: "Farge", getValue: (v) => v.color },
+            { label: "Plate number", getValue: (v) => v.reg },
+            { label: "Make", getValue: (v) => v.make },
+            { label: "Model", getValue: (v) => v.model },
+            { label: "Color", getValue: (v) => v.color },
             {
-              label: "Førstegangsregistrert",
+              label: "First registered",
               getValue: (v) => v.firstRegistered,
             },
           ]}
@@ -89,7 +89,7 @@ export function VehicleLookup({ onDone }: Props) {
             className="btn btn-ghost flex-1"
             onClick={() => setVehicle(null)}
           >
-            Nei
+            No
           </button>
           <button
             ref={(el) => {
@@ -98,7 +98,7 @@ export function VehicleLookup({ onDone }: Props) {
             className="btn btn-primary flex-1"
             onClick={() => onDone(vehicle.reg)}
           >
-            Ja
+            Yes
           </button>
         </div>
       </div>
@@ -108,23 +108,23 @@ export function VehicleLookup({ onDone }: Props) {
   return (
     <>
       <TextInput
-        placeholder="REGNUMMER"
+        placeholder="PLATE NUMBER"
         ref={(el) => {
           focusRef.current = el;
         }}
         onSubmit={handleLookup}
       />
       {hasError && (
-        <span className="text-warning">Må være 2 bokstaver + 5 tall</span>
+        <span className="text-warning">Must be 2 letters + 5 digits</span>
       )}
       {loading ? (
         <button className="btn btn-ghost flex gap-3">
           <Spinner />
-          <span>Henter kjøretøy</span>
+          <span>Fetching vehicle</span>
         </button>
       ) : (
         <button className="btn btn-primary" onClick={handleLookup}>
-          Hent kjøretøy
+          Fetch vehicle
         </button>
       )}
     </>

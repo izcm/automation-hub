@@ -1,22 +1,34 @@
 import Link from "next/link";
-import { TAB } from "@features/tab-config";
+import { LABELS } from "@features/labels";
 import { ThemeToggle } from "@/components/organisms/ThemeToggle";
 
 export default function Home() {
   return (
-    <main className="mx-auto w-full max-w-5xl flex flex-1 flex-col items-center justify-center gap-8 p-4 text-center">
+    <main className="mx-auto flex flex-1 flex-col flex-center gap-8">
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
 
-      <h1 className="text-hero font-semibold text-fg">{TAB.title}</h1>
-      <p className="max-w-md text-subtle">
-        Hold oversikt over kjøretøy og kommende EU-kontroller.
-      </p>
+      <div className="flex flex-col items-center gap-3">
+        <h1 className="text-hero font-semibold tracking-tight text-fg">
+          {LABELS.appTitle}
+        </h1>
+        <p className="max-w-sm text-sm text-subtle text-balance">
+          {LABELS.home.tagline}
+        </p>
+      </div>
 
-      <Link href="/vehicles" className="btn btn-menu border-accent-weak/60">
-        Gå til kjøretøy
-      </Link>
+      <div className="flex w-full max-w-xs flex-col gap-2">
+        <Link
+          href="/eu-inspections"
+          className="btn btn-menu w-full !flex-center"
+        >
+          {LABELS.home.goToEuInspections}
+        </Link>
+        <Link href="/vehicles" className="btn btn-menu w-full !flex-center">
+          {LABELS.home.goToVehicles}
+        </Link>
+      </div>
     </main>
   );
 }

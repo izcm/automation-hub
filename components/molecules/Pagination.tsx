@@ -9,7 +9,7 @@ type Props = {
   total: number;
   pageSize: number;
   onChange: (page: number) => void;
-  // "Viser 1–25 av 100" — injected so the generic component stays language-agnostic
+  // "Showing 1–25 of 100" — injected so the generic component stays language-agnostic
   label?: (from: number, to: number, total: number) => ReactNode;
 };
 

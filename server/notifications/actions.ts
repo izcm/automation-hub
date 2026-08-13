@@ -47,10 +47,8 @@ export const makeNotificationActions = ({
     await Promise.all(
       requests.map(async ({ id, ...req }) => {
         try {
-          console.log("wtf?");
           await sendEmail(req);
           await notifications.update(id, { status: "sent" });
-          console.log("wtf???");
         } catch (err) {
           await notifications.update(id, {
             status: "failed",
