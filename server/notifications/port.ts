@@ -9,4 +9,7 @@ export interface NotificationPort extends ByKey<Notification, string> {
 
   /** Insert many at once. Returns their Mongo ids, in input order. */
   saveBatch(batch: NewNotification[]): Promise<{ ids: string[] }>;
+
+  /** Patch a notification by id (e.g. mark sent/failed). */
+  update(id: string, fields: Partial<Notification>): Promise<void>;
 }

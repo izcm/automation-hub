@@ -1,4 +1,4 @@
-export const MESSAGE_USE_CASES = ["eu-controll-reminder"] as const;
+export const MESSAGE_USE_CASES = ["eu-control-reminder"] as const;
 
 export type MessageUseCase = (typeof MESSAGE_USE_CASES)[number];
 

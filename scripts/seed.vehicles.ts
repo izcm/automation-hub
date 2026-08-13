@@ -1,5 +1,6 @@
 import { vehicles, users } from "../server/mongo/collections";
 import type { VehicleDoc } from "../server/mongo/vehicles/vehicle-doc";
+import { generateId } from "../server/shared/id";
 
 const now = Date.now();
 
@@ -96,11 +97,12 @@ async function seed() {
   if (userDocs.length === 0) {
     throw new Error("No users found — run `npm run seed:users` first.");
   }
-  const userIds = userDocs.map((u) => u._id.toString());
+  const userIds = userDocs.map((u) => u.id);
 
   // Round-robin the users across vehicles so each has a responsible person.
   const docs = seedVehicles.map((v, i) => ({
     ...v,
+    id: generateId(),
     maintenanceResponsibleId: userIds[i % userIds.length],
     createdAt: now,
     updatedAt: now,

@@ -1,4 +1,4 @@
-import { ObjectId, WithId } from "mongodb";
+import { WithId } from "mongodb";
 import { makeReadRepo, makeTsWrite } from "@a2zb/mongo";
 
 import { User } from "@/types/user";
@@ -11,13 +11,12 @@ import { UserDoc } from "./user-doc";
 // transform _id => id at repo layer
 const toUser = ({ _id, ...doc }: WithId<UserDoc>) => ({
   ...doc,
-  id: _id.toString(),
 });
 
-// Read commons — keyed by id (_id).
+// Read commons — keyed by our own `id` field (not Mongo's `_id`).
 const baseRead = makeReadRepo<UserDoc, string, User>(
   users,
-  (id) => ({ _id: new ObjectId(id) }),
+  (id) => ({ id }),
   toUser,
 );
 
@@ -28,18 +27,18 @@ export const userRepo: UserPort = {
   ...baseRead,
 
   // === write ===
-  ensure: async function (email): Promise<{ id: string }> {
+  ensure: async function (email, id): Promise<{ id: string }> {
     const res = await write.updateOne(
       { email },
-      { $setOnInsert: {} },
+      { $setOnInsert: { id } },
       { upsert: true },
     );
 
-    const id =
-      res.upsertedId?.toString() ??
-      (await users().findOne({ email }))?._id?.toString() ??
-      "";
+    // inserted -> the id we assigned; matched -> its stored id
+    const resolvedId = res.upsertedCount
+      ? id
+      : ((await users().findOne({ email }))?.id ?? "");
 
-    return { id };
+    return { id: resolvedId };
   },
 };

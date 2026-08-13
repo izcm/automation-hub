@@ -1,9 +1,8 @@
 import { euControlReminder } from "./templates";
 import { Builders, getContact } from "./message-builder";
-import { MessageRequest } from "./types";
 
 export const builders: Builders = {
-  "eu-controll-reminder": async ({ vehicles, users }, { ids, channel }) => {
+  "eu-control-reminder": async ({ vehicles, users }, { ids, channel }) => {
     const relevantVehicles = await vehicles.findByKeys(ids);
     const targets = relevantVehicles.flatMap((v) =>
       v.maintenanceResponsibleId && v.euDate
@@ -32,7 +31,7 @@ export const builders: Builders = {
     );
 
     return maybeRequests.filter(
-      (req): req is MessageRequest => req !== undefined,
+      (req): req is NonNullable<typeof req> => req !== undefined,
     );
   },
 };

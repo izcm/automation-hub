@@ -1,5 +1,6 @@
 import { users } from "../server/mongo/collections";
 import type { UserDoc } from "../server/mongo/users/user-doc";
+import { generateId } from "../server/shared/id";
 
 // All demo users point at your own inbox so every notification lands with you.
 // Pass as an arg (`npm run seed:users -- you@example.com`) or set SEED_EMAIL.
@@ -10,6 +11,7 @@ if (!email)
 const now = Date.now();
 
 const seedUsers = Array.from({ length: 4 }, () => ({
+  id: generateId(),
   email,
   createdAt: now,
   updatedAt: now,

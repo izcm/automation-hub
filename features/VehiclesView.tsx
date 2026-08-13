@@ -143,15 +143,12 @@ export function VehiclesView({ vehicles }: Props) {
               {
                 label: `Varsle ${batchSelected.length} sjåfører`,
                 icon: <NotifyIcon size={15} />,
-                onClick: (ids) => {
-                  // const receivers: string[] = [];
-                  // ids.forEach((id) => {
-                  //   const x = items.find(
-                  //     (item) => item.id === id,
-                  //   )?.maintenanceResponsibleId;
-                  //   if (x !== undefined) receivers.push(x);
-                  // });
-                  sendNotifs.mutate(ids);
+                onClick: (vehicleIds) => {
+                  sendNotifs.mutate({
+                    ids: vehicleIds,
+                    channel: "email",
+                    useCase: "eu-control-reminder",
+                  });
                 },
               },
             ]}

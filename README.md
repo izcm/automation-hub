@@ -121,6 +121,30 @@ from server" hazard without a re-export layer. Persistence-only shapes (`*Doc`,
 just needs write + read. The write folds into the orchestrator that already has
 both vehicle and notification context.
 
+### 6. Domain ids are app-generated UUIDs, not DB-assigned keys
+
+Every domain object gets a UUID generated **before** it's written, used as the
+document's `_id`:
+
+```ts
+const queued: NewNotification[] = requests.map((req) => ({
+  id: crypto.randomUUID(), // assigned here, before saveBatch — not by Mongo
+  to: req.to,
+  channel: req.channel,
+}));
+
+await notifications.saveBatch(queued);
+// each request already carries its own id — no need to zip on ids[i]
+```
+
+**Why:** correlating a saved row back to its request must not depend on the
+database returning rows _in input order_. Mongo's `insertMany` happens to
+guarantee that (`insertedIds` is index-keyed), but Postgres `RETURNING`,
+MySQL `LAST_INSERT_ID`, and most ORMs give weaker or no such promise. Generating
+the id app-side removes the dependency entirely: the id is known up front, travels
+_with_ each record, and the `NotificationActions` layer works identically on any
+database — no positional `ids[i]` zipping, no ordering assumption to break later.
+
 ## Notes
 
 Design scratch lives in `notes/` (e.g. `NOTIF_BACKEND.md`,

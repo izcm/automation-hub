@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { MessageRequest } from "./types";
 
 function getEmailConfig() {
   const host = process.env.EMAIL_HOST;
@@ -16,28 +17,28 @@ function getEmailConfig() {
   };
 }
 
-const config = getEmailConfig();
+let sender: nodemailer.Transporter | undefined;
 
-const sender = nodemailer.createTransport({
-  host: config.host,
-  port: 465,
-  secure: false,
-  auth: {
-    user: config.user,
-    pass: config.pass,
-  },
-});
+// built on first send, not at import — a missing config fails the send
+// (caught upstream), instead of crashing every module that imports this
+function getSender() {
+  if (!sender) {
+    const config = getEmailConfig();
+    sender = nodemailer.createTransport({
+      host: config.host,
+      port: 465,
+      secure: true,
+      auth: {
+        user: config.user,
+        pass: config.pass,
+      },
+    });
+  }
+  return sender;
+}
 
-type SendEmailArgs = {
-  from: string;
-  to: string;
-  subject: string;
-  text: string;
-  html?: string;
-};
-
-export async function sendEmail({ to, subject, text, html }: SendEmailArgs) {
-  await sender.sendMail({
+export async function sendEmail({ to, subject, text, html }: MessageRequest) {
+  await getSender().sendMail({
     from: "SoftwareHouse <varsling@softwarehouse.no>",
     to,
     subject,

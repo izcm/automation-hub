@@ -1,4 +1,4 @@
-import { ObjectId, WithId } from "mongodb";
+import { WithId } from "mongodb";
 import { makeReadRepo, makeTsWrite } from "@a2zb/mongo";
 
 import { VehicleDoc } from "./vehicle-doc";
@@ -10,14 +10,11 @@ import { Vehicle } from "@/types/vehicle";
 // transform _id => id at repo layer
 const toVehicle = ({ _id, ...doc }: WithId<VehicleDoc>) => ({
   ...doc,
-  id: _id.toString(),
 });
 
 const baseRead = makeReadRepo<VehicleDoc, string, Vehicle>(
   vehicles,
-  (id) => ({
-    _id: new ObjectId(id),
-  }),
+  (id) => ({ id }),
   toVehicle,
 );
 
@@ -30,19 +27,21 @@ export const vehicleRepo: VehiclePort = {
   // === write ===
   ensure: async function (
     plateNumber,
+    id,
   ): Promise<{ id: string; didUpsert: boolean }> {
     const res = await write.updateOne(
       { plateNumber },
-      { $setOnInsert: { withSvvData: false } },
+      { $setOnInsert: { id, withSvvData: false } },
       { upsert: true },
     );
 
-    const id =
-      res.upsertedId?.toString() ??
-      (await vehicles().findOne({ plateNumber }))?._id?.toString() ??
-      "";
+    const didUpsert = !!res.upsertedCount;
+    // inserted -> the id we assigned; matched -> its stored id
+    const resolvedId = didUpsert
+      ? id
+      : ((await vehicles().findOne({ plateNumber }))?.id ?? "");
 
-    return { id, didUpsert: !!res.upsertedCount };
+    return { id: resolvedId, didUpsert };
   },
 
   enrich: async function (plateNumber, fields) {

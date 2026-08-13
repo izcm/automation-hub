@@ -12,6 +12,7 @@ export type Notification = {
 };
 
 export type NewNotification = {
+  id: string;
   to: string;
   channel: Channel;
 };
