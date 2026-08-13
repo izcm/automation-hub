@@ -10,7 +10,11 @@ type Props = {
   filterLabel: string;
 };
 
-export function FilterBar({ searchPlaceholder, applyLabel, filterLabel }: Props) {
+export function FilterBar({
+  searchPlaceholder,
+  applyLabel,
+  filterLabel,
+}: Props) {
   return (
     <div className="flex gap-3 flex-1">
       <TextInput

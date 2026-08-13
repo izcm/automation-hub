@@ -4,17 +4,11 @@ import { ReactNode, useState } from "react";
 import { Gallery } from "@a2zb/react";
 
 import { Pagination } from "@/components/molecules";
-import {
-  BatchAction,
-  BatchSelect,
-  FilterBar,
-  Header,
-} from "@/components/organisms";
+import { BatchAction, BatchSelect, FilterBar } from "@/components/organisms";
 
 const PAGE_SIZE = 25;
 
 export type ResourceManagementLabels = {
-  heading: string;
   searchBar: {
     placeholder: string;
     apply: string;
@@ -53,9 +47,7 @@ export function ResourceManagementView<T>({
   const pageItems = items.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
-    <div className="flex flex-col gap-4 w-full max-w-4xl mx-auto">
-      <Header hasBack title={labels.heading} />
-
+    <>
       <div className="flex gap-3 h-10">
         <FilterBar
           searchPlaceholder={labels.searchBar.placeholder}
@@ -98,6 +90,6 @@ export function ResourceManagementView<T>({
         onChange={setPage}
         label={labels.pagination.showing}
       />
-    </div>
+    </>
   );
 }

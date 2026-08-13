@@ -1,0 +1,9 @@
+/* flex + center on both axes */
+@utility flex-center {
+  @apply flex items-center justify-center;
+}
+
+/* page body for a resource list — centered vertical stack (header + list) */
+@utility resource-page {
+  @apply flex flex-col gap-4 max-w-4xl mx-auto p-2 mt-2;
+}

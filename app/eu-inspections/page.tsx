@@ -14,10 +14,8 @@ export default async function EuInspectionsPage() {
     .sort((a, b) => a.euDate.localeCompare(b.euDate));
 
   return (
-    <PageLayout>
-      <main>
-        <EUInspectionView vehicles={items} />
-      </main>
-    </PageLayout>
+    <main>
+      <EUInspectionView vehicles={items} />
+    </main>
   );
 }

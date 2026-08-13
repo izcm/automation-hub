@@ -9,6 +9,7 @@ import {
   WorkspaceLayout,
   WorkspacePanel,
   ResourceManagementView,
+  Header,
 } from "@/components/organisms";
 
 import { LABELS, listViewLabels } from "@/features/labels";
@@ -32,40 +33,50 @@ export function VehiclesView({ vehicles }: Props) {
     <>
       <main>
         <WorkspaceLayout open={active !== undefined}>
-          <ResourceManagementView
-            items={vehicles}
-            getId={(v) => v.id}
-            labels={listViewLabels}
-            listItem={(v) => (
-              <VehicleCard vehicle={v} onOpenInWorkspace={() => setActive(v)} />
-            )}
-          />
+          <div className="resource-page">
+            <Header hasBack title={LABELS.vehicles.heading} />
+
+            <ResourceManagementView
+              items={vehicles}
+              getId={(v) => v.id}
+              labels={listViewLabels}
+              listItem={(v) => (
+                <VehicleCard
+                  vehicle={v}
+                  onOpenInWorkspace={() => setActive(v)}
+                />
+              )}
+            />
+          </div>
 
           <WorkspacePanel onClose={() => setActive(undefined)}>
-          <header className="flex flex-col gap-1 pr-10">
-            <span className="text-[11px] font-medium uppercase tracking-[0.15em] text-muted">
-              Vehicle
-            </span>
-            <h2 className="text-lg font-semibold text-fg">
-              {active?.plateNumber}
-            </h2>
-          </header>
+            <header className="flex flex-col gap-1 pr-10">
+              <span className="text-[11px] font-medium uppercase tracking-[0.15em] text-muted">
+                Vehicle
+              </span>
+              <h2 className="text-lg font-semibold text-fg">
+                {active?.plateNumber}
+              </h2>
+            </header>
 
-          <div className="mt-8 flex flex-col gap-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex items-center justify-between gap-4">
-                <div className="h-3 w-20 rounded bg-line" />
-                <div className="h-3 w-28 rounded bg-line" />
-              </div>
-            ))}
-          </div>
+            <div className="mt-8 flex flex-col gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between gap-4"
+                >
+                  <div className="h-3 w-20 rounded bg-line" />
+                  <div className="h-3 w-28 rounded bg-line" />
+                </div>
+              ))}
+            </div>
 
-          <hr className="my-8 border-line" />
+            <hr className="my-8 border-line" />
 
-          <div className="flex flex-col gap-3">
-            <div className="h-3 w-24 rounded bg-line" />
-            <div className="h-24 w-full rounded-lg bg-line/70" />
-          </div>
+            <div className="flex flex-col gap-3">
+              <div className="h-3 w-24 rounded bg-line" />
+              <div className="h-24 w-full rounded-lg bg-line/70" />
+            </div>
           </WorkspacePanel>
         </WorkspaceLayout>
       </main>

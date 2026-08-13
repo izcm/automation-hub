@@ -1,0 +1,84 @@
+/* Map the Geist fonts loaded in layout.tsx onto the a2zb tokens */
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* ---------------------------------------------------------------------------
+ * Custom themes. Variable names must match exactly — the @theme mapping in
+ * node_modules/@a2zb/styles/theme.css references them literally.
+ * ------------------------------------------------------------------------- */
+
+/* upbeat — light: cool concrete + orange */
+:root[data-theme="upbeat"] {
+  color-scheme: light;
+
+  /* cool concrete canvas; cards (raised) sit a step brighter on top */
+  --base: #e7e9ec;
+  --raised: #f5f6f8;
+
+  --fg: rgba(23, 26, 31, 0.94);
+  --subtle: rgba(23, 26, 31, 0.66);
+  --muted: rgba(23, 26, 31, 0.5);
+  --faint: rgba(23, 26, 31, 0.32);
+
+  --line: rgba(23, 26, 31, 0.13);
+
+  /* accent → text/bg/border-accent (+ -strong / -weak) */
+  --accent: #ff7a1a;
+  --accent-strong: #e85d00;
+  --accent-weak: rgba(255, 122, 26, 0.6);
+  --accent-neutral: #ffab5c;
+  --accent-neutral-weak: rgba(255, 171, 92, 0.5);
+
+  /* status → success / warning / failure (+ -weak) */
+  --success: #12a150;
+  --success-weak: rgba(18, 161, 80, 0.55);
+  --warning: #d99400;
+  --warning-weak: rgba(217, 148, 0, 0.55);
+  --failure: #e5484d;
+  --failure-weak: rgba(229, 72, 77, 0.6);
+
+  --panel-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+/* upbeat-dark — dark: dark grey + orange */
+:root[data-theme="upbeat-dark"] {
+  color-scheme: dark;
+
+  --base: #16171a;
+  --raised: #191b1e;
+
+  --fg: rgba(238, 236, 233, 0.94);
+  --subtle: rgba(210, 208, 204, 0.75);
+  --muted: rgba(180, 178, 174, 0.6);
+  --faint: rgba(180, 178, 174, 0.4);
+
+  --line: rgba(255, 255, 255, 0.14);
+
+  /* accent → text/bg/border-accent (+ -strong / -weak) */
+  --accent: #ff8a3d;
+  --accent-strong: #ffa866;
+  --accent-weak: rgba(255, 138, 61, 0.6);
+  --accent-neutral: #ffb066;
+  --accent-neutral-weak: rgba(255, 176, 102, 0.5);
+
+  /* status → success / warning / failure (+ -weak) */
+  --success: #4cff9a;
+  --success-weak: rgba(76, 255, 154, 0.6);
+  --warning: #ffc12f;
+  --warning-weak: rgba(255, 193, 47, 0.6);
+  --failure: #ff5470;
+  --failure-weak: rgba(255, 84, 112, 0.6);
+
+  --panel-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.35), 0 0 20px rgba(255, 138, 61, 0.08);
+}
+
+/* Landing background — swaps with the active theme (set on :root by the toggle) */
+:root[data-theme="upbeat"] .landing-bg {
+  background-image: url("/landing-light.png");
+}
+:root[data-theme="upbeat-dark"] .landing-bg {
+  background-image: url("/landing-dark.png");
+}

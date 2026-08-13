@@ -24,6 +24,7 @@ type Props<T> = {
   actions?: BatchAction[];
   selectedLabel?: (count: number) => ReactNode;
   clearLabel?: string;
+  selfManagesCheckbox?: boolean;
 };
 
 export function BatchSelect<T>({
@@ -38,6 +39,7 @@ export function BatchSelect<T>({
   actions = [],
   selectedLabel = (n) => `${n} selected`,
   clearLabel = "Clear",
+  selfManagesCheckbox = false,
 }: Props<T>) {
   // prev includes selected id
   // true -> filter it out (unselect)
@@ -87,17 +89,45 @@ export function BatchSelect<T>({
         getId={getId}
         selected={selected}
         onSelect={onSelect}
-        itemClassName={(isSelected) =>
+        itemClassName={(isSelected, isFresh) =>
           cn(
-            "border-faint/60 bg-raised hover:bg-raised hover:border hover:border-accent",
+            "group",
+            // "border-faint/60 bg-raised hover:bg-raised hover:border hover:border-accent",
             className?.(isSelected),
           )
         }
+        bareRows
         galleryItem={(item) => {
           const picked = batchSelected.includes(getId(item));
           return (
-            <div onClick={() => toggle(getId(item))}>
-              {galleryItem(item, picked, batchSelected.length)}
+            <div
+              onClick={() => toggle(getId(item))}
+              className="flex items-center gap-3"
+            >
+              {/* row keeps its own classes here, as its own flex child.
+                  group-hover highlights only this child, not the checkbox 
+                  for separate design set `bareRows`*/}
+              <div
+                className={cn(
+                  // layout
+                  "min-w-0 flex-1",
+                  // surface
+                  "rounded-lg border border-faint bg-raised",
+                  // interaction
+                  "cursor-pointer transition group-hover:border-accent",
+                )}
+              >
+                {galleryItem(item, picked, batchSelected.length)}
+              </div>
+
+              {!selfManagesCheckbox && (
+                <input
+                  type="checkbox"
+                  checked={picked}
+                  readOnly
+                  className="cursor-pointer h-4 w-8 shrink-0"
+                />
+              )}
             </div>
           );
         }}

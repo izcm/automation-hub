@@ -16,13 +16,13 @@ function LandingLink({
   return (
     <Link
       href={href}
-      className="btn btn-menu bg-black/60 h-12 w-full flex !justify-between !border-accent/30"
+      className="btn bg-black/60 h-12 w-full flex justify-between border-accent/40 rounded-xl transition-colors hover:bg-black/50 hover:border-accent/60"
     >
-      <span className="flex gap-3 flex-center">
+      <span className="flex gap-3 flex-center text-accent">
         {icon}
         {children}
       </span>
-      <ChevronRight size="16" stroke="var(--subtle)" />
+      <ChevronRight size="16" stroke="white" />
     </Link>
   );
 }
@@ -31,19 +31,16 @@ export default function Home() {
   return (
     <main
       className="
-        force-dark relative isolate
+        relative isolate
         flex flex-1 flex-col gap-8 overflow-hidden
         items-center lg:items-start justify-center lg:text-start 
         "
     >
-      {/* background */}
-      <div
-        className="absolute inset-0 -z-10 bg-cover bg-center bg-no-repeat opacity-60"
-        style={{ backgroundImage: "url('/landing-brighter.png')" }}
-      />
+      {/* background — image swaps with the active theme */}
+      <div className="landing-bg absolute inset-0 -z-10 bg-cover bg-center bg-no-repeat" />
 
       {/* subtle black wash */}
-      <div className="absolute inset-0 -z-10 bg-black/40" />
+      <div className="absolute inset-0 -z-10 bg-black/12" />
 
       <div className="flex flex-col items-center lg:items-start gap-10 w-sm lg:ml-32">
         <div className="flex flex-col gap-3">
@@ -60,14 +57,14 @@ export default function Home() {
         <div className="flex w-full flex-col gap-3 max-w-64">
           <LandingLink
             href="/eu-inspections"
-            icon={<Inspection stroke="var(--fg)" strokeWidth={1} />}
+            icon={<Inspection stroke="white" strokeWidth={1} />}
           >
             {LABELS.home.goToEuInspections}
           </LandingLink>
 
           <LandingLink
             href="/vehicles"
-            icon={<Truck stroke="var(--fg)" strokeWidth={1} />}
+            icon={<Truck stroke="white" strokeWidth={1} />}
           >
             {LABELS.home.goToVehicles}
           </LandingLink>

@@ -51,7 +51,6 @@ export const LABELS = {
 
 // Reusable ResourceManagementView labels (currently the EU-inspection copy).
 export const listViewLabels: ResourceManagementLabels = {
-  heading: LABELS.header.heading,
   searchBar: {
     placeholder: LABELS.toolbar.searchPlaceholder,
     apply: LABELS.toolbar.apply,

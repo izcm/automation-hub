@@ -1,0 +1,19 @@
+:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--base),
+    0 0 0 3px var(--accent);
+}
+
+body {
+  background: var(--base);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  /* guarantees ≥24px at the top; margins collapse (max, not sum), so it never
+     stacks on top of a page whose first child already has more top spacing */
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
+}
