@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
-import { NextIcon, PrevIcon } from "@components/icons";
+import { Next, Prev } from "@components/icons";
 
 type Props = {
   page: number;
@@ -39,7 +39,7 @@ export function Pagination({
           onClick={() => onChange(page - 1)}
           aria-label="Previous page"
         >
-          <PrevIcon size={16} />
+          <Prev size={16} />
         </button>
 
         {pages.map((p) => (
@@ -59,7 +59,7 @@ export function Pagination({
           onClick={() => onChange(page + 1)}
           aria-label="Next page"
         >
-          <NextIcon size={16} />
+          <Next size={16} />
         </button>
       </div>
 

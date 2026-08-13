@@ -3,7 +3,7 @@ import { Gallery } from "@a2zb/react";
 import { cn } from "@/lib/cn";
 
 export type BatchAction = {
-  label: string;
+  label: ReactNode | ((count: number) => ReactNode);
   onClick: (ids: string[]) => void;
   icon?: ReactNode;
   className?: string;
@@ -18,15 +18,15 @@ type Props<T> = {
   selected?: T;
   onSelect: (item: T) => void;
   className?: (isSelected: boolean) => string;
-  // parent renders the row; we hand it `picked` and own the toggle
-  galleryItem: (item: T, picked: boolean) => ReactNode;
+  // parent renders the row; we hand it `picked`, the selected count, and own the toggle
+  galleryItem: (item: T, picked: boolean, selectedCount: number) => ReactNode;
   // action bar (shown once ≥1 item is selected)
   actions?: BatchAction[];
   selectedLabel?: (count: number) => ReactNode;
   clearLabel?: string;
 };
 
-export function BatchSelect<T extends { id: string }>({
+export function BatchSelect<T>({
   getId,
   items,
   setBatchSelected,
@@ -73,7 +73,9 @@ export function BatchSelect<T extends { id: string }>({
                 }
               >
                 {action.icon}
-                {action.label}
+                {typeof action.label === "function"
+                  ? action.label(batchSelected.length)
+                  : action.label}
               </button>
             ))}
           </div>
@@ -95,7 +97,7 @@ export function BatchSelect<T extends { id: string }>({
           const picked = batchSelected.includes(getId(item));
           return (
             <div onClick={() => toggle(getId(item))}>
-              {galleryItem(item, picked)}
+              {galleryItem(item, picked, batchSelected.length)}
             </div>
           );
         }}

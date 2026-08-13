@@ -5,9 +5,5 @@ type Props = {
 };
 
 export function PageLayout({ children }: Props) {
-  return (
-    <main className="mx-auto w-full max-w-4xl flex flex-col gap-4 p-4">
-      {children}
-    </main>
-  );
+  return <div className="mt-4 p-1">{children}</div>;
 }

@@ -14,7 +14,7 @@ export function useSendNotifications() {
       useCase: string; // api layer verifies with zod
       channel: string; // api layer verifies with zod
     }) => postJson("/api/notifications", { ids, channel, useCase }),
-    onSuccess: () => confirmWith("Notifications sent"),
+    onSuccess: () => confirmWith("Server queued notifications"),
     onError: (error) => rejectWith("Something went wrong", error.message),
   });
 }

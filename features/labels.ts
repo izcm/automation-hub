@@ -1,7 +1,9 @@
+import type { ResourceManagementLabels } from "@/components/organisms/ResourceManagementView";
+
 // UI copy — one place for every display string.
 // Interpolated strings are functions so they stay easy to adjust.
 export const LABELS = {
-  appTitle: "Roady",
+  appTitle: "Mile",
 
   home: {
     tagline: "Keep track of vehicles and upcoming EU Inspections.",
@@ -46,3 +48,20 @@ export const LABELS = {
     cancel: "Cancel",
   },
 } as const;
+
+// Reusable ResourceManagementView labels (currently the EU-inspection copy).
+export const listViewLabels: ResourceManagementLabels = {
+  heading: LABELS.header.heading,
+  searchBar: {
+    placeholder: LABELS.toolbar.searchPlaceholder,
+    apply: LABELS.toolbar.apply,
+    filter: LABELS.toolbar.filter,
+  },
+  batching: {
+    selected: LABELS.list.selected,
+    clearSelection: LABELS.list.clearSelection,
+  },
+  pagination: {
+    showing: LABELS.list.showing,
+  },
+};

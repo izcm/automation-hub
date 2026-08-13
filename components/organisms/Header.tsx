@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Popover } from "@a2zb/react";
 
 import { LABELS } from "@features/labels";
-import { BackIcon, ChevronDownIcon, LogOutIcon } from "../icons";
+import { Back, ChevronDown, LogOut } from "../icons";
 import { ThemeToggle } from "./ThemeToggle";
 
 type Props = {
@@ -14,10 +14,10 @@ type Props = {
 
 export function Header({ hasBack, title }: Props) {
   return (
-    <div className="relative flex items-center justify-between mt-2">
+    <div className="relative flex items-center justify-between">
       {hasBack ? (
         <Link href="/" className="btn btn-menu" aria-label={LABELS.header.back}>
-          <BackIcon size={16} />
+          <Back size={16} />
         </Link>
       ) : (
         <span />
@@ -33,14 +33,14 @@ export function Header({ hasBack, title }: Props) {
         align="right"
         trigger={
           <button className="btn btn-menu" aria-label={LABELS.header.menu}>
-            <ChevronDownIcon size={16} />
+            <ChevronDown size={16} />
           </button>
         }
       >
         <div className="flex flex-col gap-1">
           <ThemeToggle />
           <button className="btn btn-menu gap-2">
-            <LogOutIcon size={16} />
+            <LogOut size={16} />
             {LABELS.header.logOut}
           </button>
         </div>

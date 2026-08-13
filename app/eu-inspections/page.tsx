@@ -1,26 +1,23 @@
-import { headers } from "next/headers";
-
-import { UpcomingView } from "@/features/EUInspectionView";
 import { PageLayout } from "@/components/organisms/PageLayout";
-import type { Vehicle } from "@/types/vehicle";
+import { EUInspectionView } from "@/features/EUInspectionView";
+import { getVehicles } from "@/features/vehicles/queries";
 
-// Server component: call the /api/vehicles GET, then hand the list to the client view.
-export default async function VehiclesPage() {
-  const host = (await headers()).get("host");
-  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
+import { Vehicle } from "@/types/vehicle";
 
-  const res = await fetch(`${protocol}://${host}/api/vehicles`, {
-    cache: "no-store",
-  });
-  const page = await res.json();
+export default async function EuInspectionsPage() {
+  const vehicles = await getVehicles();
 
-  // todo: make generic read layer similar to applyDtos dmrkt-indexer
-  // here all _id => id transforms should happen + additional stuff
-  const vehicles: Vehicle[] = page.items;
+  // todo: add to pagination featrue a filter out non-null
+  // upcoming maintenance controls -> filter out non-enriched entities
+  const items = [...vehicles]
+    .filter((v): v is Vehicle & { euDate: string } => v.euDate !== undefined)
+    .sort((a, b) => a.euDate.localeCompare(b.euDate));
 
   return (
     <PageLayout>
-      <UpcomingView vehicles={vehicles} />
+      <main>
+        <EUInspectionView vehicles={items} />
+      </main>
     </PageLayout>
   );
 }

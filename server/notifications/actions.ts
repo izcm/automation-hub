@@ -11,7 +11,6 @@ type Deps = {
   later: (cb: () => void) => void;
   generateId: GenerateId;
   // TODO: sendEmail: SendEmail — email provider port (define in server/email/sender.ts)
-  // TODO: later: (cb: () => void | Promise<void>) => void — next `after()`, fire-and-forget
 };
 
 export const makeNotificationActions = ({

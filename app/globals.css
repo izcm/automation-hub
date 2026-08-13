@@ -55,7 +55,8 @@
 }
 
 /* upbeat-dark — dark: dark grey + orange */
-:root[data-theme="upbeat-dark"] {
+:root[data-theme="upbeat-dark"],
+.force-dark {
   color-scheme: dark;
 
   --base: #16171a;
@@ -87,10 +88,30 @@
     0 8px 24px rgba(0, 0, 0, 0.35), 0 0 20px rgba(255, 138, 61, 0.08);
 }
 
+/* Tailwind's color tokens (--color-*) are computed once at :root via @theme,
+   so overriding the raw vars on a subtree isn't enough — text-fg etc. would
+   keep the root color. Re-alias the tokens here so they recompute from the
+   dark vars set above, making utilities like text-fg work inside .force-dark. */
+.force-dark {
+  --color-fg: var(--fg);
+  --color-subtle: var(--subtle);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-base: var(--base);
+}
+
 body {
   background: var(--base);
   color: var(--fg);
   font-family: var(--font-sans);
+  /* guarantees ≥24px at the top; margins collapse (max, not sum), so it never
+     stacks on top of a page whose first child already has more top spacing */
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
 }
 
 /* flex + center on both axes */
@@ -109,7 +130,7 @@ body {
 }
 
 /* btn-menu gets an accent background only in the light theme */
-:root[data-theme="upbeat"] .btn-menu {
+:root[data-theme="upbeat"] .btn-menu:not(.force-dark *) {
   background: color-mix(in oklab, var(--accent) 72%, transparent);
   color: var(--bg-primary);
 }
