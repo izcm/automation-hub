@@ -2,28 +2,38 @@
 
 import { ReactNode } from "react";
 
+import { cn } from "@/lib/cn";
 import { Cancel } from "@/components/icons";
 
 type Props = {
   onClose: () => void;
   children: ReactNode;
+  // layout for the scrolling content area (padding, stacking) — owned by the
+  // consumer so the panel stays reusable across different content shapes
+  contentClassName?: string;
 };
 
 // In-flow inspector pane. It fills the column WorkspaceLayout gives it; the
 // layout owns the open/close (width) animation, so this stays a plain pane.
-export function WorkspacePanel({ onClose, children }: Props) {
+export function WorkspacePanel({
+  onClose,
+  children,
+  contentClassName,
+}: Props) {
   return (
-    <aside className="relative flex h-full w-full flex-col border-l border-line bg-base shadow-[-12px_0_32px_-16px_rgba(0,0,0,0.25)]">
+    <aside className="relative flex h-full w-full flex-col border-l border-line bg-sidepanel shadow-[-12px_0_32px_-16px_rgba(0,0,0,0.25)]">
       <button
         type="button"
         onClick={onClose}
         aria-label="Close"
-        className="absolute right-4 top-4 flex-center h-8 w-8 rounded-md text-muted transition-colors hover:bg-raised hover:text-fg"
+        className="absolute right-4 top-4 z-10 cursor-pointer flex-center h-8 w-8 rounded-md text-muted transition-colors hover:bg-raised"
       >
         <Cancel size={16} />
       </button>
 
-      <div className="h-full overflow-y-auto p-6">{children}</div>
+      <div className={cn("h-full overflow-y-auto", contentClassName)}>
+        {children}
+      </div>
     </aside>
   );
 }

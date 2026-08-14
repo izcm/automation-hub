@@ -3,7 +3,22 @@
   @apply flex items-center justify-center;
 }
 
+@utility nav-item {
+  @apply flex items-center justify-between gap-3 w-full text-sm text-fg no-underline transition-colors hover:text-accent;
+}
+
 /* page body for a resource list — centered vertical stack (header + list) */
 @utility resource-page {
   @apply flex flex-col gap-4 max-w-4xl mx-auto p-2 mt-2;
+}
+
+/* extra-wide letter-spacing beyond tailwind's tracking-widest (0.1em) */
+.tracking-lg {
+  letter-spacing: 0.04em;
+}
+.tracking-xl {
+  letter-spacing: 0.08em;
+}
+.tracking-2xl {
+  letter-spacing: 0.15em;
 }

@@ -3,36 +3,38 @@
 import Link from "next/link";
 import { Popover } from "@a2zb/react";
 
-import { LABELS } from "@features/labels";
 import { Back, ChevronDown, LogOut } from "../icons";
 import { ThemeToggle } from "./ThemeToggle";
 
-type Props = {
-  hasBack?: boolean;
-  title?: string;
+export type HeaderLabels = {
+  back: string;
+  menu: string;
+  logOut: string;
 };
 
-export function Header({ hasBack, title }: Props) {
+type Props = {
+  backHref?: string;
+  title?: string;
+  labels: HeaderLabels;
+};
+
+export function Header({ backHref, title, labels }: Props) {
   return (
     <div className="relative flex items-center justify-between">
-      {hasBack ? (
-        <Link href="/" className="btn btn-menu" aria-label={LABELS.header.back}>
+      {backHref ? (
+        <Link href={backHref} className="btn btn-menu" aria-label={labels.back}>
           <Back size={16} />
         </Link>
       ) : (
         <span />
       )}
 
-      {title && (
-        <h1 className="absolute left-1/2 -translate-x-1/2 text-sm font-medium text-subtle">
-          {title}
-        </h1>
-      )}
+      {title && <h1 className="font-medium text-subtle">{title}</h1>}
 
       <Popover
         align="right"
         trigger={
-          <button className="btn btn-menu" aria-label={LABELS.header.menu}>
+          <button className="btn btn-menu" aria-label={labels.menu}>
             <ChevronDown size={16} />
           </button>
         }
@@ -41,7 +43,7 @@ export function Header({ hasBack, title }: Props) {
           <ThemeToggle />
           <button className="btn btn-menu gap-2">
             <LogOut size={16} />
-            {LABELS.header.logOut}
+            {labels.logOut}
           </button>
         </div>
       </Popover>

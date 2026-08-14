@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Details, Spinner, TextInput } from "@a2zb/react";
+import { DetailField, Spinner, TextInput } from "@a2zb/react";
 import { rejectWith } from "@lib/toast";
 
 // internal type – essential characteristics
@@ -69,7 +69,7 @@ export function VehicleLookup({ onDone }: Props) {
     return (
       <div className="flex flex-col gap-3">
         <h2 className="text-subtle">Correct vehicle?</h2>
-
+        {/* 
         <Details
           item={vehicle}
           detailsFields={[
@@ -82,8 +82,24 @@ export function VehicleLookup({ onDone }: Props) {
               getValue: (v) => v.firstRegistered,
             },
           ]}
-        />
-
+        /> */}
+        {(
+          [
+            { label: "Plate number", getValue: (v) => v.reg },
+            { label: "Make", getValue: (v) => v.make },
+            { label: "Model", getValue: (v) => v.model },
+            { label: "Color", getValue: (v) => v.color },
+            {
+              label: "First registered",
+              getValue: (v) => v.firstRegistered,
+            },
+          ] satisfies DetailField<LookupResult>[]
+        ).map((f) => (
+          <div key={f.label} className="flex items-center justify-between">
+            <dt className="text-sm text-muted">{f.label}</dt>
+            <dd className="text-sm font-medium text-fg">{f.getValue(vehicle)}</dd>
+          </div>
+        ))}
         <div className="flex gap-2">
           <button
             className="btn btn-ghost flex-1"

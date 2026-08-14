@@ -47,6 +47,28 @@ export const LABELS = {
   modal: {
     cancel: "Cancel",
   },
+
+  workspace: {
+    eyebrow: "Vehicle",
+    seats: (n: number) => `${n} seats`,
+    details: {
+      identity: "identification",
+      specs: "specifications",
+    },
+    fields: {
+      vin: "VIN",
+      registration: "Registration",
+      firstRegistered: "First registered",
+      euDate: "EU date",
+      lastEuApproved: "Last EU approved",
+      type: "Type",
+      body: "Body",
+      color: "Color",
+      fuel: "Fuel",
+      transmission: "Transmission",
+      seats: "Seats",
+    },
+  },
 } as const;
 
 // Reusable ResourceManagementView labels (currently the EU-inspection copy).

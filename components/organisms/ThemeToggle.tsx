@@ -14,10 +14,7 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <button
-        className="btn btn-menu gap-2"
-        aria-hidden
-      >
+      <button className="btn btn-menu gap-2" aria-hidden>
         <DarkTheme size={16} />
         {LABELS.theme.toDark}
       </button>

@@ -10,7 +10,11 @@ import { useSendNotifications } from "@features/notifications/hooks";
 import { Notify } from "@components/icons";
 
 import { DateStamp, SimpleRow } from "@/components/molecules";
-import { Header, ResourceManagementView } from "@/components/organisms";
+import {
+  Header,
+  ResourceManagementView,
+  workspaceRows,
+} from "@/components/organisms";
 
 type Props = {
   vehicles: Vehicle[];
@@ -21,7 +25,11 @@ export function EUInspectionView({ vehicles }: Props) {
 
   return (
     <div className="resource-page">
-      <Header hasBack title={LABELS.header.heading} />
+      <Header
+        backHref="/"
+        title={LABELS.header.heading}
+        labels={LABELS.header}
+      />
 
       <ResourceManagementView
         items={vehicles}
@@ -41,7 +49,7 @@ export function EUInspectionView({ vehicles }: Props) {
         ]}
         listItem={(v, picked) => (
           <SimpleRow
-            className={cn("rounded-lg ", picked && "border border-accent")}
+            className={cn(workspaceRows, picked && "border border-accent")}
             media={<DateStamp date={v.euDate} />}
             title={v.plateNumber}
             subtitle={

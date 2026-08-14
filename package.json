@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "tsx --env-file=.env.local scripts/seed.vehicles.ts",
-    "seed:users": "tsx --env-file=.env.local scripts/seed.users.ts",
+    "seed": "tsx --env-file=.env.local seed-db-scripts/seed.vehicles.ts",
+    "seed:users": "tsx --env-file=.env.local seed-db-scripts/seed.users.ts",
     "clean": "rm -rf .next node_modules package-lock.json"
   },
   "dependencies": {

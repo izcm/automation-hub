@@ -1,5 +1,5 @@
 .btn-menu {
-  @apply border-accent-weak/60 items-center justify-start;
+  @apply border-accent-weak/60 items-center justify-start bg-raised;
   font-weight: 400;
   text-align: start;
   transition:
@@ -8,25 +8,16 @@
     color 0.15s ease;
 }
 
-/* noticeable hover: accent border + orange tint + accent text (both themes) */
+/* hover: let the accent border carry it; just a whisper of fill (both themes) */
 .btn-menu:hover {
   color: var(--accent-strong);
   border-color: var(--accent);
-  background: color-mix(in oklab, var(--accent) 14%, var(--raised));
-}
-
-/* light theme sets a base bg with higher specificity, so match it on hover */
-:root[data-theme="upbeat"] .btn-menu:not(.force-dark *):hover {
-  background: color-mix(in oklab, var(--accent) 16%, var(--raised));
+  background: color-mix(in oklab, var(--accent) 2%, var(--raised));
 }
 
 .text-input {
   background-color: var(--lowered);
-}
-
-/* btn-menu gets an accent background only in the light theme */
-:root[data-theme="upbeat"] .btn-menu:not(.force-dark *) {
-  background: color-mix(in oklab, var(--raised) 72%, transparent);
+  border: 1px solid var(--faint);
 }
 
 /* Override a2zb's filled btn-secondary with an outlined accent style:
@@ -40,18 +31,24 @@
   /* Solid, strong primary: orange fill + black text */
 
   /* BTN primary STYLES */
+  /* softened fill: pull the accent slightly toward the surface so it reads as a
+     warm CTA, not a neon slab. hover brightens back to full accent. */
   .btn-primary {
     color: var(--color-base);
     font-weight: 600;
     border-color: transparent;
-    background: var(--accent);
+    background: color-mix(in oklab, var(--accent) 82%, var(--raised));
     box-shadow: none;
   }
 
+  :root[data-theme="upbeat"] .btn-primary {
+    color: var(--color-fg);
+  }
+
   .btn-primary:hover {
-    color: #17130f;
+    color: var(--color-base);
     border-color: transparent;
-    background: var(--accent-strong);
+    background: var(--accent);
     box-shadow: none;
   }
 
@@ -69,13 +66,43 @@
 
   .btn-secondary:hover {
     color: var(--accent-strong);
-    border-color: color-mix(in oklab, var(--accent) 65%, transparent);
-    background: color-mix(in oklab, var(--accent) 10%, transparent);
+    background: color-mix(in oklab, var(--accent) 8%, var(--raised));
     box-shadow: none;
   }
 
   .btn-secondary:active {
-    background: color-mix(in oklab, var(--accent) 16%, transparent);
+    background: color-mix(in oklab, var(--accent) 20%, var(--raised));
     box-shadow: none;
+  }
+
+  /* BTN NEUTRAL STYLES */
+  .btn-neutral {
+    color: var(--fg);
+    border-color: var(--faint);
+    background: var(--lowered);
+  }
+
+  .btn-neutral:hover {
+    background: color-mix(in oklab, var(--faint) 8%, var(--base));
+  }
+
+  .btn-neutral:active {
+    background: color-mix(in oklab, var(--faint) 16%, var(--base));
+  }
+
+  /* BTN INVERTED STYLES — fg fill, base text; the login modal's high-contrast CTA */
+  .btn-inverted {
+    color: var(--base);
+    border-color: var(--line);
+    background: var(--fg);
+    font-weight: 600;
+  }
+
+  .btn-inverted:hover {
+    background: color-mix(in oklab, var(--fg) 88%, var(--base));
+  }
+
+  .btn-inverted:active {
+    background: color-mix(in oklab, var(--fg) 78%, var(--base));
   }
 }

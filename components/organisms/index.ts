@@ -8,5 +8,5 @@ export {
 } from "./ResourceManagementView";
 export { ResponsiveToaster } from "./ResponsiveToaster";
 export { ThemeToggle } from "./ThemeToggle";
-export { WorkspaceLayout } from "./WorkspaceLayout";
+export { WorkspaceLayout, workspaceRows } from "./WorkspaceLayout";
 export { WorkspacePanel } from "./WorkspacePanel";

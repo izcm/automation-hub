@@ -19,4 +19,9 @@ export {
   Plus,
   PanelRightOpen as OpenWorkspaceOverlay,
   ClipboardList as Inspection,
+  Fuel,
+  Settings as Transmission,
+  Armchair as Seat,
+  Mail,
+  LockKeyhole as Lock,
 } from "lucide-react";

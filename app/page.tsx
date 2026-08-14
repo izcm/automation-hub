@@ -27,24 +27,14 @@ function LandingLink({
   );
 }
 
-export default function Home() {
+export default function Landing() {
   return (
-    <main
-      className="
-        relative isolate
-        flex flex-1 flex-col gap-8 overflow-hidden
-        items-center lg:items-start justify-center lg:text-start 
-        "
-    >
-      {/* background — image swaps with the active theme */}
-      <div className="landing-bg absolute inset-0 -z-10 bg-cover bg-center bg-no-repeat" />
-
+    <main className="relative isolate flex flex-1 flex-col overflow-hidden">
       {/* subtle black wash */}
-      <div className="absolute inset-0 -z-10 bg-black/12" />
-
-      <div className="flex flex-col items-center lg:items-start gap-10 w-sm lg:ml-32">
+      <div className="landing-bg absolute inset-0 -z-10 bg-cover bg-center bg-no-repeat" />
+      <div className="flex flex-col gap-8 flex-center max-w-sm bg-raised p-8">
         <div className="flex flex-col gap-3">
-          <h1 className="text-6xl lg:text-[104px] font-semibold leading-none tracking-tight text-fg">
+          <h1 className="text-6xl font-semibold leading-none tracking-tight text-fg">
             {LABELS.appTitle}
           </h1>
 
@@ -53,7 +43,6 @@ export default function Home() {
           </p>
         </div>
 
-        {/* LINKS */}
         <div className="flex w-full flex-col gap-3 max-w-64">
           <LandingLink
             href="/eu-inspections"

@@ -1,5 +1,5 @@
 import { ReactNode, SetStateAction } from "react";
-import { Gallery } from "@a2zb/react";
+import { Checkbox, Gallery } from "@a2zb/react";
 import { cn } from "@/lib/cn";
 
 export type BatchAction = {
@@ -89,7 +89,7 @@ export function BatchSelect<T>({
         getId={getId}
         selected={selected}
         onSelect={onSelect}
-        itemClassName={(isSelected, isFresh) =>
+        itemClassName={(isSelected) =>
           cn(
             "group",
             // "border-faint/60 bg-raised hover:bg-raised hover:border hover:border-accent",
@@ -102,31 +102,23 @@ export function BatchSelect<T>({
           return (
             <div
               onClick={() => toggle(getId(item))}
-              className="flex items-center gap-3"
+              className="flex items-center gap-4"
             >
               {/* row keeps its own classes here, as its own flex child.
                   group-hover highlights only this child, not the checkbox 
                   for separate design set `bareRows`*/}
-              <div
-                className={cn(
-                  // layout
-                  "min-w-0 flex-1",
-                  // surface
-                  "rounded-lg border border-faint bg-raised",
-                  // interaction
-                  "cursor-pointer transition group-hover:border-accent",
-                )}
-              >
-                {galleryItem(item, picked, batchSelected.length)}
-              </div>
+
+              {galleryItem(item, picked, batchSelected.length)}
 
               {!selfManagesCheckbox && (
-                <input
-                  type="checkbox"
-                  checked={picked}
-                  readOnly
-                  className="cursor-pointer h-4 w-8 shrink-0"
-                />
+                <div className="shrink-0">
+                  {/* row's onClick owns the toggle; checkbox is the indicator */}
+                  <Checkbox
+                    checked={picked}
+                    readOnly
+                    className="border border-transparent"
+                  />
+                </div>
               )}
             </div>
           );

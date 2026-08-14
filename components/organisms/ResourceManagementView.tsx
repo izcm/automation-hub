@@ -62,9 +62,8 @@ export function ResourceManagementView<T>({
           getId={getId}
           selected={selected}
           onSelect={setSelected}
-          itemClassName={() =>
-            "border-faint/60 bg-raised hover:bg-raised hover:border hover:border-accent"
-          }
+          itemClassName={() => "group"}
+          bareRows
           galleryItem={(item) => listItem(item, false, 0)}
         />
       ) : (

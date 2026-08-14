@@ -2,6 +2,13 @@
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* custom token -> generates bg-/text-/border-sidepanel; value set per theme */
+  --color-sidepanel: var(--sidepanel);
+
+  /* recessed surface, a step DARKER than base (inputs, wells). overrides
+     a2zb's auto-computed default so each theme sets its own value below. */
+  --color-lowered: var(--lowered);
 }
 
 /* ---------------------------------------------------------------------------
@@ -13,9 +20,15 @@
 :root[data-theme="upbeat"] {
   color-scheme: light;
 
-  /* cool concrete canvas; cards (raised) sit a step brighter on top */
-  --base: #e7e9ec;
-  --raised: #f5f6f8;
+  /* soft foggy-grey canvas; cards (raised) sit a step brighter on top */
+  --base: #d9dce1;
+  --raised: #eaecf0;
+
+  /* recessed surface — a small step darker than base (inputs, wells) */
+  --lowered: #ccd0d7;
+
+  /* workspace side panel — a step cooler/darker than raised so it reads apart */
+  --sidepanel: #e1e4ea;
 
   --fg: rgba(23, 26, 31, 0.94);
   --subtle: rgba(23, 26, 31, 0.66);
@@ -48,6 +61,12 @@
 
   --base: #16171a;
   --raised: #191b1e;
+
+  /* recessed surface — meaningfully darker than base (inputs, wells) */
+  --lowered: #16181a;
+
+  /* workspace side panel — a step lighter than raised so it reads apart */
+  --sidepanel: #1f2226;
 
   --fg: rgba(238, 236, 233, 0.94);
   --subtle: rgba(210, 208, 204, 0.75);
