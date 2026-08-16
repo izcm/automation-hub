@@ -1,7 +1,7 @@
 :focus-visible {
   outline: none;
   box-shadow:
-    0 0 0 2px var(--base),
+    0 0 0 1px var(--raised),
     0 0 0 3px var(--accent);
 }
 
@@ -16,4 +16,8 @@ body {
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--color-line) transparent;
+}
+
+.landing-bg {
+  background-image: url("/landing.jpg");
 }

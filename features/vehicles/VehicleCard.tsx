@@ -20,7 +20,7 @@ export function VehicleCard({ vehicle, className, onOpenInWorkspace }: Props) {
       {/* below ~480px of *its own* container width, stack instead of clip */}
       <div className="flex gap-4 p-5 @max-[480px]:flex-col">
         <div className="flex min-w-0 flex-1 flex-col gap-3">
-          <span className="self-start rounded-md border border-line px-2 py-0.5 font-mono text-sm font-semibold tracking-widest text-fg">
+          <span className="self-start rounded border border-line px-2 py-0.5 font-mono text-sm font-semibold tracking-widest text-fg">
             {plateNumber}
           </span>
 

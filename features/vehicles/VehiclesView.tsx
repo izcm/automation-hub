@@ -69,10 +69,17 @@ export function VehiclesView({ vehicles }: Props) {
               items={vehicles}
               getId={(v) => v.id}
               labels={listViewLabels}
+              itemClassName={(isSelected) =>
+                cn(isSelected && "border border-accent-weak rounded-lg")
+              }
               listItem={(v) => (
                 <VehicleCard
                   vehicle={v}
-                  className={workspaceRows}
+                  className={cn(
+                    workspaceRows,
+                    active?.id === v.id &&
+                      "border-faint/60 border-l-4 border-l-accent/80",
+                  )}
                   onOpenInWorkspace={() => setActive(v)}
                 />
               )}
@@ -81,7 +88,7 @@ export function VehiclesView({ vehicles }: Props) {
 
           <WorkspacePanel
             onClose={() => setActive(undefined)}
-            contentClassName="flex flex-col gap-2 p-2"
+            contentClassName="flex flex-col gap-2 p-2 bg-panel"
           >
             {/* header: gradient glow + vehicle image bleeding to the panel edge */}
             <header className="relative overflow-hidden text-start p-6">
@@ -196,7 +203,7 @@ export function VehiclesView({ vehicles }: Props) {
                         // layout
                         "pb-1",
                         // typography
-                        "text-sm font-semibold uppercase tracking-lg text-muted",
+                        "text-xs text-start font-semibold uppercase tracking-lg text-muted",
                       )}
                     >
                       {item.label}

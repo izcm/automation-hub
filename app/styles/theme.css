@@ -3,12 +3,20 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* custom token -> generates bg-/text-/border-sidepanel; value set per theme */
-  --color-sidepanel: var(--sidepanel);
-
-  /* recessed surface, a step DARKER than base (inputs, wells). overrides
-     a2zb's auto-computed default so each theme sets its own value below. */
+  --color-panel: var(--panel);
   --color-lowered: var(--lowered);
+}
+
+:root[data-theme="dark"] {
+  .landing-surface {
+    background: #0e0e10;
+  }
+}
+
+:root[data-theme="light"] {
+  .landing-surface {
+    background: var(--base);
+  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -16,67 +24,78 @@
  * node_modules/@a2zb/styles/theme.css references them literally.
  * ------------------------------------------------------------------------- */
 
-/* upbeat — light: cool concrete + orange */
-:root[data-theme="upbeat"] {
+/* light — cool concrete + blue */
+/* light — cool concrete white */
+:root[data-theme="light"] {
   color-scheme: light;
 
-  /* soft foggy-grey canvas; cards (raised) sit a step brighter on top */
-  --base: #d9dce1;
-  --raised: #eaecf0;
+  /* surfaces */
+  --base: #eef1f4;
+  --raised: #ffffff;
+  --lowered: #d4d8dc;
+  --panel: #e1e5e8;
 
-  /* recessed surface — a small step darker than base (inputs, wells) */
-  --lowered: #ccd0d7;
+  /* ink */
+  --fg: rgba(17, 20, 24, 0.92);
+  --subtle: rgba(17, 20, 24, 0.64);
+  --muted: rgba(17, 20, 24, 0.48);
+  --faint: rgba(17, 20, 24, 0.28);
+  --line: rgba(17, 20, 24, 0.16);
 
-  /* workspace side panel — a step cooler/darker than raised so it reads apart */
-  --sidepanel: #e1e4ea;
+  /* cool accent */
+  --accent-cool: #4a6bff;
+  --accent-cool-strong: #3557e0;
+  --accent-cool-weak: rgba(74, 107, 255, 0.18);
+  --accent-cool-subtle: rgba(74, 107, 255, 0.1);
 
-  --fg: rgba(23, 26, 31, 0.94);
-  --subtle: rgba(23, 26, 31, 0.66);
-  --muted: rgba(23, 26, 31, 0.5);
-  --faint: rgba(23, 26, 31, 0.32);
+  /* orange — primary */
+  --accent: #ff6b1a;
+  --accent-strong: #e65300;
+  --accent-weak: rgba(255, 107, 26, 0.2);
 
-  --line: rgba(23, 26, 31, 0.13);
+  --accent-neutral: #ff9a5c;
+  --accent-neutral-weak: rgba(255, 154, 92, 0.18);
 
-  /* accent → text/bg/border-accent (+ -strong / -weak) */
-  --accent: #ff7a1a;
-  --accent-strong: #e85d00;
-  --accent-weak: rgba(255, 122, 26, 0.6);
-  --accent-neutral: #ffab5c;
-  --accent-neutral-weak: rgba(255, 171, 92, 0.5);
+  /* semantic */
+  --success: #1e8f5a;
+  --success-weak: rgba(30, 143, 90, 0.18);
 
-  /* status → success / warning / failure (+ -weak) */
-  --success: #12a150;
-  --success-weak: rgba(18, 161, 80, 0.55);
-  --warning: #d99400;
-  --warning-weak: rgba(217, 148, 0, 0.55);
-  --failure: #e5484d;
-  --failure-weak: rgba(229, 72, 77, 0.6);
+  --warning: #c88a00;
+  --warning-weak: rgba(200, 138, 0, 0.18);
 
-  --panel-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --failure: #d1434c;
+  --failure-weak: rgba(209, 67, 76, 0.18);
+
+  /* elevation */
+  --panel-shadow:
+    0 1px 2px rgba(17, 20, 24, 0.04), 0 8px 24px rgba(17, 20, 24, 0.06);
 }
 
-/* upbeat-dark — dark: dark grey + orange */
-:root[data-theme="upbeat-dark"] {
+/* dark — dark grey + blue */
+:root[data-theme="dark"] {
   color-scheme: dark;
 
   --base: #16171a;
   --raised: #191b1e;
-
-  /* recessed surface — meaningfully darker than base (inputs, wells) */
   --lowered: #16181a;
-
-  /* workspace side panel — a step lighter than raised so it reads apart */
-  --sidepanel: #1f2226;
+  --panel: #1f2226;
 
   --fg: rgba(238, 236, 233, 0.94);
-  --subtle: rgba(210, 208, 204, 0.75);
-  --muted: rgba(180, 178, 174, 0.6);
-  --faint: rgba(180, 178, 174, 0.4);
+  --line: rgba(255, 255, 255, 0.24);
 
-  --line: rgba(255, 255, 255, 0.14);
+  --subtle: rgba(210, 208, 204, 0.66);
+  --muted: rgba(180, 178, 174, 0.5);
+  --faint: rgba(180, 178, 174, 0.32);
 
   /* accent → text/bg/border-accent (+ -strong / -weak) */
-  --accent: #ff8a3d;
+  /* --accent: #5b9dff;
+  --accent-strong: #8fbfff;
+  --accent-weak: rgba(91, 157, 255, 0.6);
+  --accent-neutral: #7fb0ff;
+  --accent-neutral-weak: rgba(127, 176, 255, 0.5); */
+
+  /* --- previous accent: orange — kept for easy A/B, delete once blue is confirmed --- */
+  --accent: #ea8440;
   --accent-strong: #ffa866;
   --accent-weak: rgba(255, 138, 61, 0.6);
   --accent-neutral: #ffb066;
@@ -92,12 +111,4 @@
 
   --panel-shadow:
     0 8px 24px rgba(0, 0, 0, 0.35), 0 0 20px rgba(255, 138, 61, 0.08);
-}
-
-/* Landing background — swaps with the active theme (set on :root by the toggle) */
-:root[data-theme="upbeat"] .landing-bg {
-  background-image: url("/landing-light.png");
-}
-:root[data-theme="upbeat-dark"] .landing-bg {
-  background-image: url("/landing-dark.png");
 }

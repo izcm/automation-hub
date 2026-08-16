@@ -31,11 +31,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         {/* Set the theme before first paint: saved choice, else OS preference.
-            Landing dark-preferring users on upbeat-dark also opts them out of
+            Landing dark-preferring users on "dark" also opts them out of
             the browser's force-dark inversion (color-scheme: dark). */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `!function(){try{var k="theme",t=localStorage.getItem(k);if(t!=="upbeat"&&t!=="upbeat-dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"upbeat-dark":"upbeat";localStorage.setItem(k,t)}document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme="upbeat"}}()`,
+            __html: `!function(){try{var k="theme",t=localStorage.getItem(k);if(t!=="light"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";localStorage.setItem(k,t)}document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme="light"}}()`,
           }}
         />
         <Providers>

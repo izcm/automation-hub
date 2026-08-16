@@ -3,6 +3,7 @@
 import { ReactNode, useState } from "react";
 import { Gallery } from "@a2zb/react";
 
+import { cn } from "@/lib/cn";
 import { Pagination } from "@/components/molecules";
 import { BatchAction, BatchSelect, FilterBar } from "@/components/organisms";
 
@@ -30,6 +31,8 @@ type Props<T> = {
   // parent renders each row; gets `picked`, the selected count, and owns the markup
   listItem: (item: T, picked: boolean, selectedCount: number) => ReactNode;
   labels: ResourceManagementLabels;
+  // extra classes for the row wrapper Gallery/BatchSelect render around each item
+  itemClassName?: (isSelected: boolean) => string;
 };
 
 export function ResourceManagementView<T>({
@@ -38,6 +41,7 @@ export function ResourceManagementView<T>({
   batchActions,
   listItem,
   labels,
+  itemClassName,
 }: Props<T>) {
   const [selected, setSelected] = useState<T | undefined>(undefined);
   const [batchSelected, setBatchSelected] = useState<string[]>([]);
@@ -62,7 +66,9 @@ export function ResourceManagementView<T>({
           getId={getId}
           selected={selected}
           onSelect={setSelected}
-          itemClassName={() => "group"}
+          itemClassName={(isSelected) =>
+            cn("group", itemClassName?.(isSelected))
+          }
           bareRows
           galleryItem={(item) => listItem(item, false, 0)}
         />
@@ -78,6 +84,7 @@ export function ResourceManagementView<T>({
           clearLabel={labels.batching.clearSelection}
           actions={batchActions}
           galleryItem={listItem}
+          className={itemClassName}
         />
       )}
 

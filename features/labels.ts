@@ -3,7 +3,7 @@ import type { ResourceManagementLabels } from "@/components/organisms/ResourceMa
 // UI copy — one place for every display string.
 // Interpolated strings are functions so they stay easy to adjust.
 export const LABELS = {
-  appTitle: "Mile",
+  appTitle: "Drift",
 
   home: {
     tagline: "Keep track of vehicles and upcoming EU Inspections.",

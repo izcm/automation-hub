@@ -25,12 +25,12 @@ export function ThemeToggle() {
 
 function ThemeToggleInner() {
   const { theme, applyTheme } = useTheme();
-  const isDark = theme === "upbeat-dark";
+  const isDark = theme === "dark";
 
   return (
     <button
       className="btn btn-menu gap-2"
-      onClick={() => applyTheme(isDark ? "upbeat" : "upbeat-dark")}
+      onClick={() => applyTheme(isDark ? "light" : "dark")}
     >
       {isDark ? <LightTheme size={16} /> : <DarkTheme size={16} />}
       {isDark ? LABELS.theme.toLight : LABELS.theme.toDark}

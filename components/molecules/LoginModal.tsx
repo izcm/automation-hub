@@ -1,10 +1,12 @@
 "use client";
 
-import { ReactNode } from "react";
-import { IconBtn, Modal, TextInput } from "@a2zb/react";
+import { IconBtn } from "@a2zb/react";
+import { TextInput } from "./TextInput";
+import { GlassModal } from "./GlassModal";
 
+import { Lock, Mail } from "@/components/icons";
+import Link from "next/link";
 import { cn } from "@/lib/cn";
-import { Lock } from "@/components/icons";
 
 type Props = {
   containerClassName?: string;
@@ -28,37 +30,17 @@ function MicrosoftIcon() {
 
 export function LoginModal({ containerClassName }: Props) {
   return (
-    <Modal
-      isOpen
-      onClose={() => {}}
-      hideCancelBtn
-      bare
-      noOverlay
+    <GlassModal
       ariaLabel="Log in"
-      className={cn(
-        `
-        w-full max-w-sm
-        flex flex-col gap-5
-        p-6
-
-        bg-base/50
-        backdrop-blur-lg
-
-        border border-faint/40
-        rounded-lg
-
-        shadow-[0_8px_32px_rgba(0,0,0,0.25)]
-      `,
-        containerClassName,
-      )}
+      containerClassName={cn(containerClassName, "p-6")}
     >
       <div
         className="
         grid place-items-center 
-        rounded-full bg-lowered/60
+        rounded-full bg-raised
         mx-auto h-12 w-12"
       >
-        <Lock stroke-width="1" />
+        <Lock strokeWidth="1" />
       </div>
 
       <div className="flex flex-col gap-2">
@@ -70,23 +52,26 @@ export function LoginModal({ containerClassName }: Props) {
 
       <IconBtn
         icon={MicrosoftIcon}
-        className="btn btn-neutral justify-end flex-row-reverse py-3"
+        className="btn btn-neutral justify-center flex-row-reverse py-3"
       >
         Microsoft Entra ID
       </IconBtn>
 
       <div className="flex flex-center gap-4">
-        <div className="bg-fg/40 h-[1px] flex-1" />
+        <div className="line flex-1" />
         <span className="text-xs text-muted">OR</span>
-        <div className="bg-fg/40 h-[1px] flex-1" />
+        <div className="line flex-1" />
       </div>
 
       <div className="flex flex-col gap-2">
-        <TextInput className="text-input" placeholder="Email address" />
-        <TextInput className="text-input" placeholder="Password" />
+        <TextInput placeholder="Email address" startIcon={<Mail size={16} />} />
+        <TextInput placeholder="Password" startIcon={<Lock size={16} />} />
       </div>
 
-      <button className="btn btn-inverted">Log in</button>
-    </Modal>
+      <Link href={"/"} className="btn btn-primary">
+        Log In
+      </Link>
+      {/* <button className="btn btn-inverted">Log in</button> */}
+    </GlassModal>
   );
 }

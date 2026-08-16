@@ -14,51 +14,46 @@ function LandingLink({
   children: ReactNode;
 }) {
   return (
-    <Link
-      href={href}
-      className="btn bg-black/60 h-12 w-full flex justify-between border-accent/40 rounded-xl transition-colors hover:bg-black/50 hover:border-accent/60"
-    >
-      <span className="flex gap-3 flex-center text-accent">
+    <Link href={href} className="flex justify-between btn btn-secondary">
+      <div className="flex gap-2">
         {icon}
-        {children}
-      </span>
-      <ChevronRight size="16" stroke="white" />
+        <span>{children}</span>
+      </div>
+      <ChevronRight size="16" />
     </Link>
   );
 }
 
 export default function Landing() {
   return (
-    <main className="relative isolate flex flex-1 flex-col overflow-hidden">
-      {/* subtle black wash */}
-      <div className="landing-bg absolute inset-0 -z-10 bg-cover bg-center bg-no-repeat" />
-      <div className="flex flex-col gap-8 flex-center max-w-sm bg-raised p-8">
-        <div className="flex flex-col gap-3">
-          <h1 className="text-6xl font-semibold leading-none tracking-tight text-fg">
-            {LABELS.appTitle}
-          </h1>
-
-          <p className="text-2xl leading-relaxed text-subtle">
-            {LABELS.home.tagline}
-          </p>
+    <div className="flex-1 flex-center landing-surface">
+      {/* EYEBROW */}
+      <div className="flex flex-col gap-4 max-w-[280px] w-full mx-auto">
+        <div className="flex flex-col gap-2 text-sm">
+          <h1 className="text-6xl font-bold">{LABELS.appTitle}</h1>
+          <p className="text-subtle">Your SaaS integration hotspot.</p>
         </div>
 
-        <div className="flex w-full flex-col gap-3 max-w-64">
+        <div className="flex flex-center gap-4 w-full">
+          <div className="line" />
+          <span className="text-xs text-subtle">MODULES</span>
+          <div className="line" />
+        </div>
+
+        {/* MODULE LINKS */}
+        <div className="flex flex-col gap-3">
           <LandingLink
             href="/eu-inspections"
-            icon={<Inspection stroke="white" strokeWidth={1} />}
+            icon={<Inspection strokeWidth={1} />}
           >
             {LABELS.home.goToEuInspections}
           </LandingLink>
 
-          <LandingLink
-            href="/vehicles"
-            icon={<Truck stroke="white" strokeWidth={1} />}
-          >
+          <LandingLink href="/vehicles" icon={<Truck strokeWidth={1} />}>
             {LABELS.home.goToVehicles}
           </LandingLink>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

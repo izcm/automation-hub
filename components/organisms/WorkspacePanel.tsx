@@ -15,13 +15,9 @@ type Props = {
 
 // In-flow inspector pane. It fills the column WorkspaceLayout gives it; the
 // layout owns the open/close (width) animation, so this stays a plain pane.
-export function WorkspacePanel({
-  onClose,
-  children,
-  contentClassName,
-}: Props) {
+export function WorkspacePanel({ onClose, children, contentClassName }: Props) {
   return (
-    <aside className="relative flex h-full w-full flex-col border-l border-line bg-sidepanel shadow-[-12px_0_32px_-16px_rgba(0,0,0,0.25)]">
+    <aside className="relative flex h-full w-full flex-col border-l border-line bg-panel shadow-[-12px_0_32px_-16px_rgba(0,0,0,0.25)]">
       <button
         type="button"
         onClick={onClose}

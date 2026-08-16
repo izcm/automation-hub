@@ -29,10 +29,11 @@ export function Header({ backHref, title, labels }: Props) {
         <span />
       )}
 
-      {title && <h1 className="font-medium text-subtle">{title}</h1>}
+      {title && <h1 className="font-medium text-fg/80">{title}</h1>}
 
       <Popover
         align="right"
+        contentClassName="rounded"
         trigger={
           <button className="btn btn-menu" aria-label={labels.menu}>
             <ChevronDown size={16} />

@@ -1,7 +1,10 @@
-# EU-Kontroll
+# Resource Maintenance Modules
 
-Fleet EU-inspection tracking: see which vehicles have controls coming up and
-notify the person responsible for each.
+A minimal demonstration of how a vehicle maintenance workflow can be simplified and automated.
+
+This example focuses on EU inspections: keeping track of upcoming deadlines and notifying the right people when action is needed.
+
+The demo intentionally contains no third-party integrations. In a real implementation, modules like these can connect to existing fleet, ERP, accounting, or other business systems — using the data and workflows your company already has rather than replacing them.
 
 <!-- TODO: one screenshot -->
 
