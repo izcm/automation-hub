@@ -5,7 +5,7 @@ import { PgTable } from "drizzle-orm/pg-core";
 export const makeReadRepo = <TTable extends PgTable, TKey = string>(
   db: NodePgDatabase,
   table: TTable,
-  keyWhere: (table: TTable, key: TKey) => SQL,
+  keyWhere: (table: TTable, key: TKey) => SQL | undefined,
 ) => {
   type Row = InferSelectModel<TTable>;
   type ColumnName = keyof Row;
