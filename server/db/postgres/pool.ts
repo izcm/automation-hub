@@ -1,5 +1,5 @@
 import { Pool } from "pg";
-import { readEnvOrThrow } from "../../shared/env";
+import { readEnvOrThrow } from "@server/config/env";
 import { drizzle } from "drizzle-orm/node-postgres";
 
 declare global {

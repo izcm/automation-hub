@@ -1,7 +1,5 @@
-// server/poweroffice/auth.ts
-
 import { fetchJSON } from "@a2zb/lib";
-import { readEnvOrThrow } from "../shared/env";
+import { readEnvOrThrow } from "@server/config/env";
 
 export type BearerToken = {
   token: string;

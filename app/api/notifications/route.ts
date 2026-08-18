@@ -7,7 +7,7 @@ import { MESSAGE_USE_CASES } from "@/server/domain/notifications/messaging/templ
 import {
   MAX_NOTIFICATIONS_PER_BATCH,
   MAX_ID_LENGTH,
-} from "@/server/shared/limits";
+} from "@/server/config/limits";
 
 const NotificationBatchRequest = z.strictObject({
   // `ids` is intentionally generic — each use case decides what they refer to.

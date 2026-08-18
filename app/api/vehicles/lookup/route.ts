@@ -1,4 +1,4 @@
-import { lookupVehicle } from "@server/vegvesen/lookup";
+import { lookupVehicle } from "@server/external/vegvesen/lookup";
 
 export async function GET(request: Request) {
   const plateNumber = new URL(request.url).searchParams.get("plateNumber");

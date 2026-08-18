@@ -1,7 +1,9 @@
-import { VehiclePort } from "./port";
 import type { Result } from "@a2zb/lib";
-import type { VehicleLookupFields } from "@server/vegvesen/lookup";
+
+import type { VehicleLookupFields } from "@server/external/vegvesen/lookup";
 import type { GenerateId } from "@server/shared/id";
+
+import { VehiclePort } from "./port";
 
 type Deps = {
   vehicles: Pick<VehiclePort, "ensure" | "enrich">;

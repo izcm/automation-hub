@@ -1,7 +1,8 @@
 import { after } from "next/server";
 
 // third party
-import { lookupVehicle } from "../vegvesen/lookup";
+import { lookupVehicle } from "../external/vegvesen/lookup";
+import { sendEmail } from "../external/messaging/email";
 
 // mongo
 import { vehicleRepo } from "../db/mongo/repos/vehicles";
@@ -13,7 +14,8 @@ import { makeVehicleActions } from "../domain/vehicles/actions";
 import { makeNotificationActions } from "../domain/notifications/actions";
 import { makeMessageBuilder } from "../domain/notifications/messaging/message-builder";
 import { builders } from "../domain/notifications/messaging/builders";
-import { sendEmail } from "../messaging/email";
+
+// shared
 import { generateId } from "../shared/id";
 
 export const vehicleActions = makeVehicleActions({

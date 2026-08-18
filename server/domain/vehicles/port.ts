@@ -1,10 +1,8 @@
-import { Vehicle } from "@/types/vehicle";
 import { ByKey, Countable, Pageable } from "@a2zb/mongo";
+import { Vehicle } from "@/types/vehicle";
 
 export interface VehiclePort
-  extends ByKey<Vehicle, string>,
-    Pageable<Vehicle>,
-    Countable {
+  extends ByKey<Vehicle, string>, Pageable<Vehicle>, Countable {
   /**
    * Upsert a bare vehicle by plate number. Returns its Mongo id.
    * Enrichment (make/model/…) happens afterwards.

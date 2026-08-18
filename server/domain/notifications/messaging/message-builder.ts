@@ -1,7 +1,7 @@
 import { Employee } from "@/types/employee";
 
-import { VehiclePort } from "../../vehicles/port";
-import { EmployeePort } from "../../employees/port";
+import { VehiclePort } from "@server/domain/vehicles/port";
+import { EmployeePort } from "@server/domain/employees/port";
 
 import { MessageUseCase } from "./templates";
 import { Channel, MessageRequest } from "./types";

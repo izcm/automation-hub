@@ -1,7 +1,7 @@
 import { NewNotification } from "@/types/notification";
 
 import { MessageRequest } from "./messaging/types";
-import { GenerateId } from "../../shared/id";
+import { GenerateId } from "@server/shared/id";
 
 import { NotificationPort } from "./port";
 

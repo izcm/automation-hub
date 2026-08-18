@@ -3,7 +3,7 @@ import Link from "next/link";
 import { LABELS } from "@features/labels";
 
 import { ChevronRight, Inspection, Truck } from "@/components/icons";
-import { powerOfficeFetch } from "@/server/power-office/client";
+import { powerOfficeFetch } from "@/server/external/power-office/client";
 
 function LandingLink({
   href,

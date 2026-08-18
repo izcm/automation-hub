@@ -1,8 +1,7 @@
-// server/poweroffice/client.ts
+import { fetchJSON } from "@a2zb/lib";
 
 import { getPowerOfficeBearerToken } from "./auth";
-import { readEnvOrThrow } from "../shared/env";
-import { fetchJSON } from "@a2zb/lib";
+import { readEnvOrThrow } from "@server/config/env";
 
 export async function powerOfficeFetch(path: string, init?: RequestInit) {
   const token = await getPowerOfficeBearerToken();
