@@ -1,4 +1,4 @@
-# Resource Maintenance Modules
+# Automation Hub
 
 A demonstration of automated workflows across business systems — PowerOffice and more to come — covering things like automated notifications/messaging and employee onboarding/offboarding.
 
