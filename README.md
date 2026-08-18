@@ -1,8 +1,8 @@
 # Resource Maintenance Modules
 
-A minimal demonstration of how a vehicle maintenance workflow can be simplified and automated.
+A demonstration of automated workflows across business systems — PowerOffice and more to come — covering things like automated notifications/messaging and employee onboarding/offboarding.
 
-This example focuses on EU inspections: keeping track of upcoming deadlines and notifying the right people when action is needed.
+The first showcased workflow is vehicle EU-kontroll inspections: keeping track of upcoming deadlines and notifying the right people when action is needed. It's one example of the pattern, not the whole scope.
 
 The demo intentionally contains no third-party integrations. In a real implementation, modules like these can connect to existing fleet, ERP, accounting, or other business systems — using the data and workflows your company already has rather than replacing them.
 

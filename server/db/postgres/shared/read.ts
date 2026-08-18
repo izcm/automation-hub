@@ -1,4 +1,4 @@
-import { getColumns, InferSelectModel, SQL } from "drizzle-orm";
+import { InferSelectModel, or, SQL } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { PgTable } from "drizzle-orm/pg-core";
 
@@ -8,32 +8,38 @@ export const makeReadRepo = <TTable extends PgTable, TKey = string>(
   keyWhere: (table: TTable, key: TKey) => SQL | undefined,
 ) => {
   type Row = InferSelectModel<TTable>;
-  type ColumnName = keyof Row;
 
   const pgTable = table as PgTable;
-  const columns = getColumns(pgTable);
 
-  // Map each requested column name to its Drizzle column object.
-  // Object.fromEntries converts the [name, column] pairs into
-  // the object shape expected by Drizzle's select():
-  // { field1: table.field1, field2: table.field2 }
-  const resolveColumns = (colNames: ColumnName[]) =>
-    // `name` is a valid column name for this table.
-    // The `PgTable` cast above loses that relationship, so TypeScript can't prove it.
-    Object.fromEntries(colNames.map((name) => [name, columns[name]!] as const));
+  // Always selects the full row — views map from the complete row, never a
+  // partial projection, so there's no risk of a view reading a column that
+  // wasn't fetched.
+  const find = (keys: TKey[]) => {
+    if (keys.length === 0) return Promise.resolve([]);
+
+    return db
+      .select()
+      .from(pgTable)
+      .where(or(...keys.map((key) => keyWhere(table, key))));
+  };
 
   return {
-    async findByKey(key: TKey, projectedColumns?: ColumnName[]) {
-      const query = projectedColumns
-        ? db.select(resolveColumns(projectedColumns))
-        : db.select();
+    async findByKey<TOut>(
+      key: TKey,
+      view: (row: Row) => TOut,
+    ): Promise<TOut | null> {
+      const rows = await find([key]);
 
-      const rows = await query
-        .from(pgTable)
-        .where(keyWhere(table, key))
-        .limit(1);
+      return rows[0] ? view(rows[0] as Row) : null;
+    },
 
-      return rows[0] ?? null; // key is expected to be a unique identifier
+    async findByKeys<TOut>(
+      keys: TKey[],
+      view: (row: Row) => TOut,
+    ): Promise<TOut[]> {
+      const rows = await find(keys);
+
+      return rows.map((row) => view(row as Row));
     },
   };
 };

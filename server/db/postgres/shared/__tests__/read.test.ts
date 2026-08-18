@@ -110,35 +110,37 @@ describe("makeReadRepo (postgres)", () => {
   }
 
   describe("findByKey", () => {
-    it("returns the requested columns", async () => {
+    it("maps the row through the given view", async () => {
       const { repo, inserted } = await setupSingleColumnPKTable();
-      const result = await repo.findByKey(inserted.id, ["email"]);
+      const result = await repo.findByKey(inserted.id, (row) => ({
+        email: row.email,
+      }));
       expect(result).toEqual({ email: inserted.email });
     });
 
     it("returns null for a missing key", async () => {
       const { repo } = await setupSingleColumnPKTable();
-      const result = await repo.findByKey("9999");
+      const result = await repo.findByKey("9999", (row) => row);
       expect(result).toBeNull();
     });
 
     describe("composite primary key", () => {
       it("finds the row by its composite key", async () => {
         const { repo, inserted } = await setupCompositeColumnPKTable();
-        const result = await repo.findByKey({
-          chainId: inserted.chainId,
-          address: inserted.address,
-        });
+        const result = await repo.findByKey(
+          { chainId: inserted.chainId, address: inserted.address },
+          (row) => row,
+        );
         expect(result).toEqual(inserted);
       });
 
       it("returns null when only partial match", async () => {
         const { repo, inserted } = await setupCompositeColumnPKTable();
 
-        const result = await repo.findByKey({
-          chainId: inserted.chainId,
-          address: "0xdoesntexist",
-        });
+        const result = await repo.findByKey(
+          { chainId: inserted.chainId, address: "0xdoesntexist" },
+          (row) => row,
+        );
         expect(result).toBeNull();
       });
     });
