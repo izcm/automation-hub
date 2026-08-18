@@ -5,7 +5,13 @@ import {
   StartedPostgreSqlContainer,
 } from "@testcontainers/postgresql";
 import { drizzle, NodePgDatabase } from "drizzle-orm/node-postgres";
-import { integer, pgTable, primaryKey, text } from "drizzle-orm/pg-core";
+import {
+  integer,
+  pgTable,
+  PgTable,
+  primaryKey,
+  text,
+} from "drizzle-orm/pg-core";
 import { and, eq, InferInsertModel, InferSelectModel } from "drizzle-orm";
 
 import { Pool } from "pg";
@@ -63,6 +69,8 @@ describe("makeReadRepo (postgres)", () => {
     email: text(),
   });
 
+  type TestUserInsertedRow = InferSelectModel<typeof testUsers>;
+
   const testNftCollections = pgTable(
     "test_nft_collections",
     {
@@ -74,14 +82,15 @@ describe("makeReadRepo (postgres)", () => {
     (table) => [primaryKey({ columns: [table.chainId, table.address] })],
   );
 
+  type TestNFTCollectionInsertedRow = InferSelectModel<
+    typeof testNftCollections
+  >;
+
   // === test setup ===
 
-  function setupSingleColumnPkTable<
-    TDefault = InferSelectModel<typeof testUsers>,
-  >(
-    defaultView: (row: InferSelectModel<typeof testUsers>) => TDefault = (
-      row,
-    ) => row as TDefault,
+  function setupSingleColumnPkTable<TDefault = TestUserInsertedRow>(
+    defaultView: (row: TestUserInsertedRow) => TDefault = (row) =>
+      row as TDefault,
   ) {
     return {
       db,
@@ -134,16 +143,37 @@ describe("makeReadRepo (postgres)", () => {
     }));
   }
 
+  function generateTestNftCollections(
+    n: number,
+  ): InferInsertModel<typeof testNftCollections>[] {
+    return Array.from({ length: n }, (_, i) => ({
+      chainId: i,
+      address: `0x${i}`,
+      name: `Collection ${i}`,
+    }));
+  }
+
   // === entity insertors ===
 
-  async function insertManyUsers(n: number) {
-    const users = generateTestUsers(n);
-    const result = await db.insert(testUsers).values(users).returning();
-    if (result.length !== n)
-      throw new Error(
-        "Something wrong with `generateTestUser`: result is not of expected size",
-      );
+  async function insertMany<TTable extends PgTable>(
+    table: TTable,
+    values: InferInsertModel<TTable>[],
+  ): Promise<InferSelectModel<TTable>[]> {
+    const result = (await db
+      .insert(table)
+      .values(values as never)
+      .returning()) as InferSelectModel<TTable>[];
+    if (result.length !== values.length)
+      throw new Error("insertMany: result is not of expected size");
     return result;
+  }
+
+  async function insertManyUsers(n: number) {
+    return insertMany(testUsers, generateTestUsers(n));
+  }
+
+  async function insertManyTestNftCollections(n: number) {
+    return insertMany(testNftCollections, generateTestNftCollections(n));
   }
 
   // === findByKey ===
@@ -167,6 +197,16 @@ describe("makeReadRepo (postgres)", () => {
       const { repo } = setupSingleColumnPkTable();
       const result = await repo.findByKey("9999");
       expect(result).toBeNull();
+    });
+
+    it("returns the row through the default view when no view is passed", async () => {
+      const { repo } = setupSingleColumnPkTable((row) => ({
+        aliasedId: row.id,
+      }));
+      const user = await insertSingleUser();
+
+      const result = await repo.findByKey(user.id);
+      expect(result).toEqual({ aliasedId: user.id });
     });
 
     describe("composite primary key", () => {
@@ -203,35 +243,99 @@ describe("makeReadRepo (postgres)", () => {
   // === findByKeys ===
 
   describe("findByKeys", () => {
-    const insertedSize = 10;
+    const insertionSize = 10;
+
+    const keys = <T, TKey = string>(items: T[], getId: (item: T) => TKey) =>
+      items.map((u) => getId(u));
+
+    const rowIds = (users: TestUserInsertedRow[]) => keys(users, (u) => u.id);
 
     it("returns the matching rows", async () => {
       const { repo } = setupSingleColumnPkTable();
-      const users = await insertManyUsers(insertedSize);
+      const rows = await insertManyUsers(insertionSize);
 
-      const expectedSize = users.length / 2;
-      const relevantRows = users.slice(expectedSize);
+      const expectedSize = rows.length / 2;
+      const relevantRows = rows.slice(expectedSize);
 
-      const result = await repo.findByKeys(relevantRows.map((u) => u.id));
+      const result = await repo.findByKeys(rowIds(relevantRows));
 
-      expect(result).length(expectedSize);
+      expect(result).toHaveLength(expectedSize);
       expect(result).toEqual(relevantRows);
     });
 
     it("maps row through provided view", async () => {
-      const { repo } = await setupSingleColumnPkTable((row) => ({
+      const { repo } = setupSingleColumnPkTable((row) => ({
         aliasedId: row.id,
       }));
-      const users = await insertManyUsers(insertedSize);
+      const rows = await insertManyUsers(insertionSize);
 
-      const result = await repo.findByKeys(users.map((u) => u.id));
+      const result = await repo.findByKeys(rowIds(rows));
 
       expect(result).toEqual(
-        users.map((u) => ({
-          aliasedId: u.id,
+        rows.map((row) => ({
+          aliasedId: row.id,
         })),
       );
     });
-    it("returns empty array when no matching row");
+
+    it("returns empty array when no matching row", async () => {
+      const { repo } = setupSingleColumnPkTable();
+      await insertManyUsers(insertionSize);
+
+      const result = await repo.findByKeys(
+        Array.from({ length: insertionSize }, (_, i) => `${i + insertionSize}`),
+      );
+
+      expect(result).toEqual([]);
+    });
+
+    it("returns empty array when given no keys", async () => {
+      const { repo } = setupSingleColumnPkTable();
+      await insertManyUsers(insertionSize);
+
+      const result = await repo.findByKeys([]);
+
+      expect(result).toEqual([]);
+    });
+
+    it("does not duplicate rows for duplicate keys", async () => {
+      const { repo } = setupSingleColumnPkTable();
+      const [firstRow] = await insertManyUsers(insertionSize);
+
+      const result = await repo.findByKeys([firstRow!.id, firstRow!.id]);
+
+      expect(result).toEqual([firstRow]);
+    });
+
+    describe("composite primary key", () => {
+      const rowCompositeKeys = (cols: TestNFTCollectionInsertedRow[]) =>
+        keys(cols, (u) => ({ chainId: u.chainId, address: u.address }));
+      it("finds the matching rows by their composite keys", async () => {
+        const { repo } = setupCompositePkTable();
+        const rows = await insertManyTestNftCollections(insertionSize);
+
+        const expectedSize = rows.length / 2;
+        const relevantRows = rows.slice(expectedSize);
+
+        const result = await repo.findByKeys(rowCompositeKeys(relevantRows));
+
+        expect(result).toHaveLength(expectedSize);
+        expect(result).toEqual(relevantRows);
+      });
+
+      it("it returns empty list when only martial match", async () => {
+        const { repo } = setupCompositePkTable();
+        const rows = await insertManyTestNftCollections(insertionSize);
+
+        const result = await repo.findByKeys(
+          rowCompositeKeys(rows).map((key) => ({
+            ...key,
+            address: "0xdoesntexist",
+          })),
+        );
+
+        expect(result).toEqual([]);
+      });
+    });
   });
 });
