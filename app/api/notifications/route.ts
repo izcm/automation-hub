@@ -2,8 +2,8 @@ import * as z from "zod";
 
 // todo: make read layer
 import { messageBuilder, notificationActions } from "@/server/di";
-import { CHANNEL } from "@/server/messaging/types";
-import { MESSAGE_USE_CASES } from "@/server/messaging/templates";
+import { channels } from "@/server/domain/notifications/messaging/types";
+import { MESSAGE_USE_CASES } from "@/server/domain/notifications/messaging/templates";
 import {
   MAX_NOTIFICATIONS_PER_BATCH,
   MAX_ID_LENGTH,
@@ -14,7 +14,7 @@ const NotificationBatchRequest = z.strictObject({
   // eu-inspection-reminder treats them as vehicle IDs, while a future
   // party-at-my-place use case could treat them as user IDs.
   ids: z.string().max(MAX_ID_LENGTH).array().max(MAX_NOTIFICATIONS_PER_BATCH),
-  channel: z.enum(CHANNEL),
+  channel: z.enum(channels),
   useCase: z.enum(MESSAGE_USE_CASES),
 });
 

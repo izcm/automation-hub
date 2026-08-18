@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { vehicleRepo } from "@server/mongo/vehicles/repository";
+import { vehicleRepo } from "@/server/db/mongo/repos/vehicles";
 import { vehicleActions } from "@server/di";
 
 export async function GET() {

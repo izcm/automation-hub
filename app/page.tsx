@@ -3,6 +3,7 @@ import Link from "next/link";
 import { LABELS } from "@features/labels";
 
 import { ChevronRight, Inspection, Truck } from "@/components/icons";
+import { powerOfficeFetch } from "@/server/power-office/client";
 
 function LandingLink({
   href,
@@ -24,7 +25,13 @@ function LandingLink({
   );
 }
 
-export default function Landing() {
+export default async function Landing() {
+  const res = await powerOfficeFetch("/Employees");
+
+  // test stuff
+  if (!res.ok) console.error("...");
+  else console.log(res.data);
+
   return (
     <div className="flex-1 flex-center landing-surface">
       {/* EYEBROW */}

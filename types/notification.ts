@@ -1,6 +1,8 @@
-import { Channel } from "@/server/messaging/types";
+import { Channel } from "@/server/domain/notifications/messaging/types";
 
-export type NotificationStatus = "queued" | "sent" | "failed";
+export const notificationStatuses = ["queued", "sent", "failed"] as const;
+
+export type NotificationStatus = (typeof notificationStatuses)[number];
 
 export type Notification = {
   id: string;
@@ -9,6 +11,8 @@ export type Notification = {
   status: NotificationStatus;
   providerId?: string;
   error?: string;
+  createdAt: number;
+  updatedAt: number;
 };
 
 export type NewNotification = {

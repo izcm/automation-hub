@@ -4,15 +4,16 @@ import { after } from "next/server";
 import { lookupVehicle } from "../vegvesen/lookup";
 
 // mongo
-import { vehicleRepo } from "../mongo/vehicles/repository";
-import { notificationRepo } from "../mongo/notifications/repository";
-import { userRepo } from "../mongo/users/repository";
+import { vehicleRepo } from "../db/mongo/repos/vehicles";
+import { notificationRepo } from "../db/mongo/repos/notifications";
+import { employeeRepo } from "../db/mongo/repos/employees";
 
 // actions
-import { makeVehicleActions } from "../vehicles/actions";
-import { makeNotificationActions } from "../notifications/actions";
-import { makeMessageBuilder } from "../messaging/message-builder";
-import { builders } from "../messaging/builders";
+import { makeVehicleActions } from "../domain/vehicles/actions";
+import { makeNotificationActions } from "../domain/notifications/actions";
+import { makeMessageBuilder } from "../domain/notifications/messaging/message-builder";
+import { builders } from "../domain/notifications/messaging/builders";
+import { sendEmail } from "../messaging/email";
 import { generateId } from "../shared/id";
 
 export const vehicleActions = makeVehicleActions({
@@ -26,9 +27,10 @@ export const notificationActions = makeNotificationActions({
   notifications: notificationRepo,
   later: after,
   generateId,
+  sendEmail,
 });
 
 export const messageBuilder = makeMessageBuilder(
-  { vehicles: vehicleRepo, users: userRepo },
+  { vehicles: vehicleRepo, employees: employeeRepo },
   builders,
 );

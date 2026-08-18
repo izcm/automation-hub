@@ -30,8 +30,8 @@ export type Vehicle = EnrichProgress & {
   // UI enrichment
   imageUrl?: string;
 
-  /** userId of who's responsible for maintenance — a reference into `users`
-   *  (not denormalized). Resolve to an email at notify time. */
+  /** employeeId of who's responsible for maintenance — a reference into
+   *  `employees` (not denormalized). Resolve to an email at notify time. */
   maintenanceResponsibleId?: string;
 };
 
