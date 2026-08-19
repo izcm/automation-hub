@@ -10,6 +10,15 @@ export type CursorCore = {
   sortDir: SortDir;
 };
 
+export const cursorTag = (value: string | number | Date): "s" | "n" | "d" =>
+  value instanceof Date ? "d" : typeof value === "number" ? "n" : "s";
+
+export const encodeCursor = (
+  value: string | number | Date,
+  id: string | number,
+) =>
+  `${cursorTag(value)}${value instanceof Date ? value.toISOString() : value}_${id}`;
+
 export const buildCursorFilter = ({
   cursor,
   sortColumn,
@@ -18,9 +27,13 @@ export const buildCursorFilter = ({
 }: CursorCore) => {
   if (!cursor) return;
 
-  const [val, id] = cursor.split("_");
+  const tag = cursor[0];
+  const [rawVal, id] = cursor.slice(1).split("_");
 
-  if (!val || !id) throw new Error("Invalid cursor");
+  if (!rawVal || !id) throw new Error("Invalid cursor");
+
+  const val =
+    tag === "n" ? Number(rawVal) : tag === "d" ? new Date(rawVal) : rawVal;
 
   const cmp = sortDir === "asc" ? gt : lt;
 

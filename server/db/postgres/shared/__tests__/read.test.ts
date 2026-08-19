@@ -11,12 +11,19 @@ import {
   PgTable,
   primaryKey,
   text,
+  timestamp,
 } from "drizzle-orm/pg-core";
 import { and, eq, InferInsertModel, InferSelectModel } from "drizzle-orm";
 
 import { Pool } from "pg";
+import { PageQuery } from "@a2zb/node/db";
 
 import { makeReadRepo } from "../read";
+
+// NOTE: the view/default-view tests (findByKey/findByKeys/findPage) are
+// arguably unit-test-ish — the { row -> aliasedId }
+// mapping itself doesn't need real Postgres. Kept as integration tests
+// anyway.
 
 describe("makeReadRepo (postgres)", () => {
   let container: StartedPostgreSqlContainer;
@@ -30,23 +37,25 @@ describe("makeReadRepo (postgres)", () => {
 
     // === TWO TABLES – 1x SINGLE COLUMN PK & 1x COMPOSITE PK ===
 
-    // single column pk
+    // single column pk — string, integer, and date columns so findPage can
+    // exercise sorting/cursor behavior across all three types
     await pool.query(`
-      CREATE TABLE test_users (
+      CREATE TABLE test_events (
         id TEXT PRIMARY KEY,
-        name TEXT,
-        email TEXT 
+        name TEXT NOT NULL,
+        priority INTEGER NOT NULL,
+        occurred_at TIMESTAMP NOT NULL
       );
     `);
 
-    // composite pk
+    // composite pk — also has a unique generated column that isn't the PK
     await pool.query(`
-      CREATE TABLE test_nft_collections (
-        chain_id INTEGER NOT NULL,
-        address TEXT NOT NULL,
+      CREATE TABLE test_events_composite_pk (
+        key_part_a INTEGER NOT NULL,
+        key_part_b TEXT NOT NULL,
         seq_id INTEGER GENERATED ALWAYS AS IDENTITY UNIQUE,
-        name TEXT,
-        PRIMARY KEY (chain_id, address)
+        label TEXT,
+        PRIMARY KEY (key_part_a, key_part_b)
       );
     `);
   }, 60_000);
@@ -57,77 +66,76 @@ describe("makeReadRepo (postgres)", () => {
   });
 
   beforeEach(async () => {
-    await pool.query(`TRUNCATE TABLE test_users;`);
-    await pool.query(`TRUNCATE TABLE test_nft_collections;`);
+    await pool.query(`TRUNCATE TABLE test_events;`);
+    await pool.query(`TRUNCATE TABLE test_events_composite_pk;`);
   });
 
   // === table defs ===
 
-  const testUsers = pgTable("test_users", {
+  const testEvents = pgTable("test_events", {
     id: text().primaryKey(),
-    name: text(),
-    email: text(),
+    name: text().notNull(),
+    priority: integer().notNull(),
+    occurredAt: timestamp("occurred_at").notNull(),
   });
 
-  type TestUserInsertedRow = InferSelectModel<typeof testUsers>;
+  type TestEventInsertedRow = InferSelectModel<typeof testEvents>;
 
-  const testNftCollections = pgTable(
-    "test_nft_collections",
+  const testEventsCompositePk = pgTable(
+    "test_events_composite_pk",
     {
-      chainId: integer("chain_id").notNull(),
-      address: text().notNull(),
-      name: text(),
+      keyPartA: integer("key_part_a").notNull(),
+      keyPartB: text("key_part_b").notNull(),
+      label: text(),
       seqId: integer("seq_id").generatedAlwaysAsIdentity(),
     },
-    (table) => [primaryKey({ columns: [table.chainId, table.address] })],
+    (table) => [primaryKey({ columns: [table.keyPartA, table.keyPartB] })],
   );
 
-  type TestNFTCollectionInsertedRow = InferSelectModel<
-    typeof testNftCollections
-  >;
+  type CompositePkRow = InferSelectModel<typeof testEventsCompositePk>;
 
   // === test setup ===
 
-  function setupSingleColumnPkTable<TDefault = TestUserInsertedRow>(
-    defaultView: (row: TestUserInsertedRow) => TDefault = (row) =>
+  function setupSingleColumnPkTable<TDefault = TestEventInsertedRow>(
+    defaultView: (row: TestEventInsertedRow) => TDefault = (row) =>
       row as TDefault,
   ) {
     return {
       db,
-      table: testUsers,
+      table: testEvents,
       repo: makeReadRepo(
         db,
-        testUsers,
+        testEvents,
         (table, key) => eq(table.id, key),
-        (table) => table.id,
+        "id",
         defaultView,
       ),
     };
   }
 
-  function setupCompositePkTable<
-    TDefault = InferSelectModel<typeof testNftCollections>,
-  >(
-    defaultView: (
-      row: InferSelectModel<typeof testNftCollections>,
-    ) => TDefault = (row) => row as unknown as TDefault,
+  function setupCompositePkTable<TDefault = CompositePkRow>(
+    defaultView: (row: CompositePkRow) => TDefault = (row) =>
+      row as unknown as TDefault,
   ) {
-    const testNftCollection = {
-      chainId: 1,
-      address: "0xabd",
-      name: "Overrated Monkey",
+    const compositeRow = {
+      keyPartA: 1,
+      keyPartB: "b1",
+      label: "Label A",
     };
 
     return {
       db,
-      nftCollection: testNftCollection,
-      table: testNftCollections,
+      compositeRow,
+      table: testEventsCompositePk,
       repo: makeReadRepo(
         db,
-        testNftCollections,
-        (table, key: { chainId: number; address: string }) =>
-          and(eq(table.chainId, key.chainId), eq(table.address, key.address)),
-        (table) => table.seqId,
+        testEventsCompositePk,
+        (table, key: { keyPartA: number; keyPartB: string }) =>
+          and(
+            eq(table.keyPartA, key.keyPartA),
+            eq(table.keyPartB, key.keyPartB),
+          ),
+        "seqId",
         defaultView,
       ),
     };
@@ -135,21 +143,24 @@ describe("makeReadRepo (postgres)", () => {
 
   // === entity generators ===
 
-  function generateTestUsers(n: number): InferInsertModel<typeof testUsers>[] {
+  function generateTestEvents(
+    n: number,
+  ): InferInsertModel<typeof testEvents>[] {
     return Array.from({ length: n }, (_, i) => ({
       id: `${i}`,
-      name: `User ${i}`,
-      email: `${i}@example.com`,
+      name: `Event ${i}`,
+      priority: i,
+      occurredAt: new Date(2020, 0, 1 + i),
     }));
   }
 
-  function generateTestNftCollections(
+  function generateCompositePk(
     n: number,
-  ): InferInsertModel<typeof testNftCollections>[] {
+  ): InferInsertModel<typeof testEventsCompositePk>[] {
     return Array.from({ length: n }, (_, i) => ({
-      chainId: i,
-      address: `0x${i}`,
-      name: `Collection ${i}`,
+      keyPartA: i,
+      keyPartB: `b${i}`,
+      label: `Label ${i}`,
     }));
   }
 
@@ -168,29 +179,29 @@ describe("makeReadRepo (postgres)", () => {
     return result;
   }
 
-  async function insertManyUsers(n: number) {
-    return insertMany(testUsers, generateTestUsers(n));
+  async function insertManyTestEvents(n: number) {
+    return insertMany(testEvents, generateTestEvents(n));
   }
 
-  async function insertManyTestNftCollections(n: number) {
-    return insertMany(testNftCollections, generateTestNftCollections(n));
+  async function insertManyCompositePk(n: number) {
+    return insertMany(testEventsCompositePk, generateCompositePk(n));
   }
 
   // === findByKey ===
 
   describe("findByKey", () => {
-    async function insertSingleUser() {
-      return (await insertManyUsers(1))[0]!; // we know this because of prior check + throw
+    async function insertSingleEvent() {
+      return (await insertManyTestEvents(1))[0]!; // we know this because of prior check + throw
     }
 
     it("maps the row through the given view", async () => {
       const { repo } = setupSingleColumnPkTable();
-      const user = await insertSingleUser();
+      const event = await insertSingleEvent();
 
-      const result = await repo.findByKey(user.id, (row) => ({
-        email: row.email,
+      const result = await repo.findByKey(event.id, (row) => ({
+        name: row.name,
       }));
-      expect(result).toEqual({ email: user.email });
+      expect(result).toEqual({ name: event.name });
     });
 
     it("returns null for a missing key", async () => {
@@ -203,37 +214,37 @@ describe("makeReadRepo (postgres)", () => {
       const { repo } = setupSingleColumnPkTable((row) => ({
         aliasedId: row.id,
       }));
-      const user = await insertSingleUser();
+      const event = await insertSingleEvent();
 
-      const result = await repo.findByKey(user.id);
-      expect(result).toEqual({ aliasedId: user.id });
+      const result = await repo.findByKey(event.id);
+      expect(result).toEqual({ aliasedId: event.id });
     });
 
     describe("composite primary key", () => {
-      async function insertNftCollection(
-        nftCollection: InferInsertModel<typeof testNftCollections>,
+      async function insertCompositeRow(
+        compositeRow: InferInsertModel<typeof testEventsCompositePk>,
       ) {
-        await db.insert(testNftCollections).values(nftCollection);
+        await db.insert(testEventsCompositePk).values(compositeRow);
       }
 
       it("finds the row by its composite key", async () => {
-        const { repo, nftCollection } = setupCompositePkTable();
-        await insertNftCollection(nftCollection);
+        const { repo, compositeRow } = setupCompositePkTable();
+        await insertCompositeRow(compositeRow);
 
         const result = await repo.findByKey({
-          chainId: nftCollection.chainId,
-          address: nftCollection.address,
+          keyPartA: compositeRow.keyPartA,
+          keyPartB: compositeRow.keyPartB,
         });
-        expect(result).toMatchObject(nftCollection); // we don't care about the seq_id
+        expect(result).toMatchObject(compositeRow); // we don't care about the seq_id
       });
 
       it("returns null when only partial match", async () => {
-        const { repo, nftCollection } = setupCompositePkTable();
-        await insertNftCollection(nftCollection);
+        const { repo, compositeRow } = setupCompositePkTable();
+        await insertCompositeRow(compositeRow);
 
         const result = await repo.findByKey({
-          chainId: nftCollection.chainId,
-          address: "0xdoesntexist",
+          keyPartA: compositeRow.keyPartA,
+          keyPartB: "doesnt-exist",
         });
         expect(result).toBeNull();
       });
@@ -248,11 +259,12 @@ describe("makeReadRepo (postgres)", () => {
     const keys = <T, TKey = string>(items: T[], getId: (item: T) => TKey) =>
       items.map((u) => getId(u));
 
-    const rowIds = (users: TestUserInsertedRow[]) => keys(users, (u) => u.id);
+    const rowIds = (events: TestEventInsertedRow[]) =>
+      keys(events, (e) => e.id);
 
     it("returns the matching rows", async () => {
       const { repo } = setupSingleColumnPkTable();
-      const rows = await insertManyUsers(insertionSize);
+      const rows = await insertManyTestEvents(insertionSize);
 
       const expectedSize = rows.length / 2;
       const relevantRows = rows.slice(expectedSize);
@@ -263,24 +275,39 @@ describe("makeReadRepo (postgres)", () => {
       expect(result).toEqual(relevantRows);
     });
 
-    it("maps row through provided view", async () => {
+    it("returns rows through the default view when no view is passed", async () => {
       const { repo } = setupSingleColumnPkTable((row) => ({
-        aliasedId: row.id,
+        defaultAlias: row.id,
       }));
-      const rows = await insertManyUsers(insertionSize);
+      const rows = await insertManyTestEvents(insertionSize);
 
       const result = await repo.findByKeys(rowIds(rows));
 
       expect(result).toEqual(
         rows.map((row) => ({
-          aliasedId: row.id,
+          defaultAlias: row.id,
+        })),
+      );
+    });
+
+    it("maps rows through the view provided at callsite", async () => {
+      const { repo } = setupSingleColumnPkTable();
+      const rows = await insertManyTestEvents(insertionSize);
+
+      const result = await repo.findByKeys(rowIds(rows), (row) => ({
+        callsiteAlias: row.id,
+      }));
+
+      expect(result).toEqual(
+        rows.map((row) => ({
+          callsiteAlias: row.id,
         })),
       );
     });
 
     it("returns empty array when no matching row", async () => {
       const { repo } = setupSingleColumnPkTable();
-      await insertManyUsers(insertionSize);
+      await insertManyTestEvents(insertionSize);
 
       const result = await repo.findByKeys(
         Array.from({ length: insertionSize }, (_, i) => `${i + insertionSize}`),
@@ -291,7 +318,7 @@ describe("makeReadRepo (postgres)", () => {
 
     it("returns empty array when given no keys", async () => {
       const { repo } = setupSingleColumnPkTable();
-      await insertManyUsers(insertionSize);
+      await insertManyTestEvents(insertionSize);
 
       const result = await repo.findByKeys([]);
 
@@ -300,7 +327,7 @@ describe("makeReadRepo (postgres)", () => {
 
     it("does not duplicate rows for duplicate keys", async () => {
       const { repo } = setupSingleColumnPkTable();
-      const [firstRow] = await insertManyUsers(insertionSize);
+      const [firstRow] = await insertManyTestEvents(insertionSize);
 
       const result = await repo.findByKeys([firstRow!.id, firstRow!.id]);
 
@@ -308,11 +335,11 @@ describe("makeReadRepo (postgres)", () => {
     });
 
     describe("composite primary key", () => {
-      const rowCompositeKeys = (cols: TestNFTCollectionInsertedRow[]) =>
-        keys(cols, (u) => ({ chainId: u.chainId, address: u.address }));
+      const rowCompositeKeys = (cols: CompositePkRow[]) =>
+        keys(cols, (u) => ({ keyPartA: u.keyPartA, keyPartB: u.keyPartB }));
       it("finds the matching rows by their composite keys", async () => {
         const { repo } = setupCompositePkTable();
-        const rows = await insertManyTestNftCollections(insertionSize);
+        const rows = await insertManyCompositePk(insertionSize);
 
         const expectedSize = rows.length / 2;
         const relevantRows = rows.slice(expectedSize);
@@ -323,18 +350,183 @@ describe("makeReadRepo (postgres)", () => {
         expect(result).toEqual(relevantRows);
       });
 
-      it("it returns empty list when only martial match", async () => {
+      it("returns empty list when only partial match", async () => {
         const { repo } = setupCompositePkTable();
-        const rows = await insertManyTestNftCollections(insertionSize);
+        const rows = await insertManyCompositePk(insertionSize);
 
         const result = await repo.findByKeys(
           rowCompositeKeys(rows).map((key) => ({
             ...key,
-            address: "0xdoesntexist",
+            keyPartB: "doesnt-exist",
           })),
         );
 
         expect(result).toEqual([]);
+      });
+    });
+  });
+
+  // === findPage ===
+
+  describe("findPage", () => {
+    const insertionSize = 100;
+
+    const setupRepoAndInsertTestEvents = async () => {
+      const { repo } = setupSingleColumnPkTable();
+      const inserted = await insertManyTestEvents(insertionSize);
+      return {
+        repo,
+        inserted,
+      };
+    };
+
+    const pageQuery = (args: Partial<PageQuery>): PageQuery => ({
+      limit: insertionSize,
+      sortField: "name",
+      sortDir: "desc",
+      ...args,
+    });
+
+    it("returns at most the given limit of items", async () => {
+      const { repo } = await setupRepoAndInsertTestEvents();
+      const limit = insertionSize / 4;
+
+      const { items } = await repo.findPage(pageQuery({ limit }));
+      expect(items).toHaveLength(limit);
+    });
+
+    it.each([
+      [
+        "string",
+        "name",
+        (a: TestEventInsertedRow, b: TestEventInsertedRow) =>
+          a.name < b.name ? -1 : 1,
+      ],
+      [
+        "integer",
+        "priority",
+        (a: TestEventInsertedRow, b: TestEventInsertedRow) =>
+          a.priority - b.priority,
+      ],
+      [
+        "date",
+        "occurredAt",
+        (a: TestEventInsertedRow, b: TestEventInsertedRow) =>
+          a.occurredAt.getTime() - b.occurredAt.getTime(),
+      ],
+    ] as const)(
+      "sorts by the specified sort column (%s), in the given sort direction",
+      async (_type, sortField, compare) => {
+        const { repo, inserted: rows } = await setupRepoAndInsertTestEvents();
+
+        const sortedAsc = [...rows].sort(compare);
+        const sortedDesc = [...sortedAsc].reverse();
+
+        const { items: resultAsc } = await repo.findPage(
+          pageQuery({ sortDir: "asc", sortField }),
+        );
+        const { items: resultDesc } = await repo.findPage(
+          pageQuery({ sortDir: "desc", sortField }),
+        );
+
+        expect(resultAsc).toEqual(sortedAsc);
+        expect(resultDesc).toEqual(sortedDesc);
+      },
+    );
+
+    it("throws when table does not define specified column", async () => {
+      const { repo } = await setupRepoAndInsertTestEvents();
+      await expect(
+        repo.findPage(pageQuery({ sortField: "doesNotExist" })),
+      ).rejects.toThrow();
+    });
+
+    it("returns the next page of items after the given cursor, with no overlap or gaps", async () => {
+      const { repo, inserted: rows } = await setupRepoAndInsertTestEvents();
+      const pageSize = 25;
+
+      const sortField = "priority";
+      const sortDir = "asc";
+
+      const sorted = [...rows].sort((a, b) => a.priority - b.priority);
+
+      const firstPage = await repo.findPage(
+        pageQuery({ limit: pageSize, sortField, sortDir }),
+      );
+      const secondPage = await repo.findPage(
+        pageQuery({
+          limit: pageSize,
+          sortField,
+          sortDir,
+          cursor: firstPage.nextCursor ?? undefined,
+        }),
+      );
+
+      expect(firstPage.items).toEqual(sorted.slice(0, pageSize));
+      expect(secondPage.items).toEqual(sorted.slice(pageSize, pageSize * 2));
+    });
+
+    it("breaks ties on the cursor id when multiple rows share the same sort value", async () => {
+      const { repo } = setupSingleColumnPkTable();
+      const pageSize = 5;
+      // already ascending by priority (priority: i)
+      const testEventRows = generateTestEvents(10);
+
+      // row[0] (id "0", smallest cursorId) now ties with row[pageSize] on
+      // priority. Since id is the tie-breaker, row[0] should win the tie and
+      // land as the LAST item of the first page — even though every other
+      // row still sorts by its own (otherwise untouched) priority.
+      testEventRows[0]!.priority = testEventRows[pageSize]!.priority;
+
+      await insertMany(testEvents, testEventRows);
+
+      const firstPage = await repo.findPage(
+        pageQuery({ sortDir: "asc", sortField: "priority", limit: pageSize }),
+      );
+      expect(firstPage.items.map((e) => e.id)).toEqual([
+        "1",
+        "2",
+        "3",
+        "4",
+        "0",
+      ]);
+
+      const secondPage = await repo.findPage(
+        pageQuery({
+          sortDir: "asc",
+          sortField: "priority",
+          limit: pageSize,
+          cursor: firstPage.nextCursor ?? undefined,
+        }),
+      );
+      expect(secondPage.items[0]?.id).toBe(`${pageSize}`);
+    });
+
+    describe("view", () => {
+      it("uses default view when no other is given", async () => {
+        const { repo } = setupSingleColumnPkTable((row) => ({
+          aliasedId: row.id,
+        }));
+        const rows = await insertManyTestEvents(insertionSize);
+
+        const { items } = await repo.findPage(pageQuery({}));
+
+        expect(items).toEqual(
+          expect.arrayContaining(rows.map((row) => ({ aliasedId: row.id }))),
+        );
+      });
+
+      it("uses view provided at callsite when given", async () => {
+        const { repo } = setupSingleColumnPkTable();
+        const rows = await insertManyTestEvents(insertionSize);
+
+        const { items } = await repo.findPage(pageQuery({}), (row) => ({
+          aliasedId: row.id,
+        }));
+
+        expect(items).toEqual(
+          expect.arrayContaining(rows.map((row) => ({ aliasedId: row.id }))),
+        );
       });
     });
   });

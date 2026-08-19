@@ -1,14 +1,34 @@
-import { and, getColumns, InferSelectModel, or, SQL } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  getColumns,
+  InferSelectModel,
+  or,
+  SQL,
+} from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { PgColumn, PgTable } from "drizzle-orm/pg-core";
+import { PgTable } from "drizzle-orm/pg-core";
 
-import { PageQuery } from "@a2zb/node/db";
-import { buildCursorFilter } from "./cursor";
+import { Page, PageQuery } from "@a2zb/node/db";
+import {
+  assertColumn,
+  assertCursorIdValue,
+  assertCursorValue,
+} from "./assertions";
+import { buildCursorFilter, encodeCursor } from "./cursor";
 
 // getCursorId must resolve to a single column that's unique per row — cursor
 // pagination tie-breaks on it, and composite keys aren't supported there.
 // findByKey/findByKeys still go through keyWhere, so composite TKeys work
 // fine for lookups; only findPage's cursor is restricted to a single column.
+
+// (alias) getColumns<TTable>(table: TTable): TTable extends Table<TableConfig<Columns>> ? TTable["_"]["columns"] : TTable extends View<string, boolean, ColumnsSelection> ? TTable["_"]["selectedFields"] : TTable extends Subquery<string, Record<string, unknown>> ? TTable["_"]["selectedFields"] : never
+// import getColumns
+
+// REQUIREMENTS:
+// - `cursorIdColumnName` must map to a field of type STRING or INTEGER
+// -`sortField` must map to a field of type TIMESTAMP (DATE) or STRING or INTEGER
 export const makeReadRepo = <
   TTable extends PgTable,
   TKey = string,
@@ -17,7 +37,7 @@ export const makeReadRepo = <
   db: NodePgDatabase,
   table: TTable,
   keyWhere: (table: TTable, key: TKey) => SQL | undefined,
-  getCursorId: (table: TTable) => PgColumn,
+  cursorIdColumnName: keyof InferSelectModel<TTable>, // EXPECTS UNIQUE COLUMN!
   defaultView: (row: InferSelectModel<TTable>) => TDefault,
 ) => {
   type Row = InferSelectModel<TTable>;
@@ -56,28 +76,54 @@ export const makeReadRepo = <
       return rows.map((row) => view(row as Row));
     },
 
-    // expect cursor sortField_id format
+    // expects cursor sortField_cursorId format
     async findPage<TOut = TDefault>(
       pageQuery: PageQuery,
       view: (row: Row) => TOut = defaultView as unknown as (row: Row) => TOut,
-    ): Promise<TOut[]> {
+    ): Promise<Page<TOut>> {
       const sortColumn = columns[pageQuery.sortField];
-      if (!sortColumn)
-        throw new Error(`Unknown sortField: ${pageQuery.sortField}`);
+      assertColumn(sortColumn, pageQuery.sortField);
+
+      const idColumn = columns[cursorIdColumnName];
+      // this should never fire – logically speaking
+      assertColumn(idColumn, String(cursorIdColumnName));
 
       const cursorFilter = buildCursorFilter({
         cursor: pageQuery.cursor,
         sortColumn,
-        idColumn: getCursorId(table),
+        idColumn,
         sortDir: pageQuery.sortDir,
       });
+
+      const orderFn = pageQuery.sortDir === "asc" ? asc : desc;
 
       const rows = await db
         .select()
         .from(pgTable)
-        .where(and(undefined, cursorFilter));
+        .where(and(undefined, cursorFilter))
+        .orderBy(orderFn(sortColumn), orderFn(idColumn))
+        .limit(pageQuery.limit);
 
-      return rows.map((row) => view(row as Row));
+      // encode new cursor
+      const lastRow = rows.at(-1) as Row | undefined;
+
+      // drizzle returns a Date for SQL `timestamp` types, cursorTag encodes
+      // this with prefix d; similar with strings/numbers, prefixed s/n
+      let nextCursor: string | null = null;
+      if (lastRow) {
+        const sortValue = lastRow[pageQuery.sortField as keyof Row];
+        assertCursorValue(sortValue, pageQuery.sortField);
+
+        const idValue = lastRow[cursorIdColumnName];
+        assertCursorIdValue(idValue, String(cursorIdColumnName));
+
+        nextCursor = encodeCursor(sortValue, idValue);
+      }
+
+      return {
+        items: rows.map((row) => view(row as Row)),
+        nextCursor,
+      };
     },
   };
 };
