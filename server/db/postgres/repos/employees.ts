@@ -1,34 +1,48 @@
-import { sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
-import { query } from "../pool";
 import { EmployeePort } from "@/server/domain/employees/port";
 import { Employee } from "@/types/employee";
-import { EmployeeRow } from "../types/employee-row";
+import { makeReadRepo } from "@server/db/postgres/shared/read";
+
+import { query } from "../pool";
+import { employeesTable } from "../schema/employees";
+
+type EmployeeRow = typeof employeesTable.$inferSelect;
 
 const toEmployee = (row: EmployeeRow): Employee => ({
   id: row.id,
   email: row.email,
 });
 
+const readRepo = makeReadRepo(
+  query,
+  employeesTable,
+  (table, key: string) => eq(table.id, key),
+  "id",
+  toEmployee,
+);
+
 export const employeeRepo: EmployeePort = {
-  ensure: function (email: string, id: string): Promise<{ id: string }> {
-    throw new Error("Function not implemented.");
-  },
+  ...readRepo,
 
-  findByKey: async function (key: string): Promise<Employee | null> {
-    const { rows } = await query.execute<EmployeeRow>(
-      sql`SELECT id, email FROM employees WHERE id = ${key}`,
-    );
+  async ensure(email: string, id: string): Promise<{ id: string }> {
+    const inserted = await query
+      .insert(employeesTable)
+      .values({ id, email })
+      .onConflictDoNothing({ target: employeesTable.email })
+      .returning({ id: employeesTable.id });
 
-    const row = rows[0];
-    return row ? toEmployee(row) : null;
-  },
+    if (inserted[0]) return { id: inserted[0].id };
 
-  findByKeys: async function (keys: string[]): Promise<Employee[]> {
-    const { rows } = await query.execute<EmployeeRow>(
-      sql`SELECT id, email FROM employees WHERE id = ANY(${keys})`,
-    );
+    const [existing] = await query
+      .select({ id: employeesTable.id })
+      .from(employeesTable)
+      .where(eq(employeesTable.email, email));
 
-    return rows.map(toEmployee);
+    if (!existing) {
+      throw new Error(`ensure: conflict on ${email} but row not found`);
+    }
+
+    return { id: existing.id };
   },
 };

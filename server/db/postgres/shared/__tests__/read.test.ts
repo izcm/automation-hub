@@ -20,10 +20,9 @@ import { PageQuery } from "@a2zb/node/db";
 
 import { makeReadRepo } from "../read";
 
-// NOTE: the view/default-view tests (findByKey/findByKeys/findPage) are
-// arguably unit-test-ish — the { row -> aliasedId }
-// mapping itself doesn't need real Postgres. Kept as integration tests
-// anyway.
+// NOTE: the toEntity-mapping tests (findByKey/findByKeys/findPage) are
+// arguably unit-test-ish — the { row -> entity } mapping itself doesn't need
+// real Postgres. Kept as integration tests anyway.
 
 describe("makeReadRepo (postgres)", () => {
   let container: StartedPostgreSqlContainer;
@@ -96,9 +95,9 @@ describe("makeReadRepo (postgres)", () => {
 
   // === test setup ===
 
-  function setupSingleColumnPkTable<TDefault = TestEventInsertedRow>(
-    defaultView: (row: TestEventInsertedRow) => TDefault = (row) =>
-      row as TDefault,
+  function setupSingleColumnPkTable<TEntity extends object = TestEventInsertedRow>(
+    toEntity: (row: TestEventInsertedRow) => TEntity = (row) =>
+      row as unknown as TEntity,
   ) {
     return {
       db,
@@ -108,14 +107,14 @@ describe("makeReadRepo (postgres)", () => {
         testEvents,
         (table, key) => eq(table.id, key),
         "id",
-        defaultView,
+        toEntity,
       ),
     };
   }
 
-  function setupCompositePkTable<TDefault = CompositePkRow>(
-    defaultView: (row: CompositePkRow) => TDefault = (row) =>
-      row as unknown as TDefault,
+  function setupCompositePkTable<TEntity extends object = CompositePkRow>(
+    toEntity: (row: CompositePkRow) => TEntity = (row) =>
+      row as unknown as TEntity,
   ) {
     const compositeRow = {
       keyPartA: 1,
@@ -136,7 +135,7 @@ describe("makeReadRepo (postgres)", () => {
             eq(table.keyPartB, key.keyPartB),
           ),
         "seqId",
-        defaultView,
+        toEntity,
       ),
     };
   }
@@ -194,23 +193,7 @@ describe("makeReadRepo (postgres)", () => {
       return (await insertManyTestEvents(1))[0]!; // we know this because of prior check + throw
     }
 
-    it("maps the row through the given view", async () => {
-      const { repo } = setupSingleColumnPkTable();
-      const event = await insertSingleEvent();
-
-      const result = await repo.findByKey(event.id, (row) => ({
-        name: row.name,
-      }));
-      expect(result).toEqual({ name: event.name });
-    });
-
-    it("returns null for a missing key", async () => {
-      const { repo } = setupSingleColumnPkTable();
-      const result = await repo.findByKey("9999");
-      expect(result).toBeNull();
-    });
-
-    it("returns the row through the default view when no view is passed", async () => {
+    it("returns the row mapped through toEntity", async () => {
       const { repo } = setupSingleColumnPkTable((row) => ({
         aliasedId: row.id,
       }));
@@ -218,6 +201,12 @@ describe("makeReadRepo (postgres)", () => {
 
       const result = await repo.findByKey(event.id);
       expect(result).toEqual({ aliasedId: event.id });
+    });
+
+    it("returns null for a missing key", async () => {
+      const { repo } = setupSingleColumnPkTable();
+      const result = await repo.findByKey("9999");
+      expect(result).toBeNull();
     });
 
     describe("composite primary key", () => {
@@ -275,9 +264,9 @@ describe("makeReadRepo (postgres)", () => {
       expect(result).toEqual(relevantRows);
     });
 
-    it("returns rows through the default view when no view is passed", async () => {
+    it("returns rows mapped through toEntity", async () => {
       const { repo } = setupSingleColumnPkTable((row) => ({
-        defaultAlias: row.id,
+        aliasedId: row.id,
       }));
       const rows = await insertManyTestEvents(insertionSize);
 
@@ -285,22 +274,7 @@ describe("makeReadRepo (postgres)", () => {
 
       expect(result).toEqual(
         rows.map((row) => ({
-          defaultAlias: row.id,
-        })),
-      );
-    });
-
-    it("maps rows through the view provided at callsite", async () => {
-      const { repo } = setupSingleColumnPkTable();
-      const rows = await insertManyTestEvents(insertionSize);
-
-      const result = await repo.findByKeys(rowIds(rows), (row) => ({
-        callsiteAlias: row.id,
-      }));
-
-      expect(result).toEqual(
-        rows.map((row) => ({
-          callsiteAlias: row.id,
+          aliasedId: row.id,
         })),
       );
     });
@@ -395,6 +369,19 @@ describe("makeReadRepo (postgres)", () => {
       expect(items).toHaveLength(limit);
     });
 
+    it("returns items mapped through toEntity", async () => {
+      const { repo } = setupSingleColumnPkTable((row) => ({
+        aliasedId: row.id,
+      }));
+      const rows = await insertManyTestEvents(insertionSize);
+
+      const { items } = await repo.findPage(pageQuery({}));
+
+      expect(items).toEqual(
+        expect.arrayContaining(rows.map((row) => ({ aliasedId: row.id }))),
+      );
+    });
+
     it.each([
       [
         "string",
@@ -440,6 +427,9 @@ describe("makeReadRepo (postgres)", () => {
         repo.findPage(pageQuery({ sortField: "doesNotExist" })),
       ).rejects.toThrow();
     });
+
+    // filters not implemented yet
+    it("returns only rows matching the given filters");
 
     it("returns the next page of items after the given cursor, with no overlap or gaps", async () => {
       const { repo, inserted: rows } = await setupRepoAndInsertTestEvents();
@@ -501,33 +491,29 @@ describe("makeReadRepo (postgres)", () => {
       );
       expect(secondPage.items[0]?.id).toBe(`${pageSize}`);
     });
+  });
 
-    describe("view", () => {
-      it("uses default view when no other is given", async () => {
-        const { repo } = setupSingleColumnPkTable((row) => ({
-          aliasedId: row.id,
-        }));
-        const rows = await insertManyTestEvents(insertionSize);
+  // === count ===
 
-        const { items } = await repo.findPage(pageQuery({}));
+  describe("count", () => {
+    it("returns the total number of rows", async () => {
+      const { repo } = setupSingleColumnPkTable();
+      await insertManyTestEvents(10);
 
-        expect(items).toEqual(
-          expect.arrayContaining(rows.map((row) => ({ aliasedId: row.id }))),
-        );
-      });
+      const result = await repo.count();
 
-      it("uses view provided at callsite when given", async () => {
-        const { repo } = setupSingleColumnPkTable();
-        const rows = await insertManyTestEvents(insertionSize);
-
-        const { items } = await repo.findPage(pageQuery({}), (row) => ({
-          aliasedId: row.id,
-        }));
-
-        expect(items).toEqual(
-          expect.arrayContaining(rows.map((row) => ({ aliasedId: row.id }))),
-        );
-      });
+      expect(result).toBe(10);
     });
+
+    it("returns 0 when the table is empty", async () => {
+      const { repo } = setupSingleColumnPkTable();
+
+      const result = await repo.count();
+
+      expect(result).toBe(0);
+    });
+
+    // filters not implemented yet — same as findPage
+    it("returns the count of rows matching the given filters");
   });
 });

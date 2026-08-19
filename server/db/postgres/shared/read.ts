@@ -1,6 +1,7 @@
 import {
   and,
   asc,
+  count,
   desc,
   getColumns,
   InferSelectModel,
@@ -10,7 +11,7 @@ import {
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { PgTable } from "drizzle-orm/pg-core";
 
-import { Page, PageQuery } from "@a2zb/node/db";
+import { ByKey, Countable, Page, Pageable, PageQuery } from "@a2zb/node/db";
 import {
   assertColumn,
   assertCursorIdValue,
@@ -23,31 +24,32 @@ import { buildCursorFilter, encodeCursor } from "./cursor";
 // findByKey/findByKeys still go through keyWhere, so composite TKeys work
 // fine for lookups; only findPage's cursor is restricted to a single column.
 
-// (alias) getColumns<TTable>(table: TTable): TTable extends Table<TableConfig<Columns>> ? TTable["_"]["columns"] : TTable extends View<string, boolean, ColumnsSelection> ? TTable["_"]["selectedFields"] : TTable extends Subquery<string, Record<string, unknown>> ? TTable["_"]["selectedFields"] : never
-// import getColumns
-
 // REQUIREMENTS:
 // - `cursorIdColumnName` must map to a field of type STRING or INTEGER
 // -`sortField` must map to a field of type TIMESTAMP (DATE) or STRING or INTEGER
+
+// Ports represent domain entities, not DB rows — no view/TOut here. Mapping
+// an entity into a presentation shape belongs to the read layer, not the
+// repo. @a2zb/node/db's ByKey/Pageable/Countable already match this shape.
+
 export const makeReadRepo = <
   TTable extends PgTable,
   TKey = string,
-  TDefault = unknown,
+  TEntity extends object = InferSelectModel<TTable>,
 >(
   db: NodePgDatabase,
   table: TTable,
   keyWhere: (table: TTable, key: TKey) => SQL | undefined,
   cursorIdColumnName: keyof InferSelectModel<TTable>, // EXPECTS UNIQUE COLUMN!
-  defaultView: (row: InferSelectModel<TTable>) => TDefault,
+  // DB row -> domain entity. Always applied; this is the repo's only
+  // mapping responsibility.
+  toEntity: (row: InferSelectModel<TTable>) => TEntity,
 ) => {
   type Row = InferSelectModel<TTable>;
 
   const pgTable = table as PgTable;
   const columns = getColumns(table);
 
-  // Always selects the full row — views map from the complete row, never a
-  // partial projection, so there's no risk of a view reading a column that
-  // wasn't fetched.
   const find = (keys: TKey[]) => {
     if (keys.length === 0) return Promise.resolve([]);
 
@@ -58,29 +60,20 @@ export const makeReadRepo = <
   };
 
   return {
-    async findByKey<TOut = TDefault>(
-      key: TKey,
-      view: (row: Row) => TOut = defaultView as unknown as (row: Row) => TOut,
-    ): Promise<TOut | null> {
+    async findByKey(key: TKey): Promise<TEntity | null> {
       const rows = await find([key]);
 
-      return rows[0] ? view(rows[0] as Row) : null;
+      return rows[0] ? toEntity(rows[0] as Row) : null;
     },
 
-    async findByKeys<TOut = TDefault>(
-      keys: TKey[],
-      view: (row: Row) => TOut = defaultView as unknown as (row: Row) => TOut,
-    ): Promise<TOut[]> {
+    async findByKeys(keys: TKey[]): Promise<TEntity[]> {
       const rows = await find(keys);
 
-      return rows.map((row) => view(row as Row));
+      return rows.map((row) => toEntity(row as Row));
     },
 
     // expects cursor sortField_cursorId format
-    async findPage<TOut = TDefault>(
-      pageQuery: PageQuery,
-      view: (row: Row) => TOut = defaultView as unknown as (row: Row) => TOut,
-    ): Promise<Page<TOut>> {
+    async findPage(pageQuery: PageQuery): Promise<Page<TEntity>> {
       const sortColumn = columns[pageQuery.sortField];
       assertColumn(sortColumn, pageQuery.sortField);
 
@@ -121,9 +114,15 @@ export const makeReadRepo = <
       }
 
       return {
-        items: rows.map((row) => view(row as Row)),
+        items: rows.map((row) => toEntity(row as Row)),
         nextCursor,
       };
     },
-  };
+
+    // filters not implemented yet
+    async count(_args?: Pick<PageQuery, "filters">): Promise<number> {
+      const [row] = await db.select({ value: count() }).from(pgTable);
+      return row?.value ?? 0;
+    },
+  } satisfies ByKey<TEntity, TKey> & Pageable<TEntity> & Countable;
 };

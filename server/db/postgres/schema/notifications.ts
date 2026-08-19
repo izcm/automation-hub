@@ -1,7 +1,8 @@
 import { channels } from "@/server/domain/notifications/messaging/types";
 import { notificationStatuses } from "@/types/notification";
-import { getColumns } from "drizzle-orm";
-import { pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, text } from "drizzle-orm/pg-core";
+
+import { timestampColumns } from "./shared";
 
 const notificationStatusEnum = pgEnum(
   "notification_status",
@@ -17,8 +18,5 @@ export const notificationsTable = pgTable("notifications", {
   status: notificationStatusEnum().notNull(),
   providerId: text("provider_id"),
   error: text("error"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
+  ...timestampColumns,
 });
-
-const columns = getColumns(notificationsTable);

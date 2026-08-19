@@ -23,6 +23,17 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  {
+    // repo mappers strip columns (e.g. createdAt/updatedAt) via
+    // `const { createdAt, updatedAt, ...row } = row`
+    files: ["server/db/postgres/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { ignoreRestSiblings: true },
+      ],
+    },
+  },
 ]);
 
 export default eslintConfig;

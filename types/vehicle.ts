@@ -7,12 +7,13 @@ export type Vehicle = EnrichProgress & {
    * `id` is. Unique-indexed in the DB.
    */
   plateNumber: string;
-  vin: string;
+  /** Set by enrich() after the Vegvesenet lookup — undefined until then. */
+  vin?: string;
 
-  // What vehicle is this?
-  make: string;
-  model: string;
-  vehicleType: string;
+  // What vehicle is this? Also set by enrich().
+  make?: string;
+  model?: string;
+  vehicleType?: string;
   bodyType?: string;
   color?: string;
 

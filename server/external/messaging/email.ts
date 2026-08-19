@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { MessageRequest } from "../domain/notifications/messaging/types";
+import { MessageRequest } from "@/server/domain/notifications/messaging/types";
 
 function getEmailConfig() {
   const host = process.env.EMAIL_HOST;

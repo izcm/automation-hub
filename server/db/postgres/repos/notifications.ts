@@ -1,10 +1,11 @@
-import { eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
+import { NewNotification, Notification } from "@/types/notification";
 import { NotificationPort } from "@/server/domain/notifications/port";
+import { makeReadRepo } from "@server/db/postgres/shared/read";
 
 import { query } from "../pool";
 import { notificationsTable } from "../schema/notifications";
-import { NewNotification, Notification } from "@/types/notification";
 
 type NotificationRow = typeof notificationsTable.$inferSelect;
 
@@ -19,18 +20,25 @@ const toNotification = (row: NotificationRow): Notification => ({
   updatedAt: row.updatedAt.getTime(),
 });
 
+const readRepo = makeReadRepo(
+  query,
+  notificationsTable,
+  (table, key: string) => eq(table.id, key),
+  "id",
+  toNotification,
+);
+
 export const notificationRepo: NotificationPort = {
+  ...readRepo,
+
   save: async function (
     notification: NewNotification,
   ): Promise<{ id: string }> {
-    const now = new Date();
     await query.insert(notificationsTable).values({
       id: notification.id,
       to: notification.to,
       channel: notification.channel,
       status: "queued",
-      createdAt: now,
-      updatedAt: now,
     });
 
     return { id: notification.id };
@@ -42,24 +50,5 @@ export const notificationRepo: NotificationPort = {
 
   update: function (id: string, fields: Partial<Notification>): Promise<void> {
     throw new Error("Function not implemented.");
-  },
-
-  findByKey: async function (key: string): Promise<Notification | null> {
-    const rows = await query
-      .select()
-      .from(notificationsTable)
-      .where(eq(notificationsTable.id, key));
-
-    const row = rows[0];
-    return row ? toNotification(row) : null;
-  },
-
-  findByKeys: async function (keys: string[]): Promise<Notification[]> {
-    const rows = await query
-      .select()
-      .from(notificationsTable)
-      .where(inArray(notificationsTable.id, keys));
-
-    return rows.map(toNotification);
   },
 };

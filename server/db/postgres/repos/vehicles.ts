@@ -1,69 +1,58 @@
-import { sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
-import { PageQuery, Page } from "@a2zb/mongo";
-import { query } from "../pool";
 import { VehiclePort } from "@/server/domain/vehicles/port";
-import { Vehicle } from "@/types/vehicle";
-import { VehicleRow } from "../types/vehicle-row";
+import { makeReadRepo } from "@server/db/postgres/shared/read";
+import { nullsToUndefined } from "@server/db/postgres/shared/nulls-to-undefined";
 
-const toVehicle = (row: VehicleRow): Vehicle => ({
-  id: row.id,
-  plateNumber: row.plate_number,
-  vin: row.vin,
-  make: row.make,
-  model: row.model,
-  vehicleType: row.vehicle_type,
-  bodyType: row.body_type ?? undefined,
-  color: row.color ?? undefined,
-  firstRegistered: row.first_registered ?? undefined,
-  fuelType: row.fuel_type ?? undefined,
-  transmission: row.transmission ?? undefined,
-  seats: row.seats ?? undefined,
-  registrationStatus: row.registration_status ?? undefined,
-  euDate: row.eu_date ?? undefined,
-  lastEuApproved: row.last_eu_approved ?? undefined,
-  imageUrl: row.image_url ?? undefined,
-  maintenanceResponsibleId: row.maintenance_responsible_id ?? undefined,
-  withSvvData: row.with_svv_data,
-});
+import { Vehicle } from "@/types/vehicle";
+
+import { query } from "../pool";
+import { vehiclesTable } from "../schema/vehicles";
+
+type VehicleRow = typeof vehiclesTable.$inferSelect;
+
+const toVehicle = ({ createdAt, updatedAt, ...row }: VehicleRow): Vehicle =>
+  nullsToUndefined(row);
+
+const readRepo = makeReadRepo(
+  query,
+  vehiclesTable,
+  (table, key: string) => eq(table.id, key),
+  "id",
+  toVehicle,
+);
 
 export const vehicleRepo: VehiclePort = {
-  ensure: function (
+  ...readRepo,
+
+  async ensure(
     plateNumber: string,
     id: string,
   ): Promise<{ id: string; didUpsert: boolean }> {
-    throw new Error("Function not implemented.");
+    const inserted = await query
+      .insert(vehiclesTable)
+      .values({ id, plateNumber, withSvvData: false })
+      .onConflictDoNothing({ target: vehiclesTable.plateNumber })
+      .returning({ id: vehiclesTable.id });
+
+    if (inserted[0]) return { id: inserted[0].id, didUpsert: true };
+
+    const [existing] = await query
+      .select({ id: vehiclesTable.id })
+      .from(vehiclesTable)
+      .where(eq(vehiclesTable.plateNumber, plateNumber));
+
+    if (!existing) {
+      throw new Error(`ensure: conflict on ${plateNumber} but row not found`);
+    }
+
+    return { id: existing.id, didUpsert: false };
   },
 
-  enrich: function (
-    plateNumber: string,
-    fields: Partial<Vehicle>,
-  ): Promise<void> {
-    throw new Error("Function not implemented.");
-  },
-
-  findByKey: async function (key: string): Promise<Vehicle | null> {
-    const { rows } = await query.execute<VehicleRow>(
-      sql`SELECT * FROM vehicles WHERE id = ${key}`,
-    );
-
-    const row = rows[0];
-    return row ? toVehicle(row) : null;
-  },
-
-  findByKeys: async function (keys: string[]): Promise<Vehicle[]> {
-    const { rows } = await query.execute<VehicleRow>(
-      sql`SELECT * FROM vehicles WHERE id = ANY(${keys})`,
-    );
-
-    return rows.map(toVehicle);
-  },
-
-  findPage: function (args: PageQuery): Promise<Page<Vehicle>> {
-    throw new Error("Function not implemented.");
-  },
-
-  count: function (): Promise<number> {
-    throw new Error("Function not implemented.");
+  async enrich(plateNumber: string, fields: Partial<Vehicle>): Promise<void> {
+    await query
+      .update(vehiclesTable)
+      .set(fields)
+      .where(eq(vehiclesTable.plateNumber, plateNumber));
   },
 };
