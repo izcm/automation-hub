@@ -4,12 +4,12 @@ import { pgEnum, pgTable, text } from "drizzle-orm/pg-core";
 
 import { timestampColumns } from "./shared";
 
-const notificationStatusEnum = pgEnum(
+export const notificationStatusEnum = pgEnum(
   "notification_status",
   notificationStatuses,
 );
 
-const channelEnum = pgEnum("message_channel", channels);
+export const channelEnum = pgEnum("message_channel", channels);
 
 export const notificationsTable = pgTable("notifications", {
   id: text("id").primaryKey(),

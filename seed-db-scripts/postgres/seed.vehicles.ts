@@ -1,0 +1,124 @@
+import { query } from "@server/db/postgres/pool";
+import { vehiclesTable } from "@server/db/postgres/schema/vehicles";
+import { employeesTable } from "@server/db/postgres/schema/employees";
+import { generateId } from "@/server/shared/id";
+
+// Real truck models with plausible Norwegian plates / VINs. imageUrl left out —
+// fill in later. (VINs are illustrative, not tied to real vehicles.)
+const seedVehicles = [
+  {
+    plateNumber: "DL 12345",
+    vin: "YS2R4X20009123456",
+    make: "Scania",
+    model: "R 500",
+    vehicleType: "Lastebil",
+    bodyType: "Trekkvogn",
+    color: "Hvit",
+    firstRegistered: "2020-05-14",
+    fuelType: "Diesel",
+    transmission: "Automat",
+    seats: 2,
+    registrationStatus: "Registrert",
+    euDate: "2026-09-01",
+    lastEuApproved: "2024-09-01",
+  },
+  {
+    plateNumber: "EK 88213",
+    vin: "YV2RTZ0A5KA123456",
+    make: "Volvo",
+    model: "FH16 750",
+    vehicleType: "Lastebil",
+    bodyType: "Trekkvogn",
+    color: "Blå",
+    firstRegistered: "2019-03-22",
+    fuelType: "Diesel",
+    transmission: "Automat",
+    seats: 2,
+    registrationStatus: "Registrert",
+    euDate: "2026-10-15",
+    lastEuApproved: "2024-10-15",
+  },
+  {
+    plateNumber: "BV 40012",
+    vin: "WDB9634031L123456",
+    make: "Mercedes-Benz",
+    model: "Actros 1851",
+    vehicleType: "Lastebil",
+    bodyType: "Skap",
+    color: "Sølv",
+    firstRegistered: "2021-11-02",
+    fuelType: "Diesel",
+    transmission: "Automat",
+    seats: 3,
+    registrationStatus: "Registrert",
+    euDate: "2027-01-20",
+    lastEuApproved: "2025-01-20",
+  },
+  {
+    plateNumber: "SR 77190",
+    vin: "WMA06XZZ8JM123456",
+    make: "MAN",
+    model: "TGX 18.510",
+    vehicleType: "Lastebil",
+    bodyType: "Trekkvogn",
+    color: "Rød",
+    firstRegistered: "2018-07-09",
+    fuelType: "Diesel",
+    transmission: "Automat",
+    seats: 2,
+    registrationStatus: "Registrert",
+    euDate: "2027-03-05",
+    lastEuApproved: "2025-03-05",
+  },
+  {
+    plateNumber: "TT 30045",
+    vin: "XLRTE47MS0E123456",
+    make: "DAF",
+    model: "XF 480",
+    vehicleType: "Lastebil",
+    bodyType: "Skap",
+    color: "Grønn",
+    firstRegistered: "2022-01-18",
+    fuelType: "Diesel",
+    transmission: "Automat",
+    seats: 2,
+    registrationStatus: "Registrert",
+    euDate: "2027-06-12",
+    lastEuApproved: "2025-06-12",
+  },
+];
+
+async function seed() {
+  // Need employees to assign as maintenance-responsible. Seed them first.
+  const employeeRows = await query
+    .select({ id: employeesTable.id })
+    .from(employeesTable);
+  if (employeeRows.length === 0) {
+    throw new Error(
+      "No employees found — run `npm run seed:pg:employees` first.",
+    );
+  }
+  const employeeIds = employeeRows.map((e) => e.id);
+
+  // Round-robin the employees across vehicles so each has a responsible person.
+  const rows = seedVehicles.map((v, i) => ({
+    ...v,
+    id: generateId(),
+    withSvvData: true,
+    maintenanceResponsibleId: employeeIds[i % employeeIds.length],
+  }));
+
+  await query.delete(vehiclesTable); // wipe first so re-running is idempotent
+  const res = await query
+    .insert(vehiclesTable)
+    .values(rows)
+    .returning({ id: vehiclesTable.id });
+
+  console.log(`✅ seeded ${res.length} vehicles (linked to employees)`);
+  process.exit(0);
+}
+
+seed().catch((err) => {
+  console.error("❌ seed failed:", err);
+  process.exit(1);
+});

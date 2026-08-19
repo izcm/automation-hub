@@ -1,18 +1,15 @@
 import { NextResponse } from "next/server";
 
-import { vehicleRepo } from "@/server/db/mongo/repos/vehicles";
-import { vehicleActions } from "@server/di";
+import { readPage, vehicleActions } from "@server/di";
+import { vehicleRepo } from "@/server/db/postgres/repos/vehicles";
 
 export async function GET() {
   // Expecting very few vehicles atm, so we'll fetch all at once.
   // Fetch everything: count all, then use that as the page limit.
-  const total = await vehicleRepo.count();
 
-  const page = await vehicleRepo.findPage({
-    limit: total,
-    sortField: "createdAt",
-    sortDir: "asc",
-  });
+  // todo: update this when postgres makeReadRepo implements filtering
+  const total = await vehicleRepo.count();
+  const page = await readPage("vehicles");
 
   return NextResponse.json(page); // NextResponse.json defaults to 200
 }

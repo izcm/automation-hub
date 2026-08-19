@@ -16,10 +16,13 @@ npm install
 # .env.local
 #   MONGODB_URI=...           (required)
 #   DB_NAME=miniapp_db        (optional, defaults to miniapp_db)
-#   SEED_EMAIL=you@example.com (for seed:users)
+#   SEED_EMAIL=you@example.com (for seed:mongo:employees / seed:pg:employees)
 
-npm run seed            # seed vehicles
-npm run seed:users -- you@example.com   # seed 4 users (all → this inbox)
+npm run seed:mongo:employees -- you@example.com   # seed 4 employees (all → this inbox)
+npm run seed:mongo:vehicles                       # seed vehicles (needs employees first)
+
+npm run seed:pg:employees -- you@example.com      # same, against Postgres
+npm run seed:pg:vehicles
 
 npm run dev             # http://localhost:3000
 ```

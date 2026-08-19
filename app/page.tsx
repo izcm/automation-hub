@@ -38,7 +38,7 @@ export default async function Landing() {
       <div className="flex flex-col gap-4 max-w-[280px] w-full mx-auto">
         <div className="flex flex-col gap-2 text-sm">
           <h1 className="text-6xl font-bold">{LABELS.appTitle}</h1>
-          <p className="text-subtle">Your SaaS integration hotspot.</p>
+          <p className="text-subtle">Your automation hub.</p>
         </div>
 
         <div className="flex flex-center gap-4 w-full">

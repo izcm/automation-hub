@@ -119,8 +119,8 @@ export const makeReadRepo = <
       };
     },
 
-    // filters not implemented yet
-    async count(_args?: Pick<PageQuery, "filters">): Promise<number> {
+    // todo: implement filters
+    async count(args?: Pick<PageQuery, "filters">): Promise<number> {
       const [row] = await db.select({ value: count() }).from(pgTable);
       return row?.value ?? 0;
     },
