@@ -1,7 +1,7 @@
 "use client";
 
-import { IconBtn } from "@a2zb/react";
-import { TextInput } from "./TextInput";
+import { IconBtn, TextInput } from "@a2zb/react";
+
 import { GlassModal } from "./GlassModal";
 
 import { Lock, Mail } from "@/components/icons";

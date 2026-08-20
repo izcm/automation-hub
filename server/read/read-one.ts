@@ -1,6 +1,11 @@
 import { ByKey } from "@a2zb/node/db";
 
-import { ResourceKey, ResourceMap, ResourceName, ResourceType } from "./types";
+import {
+  ResourceKey,
+  ResourceMap,
+  ResourceName,
+  ResourceType,
+} from "@/shared/resource";
 
 // all read repos that implement the `ByKey` interface can be read
 export type ByIdReaders<T extends ResourceMap> = {

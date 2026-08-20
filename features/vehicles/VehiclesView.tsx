@@ -15,12 +15,15 @@ import {
 } from "@/components/organisms";
 
 import { LABELS, listViewLabels } from "@/features/labels";
+import { FIELD_NAME_MAP } from "@/features/search/field-config";
+import { useSearchFilters } from "@/features/search/use-search-filters";
 import { Truck, Fuel, Transmission, Seat } from "@/components/icons";
 import { VehicleCard } from "@/features/vehicles/VehicleCard";
 
 import { VehicleLookup } from "../lookup/VehicleLookup";
 import { useAddVehicle } from "./hooks";
 import Image from "next/image";
+import { toSearchParams } from "../search/param-mapper";
 
 type Props = {
   vehicles: Vehicle[];
@@ -50,10 +53,17 @@ const specificationsFields: DetailField<Vehicle>[] = [
 export function VehiclesView({ vehicles }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   const addVehicle = useAddVehicle();
+  const { filters, handleSearch } = useSearchFilters();
 
   // single piece of state: which resource is open (undefined = closed)
   const [active, setActive] = useState<Vehicle | undefined>(undefined);
 
+  const params = toSearchParams({
+    filters,
+    keyMap: FIELD_NAME_MAP["en"]["vehicles"],
+  });
+
+  console.log(params);
   return (
     <>
       <main>
@@ -69,6 +79,8 @@ export function VehiclesView({ vehicles }: Props) {
               items={vehicles}
               getId={(v) => v.id}
               labels={listViewLabels}
+              searchConfig={{ keyMap: FIELD_NAME_MAP["en"]["vehicles"] }}
+              handleSearch={handleSearch}
               itemClassName={(isSelected) =>
                 cn(isSelected && "border border-accent-weak rounded-lg")
               }

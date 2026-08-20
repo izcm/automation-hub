@@ -1,27 +1,34 @@
 "use client";
 
-import type { Vehicle } from "@/types/vehicle";
+import { useEffect } from "react";
 
+import type { Vehicle } from "@/types/vehicle";
 import { cn } from "@lib/cn";
 
 import { LABELS, listViewLabels } from "@features/labels";
 import { useSendNotifications } from "@features/notifications/hooks";
+import { FIELD_NAME_MAP } from "@/features/search/field-config";
 
 import { Notify } from "@components/icons";
-
 import { DateStamp, SimpleRow } from "@/components/molecules";
 import {
   Header,
   ResourceManagementView,
   workspaceRows,
 } from "@/components/organisms";
+import { useSearchFilters } from "./search/use-search-filters";
 
 type Props = {
   vehicles: Vehicle[];
 };
 
 export function EUInspectionView({ vehicles }: Props) {
+  const { filters, handleSearch } = useSearchFilters();
   const sendNotifs = useSendNotifications();
+
+  useEffect(() => {
+    console.log(filters);
+  }, [filters]);
 
   return (
     <div className="resource-page">
@@ -35,6 +42,8 @@ export function EUInspectionView({ vehicles }: Props) {
         items={vehicles}
         getId={(v) => v.id}
         labels={listViewLabels}
+        searchConfig={{ keyMap: FIELD_NAME_MAP["en"]["vehicles"] }}
+        handleSearch={handleSearch}
         batchActions={[
           {
             label: (count) => LABELS.list.notify(count),

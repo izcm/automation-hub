@@ -5,7 +5,12 @@ import { Gallery } from "@a2zb/react";
 
 import { cn } from "@/lib/cn";
 import { Pagination } from "@/components/molecules";
-import { BatchAction, BatchSelect, FilterBar } from "@/components/organisms";
+import {
+  BatchAction,
+  BatchSelect,
+  FilterBar,
+  SearchConfig,
+} from "@/components/organisms";
 
 const PAGE_SIZE = 25;
 
@@ -33,6 +38,8 @@ type Props<T> = {
   labels: ResourceManagementLabels;
   // extra classes for the row wrapper Gallery/BatchSelect render around each item
   itemClassName?: (isSelected: boolean) => string;
+  searchConfig: SearchConfig;
+  handleSearch: (search: string) => void;
 };
 
 export function ResourceManagementView<T>({
@@ -42,6 +49,8 @@ export function ResourceManagementView<T>({
   listItem,
   labels,
   itemClassName,
+  searchConfig,
+  handleSearch,
 }: Props<T>) {
   const [selected, setSelected] = useState<T | undefined>(undefined);
   const [batchSelected, setBatchSelected] = useState<string[]>([]);
@@ -57,6 +66,8 @@ export function ResourceManagementView<T>({
           searchPlaceholder={labels.searchBar.placeholder}
           applyLabel={labels.searchBar.apply}
           filterLabel={labels.searchBar.filter}
+          searchConfig={searchConfig}
+          handleSearch={handleSearch}
         />
       </div>
 

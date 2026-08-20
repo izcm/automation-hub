@@ -1,4 +1,5 @@
-import { Readers, ResourceMap, ResourceName } from "./types";
+import { ResourceMap, ResourceName } from "@/shared/resource";
+import { Readers } from "./shared/types/reader";
 
 export const makeReadPage = <RMap extends ResourceMap>(
   readers: Readers<RMap>,
