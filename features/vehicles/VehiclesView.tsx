@@ -58,12 +58,6 @@ export function VehiclesView({ vehicles }: Props) {
   // single piece of state: which resource is open (undefined = closed)
   const [active, setActive] = useState<Vehicle | undefined>(undefined);
 
-  const params = toSearchParams({
-    filters,
-    keyMap: FIELD_NAME_MAP["en"]["vehicles"],
-  });
-
-  console.log(params);
   return (
     <>
       <main>

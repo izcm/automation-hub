@@ -1,4 +1,3 @@
-import { PageLayout } from "@/components/organisms/PageLayout";
 import { EUInspectionView } from "@/features/EUInspectionView";
 import { getVehicles } from "@/features/vehicles/queries";
 

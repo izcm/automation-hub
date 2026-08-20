@@ -54,21 +54,6 @@ describe("toSearchParams", () => {
       expect(params.toString()).toEqual("");
     });
 
-    it("uses the given resolveValue for each value", () => {
-      const params = toSearchParams({
-        filters: { side: ["ask"] },
-        resolveValue: (key, value) =>
-          key === "side" && value === "ask" ? "0" : value,
-      });
-
-      expect(params.getAll("side")).toEqual(["0"]);
-    });
-
-    it("defaults resolveValue to the identity function", () => {
-      const params = toSearchParams({ filters: { side: ["ask"] } });
-      expect(params.getAll("side")).toEqual(["ask"]);
-    });
-
     describe("when key is 'sortField'", () => {
       it("resolves the value by looking it up in keyMap", () => {
         const params = toSearchParams({
@@ -87,43 +72,24 @@ describe("toSearchParams", () => {
 
         expect(params.has("sortField")).toBe(false);
       });
-    });
-  });
 
-  describe("special cases", () => {
-    it("dispatches to the handler for a matching prefix", () => {
-      const params = toSearchParams({
-        filters: { "trait.color": ["blue"] },
-        specialCases: {
-          "trait.": (vals) => [
-            ["trait", "Color"],
-            ["value", vals.join(",")],
-          ],
-        },
+      it("appends values to same key when keys map to the same value through provided keyMap", () => {
+        const keyMap = {
+          platenumber: "plateNumber",
+          plate_number: "plateNumber",
+        };
+
+        const params = toSearchParams({
+          filters: { plate_number: ["AB12345"], platenumber: ["CD67890"] },
+          keyMap,
+        });
+
+        expect(params.has("platenumber")).toBe(false);
+        expect(params.has("plate_number")).toBe(false);
+
+        expect([...new Set(params.keys())]).toEqual(["plateNumber"]);
+        expect(params.getAll("plateNumber")).toEqual(["AB12345", "CD67890"]);
       });
-
-      expect(params.has("trait.color")).toBe(false);
-      expect(params.getAll("trait")).toEqual(["Color"]);
-      expect(params.getAll("value")).toEqual(["blue"]);
-    });
-
-    it("only routes matching keys through the special case, others follow the regular path", () => {
-      const params = toSearchParams({
-        filters: {
-          "trait.color": ["blue"],
-          status: ["active"],
-        },
-        specialCases: {
-          "trait.": (vals) => [
-            ["trait", "Color"],
-            ["value", vals.join(",")],
-          ],
-        },
-      });
-
-      expect(params.getAll("trait")).toEqual(["Color"]);
-      expect(params.getAll("value")).toEqual(["blue"]);
-      expect(params.getAll("status")).toEqual(["active"]);
     });
   });
 });

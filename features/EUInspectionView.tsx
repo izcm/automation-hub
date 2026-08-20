@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
+import { getPage } from "@/shared/http/page-get";
 import type { Vehicle } from "@/types/vehicle";
 import { cn } from "@lib/cn";
 
@@ -16,18 +17,53 @@ import {
   ResourceManagementView,
   workspaceRows,
 } from "@/components/organisms";
+
 import { useSearchFilters } from "./search/use-search-filters";
+import { toSearchParams } from "./search/param-mapper";
 
 type Props = {
   vehicles: Vehicle[];
 };
 
-export function EUInspectionView({ vehicles }: Props) {
+export function buildQuery({
+  cursor,
+  includes = [],
+  ...searchOptions
+}: {
+  cursor?: string | null;
+  includes?: string[];
+} & Parameters<typeof toSearchParams>[0]): URLSearchParams {
+  const params = toSearchParams(searchOptions);
+
+  if (cursor) params.set("cursor", cursor);
+  if (includes.length) params.set("include", includes.join(","));
+
+  return params;
+}
+
+export function EUInspectionView({ vehicles: initialVehicles }: Props) {
   const { filters, handleSearch } = useSearchFilters();
   const sendNotifs = useSendNotifications();
+  const [vehicles, setVehicles] = useState(initialVehicles);
 
   useEffect(() => {
-    console.log(filters);
+    const query = buildQuery({
+      filters,
+      keyMap: FIELD_NAME_MAP["en"]["vehicles"],
+    });
+
+    const controller = new AbortController();
+
+    getPage<Vehicle>({
+      baseURL: "/api",
+      params: "vehicles",
+      query,
+      signal: controller.signal,
+    }).then((res) => {
+      if (res.ok) setVehicles(res.data.items);
+    });
+
+    return () => controller.abort();
   }, [filters]);
 
   return (
