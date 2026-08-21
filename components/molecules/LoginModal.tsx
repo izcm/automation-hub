@@ -58,9 +58,9 @@ export function LoginModal({ containerClassName }: Props) {
       </IconBtn>
 
       <div className="flex flex-center gap-4">
-        <div className="line flex-1" />
+        <div className="horizontal-line flex-1" />
         <span className="text-xs text-muted">OR</span>
-        <div className="line flex-1" />
+        <div className="horizontal-line flex-1" />
       </div>
 
       <div className="flex flex-col gap-2">

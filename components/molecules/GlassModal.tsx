@@ -31,9 +31,9 @@ export function GlassModal({
         `
         w-full
         flex flex-col gap-5
-        p-2 
+        p-2
 
-        bg-panel
+        panel
         backdrop-blur-lg
 
         border border-line

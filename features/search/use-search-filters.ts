@@ -70,12 +70,40 @@ export function useSearchFilters(
     });
   }
 
+  // removes value from filters[key] if present, adds it otherwise. if
+  // removing leaves the key with no values left, drop the key entirely
+  // instead of leaving an empty array behind.
+  function toggleFilter(key: string, value: string) {
+    setFilters((prev) => {
+      const current = prev[key] ?? [];
+
+      if (current.includes(value)) {
+        const next = current.filter((v) => v !== value);
+        if (next.length === 0) {
+          const { [key]: _removed, ...rest } = prev;
+          return rest;
+        }
+        return { ...prev, [key]: next };
+      }
+
+      return { ...prev, [key]: [...current, value] };
+    });
+  }
+
   function resetFlags() {
     setFlags(Object.fromEntries(knownFlags.map((flag) => [flag, false])));
   }
 
+  const searchInput = Object.entries(filters)
+    .map(([key, values]) =>
+      values.length ? `${key}=${values.join(",")}` : key,
+    )
+    .join(" ");
+
   return {
     filters,
+    searchInput,
+    toggleFilter,
     removeFilter,
     flags,
     handleSearch,

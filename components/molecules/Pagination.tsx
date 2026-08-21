@@ -14,7 +14,7 @@ type Props = {
 };
 
 const step =
-  "flex-center h-9 min-w-9 rounded-lg bg-raised border border-faint px-2 hover:border-accent disabled:opacity-60 disabled:hover:border-faint";
+  "flex-center h-9 min-w-9 raised-outline px-2 hover:border-accent disabled:opacity-60 disabled:hover:border-faint";
 
 export function Pagination({
   page,

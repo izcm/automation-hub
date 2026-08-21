@@ -1,6 +1,9 @@
+"use client";
+
 import { ReactNode } from "react";
 import Link from "next/link";
-import { LABELS } from "@features/labels";
+import { CORE_UI_LABELS_BY_LANGUAGE } from "@/features/language/ui_labels";
+import { useLanguage } from "@/features/language/LanguageContext";
 
 import { ChevronRight, Inspection, Truck } from "@/components/icons";
 import { powerOfficeFetch } from "@/server/external/power-office/client";
@@ -25,12 +28,8 @@ function LandingLink({
   );
 }
 
-export default async function Landing() {
-  const res = await powerOfficeFetch("/Employees");
-
-  // test stuff
-  if (!res.ok) console.error("...");
-  else console.log(res.data);
+export default function Landing() {
+  const LABELS = CORE_UI_LABELS_BY_LANGUAGE[useLanguage()];
 
   return (
     <div className="flex-1 flex-center landing-surface">
@@ -42,9 +41,9 @@ export default async function Landing() {
         </div>
 
         <div className="flex flex-center gap-4 w-full">
-          <div className="line" />
+          <div className="horizontal-line" />
           <span className="text-xs text-subtle">MODULES</span>
-          <div className="line" />
+          <div className="horizontal-line" />
         </div>
 
         {/* MODULE LINKS */}

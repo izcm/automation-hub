@@ -52,7 +52,7 @@ export function BatchSelect<T>({
   return (
     <>
       {batchSelected.length > 0 && (
-        <div className="flex items-center justify-between gap-3 rounded-lg border border-faint bg-raised px-4 py-3">
+        <div className="flex items-center justify-between gap-3 raised-outline px-4 py-3">
           <div className="flex items-center gap-4">
             <span className="font-medium">
               {selectedLabel(batchSelected.length)}

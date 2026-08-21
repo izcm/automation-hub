@@ -9,6 +9,7 @@ import {
   BatchAction,
   BatchSelect,
   FilterBar,
+  FilterCategoriesLabels,
   SearchConfig,
 } from "@/components/organisms";
 
@@ -38,8 +39,9 @@ type Props<T> = {
   labels: ResourceManagementLabels;
   // extra classes for the row wrapper Gallery/BatchSelect render around each item
   itemClassName?: (isSelected: boolean) => string;
-  searchConfig: SearchConfig;
+  searchInput: string;
   handleSearch: (search: string) => void;
+  filterMenu?: ReactNode;
 };
 
 export function ResourceManagementView<T>({
@@ -49,8 +51,9 @@ export function ResourceManagementView<T>({
   listItem,
   labels,
   itemClassName,
-  searchConfig,
+  searchInput,
   handleSearch,
+  filterMenu,
 }: Props<T>) {
   const [selected, setSelected] = useState<T | undefined>(undefined);
   const [batchSelected, setBatchSelected] = useState<string[]>([]);
@@ -61,14 +64,16 @@ export function ResourceManagementView<T>({
 
   return (
     <>
-      <div className="flex gap-3 h-10">
+      <div className="flex gap-3">
         <FilterBar
           searchPlaceholder={labels.searchBar.placeholder}
           applyLabel={labels.searchBar.apply}
           filterLabel={labels.searchBar.filter}
-          searchConfig={searchConfig}
+          searchInput={searchInput}
           handleSearch={handleSearch}
-        />
+        >
+          {filterMenu}
+        </FilterBar>
       </div>
 
       {batchActions === undefined ? (

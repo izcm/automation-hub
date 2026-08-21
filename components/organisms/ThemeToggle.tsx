@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useTheme } from "@a2zb/react";
-import { LABELS } from "@features/labels";
+import { CORE_UI_LABELS_BY_LANGUAGE } from "@/features/language/ui_labels";
+import { useLanguage } from "@/features/language/LanguageContext";
 import { DarkTheme, LightTheme } from "../icons";
 
 // useTheme() reads localStorage during render, which isn't available during
@@ -11,6 +12,8 @@ import { DarkTheme, LightTheme } from "../icons";
 export function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  const LABELS = CORE_UI_LABELS_BY_LANGUAGE[useLanguage()];
 
   if (!mounted) {
     return (
@@ -26,6 +29,7 @@ export function ThemeToggle() {
 function ThemeToggleInner() {
   const { theme, applyTheme } = useTheme();
   const isDark = theme === "dark";
+  const LABELS = CORE_UI_LABELS_BY_LANGUAGE[useLanguage()];
 
   return (
     <button

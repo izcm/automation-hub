@@ -14,8 +14,12 @@ import {
   workspaceRows,
 } from "@/components/organisms";
 
-import { LABELS, listViewLabels } from "@/features/labels";
-import { FIELD_NAME_MAP } from "@/features/search/field-config";
+import {
+  CORE_UI_LABELS_BY_LANGUAGE,
+  getListViewLabels,
+} from "@/features/language/ui_labels";
+import { useLanguage } from "@/features/language/LanguageContext";
+import { FIELD_ALISES_MAP } from "@/features/language/field-config";
 import { useSearchFilters } from "@/features/search/use-search-filters";
 import { Truck, Fuel, Transmission, Seat } from "@/components/icons";
 import { VehicleCard } from "@/features/vehicles/VehicleCard";
@@ -29,31 +33,43 @@ type Props = {
   vehicles: Vehicle[];
 };
 
-const { fields: fieldLabels } = LABELS.workspace;
-
 // identity / registration — the "who is this specific car" facts
-const identificationFields: DetailField<Vehicle>[] = [
-  { label: fieldLabels.vin, getValue: (v) => v.vin },
-  { label: fieldLabels.registration, getValue: (v) => v.registrationStatus },
-  { label: fieldLabels.firstRegistered, getValue: (v) => v.firstRegistered },
-  { label: fieldLabels.euDate, getValue: (v) => v.euDate },
-  { label: fieldLabels.lastEuApproved, getValue: (v) => v.lastEuApproved },
-];
+function identificationFieldsFor(
+  fieldLabels: (typeof CORE_UI_LABELS_BY_LANGUAGE)["en"]["workspace"]["fields"],
+): DetailField<Vehicle>[] {
+  return [
+    { label: fieldLabels.vin, getValue: (v) => v.vin },
+    { label: fieldLabels.registration, getValue: (v) => v.registrationStatus },
+    { label: fieldLabels.firstRegistered, getValue: (v) => v.firstRegistered },
+    { label: fieldLabels.euDate, getValue: (v) => v.euDate },
+    { label: fieldLabels.lastEuApproved, getValue: (v) => v.lastEuApproved },
+  ];
+}
 
 // physical / technical specs — the "what kind of car" facts
-const specificationsFields: DetailField<Vehicle>[] = [
-  { label: fieldLabels.type, getValue: (v) => v.vehicleType },
-  { label: fieldLabels.body, getValue: (v) => v.bodyType },
-  { label: fieldLabels.color, getValue: (v) => v.color },
-  { label: fieldLabels.fuel, getValue: (v) => v.fuelType },
-  { label: fieldLabels.transmission, getValue: (v) => v.transmission },
-  { label: fieldLabels.seats, getValue: (v) => v.seats },
-];
+function specificationsFieldsFor(
+  fieldLabels: (typeof CORE_UI_LABELS_BY_LANGUAGE)["en"]["workspace"]["fields"],
+): DetailField<Vehicle>[] {
+  return [
+    { label: fieldLabels.type, getValue: (v) => v.vehicleType },
+    { label: fieldLabels.body, getValue: (v) => v.bodyType },
+    { label: fieldLabels.color, getValue: (v) => v.color },
+    { label: fieldLabels.fuel, getValue: (v) => v.fuelType },
+    { label: fieldLabels.transmission, getValue: (v) => v.transmission },
+    { label: fieldLabels.seats, getValue: (v) => v.seats },
+  ];
+}
 
 export function VehiclesView({ vehicles }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   const addVehicle = useAddVehicle();
-  const { filters, handleSearch } = useSearchFilters();
+  const { filters, searchInput, handleSearch } = useSearchFilters();
+
+  const language = useLanguage();
+  const LABELS = CORE_UI_LABELS_BY_LANGUAGE[language];
+  const listViewLabels = getListViewLabels(language);
+  const identificationFields = identificationFieldsFor(LABELS.workspace.fields);
+  const specificationsFields = specificationsFieldsFor(LABELS.workspace.fields);
 
   // single piece of state: which resource is open (undefined = closed)
   const [active, setActive] = useState<Vehicle | undefined>(undefined);
@@ -73,7 +89,8 @@ export function VehiclesView({ vehicles }: Props) {
               items={vehicles}
               getId={(v) => v.id}
               labels={listViewLabels}
-              searchConfig={{ keyMap: FIELD_NAME_MAP["en"]["vehicles"] }}
+              searchConfig={{ keyMap: FIELD_ALISES_MAP["en"]["vehicles"] }}
+              searchInput={searchInput}
               handleSearch={handleSearch}
               itemClassName={(isSelected) =>
                 cn(isSelected && "border border-accent-weak rounded-lg")
@@ -94,7 +111,7 @@ export function VehiclesView({ vehicles }: Props) {
 
           <WorkspacePanel
             onClose={() => setActive(undefined)}
-            contentClassName="flex flex-col gap-2 p-2 bg-panel"
+            contentClassName="flex flex-col gap-2 p-2 panel"
           >
             {/* header: gradient glow + vehicle image bleeding to the panel edge */}
             <header className="relative overflow-hidden text-start p-6">
