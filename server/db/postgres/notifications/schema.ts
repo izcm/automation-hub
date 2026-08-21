@@ -2,7 +2,7 @@ import { channels } from "@/server/domain/notifications/messaging/types";
 import { notificationStatuses } from "@/types/notification";
 import { pgEnum, pgTable, text } from "drizzle-orm/pg-core";
 
-import { timestampColumns } from "./shared";
+import { timestampColumns } from "../shared/schemas";
 
 export const notificationStatusEnum = pgEnum(
   "notification_status",

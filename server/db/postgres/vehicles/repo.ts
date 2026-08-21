@@ -7,7 +7,7 @@ import { nullsToUndefined } from "@server/db/postgres/shared/nulls-to-undefined"
 import { Vehicle } from "@/types/vehicle";
 
 import { query } from "../pool";
-import { vehiclesTable } from "../schema/vehicles";
+import { vehiclesTable } from "./schema";
 
 type VehicleRow = typeof vehiclesTable.$inferSelect;
 

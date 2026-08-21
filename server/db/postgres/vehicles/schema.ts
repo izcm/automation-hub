@@ -1,6 +1,6 @@
 import { boolean, integer, pgTable, text } from "drizzle-orm/pg-core";
 
-import { timestampColumns } from "./shared";
+import { timestampColumns } from "../shared/schemas";
 
 // Inferred from ../types/vehicle-row.ts (the previous raw-SQL row shape) —
 // verify against the real migration if one turns up.

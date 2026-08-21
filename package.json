@@ -7,10 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "start:postgres": "docker compose up -d && sleep 10 && npm run db:push && npm run seed:pg:employees && npm run seed:pg:vehicles",
+    "start:postgres": "docker compose up -d && sleep 10 && npm run db:push && npm run seed:pg:employees && npm run seed:pg:vehicles && npm run seed:pg:eu-inspections",
     "db:push": "set -a && . ./.env.local && set +a && npx drizzle-kit push",
     "seed:pg:vehicles": "tsx --env-file=.env.local seed-db-scripts/postgres/seed.vehicles.ts",
     "seed:pg:employees": "tsx --env-file=.env.local seed-db-scripts/postgres/seed.employees.ts",
+    "seed:pg:eu-inspections": "tsx --env-file=.env.local seed-db-scripts/postgres/seed.eu-inspections.ts",
     "test": "vitest run",
     "clean": "rm -rf .next node_modules package-lock.json"
   },

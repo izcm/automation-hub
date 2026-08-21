@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { readPage, vehicleActions } from "@server/di";
-import { vehicleRepo } from "@/server/db/postgres/repos/vehicles";
+import { vehicleRepo } from "@/server/db/postgres/vehicles/repo";
 
 export async function GET() {
   // Expecting very few vehicles atm, so we'll fetch all at once.

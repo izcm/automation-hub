@@ -1,7 +1,7 @@
 // repos
-import { vehicleRepo } from "../db/postgres/repos/vehicles";
-import { employeeRepo } from "../db/postgres/repos/employees";
-import { notificationRepo } from "../db/postgres/repos/notifications";
+import { vehicleRepo } from "../db/postgres/vehicles/repo";
+import { employeeRepo } from "../db/postgres/employees/repo";
+import { notificationRepo } from "../db/postgres/notifications/repo";
 
 // read functions
 import { makeReadOne } from "../read/read-one";

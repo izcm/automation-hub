@@ -1,6 +1,6 @@
 import { query } from "@server/db/postgres/pool";
-import { vehiclesTable } from "@server/db/postgres/schema/vehicles";
-import { employeesTable } from "@server/db/postgres/schema/employees";
+import { vehiclesTable } from "@server/db/postgres/vehicles/schema";
+import { employeesTable } from "@server/db/postgres/employees/schema";
 import { generateId } from "@/server/shared/id";
 
 // Real truck models with plausible Norwegian plates / VINs. imageUrl left out —

@@ -5,7 +5,7 @@ import { Employee } from "@/types/employee";
 import { makeReadRepo } from "@server/db/postgres/read/read";
 
 import { query } from "../pool";
-import { employeesTable } from "../schema/employees";
+import { employeesTable } from "./schema";
 
 type EmployeeRow = typeof employeesTable.$inferSelect;
 

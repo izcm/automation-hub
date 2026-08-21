@@ -1,5 +1,5 @@
 import { query } from "@server/db/postgres/pool";
-import { employeesTable } from "@server/db/postgres/schema/employees";
+import { employeesTable } from "@server/db/postgres/employees/schema";
 import { generateId } from "@/server/shared/id";
 
 // All demo employees point at your own inbox so every notification lands with you.
