@@ -1,4 +1,4 @@
-import { ByKey, Pageable } from "@a2zb/node/db";
+import { ByKey, Pageable } from "@a2zb/types";
 import {
   ResourceKey,
   ResourceMap,

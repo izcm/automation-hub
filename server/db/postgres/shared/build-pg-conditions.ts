@@ -15,9 +15,9 @@ function isRange(value: unknown): value is Range {
   );
 }
 
-export function buildPgFilters(
+export function buildPgConditions(
   table: PgTable,
-  filters: Record<string, unknown>,
+  filters: Record<string, unknown> = {},
 ) {
   const columns = getColumns(table);
   const conditions: SQL[] = [];

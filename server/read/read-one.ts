@@ -1,4 +1,4 @@
-import { ByKey } from "@a2zb/node/db";
+import { ByKey } from "@a2zb/types";
 
 import {
   ResourceKey,

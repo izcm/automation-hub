@@ -1,4 +1,4 @@
-import { ByKey, Pageable } from "@a2zb/node/db";
+import { ByKey, Pageable } from "@a2zb/types";
 import { NewNotification, Notification } from "@/types/notification";
 
 // Keyed by vehicleId for now (read commons). Add Pageable/Countable later if

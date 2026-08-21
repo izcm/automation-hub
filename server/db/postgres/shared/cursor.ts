@@ -1,7 +1,7 @@
 import { or, eq, gt, lt, and } from "drizzle-orm";
 import { PgColumn } from "drizzle-orm/pg-core";
 
-import { SortDir } from "@a2zb/node/db";
+import { SortDir } from "@a2zb/types";
 // })
 export type CursorCore = {
   cursor?: string;

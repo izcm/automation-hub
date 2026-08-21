@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 
 import { VehiclePort } from "@/server/domain/vehicles/port";
-import { makeReadRepo } from "@server/db/postgres/shared/read";
+import { makeReadRepo } from "@server/db/postgres/read/read";
 import { nullsToUndefined } from "@server/db/postgres/shared/nulls-to-undefined";
 
 import { Vehicle } from "@/types/vehicle";

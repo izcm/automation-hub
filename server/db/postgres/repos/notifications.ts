@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 
 import { NewNotification, Notification } from "@/types/notification";
 import { NotificationPort } from "@/server/domain/notifications/port";
-import { makeReadRepo } from "@server/db/postgres/shared/read";
+import { makeReadRepo } from "@server/db/postgres/read/read";
 
 import { query } from "../pool";
 import { notificationsTable } from "../schema/notifications";

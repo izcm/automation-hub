@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { integer, pgTable, text } from "drizzle-orm/pg-core";
 
-import { buildPgFilters } from "../build-pg-filters";
+import { buildPgConditions } from "../build-pg-conditions";
 import { eq, gte, inArray, lte } from "drizzle-orm";
 
 vi.mock("drizzle-orm", async (importOriginal) => {
@@ -17,7 +17,7 @@ vi.mock("drizzle-orm", async (importOriginal) => {
   };
 });
 
-describe("buildPgFilters", () => {
+describe("buildPgConditions", () => {
   const testTable = pgTable("test_table", {
     id: integer("id"),
     status: text("status"),
@@ -26,13 +26,13 @@ describe("buildPgFilters", () => {
 
   describe("equality filter", () => {
     it("builds simple equality filter", () => {
-      buildPgFilters(testTable, { status: "active" });
+      buildPgConditions(testTable, { status: "active" });
       expect(eq).toHaveBeenCalledExactlyOnceWith(testTable.status, "active");
       expect(inArray).not.toHaveBeenCalled();
     });
 
     it("does not treat an equality filter as a range", () => {
-      buildPgFilters(testTable, { status: "active" });
+      buildPgConditions(testTable, { status: "active" });
       expect(gte).not.toHaveBeenCalled();
       expect(lte).not.toHaveBeenCalled();
     });
@@ -40,13 +40,13 @@ describe("buildPgFilters", () => {
 
   describe("filter with array as value", () => {
     it("skips filter if value is an empty array", () => {
-      buildPgFilters(testTable, { status: [] });
+      buildPgConditions(testTable, { status: [] });
       expect(inArray).not.toHaveBeenCalled();
       expect(eq).not.toHaveBeenCalled();
     });
 
     it("uses inArray for a non-empty array value", () => {
-      buildPgFilters(testTable, { status: ["active", "failed"] });
+      buildPgConditions(testTable, { status: ["active", "failed"] });
       expect(inArray).toHaveBeenCalledExactlyOnceWith(testTable.status, [
         "active",
         "failed",
@@ -57,7 +57,7 @@ describe("buildPgFilters", () => {
 
   describe("range filters", () => {
     it("builds both gte and lte when both bounds are given", () => {
-      buildPgFilters(testTable, {
+      buildPgConditions(testTable, {
         price: {
           gte: 100,
           lte: 1000,
@@ -72,19 +72,19 @@ describe("buildPgFilters", () => {
     });
 
     it("builds upper bound filter when gte is undefined", () => {
-      buildPgFilters(testTable, { price: { lte: 1000 } });
+      buildPgConditions(testTable, { price: { lte: 1000 } });
       expect(lte).toHaveBeenCalledExactlyOnceWith(testTable.price, 1000);
     });
 
     it("builds lower bound filter when lte is undefined", () => {
-      buildPgFilters(testTable, { price: { gte: 1000 } });
+      buildPgConditions(testTable, { price: { gte: 1000 } });
       expect(gte).toHaveBeenCalledExactlyOnceWith(testTable.price, 1000);
     });
   });
 
   describe("multiple filters combined", () => {
     it("combines an equality filter and a range filter on different columns", () => {
-      buildPgFilters(testTable, {
+      buildPgConditions(testTable, {
         status: "active",
         price: { gte: 100 },
       });
@@ -95,7 +95,7 @@ describe("buildPgFilters", () => {
     });
 
     it("builds inArray conditions for two different array filters", () => {
-      buildPgFilters(testTable, {
+      buildPgConditions(testTable, {
         status: ["active", "failed"],
         id: [1, 2, 3],
       });
@@ -111,7 +111,7 @@ describe("buildPgFilters", () => {
 
   describe("invalid filters", () => {
     it("throws when the filter field is not a column of the table", () => {
-      expect(() => buildPgFilters(testTable, { nonexistent: "x" })).toThrow(
+      expect(() => buildPgConditions(testTable, { nonexistent: "x" })).toThrow(
         "[pg-query-builder]: unknown filter field nonexistent",
       );
     });

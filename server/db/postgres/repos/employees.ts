@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 
 import { EmployeePort } from "@/server/domain/employees/port";
 import { Employee } from "@/types/employee";
-import { makeReadRepo } from "@server/db/postgres/shared/read";
+import { makeReadRepo } from "@server/db/postgres/read/read";
 
 import { query } from "../pool";
 import { employeesTable } from "../schema/employees";

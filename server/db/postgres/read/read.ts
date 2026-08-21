@@ -11,13 +11,14 @@ import {
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { PgTable } from "drizzle-orm/pg-core";
 
-import { ByKey, Countable, Page, Pageable, PageQuery } from "@a2zb/node/db";
+import { ByKey, Countable, Page, Pageable, PageQuery } from "@a2zb/types";
 import {
   assertColumn,
   assertCursorIdValue,
   assertCursorValue,
-} from "./assertions";
-import { buildCursorFilter, encodeCursor } from "./cursor";
+} from "../shared/assertions";
+import { buildCursorFilter, encodeCursor } from "../shared/cursor";
+import { buildPgConditions } from "../shared/build-pg-conditions";
 
 // getCursorId must resolve to a single column that's unique per row — cursor
 // pagination tie-breaks on it, and composite keys aren't supported there.
@@ -30,7 +31,7 @@ import { buildCursorFilter, encodeCursor } from "./cursor";
 
 // Ports represent domain entities, not DB rows — no view/TOut here. Mapping
 // an entity into a presentation shape belongs to the read layer, not the
-// repo. @a2zb/node/db's ByKey/Pageable/Countable already match this shape.
+// repo. @a2zb/types's ByKey/Pageable/Countable already match this shape.
 
 export const makeReadRepo = <
   TTable extends PgTable,
@@ -74,28 +75,32 @@ export const makeReadRepo = <
 
     // expects cursor sortField_cursorId format
     async findPage(pageQuery: PageQuery): Promise<Page<TEntity>> {
-      const sortColumn = columns[pageQuery.sortField];
-      assertColumn(sortColumn, pageQuery.sortField);
+      const { sortField, sortDir, cursor, filters, limit } = pageQuery;
+
+      const sortColumn = columns[sortField];
+      assertColumn(sortColumn, sortField);
 
       const idColumn = columns[cursorIdColumnName];
       // this should never fire – logically speaking
       assertColumn(idColumn, String(cursorIdColumnName));
 
       const cursorFilter = buildCursorFilter({
-        cursor: pageQuery.cursor,
+        cursor,
         sortColumn,
         idColumn,
-        sortDir: pageQuery.sortDir,
+        sortDir,
       });
 
-      const orderFn = pageQuery.sortDir === "asc" ? asc : desc;
+      const pgConditions = buildPgConditions(table, filters);
+
+      const orderFn = sortDir === "asc" ? asc : desc;
 
       const rows = await db
         .select()
         .from(pgTable)
-        .where(and(undefined, cursorFilter))
+        .where(and(...pgConditions, cursorFilter))
         .orderBy(orderFn(sortColumn), orderFn(idColumn))
-        .limit(pageQuery.limit);
+        .limit(limit);
 
       // encode new cursor
       const lastRow = rows.at(-1) as Row | undefined;
@@ -104,8 +109,8 @@ export const makeReadRepo = <
       // this with prefix d; similar with strings/numbers, prefixed s/n
       let nextCursor: string | null = null;
       if (lastRow) {
-        const sortValue = lastRow[pageQuery.sortField as keyof Row];
-        assertCursorValue(sortValue, pageQuery.sortField);
+        const sortValue = lastRow[sortField as keyof Row];
+        assertCursorValue(sortValue, sortField);
 
         const idValue = lastRow[cursorIdColumnName];
         assertCursorIdValue(idValue, String(cursorIdColumnName));
@@ -119,9 +124,13 @@ export const makeReadRepo = <
       };
     },
 
-    // todo: implement filters
     async count(args?: Pick<PageQuery, "filters">): Promise<number> {
-      const [row] = await db.select({ value: count() }).from(pgTable);
+      const pgConditions = buildPgConditions(table, args?.filters);
+
+      const [row] = await db
+        .select({ value: count() })
+        .from(pgTable)
+        .where(and(...pgConditions));
       return row?.value ?? 0;
     },
   } satisfies ByKey<TEntity, TKey> & Pageable<TEntity> & Countable;
