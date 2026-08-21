@@ -16,8 +16,8 @@ function isRange(value: unknown): value is Range {
 }
 
 export function buildPgFilters(
-  filters: Record<string, unknown>,
   table: PgTable,
+  filters: Record<string, unknown>,
 ) {
   const columns = getColumns(table);
   const conditions: SQL[] = [];
@@ -41,8 +41,12 @@ export function buildPgFilters(
       continue;
     }
 
-    // check if v is an array eg. filter: { status: ["active", "failed"] }
-    conditions.push(Array.isArray(v) ? inArray(column, v) : eq(column, v));
+    if (Array.isArray(v)) {
+      if (v.length === 0) continue;
+      conditions.push(inArray(column, v));
+    } else {
+      conditions.push(eq(column, v));
+    }
   }
 
   return conditions;

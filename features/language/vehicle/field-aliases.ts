@@ -4,6 +4,7 @@ export const availableFilters = [
   "plateNumber",
   "make",
   "model",
+  "date",
   "maintenanceResponsibleId",
 ] as const;
 
@@ -14,6 +15,7 @@ export const enVehicleAliases: Record<string, VehicleFilter> = {
   platenumber: "plateNumber",
   plate_number: "plateNumber",
   responsible: "maintenanceResponsibleId",
+  date: "date",
   make: "make",
   model: "model",
 };
@@ -24,4 +26,5 @@ export const noVehicleAliases: Record<string, VehicleFilter> = {
   merke: "make",
   modell: "model",
   ansvarlig: "maintenanceResponsibleId",
+  dato: "date",
 };

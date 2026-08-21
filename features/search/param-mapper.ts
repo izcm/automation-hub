@@ -14,7 +14,7 @@ export function toSearchParams({
   filters: Record<string, string[]>;
   keyMap?: Record<string, string>;
   specialCases?: Record<string, (vals: string[]) => [string, string][]>;
-  resolveValue?: (key: string, value: string) => string;
+  resolveValue?: (key: string, value: string) => string | string[];
 }) {
   const params = new URLSearchParams();
 
@@ -34,7 +34,12 @@ export function toSearchParams({
       for (const val of vals) {
         const resolved =
           key === "sortField" ? keyMap[val] : resolveValue(key, val);
-        if (resolved) params.append(key, resolved.replace(/_/g, " "));
+
+        const resolvedArr = Array.isArray(resolved) ? resolved : [resolved];
+
+        for (const element of resolvedArr) {
+          if (element) params.append(key, element.replace(/_/g, " "));
+        }
       }
     }
   }

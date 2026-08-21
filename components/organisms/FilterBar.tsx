@@ -47,6 +47,7 @@ export function FilterBar({
           onSubmit={handleSearch}
           submitLabel={applyLabel}
           placeholder={searchPlaceholder}
+          className="[&_input]:text-subtle"
         />
 
         {dropdown && (
@@ -61,7 +62,7 @@ export function FilterBar({
       </div>
 
       {showFilterMenu && dropdown && (
-        <div className="flex p-3 raised-outline">{dropdown}</div>
+        <div className="flex p-4 raised-outline">{dropdown}</div>
       )}
     </div>
   );

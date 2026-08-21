@@ -33,7 +33,7 @@ export function Header({ backHref, title, labels }: Props) {
 
       <Popover
         align="right"
-        contentClassName="rounded"
+        contentClassName="raised-outline"
         trigger={
           <button className="btn btn-menu" aria-label={labels.menu}>
             <ChevronDown size={16} />

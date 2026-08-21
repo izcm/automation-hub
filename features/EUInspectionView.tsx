@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Checkbox } from "@a2zb/react";
 
 import { getPage } from "@/shared/http/page-get";
 import type { Vehicle } from "@/types/vehicle";
@@ -12,11 +13,16 @@ import {
 } from "@/features/language/ui_labels";
 import { useLanguage } from "@/features/language/LanguageContext";
 import { EU_INSPECTION_FILTER_LABELS_BY_LANGUAGE } from "@/features/language/eu-inspection/filter-labels";
+
 import { useSendNotifications } from "@features/notifications/hooks";
 import { FIELD_ALISES_MAP } from "@/features/language/field-config";
 
 import { Notify } from "@components/icons";
-import { DateStamp, SimpleRow } from "@/components/molecules";
+import {
+  DateStamp,
+  MultiSelectDropdown,
+  SimpleRow,
+} from "@/components/molecules";
 import {
   Header,
   ResourceManagementView,
@@ -25,11 +31,20 @@ import {
 
 import { useSearchFilters } from "./search/use-search-filters";
 import { toSearchParams } from "./search/param-mapper";
-import { Checkbox } from "@a2zb/react";
 
 type Props = {
   vehicles: Vehicle[];
 };
+
+const EMPLOYEES = ["empl 1", "empl 2", "empl 3"];
+
+function VerticalDivider() {
+  return (
+    <div className="py-2">
+      <div className="vertical-line" />
+    </div>
+  );
+}
 
 export function buildQuery({
   cursor,
@@ -60,9 +75,19 @@ export function EUInspectionView({ vehicles: initialVehicles }: Props) {
   const FILTER_UI_LABELS = EU_INSPECTION_FILTER_LABELS_BY_LANGUAGE[language];
 
   useEffect(() => {
+    const filterKeyMap = FIELD_ALISES_MAP[language]["vehicles"];
+
     const query = buildQuery({
       filters,
-      keyMap: FIELD_ALISES_MAP["en"]["vehicles"],
+      keyMap: filterKeyMap,
+      resolveValue: (key, value) =>
+        key === filterKeyMap["responsible"]
+          ? value === "all_others"
+            ? ["empl 1", "empl 2", "empl 3"]
+            : value === "me"
+              ? ["current user"]
+              : value
+          : value,
     });
 
     const controller = new AbortController();
@@ -77,7 +102,7 @@ export function EUInspectionView({ vehicles: initialVehicles }: Props) {
     });
 
     return () => controller.abort();
-  }, [filters]);
+  }, [filters, language]);
 
   const isChecked = (key: string, value: string) => {
     return filters[key]?.includes(value) ?? false;
@@ -102,31 +127,47 @@ export function EUInspectionView({ vehicles: initialVehicles }: Props) {
         filterMenu={
           <div className="flex-1 flex flex-col gap-3">
             <div className="flex gap-6 flex-1">
-              <div className="flex flex-col gap-2 w-1/4 text-start pb-3">
-                <span className="text-xs font-semibold text-subtle">
+              <div className="flex flex-col gap-2 w-1/4 text-start pb-2">
+                <span className="text-xs font-semibold text-subtle tracking-lg">
                   {FILTER_UI_LABELS.headings.responsible.toUpperCase()}
                 </span>
-                <div className="flex flex-col gap-1">
-                  <label className="flex items-center gap-2 text-sm text-fg">
-                    <Checkbox
-                      checked={isChecked("responsible", "me")}
-                      onChange={() => toggleFilter("responsible", "me")}
-                    />
-                    {FILTER_UI_LABELS.responsible.me}
-                  </label>
 
-                  <label className="flex items-center gap-2 text-sm text-fg">
-                    <Checkbox
-                      checked={isChecked("responsible", "all others")}
-                      onChange={() => toggleFilter("responsible", "all others")}
-                    />
-                    {FILTER_UI_LABELS.responsible.others}
-                  </label>
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="flex items-center gap-2 text-sm text-fg">
+                      <Checkbox
+                        checked={isChecked("responsible", "me")}
+                        onChange={() => toggleFilter("responsible", "me")}
+                      />
+                      {FILTER_UI_LABELS.responsible.me}
+                    </label>
+
+                    <label className="flex items-center gap-2 text-sm text-fg">
+                      <Checkbox
+                        checked={isChecked("responsible", "all_others")}
+                        onChange={() =>
+                          toggleFilter("responsible", "all_others")
+                        }
+                      />
+                      {FILTER_UI_LABELS.responsible.others}
+                    </label>
+                  </div>
+
+                  <MultiSelectDropdown
+                    options={EMPLOYEES}
+                    selected={filters["responsible"] ?? []}
+                    onToggle={(employee) =>
+                      toggleFilter("responsible", employee)
+                    }
+                    placeholder="Search employees"
+                  />
                 </div>
               </div>
 
+              <VerticalDivider />
+
               <div className="flex flex-col gap-2 w-1/4 text-start pb-3">
-                <span className="text-xs font-semibold text-subtle">
+                <span className="text-xs font-semibold text-subtle tracking-lg">
                   {FILTER_UI_LABELS.headings.status.toUpperCase()}
                 </span>
                 <div className="flex flex-col gap-1">
@@ -148,7 +189,7 @@ export function EUInspectionView({ vehicles: initialVehicles }: Props) {
 
               <button
                 onClick={resetFilters}
-                className="btn self-end text-subtle text-sm p-0 px-2"
+                className="btn self-end text-subtle text-[13px] p-0 px-2"
               >
                 Empty filters
               </button>

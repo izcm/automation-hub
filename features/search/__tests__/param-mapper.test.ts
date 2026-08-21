@@ -73,6 +73,18 @@ describe("toSearchParams", () => {
         expect(params.has("sortField")).toBe(false);
       });
 
+      // contrast with "regular fields" above: an unknown *value* is only
+      // ever dropped for sortField. every other key keeps the raw value.
+      it("does NOT drop an unknown value for a regular (non-sortField) key", () => {
+        const params = toSearchParams({
+          filters: { status: ["unknown"] },
+          keyMap: { plate: "plateNumber" },
+        });
+
+        expect(params.has("status")).toBe(true);
+        expect(params.getAll("status")).toEqual(["unknown"]);
+      });
+
       it("appends values to same key when keys map to the same value through provided keyMap", () => {
         const keyMap = {
           platenumber: "plateNumber",
