@@ -2,9 +2,10 @@ import { eq } from "drizzle-orm";
 
 import { EmployeePort } from "@/server/domain/employees/port";
 import { Employee } from "@/types/employee";
-import { makeReadRepo } from "@server/db/postgres/read/read";
+import { makeReadRepo } from "@server/db/postgres/core/read";
+import { makeEnsure } from "@server/db/postgres/core/ensure";
 
-import { query } from "../pool";
+import { db } from "../pool";
 import { employeesTable } from "./schema";
 
 type EmployeeRow = typeof employeesTable.$inferSelect;
@@ -15,34 +16,24 @@ const toEmployee = (row: EmployeeRow): Employee => ({
 });
 
 const readRepo = makeReadRepo(
-  query,
+  db,
   employeesTable,
   (table, key: string) => eq(table.id, key),
   "id",
   toEmployee,
 );
 
+const rawEnsure = makeEnsure(db, employeesTable, { id: employeesTable.id });
+
 export const employeeRepo: EmployeePort = {
   ...readRepo,
 
   async ensure(email: string, id: string): Promise<{ id: string }> {
-    const inserted = await query
-      .insert(employeesTable)
-      .values({ id, email })
-      .onConflictDoNothing({ target: employeesTable.email })
-      .returning({ id: employeesTable.id });
-
-    if (inserted[0]) return { id: inserted[0].id };
-
-    const [existing] = await query
-      .select({ id: employeesTable.id })
-      .from(employeesTable)
-      .where(eq(employeesTable.email, email));
-
-    if (!existing) {
-      throw new Error(`ensure: conflict on ${email} but row not found`);
-    }
-
-    return { id: existing.id };
+    const result = await rawEnsure(
+      { id, email },
+      employeesTable.email,
+      eq(employeesTable.email, email),
+    );
+    return { id: result.id as string };
   },
 };

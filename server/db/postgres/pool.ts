@@ -1,6 +1,7 @@
 import { Pool } from "pg";
 import { readEnvOrThrow } from "@server/config/env";
 import { drizzle } from "drizzle-orm/node-postgres";
+import { appRelations } from "./relations";
 
 declare global {
   var _pgPool: Pool | undefined;
@@ -18,5 +19,9 @@ const pool =
     ? (globalThis._pgPool ??= createPool())
     : createPool();
 
-export const query = drizzle({ client: pool, logger: true });
+export const db = drizzle({
+  client: pool,
+  relations: appRelations,
+  logger: true,
+});
 // export const query: QueryFn = (text, params) => pool.query(text, params);

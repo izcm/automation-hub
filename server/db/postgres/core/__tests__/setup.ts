@@ -109,9 +109,7 @@ export function setupSingleColumnPkTable<
   };
 }
 
-export function setupCompositePkTable<
-  TEntity extends object = CompositePkRow,
->(
+export function setupCompositePkTable<TEntity extends object = CompositePkRow>(
   db: NodePgDatabase,
   toEntity: (row: CompositePkRow) => TEntity = (row) =>
     row as unknown as TEntity,
@@ -129,10 +127,7 @@ export function setupCompositePkTable<
       db,
       testEventsCompositePk,
       (table, key: { keyPartA: number; keyPartB: string }) =>
-        and(
-          eq(table.keyPartA, key.keyPartA),
-          eq(table.keyPartB, key.keyPartB),
-        ),
+        and(eq(table.keyPartA, key.keyPartA), eq(table.keyPartB, key.keyPartB)),
       "seqId",
       toEntity,
     ),

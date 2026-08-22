@@ -1,4 +1,4 @@
-import { query } from "@server/db/postgres/pool";
+import { db } from "@server/db/postgres/pool";
 import { employeesTable } from "@server/db/postgres/employees/schema";
 import { generateId } from "@/server/shared/id";
 
@@ -19,8 +19,8 @@ const seedEmployees = Array.from({ length: 4 }, (_, i) => ({
 }));
 
 async function seed() {
-  await query.delete(employeesTable); // wipe first so re-running is idempotent
-  const res = await query
+  await db.delete(employeesTable); // wipe first so re-running is idempotent
+  const res = await db
     .insert(employeesTable)
     .values(seedEmployees)
     .returning({ id: employeesTable.id });

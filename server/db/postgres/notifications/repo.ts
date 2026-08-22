@@ -2,9 +2,9 @@ import { eq } from "drizzle-orm";
 
 import { NewNotification, Notification } from "@/types/notification";
 import { NotificationPort } from "@/server/domain/notifications/port";
-import { makeReadRepo } from "@server/db/postgres/read/read";
+import { makeReadRepo } from "@server/db/postgres/core/read";
 
-import { query } from "../pool";
+import { db } from "../pool";
 import { notificationsTable } from "./schema";
 
 type NotificationRow = typeof notificationsTable.$inferSelect;
@@ -21,7 +21,7 @@ const toNotification = (row: NotificationRow): Notification => ({
 });
 
 const readRepo = makeReadRepo(
-  query,
+  db,
   notificationsTable,
   (table, key: string) => eq(table.id, key),
   "id",
@@ -34,7 +34,7 @@ export const notificationRepo: NotificationPort = {
   save: async function (
     notification: NewNotification,
   ): Promise<{ id: string }> {
-    await query.insert(notificationsTable).values({
+    await db.insert(notificationsTable).values({
       id: notification.id,
       to: notification.to,
       channel: notification.channel,

@@ -1,6 +1,7 @@
 import { Vehicle } from "@/types/vehicle";
 import { Employee } from "@/types/employee";
 import { Notification } from "@/types/notification";
+import { EuInspectionEntity } from "@/server/domain/eu-inspections/port";
 
 export type AppResources = {
   vehicles: {
@@ -13,6 +14,10 @@ export type AppResources = {
   };
   notifications: {
     type: Notification;
+    key: string;
+  };
+  euInspections: {
+    type: EuInspectionEntity;
     key: string;
   };
 };

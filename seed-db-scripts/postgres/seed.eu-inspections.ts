@@ -1,11 +1,11 @@
-import { query } from "@server/db/postgres/pool";
+import { db } from "@server/db/postgres/pool";
 import { vehiclesTable } from "@server/db/postgres/vehicles/schema";
 import { euInspectionsTable } from "@server/db/postgres/eu-inspections/schema";
 import { generateId } from "@/server/shared/id";
 
 async function seed() {
   // Need vehicles to attach inspections to. Seed them first.
-  const vehicleRows = await query
+  const vehicleRows = await db
     .select({ id: vehiclesTable.id, euDate: vehiclesTable.euDate })
     .from(vehiclesTable);
   if (vehicleRows.length === 0) {
@@ -24,8 +24,8 @@ async function seed() {
       status: "upcoming" as const,
     }));
 
-  await query.delete(euInspectionsTable); // wipe first so re-running is idempotent
-  const res = await query
+  await db.delete(euInspectionsTable); // wipe first so re-running is idempotent
+  const res = await db
     .insert(euInspectionsTable)
     .values(rows)
     .returning({ vehicleId: euInspectionsTable.vehicleId });

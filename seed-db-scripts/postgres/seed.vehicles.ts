@@ -1,4 +1,4 @@
-import { query } from "@server/db/postgres/pool";
+import { db } from "@server/db/postgres/pool";
 import { vehiclesTable } from "@server/db/postgres/vehicles/schema";
 import { employeesTable } from "@server/db/postgres/employees/schema";
 import { generateId } from "@/server/shared/id";
@@ -90,7 +90,7 @@ const seedVehicles = [
 
 async function seed() {
   // Need employees to assign as maintenance-responsible. Seed them first.
-  const employeeRows = await query
+  const employeeRows = await db
     .select({ id: employeesTable.id })
     .from(employeesTable);
   if (employeeRows.length === 0) {
@@ -108,8 +108,8 @@ async function seed() {
     maintenanceResponsibleId: employeeIds[i % employeeIds.length],
   }));
 
-  await query.delete(vehiclesTable); // wipe first so re-running is idempotent
-  const res = await query
+  await db.delete(vehiclesTable); // wipe first so re-running is idempotent
+  const res = await db
     .insert(vehiclesTable)
     .values(rows)
     .returning({ id: vehiclesTable.id });
