@@ -1,19 +1,7 @@
 import { eq, getColumns, gte, inArray, lte, SQL } from "drizzle-orm";
 import { PgTable } from "drizzle-orm/pg-core";
 
-type Range = {
-  gte?: unknown;
-  lte?: unknown;
-};
-
-function isRange(value: unknown): value is Range {
-  // check if its an object
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    ("gte" in value || "lte" in value)
-  );
-}
+import { isRange } from "@a2zb/lib";
 
 export function buildPgConditions(
   table: PgTable,

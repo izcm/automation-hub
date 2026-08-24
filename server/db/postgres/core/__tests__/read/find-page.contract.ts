@@ -1,54 +1,31 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { PageQuery } from "@a2zb/types";
+import { describe, expect, it } from "vitest";
+import { PageQuery, Page } from "@a2zb/types";
+import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 import {
   generateTestEvents,
   insertMany,
   insertManyTestEvents,
-  setupSingleColumnPkTable,
-  startTestDb,
-  stopTestDb,
   testEvents,
   TestEventInsertedRow,
-  truncateTestTables,
-  TestDb,
-} from "./setup";
+} from "../setup";
 
-describe("makeReadRepo (postgres) — findPage", () => {
-  let testDb: TestDb;
+// Shared findPage behavior contract — run against both makeReadRepo and
+// makeReadRepoWithRelations, since both back their findPage with the same
+// cursor/sort/filter logic. Only `findPage`'s calling convention differs
+// between the two repos (relations' takes an extra `includes` arg), so
+// callers adapt that here and everything below stays repo-agnostic.
+//
+// Repo-specific behavior (e.g. toEntity mapping, relation includes) stays in
+// each repo's own test file.
 
-  beforeAll(async () => {
-    testDb = await startTestDb();
-  }, 60_000);
+const insertionSize = 100;
 
-  afterAll(async () => {
-    await stopTestDb(testDb);
-  });
-
-  beforeEach(async () => {
-    await truncateTestTables(testDb.pool);
-  });
-
-  const insertionSize = 100;
-
-  function setupTable<TEntity extends object = TestEventInsertedRow>(
-    toEntity?: (row: TestEventInsertedRow) => TEntity,
-  ) {
-    return toEntity
-      ? setupSingleColumnPkTable(testDb.db, toEntity)
-      : setupSingleColumnPkTable(testDb.db);
-  }
-
-  const setupRepoAndInsertTestEvents = async () => {
-    const { repo } = setupTable();
-    const inserted = await insertManyTestEvents(testDb.db, insertionSize);
-    return {
-      repo,
-      inserted,
-    };
-  };
-
-  const pageQuery = (args: Partial<PageQuery>): PageQuery => ({
+export function runFindPageContractTests(
+  getDb: () => NodePgDatabase,
+  findPage: (query: PageQuery) => Promise<Page<TestEventInsertedRow>>,
+) {
+  const pageQuery = (args: Partial<PageQuery> = {}): PageQuery => ({
     limit: insertionSize,
     sortField: "name",
     sortDir: "desc",
@@ -56,24 +33,11 @@ describe("makeReadRepo (postgres) — findPage", () => {
   });
 
   it("returns at most the given limit of items", async () => {
-    const { repo } = await setupRepoAndInsertTestEvents();
+    await insertManyTestEvents(getDb(), insertionSize);
     const limit = insertionSize / 4;
 
-    const { items } = await repo.findPage(pageQuery({ limit }));
+    const { items } = await findPage(pageQuery({ limit }));
     expect(items).toHaveLength(limit);
-  });
-
-  it("returns items mapped through toEntity", async () => {
-    const { repo } = setupTable((row) => ({
-      aliasedId: row.id,
-    }));
-    const rows = await insertManyTestEvents(testDb.db, insertionSize);
-
-    const { items } = await repo.findPage(pageQuery({}));
-
-    expect(items).toEqual(
-      expect.arrayContaining(rows.map((row) => ({ aliasedId: row.id }))),
-    );
   });
 
   it.each([
@@ -98,15 +62,15 @@ describe("makeReadRepo (postgres) — findPage", () => {
   ] as const)(
     "sorts by the specified sort column (%s), in the given sort direction",
     async (_type, sortField, compare) => {
-      const { repo, inserted: rows } = await setupRepoAndInsertTestEvents();
+      const rows = await insertManyTestEvents(getDb(), insertionSize);
 
       const sortedAsc = [...rows].sort(compare);
       const sortedDesc = [...sortedAsc].reverse();
 
-      const { items: resultAsc } = await repo.findPage(
+      const { items: resultAsc } = await findPage(
         pageQuery({ sortDir: "asc", sortField }),
       );
-      const { items: resultDesc } = await repo.findPage(
+      const { items: resultDesc } = await findPage(
         pageQuery({ sortDir: "desc", sortField }),
       );
 
@@ -116,14 +80,14 @@ describe("makeReadRepo (postgres) — findPage", () => {
   );
 
   it("throws when table does not define specified column", async () => {
-    const { repo } = await setupRepoAndInsertTestEvents();
+    await insertManyTestEvents(getDb(), insertionSize);
     await expect(
-      repo.findPage(pageQuery({ sortField: "doesNotExist" })),
+      findPage(pageQuery({ sortField: "doesNotExist" })),
     ).rejects.toThrow();
   });
 
   it("returns the next page of items after the given cursor, with no overlap or gaps", async () => {
-    const { repo, inserted: rows } = await setupRepoAndInsertTestEvents();
+    const rows = await insertManyTestEvents(getDb(), insertionSize);
     const pageSize = 25;
 
     const sortField = "priority";
@@ -131,10 +95,10 @@ describe("makeReadRepo (postgres) — findPage", () => {
 
     const sorted = [...rows].sort((a, b) => a.priority - b.priority);
 
-    const firstPage = await repo.findPage(
+    const firstPage = await findPage(
       pageQuery({ limit: pageSize, sortField, sortDir }),
     );
-    const secondPage = await repo.findPage(
+    const secondPage = await findPage(
       pageQuery({
         limit: pageSize,
         sortField,
@@ -148,7 +112,6 @@ describe("makeReadRepo (postgres) — findPage", () => {
   });
 
   it("breaks ties on the cursor id when multiple rows share the same sort value", async () => {
-    const { repo } = setupTable();
     const pageSize = 5;
     // already ascending by priority (priority: i)
     const testEventRows = generateTestEvents(10);
@@ -159,14 +122,14 @@ describe("makeReadRepo (postgres) — findPage", () => {
     // row still sorts by its own (otherwise untouched) priority.
     testEventRows[0]!.priority = testEventRows[pageSize]!.priority;
 
-    await insertMany(testDb.db, testEvents, testEventRows);
+    await insertMany(getDb(), testEvents, testEventRows);
 
-    const firstPage = await repo.findPage(
+    const firstPage = await findPage(
       pageQuery({ sortDir: "asc", sortField: "priority", limit: pageSize }),
     );
     expect(firstPage.items.map((e) => e.id)).toEqual(["1", "2", "3", "4", "0"]);
 
-    const secondPage = await repo.findPage(
+    const secondPage = await findPage(
       pageQuery({
         sortDir: "asc",
         sortField: "priority",
@@ -179,15 +142,13 @@ describe("makeReadRepo (postgres) — findPage", () => {
 
   describe("filtering", () => {
     it("applies basic `equals` filter", async () => {
-      const { repo } = setupTable();
-
       const others = generateTestEvents(10);
       const relevant = generateTestEvents(3, { priority: 999 }, 10);
 
-      await insertMany(testDb.db, testEvents, [...others, ...relevant]);
+      await insertMany(getDb(), testEvents, [...others, ...relevant]);
       const filters = { priority: 999 };
 
-      const { items } = await repo.findPage(pageQuery({ filters, limit: 10 }));
+      const { items } = await findPage(pageQuery({ filters, limit: 10 }));
 
       expect(items).toHaveLength(3);
       expect(items.every((item) => item.priority === 999)).toBe(true);
@@ -196,14 +157,13 @@ describe("makeReadRepo (postgres) — findPage", () => {
     it.each(["asc", "desc"] as const)(
       "applies a range filter on occurredAt, sorted in %s order",
       async (sortDir) => {
-        const { repo } = setupTable();
-        const rows = await insertManyTestEvents(testDb.db, 10);
+        const rows = await insertManyTestEvents(getDb(), 10);
 
         const from = rows[2]!.occurredAt;
         const to = rows[6]!.occurredAt;
         const filters = { occurredAt: { gte: from, lte: to } };
 
-        const { items } = await repo.findPage(
+        const { items } = await findPage(
           pageQuery({
             filters,
             sortDir,
@@ -225,12 +185,11 @@ describe("makeReadRepo (postgres) — findPage", () => {
     );
 
     it("applies an inArray filter", async () => {
-      const { repo } = setupTable();
-      const rows = await insertManyTestEvents(testDb.db, 10);
+      const rows = await insertManyTestEvents(getDb(), 10);
 
       const filters = { id: [rows[2]!.id, rows[5]!.id, rows[8]!.id] };
 
-      const { items } = await repo.findPage(pageQuery({ filters, limit: 10 }));
+      const { items } = await findPage(pageQuery({ filters, limit: 10 }));
 
       expect(items).toEqual(
         expect.arrayContaining([rows[2], rows[5], rows[8]]),
@@ -239,14 +198,13 @@ describe("makeReadRepo (postgres) — findPage", () => {
     });
 
     it("returns no items when the filter matches nothing", async () => {
-      const { repo } = setupTable();
-      await insertManyTestEvents(testDb.db, 10);
+      await insertManyTestEvents(getDb(), 10);
 
       const filters = { priority: 999 };
 
-      const { items } = await repo.findPage(pageQuery({ filters, limit: 10 }));
+      const { items } = await findPage(pageQuery({ filters, limit: 10 }));
 
       expect(items).toEqual([]);
     });
   });
-});
+}

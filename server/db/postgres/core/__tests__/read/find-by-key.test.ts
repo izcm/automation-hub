@@ -10,7 +10,7 @@ import {
   testEventsCompositePk,
   truncateTestTables,
   TestDb,
-} from "./setup";
+} from "../setup";
 
 // NOTE: the toEntity-mapping tests (findByKey/findByKeys/findPage) are
 // arguably unit-test-ish — the { row -> entity } mapping itself doesn't need

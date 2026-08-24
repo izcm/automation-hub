@@ -2,6 +2,11 @@ import { or, eq, gt, lt, and } from "drizzle-orm";
 import { PgColumn } from "drizzle-orm/pg-core";
 
 import { SortDir } from "@a2zb/types";
+import {
+  assertColumn,
+  assertCursorIdValue,
+  assertCursorValue,
+} from "./assertions";
 // })
 export type CursorCore = {
   cursor?: string;
@@ -38,4 +43,38 @@ export const buildCursorFilter = ({
   const cmp = sortDir === "asc" ? gt : lt;
 
   return or(cmp(sortColumn, val), and(eq(sortColumn, val), cmp(idColumn, id)));
+};
+
+// resolves + validates the two columns findPage's cursor needs — the sort
+// column and the (unique) tie-breaker id column — from a table's column map.
+export const resolveCursorColumns = (
+  columns: Record<string, PgColumn>,
+  sortField: string,
+  cursorIdColumnName: string,
+) => {
+  const sortColumn = columns[sortField];
+  assertColumn(sortColumn, sortField);
+
+  const idColumn = columns[cursorIdColumnName];
+  assertColumn(idColumn, cursorIdColumnName);
+
+  return { sortColumn, idColumn };
+};
+
+// encodes the cursor for the next page from the last row of the current
+// page, or null when there is no last row (page came back empty).
+export const computeNextCursor = (
+  lastRow: Record<string, unknown> | undefined,
+  sortField: string,
+  cursorIdColumnName: string,
+): string | null => {
+  if (!lastRow) return null;
+
+  const sortValue = lastRow[sortField];
+  assertCursorValue(sortValue, sortField);
+
+  const idValue = lastRow[cursorIdColumnName];
+  assertCursorIdValue(idValue, cursorIdColumnName);
+
+  return encodeCursor(sortValue, idValue);
 };

@@ -10,7 +10,7 @@ import {
   testEvents,
   truncateTestTables,
   TestDb,
-} from "./setup";
+} from "../setup";
 
 describe("makeReadRepo (postgres) — count", () => {
   let testDb: TestDb;

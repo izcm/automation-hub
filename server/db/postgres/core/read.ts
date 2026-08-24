@@ -13,12 +13,11 @@ import { PgTable } from "drizzle-orm/pg-core";
 
 import { ByKey, Countable, Page, Pageable, PageQuery } from "@a2zb/types";
 import {
-  assertColumn,
-  assertCursorIdValue,
-  assertCursorValue,
-} from "../shared/assertions";
-import { buildCursorFilter, encodeCursor } from "../shared/cursor";
-import { buildPgConditions } from "../shared/build-pg-conditions";
+  buildCursorFilter,
+  computeNextCursor,
+  resolveCursorColumns,
+} from "../shared/cursor";
+import { buildPgConditions } from "./build-pg-conditions";
 
 // getCursorId must resolve to a single column that's unique per row — cursor
 // pagination tie-breaks on it, and composite keys aren't supported there.
@@ -77,12 +76,11 @@ export const makeReadRepo = <
     async findPage(pageQuery: PageQuery): Promise<Page<TEntity>> {
       const { sortField, sortDir, cursor, filters, limit } = pageQuery;
 
-      const sortColumn = columns[sortField];
-      assertColumn(sortColumn, sortField);
-
-      const idColumn = columns[cursorIdColumnName];
-      // this should never fire – logically speaking
-      assertColumn(idColumn, String(cursorIdColumnName));
+      const { sortColumn, idColumn } = resolveCursorColumns(
+        columns,
+        sortField,
+        String(cursorIdColumnName),
+      );
 
       const cursorFilter = buildCursorFilter({
         cursor,
@@ -102,21 +100,15 @@ export const makeReadRepo = <
         .orderBy(orderFn(sortColumn), orderFn(idColumn))
         .limit(limit);
 
-      // encode new cursor
+      // encode new cursor — drizzle returns a Date for SQL `timestamp` types,
+      // cursorTag encodes this with prefix d; similar with strings/numbers,
+      // prefixed s/n
       const lastRow = rows.at(-1) as Row | undefined;
-
-      // drizzle returns a Date for SQL `timestamp` types, cursorTag encodes
-      // this with prefix d; similar with strings/numbers, prefixed s/n
-      let nextCursor: string | null = null;
-      if (lastRow) {
-        const sortValue = lastRow[sortField as keyof Row];
-        assertCursorValue(sortValue, sortField);
-
-        const idValue = lastRow[cursorIdColumnName];
-        assertCursorIdValue(idValue, String(cursorIdColumnName));
-
-        nextCursor = encodeCursor(sortValue, idValue);
-      }
+      const nextCursor = computeNextCursor(
+        lastRow as Record<string, unknown> | undefined,
+        sortField,
+        String(cursorIdColumnName),
+      );
 
       return {
         items: rows.map((row) => toEntity(row as Row)),

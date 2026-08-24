@@ -27,7 +27,6 @@ import { VehicleCard } from "@/features/vehicles/VehicleCard";
 import { VehicleLookup } from "../lookup/VehicleLookup";
 import { useAddVehicle } from "./hooks";
 import Image from "next/image";
-import { toSearchParams } from "../search/param-mapper";
 
 type Props = {
   vehicles: Vehicle[];
@@ -89,7 +88,7 @@ export function VehiclesView({ vehicles }: Props) {
               items={vehicles}
               getId={(v) => v.id}
               labels={listViewLabels}
-              searchConfig={{ keyMap: FIELD_ALISES_MAP["en"]["vehicles"] }}
+              // searchConfig={{ keyMap: FIELD_ALISES_MAP["en"]["vehicles"] }}
               searchInput={searchInput}
               handleSearch={handleSearch}
               itemClassName={(isSelected) =>

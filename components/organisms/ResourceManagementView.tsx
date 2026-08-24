@@ -5,13 +5,7 @@ import { Gallery } from "@a2zb/react";
 
 import { cn } from "@/lib/cn";
 import { Pagination } from "@/components/molecules";
-import {
-  BatchAction,
-  BatchSelect,
-  FilterBar,
-  FilterCategoriesLabels,
-  SearchConfig,
-} from "@/components/organisms";
+import { BatchAction, BatchSelect, FilterBar } from "@/components/organisms";
 
 const PAGE_SIZE = 25;
 

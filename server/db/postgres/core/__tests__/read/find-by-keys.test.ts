@@ -11,7 +11,7 @@ import {
   CompositePkRow,
   truncateTestTables,
   TestDb,
-} from "./setup";
+} from "../setup";
 
 describe("makeReadRepo (postgres) — findByKeys", () => {
   let testDb: TestDb;
