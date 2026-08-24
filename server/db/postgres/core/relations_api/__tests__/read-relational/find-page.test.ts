@@ -240,9 +240,40 @@ describe("makeReadRepoWithRelations — findPage", () => {
   });
 
   describe("relational query options that aren't filters (e.g. orderBy)", () => {
-    it.todo(
-      "orders a related resource's own rows when `orderBy` is passed for it",
-    );
+    it("orders a related resource's own rows when `orderBy` is passed for it", async () => {
+      const { repo, insertedEvents } = await setupRelationalRepo({
+        nEvents: 1,
+        nTagsPerEvent: 3, // "Tag 0", "Tag 1", "Tag 2" — inserted in that order
+      });
+
+      // both inserted after "Tag 0"/"Tag 1"/"Tag 2", so if the desc-sorted
+      // result below still puts "zzzz" first and "0000" last, that can only
+      // be because `orderBy: desc` was actually applied — checking both
+      // ends rules out any default/incidental row order explaining it.
+      // ("0000" rather than e.g. "aaaa" for the low end — digits sort below
+      // both letter cases in every collation, so it's unambiguously last)
+      const [zzzzTag] = generateEventTags(
+        insertedEvents[0]!.id,
+        1,
+        { label: "zzzz" },
+        3,
+      );
+      const [lowestTag] = generateEventTags(
+        insertedEvents[0]!.id,
+        1,
+        { label: "0000" },
+        4,
+      );
+      await insertMany(testDb.db, testEventTags, [zzzzTag!, lowestTag!]);
+
+      const { items } = await repo.findPage(pageQuery(), {
+        tags: { orderBy: { label: "desc" } },
+      });
+
+      const tags = (items[0] as unknown as { tags: { label: string }[] }).tags;
+      expect(tags[0]!.label).toBe("zzzz");
+      expect(tags.at(-1)!.label).toBe("0000");
+    });
   });
 
   runFindPageContractTests(
