@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 
 import { EuInspectionPort } from "@/server/domain/eu-inspections/port";
 import { makeReadRepo } from "@server/db/postgres/core/read";
+import * as relational from "@server/db/postgres/core/relational/read";
 import { makeEnsure } from "@server/db/postgres/core/ensure";
 
 import { db } from "../pool";
@@ -15,12 +16,16 @@ const readRepo = makeReadRepo(
   (row) => row,
 );
 
+const relationalReadRepo = relational.makeReadRepo(db, "euInspections", "id");
+
 const rawEnsure = makeEnsure(db, euInspectionsTable, {
   id: euInspectionsTable.id,
 });
 
 export const euInspectionRepo: EuInspectionPort = {
   ...readRepo,
+
+  relations: relationalReadRepo,
 
   async ensure(
     vehicleId: string,

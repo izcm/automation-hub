@@ -11,8 +11,8 @@ export type Notification = {
   status: NotificationStatus;
   providerId?: string;
   error?: string;
-  createdAt: number;
-  updatedAt: number;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type NewNotification = {

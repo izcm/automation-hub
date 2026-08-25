@@ -11,7 +11,7 @@ import {
 } from "../setup";
 
 // Shared findPage behavior contract — run against both makeReadRepo and
-// makeReadRepoWithRelations, since both back their findPage with the same
+// relational makeReadRepo, since both back their findPage with the same
 // cursor/sort/filter logic. Only `findPage`'s calling convention differs
 // between the two repos (relations' takes an extra `includes` arg), so
 // callers adapt that here and everything below stays repo-agnostic.

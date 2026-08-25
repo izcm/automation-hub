@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { InferSelectModel } from "drizzle-orm";
 
-import { makeReadRepoWithRelations } from "../../read-relational";
+import { makeReadRepo } from "../../read";
 import {
   testEvents,
   generateTestEvents,
@@ -16,7 +16,7 @@ import {
   TestDb,
 } from "../setup";
 
-describe("makeReadRepoWithRelations — findOne", () => {
+describe("makeReadRepo — findOne", () => {
   let testDb: TestDb;
 
   beforeAll(async () => {
@@ -44,7 +44,7 @@ describe("makeReadRepoWithRelations — findOne", () => {
     );
     await insertMany(testDb.db, testEventNotifications, eventNotifications);
 
-    const repo = makeReadRepoWithRelations(
+    const repo = makeReadRepo(
       testDb.db,
       "testEvents",
       "id", // not relevant in these tests

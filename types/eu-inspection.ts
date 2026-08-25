@@ -1,5 +1,3 @@
-import { WithTimestamps } from "../types";
-
 export const euInspectionStatuses = [
   "upcoming", // not yet seen by inspectors
   "pending", // in verksted
@@ -9,10 +7,12 @@ export const euInspectionStatuses = [
 
 export type EuInspectionStatus = (typeof euInspectionStatuses)[number];
 
-export type EuInspectionRow = {
+export type EuInspection = {
   id: string;
-  vehicle_id: string;
-  eu_date: string;
-  has_been: boolean;
+  vehicleId: string;
+  euDate: string;
+  hasBeen: boolean;
   status: EuInspectionStatus;
-} & WithTimestamps;
+  createdAt: Date;
+  updatedAt: Date;
+};

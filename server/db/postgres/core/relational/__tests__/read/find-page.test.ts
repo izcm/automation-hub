@@ -4,7 +4,7 @@ import { FindPageQuery, Page, RawIncludes } from "@a2zb/types";
 import { TestEventInsertedRow } from "../../../__tests__/setup";
 import { runFindPageContractTests } from "../../../__tests__/read/find-page.contract";
 
-import { makeReadRepoWithRelations } from "../../read-relational";
+import { makeReadRepo } from "../../read";
 import {
   generateEventNotifications,
   generateEventNotes,
@@ -20,7 +20,7 @@ import {
   TestDb,
 } from "../setup";
 
-describe("makeReadRepoWithRelations — findPage", () => {
+describe("makeReadRepo — findPage", () => {
   let testDb: TestDb;
   let findPage: (query: FindPageQuery) => Promise<Page<TestEventInsertedRow>>;
 
@@ -34,7 +34,7 @@ describe("makeReadRepoWithRelations — findPage", () => {
 
   beforeEach(async () => {
     await truncateTestTables(testDb.pool);
-    const repo = makeReadRepoWithRelations(testDb.db, "testEvents", "id");
+    const repo = makeReadRepo(testDb.db, "testEvents", "id");
     findPage = (query) => repo.findPage(query, {});
   });
 
@@ -74,7 +74,7 @@ describe("makeReadRepoWithRelations — findPage", () => {
     nNotificationsPerEvent?: number;
     nNotesPerEvent?: number;
   }) {
-    const repo = makeReadRepoWithRelations(testDb.db, "testEvents", "id");
+    const repo = makeReadRepo(testDb.db, "testEvents", "id");
 
     const events = await insertManyTestEvents(testDb.db, nEvents);
 

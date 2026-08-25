@@ -2,13 +2,13 @@ import { isRange } from "@a2zb/lib";
 
 const MAX_RELATION_DEPTH = 3;
 
-export function buildPgRelationalQuery(
+export function buildPgConditions(
   query: Record<string, unknown> = {},
   depth = 0,
 ) {
   if (depth > MAX_RELATION_DEPTH) {
     throw new Error(
-      `buildPgConditionsRelational: filter nesting exceeds max depth of ${MAX_RELATION_DEPTH}`,
+      `buildPgConditions: filter nesting exceeds max depth of ${MAX_RELATION_DEPTH}`,
     );
   }
 
@@ -32,7 +32,7 @@ export function buildPgRelationalQuery(
     if (typeof v === "object" && v !== null) {
       // nested relation filter — recurse so range/array normalization
       // applies at every depth, not just the root
-      where[k] = buildPgRelationalQuery(
+      where[k] = buildPgConditions(
         v as Record<string, unknown>,
         depth + 1,
       );

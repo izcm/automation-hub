@@ -1,6 +1,6 @@
 import { boolean, pgEnum, pgTable, text, unique } from "drizzle-orm/pg-core";
 
-import { euInspectionStatuses } from "./types";
+import { euInspectionStatuses } from "@/types/eu-inspection";
 import { timestampColumns } from "../shared/schemas";
 import { vehiclesTable } from "../vehicles/schema";
 

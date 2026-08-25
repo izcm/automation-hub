@@ -16,8 +16,8 @@ const toNotification = (row: NotificationRow): Notification => ({
   status: row.status,
   providerId: row.providerId ?? undefined,
   error: row.error ?? undefined,
-  createdAt: row.createdAt.getTime(),
-  updatedAt: row.updatedAt.getTime(),
+  createdAt: row.createdAt,
+  updatedAt: row.updatedAt,
 });
 
 const readRepo = makeReadRepo(
@@ -46,9 +46,11 @@ export const notificationRepo: NotificationPort = {
 
   saveBatch: function (batch: NewNotification[]): Promise<{ ids: string[] }> {
     throw new Error("Function not implemented.");
+    console.log(batch); // sick of the ts errors and dont wanna add more lint config
   },
 
   update: function (id: string, fields: Partial<Notification>): Promise<void> {
     throw new Error("Function not implemented.");
+    console.log(id, fields); // sick of the ts errors and dont wanna add more lint config
   },
 };

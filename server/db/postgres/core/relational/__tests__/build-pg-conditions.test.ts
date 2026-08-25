@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { buildPgRelationalQuery } from "../build-pg-conditions-relational";
+import { buildPgConditions } from "../build-pg-conditions";
 
-describe("buildPgRelationalQuery", () => {
+describe("buildPgConditions", () => {
   describe("equality filters", () => {
     it("preserves a simple equality filter", () => {
-      const result = buildPgRelationalQuery({
+      const result = buildPgConditions({
         status: "upcoming",
       });
 
@@ -16,7 +16,7 @@ describe("buildPgRelationalQuery", () => {
 
   describe("array filters", () => {
     it("skips filter if value is an empty array", () => {
-      const result = buildPgRelationalQuery({
+      const result = buildPgConditions({
         status: [],
       });
 
@@ -24,7 +24,7 @@ describe("buildPgRelationalQuery", () => {
     });
 
     it("builds `in` filter for a non-empty array value", () => {
-      const result = buildPgRelationalQuery({
+      const result = buildPgConditions({
         status: ["a", "b"],
       });
 
@@ -36,7 +36,7 @@ describe("buildPgRelationalQuery", () => {
 
   describe("range filters", () => {
     it("builds both `gte` and `lte` when both bounds are given", () => {
-      const result = buildPgRelationalQuery({
+      const result = buildPgConditions({
         createdAt: { gte: 1, lte: 10 },
       });
 
@@ -46,7 +46,7 @@ describe("buildPgRelationalQuery", () => {
     });
 
     it("builds upper bound filter when `gte` is undefined", () => {
-      const result = buildPgRelationalQuery({
+      const result = buildPgConditions({
         createdAt: { lte: 10 },
       });
 
@@ -56,7 +56,7 @@ describe("buildPgRelationalQuery", () => {
     });
 
     it("builds lower bound filter when `lte` is undefined", () => {
-      const result = buildPgRelationalQuery({
+      const result = buildPgConditions({
         createdAt: { gte: 1 },
       });
 
@@ -68,7 +68,7 @@ describe("buildPgRelationalQuery", () => {
 
   describe("relations", () => {
     it("applies filter transformations recursively through relations", () => {
-      const result = buildPgRelationalQuery({
+      const result = buildPgConditions({
         vehicle: {
           status: ["active", "inactive"],
           createdAt: { gte: 1, lte: 10 },
@@ -102,7 +102,7 @@ describe("buildPgRelationalQuery", () => {
         },
       };
 
-      expect(() => buildPgRelationalQuery(query)).not.toThrow();
+      expect(() => buildPgConditions(query)).not.toThrow();
     });
 
     it("throws once nesting exceeds the max depth", () => {
@@ -118,7 +118,7 @@ describe("buildPgRelationalQuery", () => {
         },
       };
 
-      expect(() => buildPgRelationalQuery(query)).toThrow(/exceeds max depth/);
+      expect(() => buildPgConditions(query)).toThrow(/exceeds max depth/);
     });
   });
 });

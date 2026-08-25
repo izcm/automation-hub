@@ -1,5 +1,5 @@
 import { AnyRelations, RelationsRecord } from "drizzle-orm";
-import { buildPgRelationalQuery } from "./build-pg-conditions-relational";
+import { buildPgConditions } from "./build-pg-conditions";
 import { RawIncludes } from "@a2zb/types";
 
 export function buildWiths<
@@ -36,7 +36,7 @@ export function buildWiths<
 
     // parse `filter` to `where`
     if (value.filters) {
-      relationWith.where = buildPgRelationalQuery(
+      relationWith.where = buildPgConditions(
         value.filters as Record<string, unknown>,
       );
     }

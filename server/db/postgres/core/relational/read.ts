@@ -1,25 +1,15 @@
-import {
-  AnyRelations,
-  getColumns,
-  InferSelectModel,
-  Table,
-} from "drizzle-orm";
+import { AnyRelations, getColumns, InferSelectModel, Table } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
-import {
-  Page,
-  Extensible,
-  FindPageQuery,
-  RawIncludes,
-} from "@a2zb/types";
-import { RelationalReadPort } from "@/shared/ports-relational";
+import { Page, Extensible, FindPageQuery, RawIncludes } from "@a2zb/types";
+import { ReadPort } from "@/shared/relational/port";
 import {
   buildCursorFilter,
   computeNextCursor,
   resolveCursorColumns,
 } from "../../shared/cursor";
 import { buildWiths } from "./build-withs";
-import { buildPgRelationalQuery } from "./build-pg-conditions-relational";
+import { buildPgConditions } from "./build-pg-conditions";
 
 // REQUIREMENTS:
 // - `cursorIdColumnName` must map to a field of type STRING or INTEGER
@@ -29,7 +19,7 @@ type PgTableOf<
   TTable extends keyof TRelations,
 > = Extract<TRelations[TTable]["table"], Table>;
 
-export const makeReadRepoWithRelations = <
+export const makeReadRepo = <
   TRelations extends AnyRelations,
   TTable extends keyof TRelations,
 >(
@@ -56,12 +46,12 @@ export const makeReadRepoWithRelations = <
         const withs = buildWiths(appRelations, resourceRelations, includes);
 
         return await query.findFirst({
-          where: buildPgRelationalQuery(filters),
+          where: buildPgConditions(filters),
           with: withs,
         } as never);
       } catch (error) {
         console.error(
-          `[makeReadWithRelationsRepo:${String(table)}] Invalid relation config`,
+          `[makeReadRepo:${String(table)}] Invalid relation config`,
           error,
         );
 
@@ -87,7 +77,7 @@ export const makeReadRepoWithRelations = <
       try {
         rows = (await query.findMany({
           where: {
-            ...buildPgRelationalQuery(filters),
+            ...buildPgConditions(filters),
             // think about this another day plz
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             RAW: (t: any) =>
@@ -109,7 +99,7 @@ export const makeReadRepoWithRelations = <
         } as never)) as Extensible<Row>[];
       } catch (error) {
         console.error(
-          `[makeReadWithRelationsRepo:${String(table)}] findPage query failed (bad relation config, cursor or fitler.)`,
+          `[makeReadRepo:${String(table)}] findPage query failed (bad relation config, cursor or fitler.)`,
           error,
         );
 
@@ -128,5 +118,5 @@ export const makeReadRepoWithRelations = <
         nextCursor,
       };
     },
-  } satisfies RelationalReadPort<Row>;
+  } satisfies ReadPort<Row>;
 };
