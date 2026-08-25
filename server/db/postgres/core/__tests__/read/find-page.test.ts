@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { Page, PageQuery } from "@a2zb/types";
+import { FindPageQuery, Page } from "@a2zb/types";
 
 import {
   insertManyTestEvents,
@@ -14,7 +14,7 @@ import { runFindPageContractTests } from "./find-page.contract";
 
 describe("makeReadRepo (postgres) — findPage", () => {
   let testDb: TestDb;
-  let findPage: (query: PageQuery) => Promise<Page<TestEventInsertedRow>>;
+  let findPage: (query: FindPageQuery) => Promise<Page<TestEventInsertedRow>>;
 
   beforeAll(async () => {
     testDb = await startTestDb();
@@ -33,9 +33,12 @@ describe("makeReadRepo (postgres) — findPage", () => {
   const insertionSize = 100;
 
   it("returns items mapped through toEntity", async () => {
-    const { repo: aliasingRepo } = setupSingleColumnPkTable(testDb.db, (row) => ({
-      aliasedId: row.id,
-    }));
+    const { repo: aliasingRepo } = setupSingleColumnPkTable(
+      testDb.db,
+      (row) => ({
+        aliasedId: row.id,
+      }),
+    );
     const rows = await insertManyTestEvents(testDb.db, insertionSize);
 
     const { items } = await aliasingRepo.findPage({

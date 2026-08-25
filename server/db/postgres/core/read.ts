@@ -11,7 +11,7 @@ import {
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { PgTable } from "drizzle-orm/pg-core";
 
-import { ByKey, Countable, Page, Pageable, PageQuery } from "@a2zb/types";
+import { ByKey, Countable, FindPageQuery, Page, Pageable } from "@a2zb/types";
 import {
   buildCursorFilter,
   computeNextCursor,
@@ -73,8 +73,13 @@ export const makeReadRepo = <
     },
 
     // expects cursor sortField_cursorId format
-    async findPage(pageQuery: PageQuery): Promise<Page<TEntity>> {
-      const { sortField, sortDir, cursor, filters, limit } = pageQuery;
+    async findPage({
+      sortField,
+      sortDir,
+      cursor,
+      filters,
+      limit,
+    }: FindPageQuery): Promise<Page<TEntity>> {
 
       const { sortColumn, idColumn } = resolveCursorColumns(
         columns,
@@ -116,7 +121,7 @@ export const makeReadRepo = <
       };
     },
 
-    async count(args?: Pick<PageQuery, "filters">): Promise<number> {
+    async count(args?: Pick<FindPageQuery, "filters">): Promise<number> {
       const pgConditions = buildPgConditions(table, args?.filters);
 
       const [row] = await db

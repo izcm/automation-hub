@@ -25,7 +25,7 @@ type TestResources = {
   events: unknown;
   eventNotifications: unknown;
   notifications: unknown;
-  tags: unknown;
+  notes: unknown;
 };
 
 const resourceRelations = restrictRelationNames<keyof TestResources>();
@@ -47,18 +47,18 @@ export const testEventNotifications = pgTable("test_event_notifications", {
 // flat one-to-many, direct FK straight to testEvents — no junction, so it
 // exercises an `includes` entry that isn't nested (unlike "notifications",
 // which goes through eventNotifications)
-export const testEventTags = pgTable("test_event_tags", {
+export const testEventNotes = pgTable("test_event_notes", {
   id: text().primaryKey(),
   eventId: text("event_id").notNull(),
-  label: text().notNull(),
+  content: text().notNull(),
 });
 
 export const relations = defineRelations(
-  { testEvents, testEventNotifications, testNotifications, testEventTags },
+  { testEvents, testEventNotifications, testNotifications, testEventNotes },
   (r) => ({
     testEvents: resourceRelations({
       eventNotifications: r.many.testEventNotifications(),
-      tags: r.many.testEventTags(),
+      notes: r.many.testEventNotes(),
     }),
 
     testEventNotifications: resourceRelations({
@@ -73,9 +73,9 @@ export const relations = defineRelations(
       }),
     }),
 
-    testEventTags: resourceRelations({
+    testEventNotes: resourceRelations({
       event: r.one.testEvents({
-        from: r.testEventTags.eventId,
+        from: r.testEventNotes.eventId,
         to: r.testEvents.id,
       }),
     }),
@@ -123,10 +123,10 @@ export async function startTestDb(): Promise<TestDb> {
   `);
 
   await pool.query(`
-    CREATE TABLE test_event_tags (
+    CREATE TABLE test_event_notes (
       id TEXT PRIMARY KEY,
       event_id TEXT NOT NULL REFERENCES test_events(id),
-      label TEXT NOT NULL
+      content TEXT NOT NULL
     );
   `);
 
@@ -177,18 +177,18 @@ export function generateEventNotifications(
   });
 }
 
-export function generateEventTags(
+export function generateEventNotes(
   eventId: string,
   n: number,
-  overrides: Partial<InferInsertModel<typeof testEventTags>> = {},
+  overrides: Partial<InferInsertModel<typeof testEventNotes>> = {},
   startIndex = 0,
 ) {
   return Array.from({ length: n }, (_, i) => {
     const index = startIndex + i;
     return {
-      id: `${eventId}-tag-${index}`,
+      id: `${eventId}-note-${index}`,
       eventId,
-      label: `Tag ${index}`,
+      content: `Note ${index}`,
       ...overrides,
     };
   });

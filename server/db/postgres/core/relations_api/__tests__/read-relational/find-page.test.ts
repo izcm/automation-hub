@@ -1,19 +1,20 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { Page, PageQuery } from "@a2zb/types";
+import { FindPageQuery, Page } from "@a2zb/types";
 
 import { TestEventInsertedRow } from "../../../__tests__/setup";
 import { runFindPageContractTests } from "../../../__tests__/read/find-page.contract";
+
 import { makeReadRepoWithRelations } from "../../read-relational";
 import {
   generateEventNotifications,
-  generateEventTags,
+  generateEventNotes,
   generateNotifications,
   insertMany,
   insertManyTestEvents,
   startTestDb,
   stopTestDb,
   testEventNotifications,
-  testEventTags,
+  testEventNotes,
   testNotifications,
   truncateTestTables,
   TestDb,
@@ -21,7 +22,7 @@ import {
 
 describe("makeReadRepoWithRelations — findPage", () => {
   let testDb: TestDb;
-  let findPage: (query: PageQuery) => Promise<Page<TestEventInsertedRow>>;
+  let findPage: (query: FindPageQuery) => Promise<Page<TestEventInsertedRow>>;
 
   beforeAll(async () => {
     testDb = await startTestDb();
@@ -56,7 +57,7 @@ describe("makeReadRepoWithRelations — findPage", () => {
     }
   }
 
-  const pageQuery = (args: Partial<PageQuery> = {}): PageQuery => ({
+  const pageQuery = (args: Partial<FindPageQuery> = {}): FindPageQuery => ({
     limit: 25,
     sortField: "name",
     sortDir: "desc",
@@ -66,12 +67,12 @@ describe("makeReadRepoWithRelations — findPage", () => {
   async function setupRelationalRepo({
     nEvents,
     nNotificationsPerEvent = 0,
-    nTagsPerEvent = 0,
+    nNotesPerEvent = 0,
   }: {
     relationMap?: Record<string, unknown>;
     nEvents: number;
     nNotificationsPerEvent?: number;
-    nTagsPerEvent?: number;
+    nNotesPerEvent?: number;
   }) {
     const repo = makeReadRepoWithRelations(testDb.db, "testEvents", "id");
 
@@ -81,10 +82,10 @@ describe("makeReadRepoWithRelations — findPage", () => {
       await insertEventNotifications(testDb, events, nNotificationsPerEvent);
     }
 
-    if (nTagsPerEvent > 0) {
+    if (nNotesPerEvent > 0) {
       for (const event of events) {
-        const tags = generateEventTags(event.id, nTagsPerEvent);
-        await insertMany(testDb.db, testEventTags, tags);
+        const notes = generateEventNotes(event.id, nNotesPerEvent);
+        await insertMany(testDb.db, testEventNotes, notes);
       }
     }
 
@@ -110,35 +111,35 @@ describe("makeReadRepoWithRelations — findPage", () => {
     {
       title: "attaches a related resource to each item on the page",
       nNotificationsPerEvent: 0,
-      nTagsPerEvent: 2,
+      nNotesPerEvent: 2,
       withs: {
-        tags: true,
+        notes: true,
       },
-      expected: [{ name: "tags", nPer: 2 }],
+      expected: [{ name: "notes", nPer: 2 }],
       notExpected: ["eventNotifications"],
     },
     {
       title: "attaches a nested related resource to each item on the page",
       nNotificationsPerEvent: 2,
-      nTagsPerEvent: 0,
+      nNotesPerEvent: 0,
       withs: {
         eventNotifications: { with: { notification: true } },
       },
       expected: [{ name: "eventNotifications", nPer: 2 }],
-      notExpected: ["tags"],
+      notExpected: ["notes"],
     },
     {
       title:
         "attaches multiple related resources, both simple and nested, to each item on the page",
       nNotificationsPerEvent: 2,
-      nTagsPerEvent: 4,
+      nNotesPerEvent: 4,
       withs: {
         eventNotifications: { with: { notification: true } },
-        tags: true,
+        notes: true,
       },
       expected: [
         { name: "eventNotifications", nPer: 2 },
-        { name: "tags", nPer: 4 },
+        { name: "notes", nPer: 4 },
       ],
       notExpected: [],
     },
@@ -146,7 +147,7 @@ describe("makeReadRepoWithRelations — findPage", () => {
     "$title",
     async ({
       nNotificationsPerEvent,
-      nTagsPerEvent,
+      nNotesPerEvent,
       withs,
       expected,
       notExpected,
@@ -154,7 +155,7 @@ describe("makeReadRepoWithRelations — findPage", () => {
       const { repo } = await setupRelationalRepo({
         nEvents: 3,
         nNotificationsPerEvent,
-        nTagsPerEvent,
+        nNotesPerEvent,
       });
 
       const { items } = await repo.findPage(pageQuery(), withs);
@@ -173,29 +174,29 @@ describe("makeReadRepoWithRelations — findPage", () => {
       // filter items by event tag filter
       const { repo, insertedEvents } = await setupRelationalRepo({
         nEvents: 10,
-        nTagsPerEvent: 3,
+        nNotesPerEvent: 3,
       });
 
-      const tags = generateEventTags(
+      const notes = generateEventNotes(
         insertedEvents[0]!.id,
         3,
         {
-          label: "imDifferent",
+          content: "imDifferent",
         },
         3 * 10,
       );
 
-      await insertMany(testDb.db, testEventTags, tags);
+      await insertMany(testDb.db, testEventNotes, notes);
 
       const { items } = await repo.findPage(
         pageQuery({
           filters: {
-            tags: {
-              label: "imDifferent",
+            notes: {
+              content: "imDifferent",
             },
           },
         }),
-        { tags: true },
+        { notes: true },
       );
 
       expect(items).toHaveLength(1);
@@ -243,36 +244,36 @@ describe("makeReadRepoWithRelations — findPage", () => {
     it("orders a related resource's own rows when `orderBy` is passed for it", async () => {
       const { repo, insertedEvents } = await setupRelationalRepo({
         nEvents: 1,
-        nTagsPerEvent: 3, // "Tag 0", "Tag 1", "Tag 2" — inserted in that order
+        nNotesPerEvent: 3, // "Note 0", "Note 1", "Note 2" — inserted in that order
       });
 
-      // both inserted after "Tag 0"/"Tag 1"/"Tag 2", so if the desc-sorted
+      // both inserted after "Note 0"/"Note 1"/"Note 2", so if the desc-sorted
       // result below still puts "zzzz" first and "0000" last, that can only
       // be because `orderBy: desc` was actually applied — checking both
       // ends rules out any default/incidental row order explaining it.
       // ("0000" rather than e.g. "aaaa" for the low end — digits sort below
       // both letter cases in every collation, so it's unambiguously last)
-      const [zzzzTag] = generateEventTags(
+      const [zzzzNote] = generateEventNotes(
         insertedEvents[0]!.id,
         1,
-        { label: "zzzz" },
+        { content: "zzzz" },
         3,
       );
-      const [lowestTag] = generateEventTags(
+      const [lowestNote] = generateEventNotes(
         insertedEvents[0]!.id,
         1,
-        { label: "0000" },
+        { content: "0000" },
         4,
       );
-      await insertMany(testDb.db, testEventTags, [zzzzTag!, lowestTag!]);
+      await insertMany(testDb.db, testEventNotes, [zzzzNote!, lowestNote!]);
 
       const { items } = await repo.findPage(pageQuery(), {
-        tags: { orderBy: { label: "desc" } },
+        notes: { orderBy: { content: "desc" } },
       });
 
-      const tags = (items[0] as unknown as { tags: { label: string }[] }).tags;
-      expect(tags[0]!.label).toBe("zzzz");
-      expect(tags.at(-1)!.label).toBe("0000");
+      const notes = (items[0] as unknown as { notes: { content: string }[] }).notes;
+      expect(notes[0]!.content).toBe("zzzz");
+      expect(notes.at(-1)!.content).toBe("0000");
     });
   });
 

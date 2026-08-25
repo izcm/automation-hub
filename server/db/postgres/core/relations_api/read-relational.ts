@@ -7,7 +7,7 @@ import {
 } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
-import { Page, PageQuery, Extensible } from "@a2zb/types";
+import { Page, Extensible, FindPageQuery } from "@a2zb/types";
 import {
   buildCursorFilter,
   computeNextCursor,
@@ -15,21 +15,9 @@ import {
 } from "../../shared/cursor";
 import { buildPgRelationalQuery } from "./build-pg-conditions-relational";
 
-// getCursorId must resolve to a single column that's unique per row — cursor
-// pagination tie-breaks on it, and composite keys aren't supported there.
-// findByKey/findByKeys still go through keyWhere, so composite TKeys work
-// fine for lookups; only findPage's cursor is restricted to a single column.
-
 // REQUIREMENTS:
 // - `cursorIdColumnName` must map to a field of type STRING or INTEGER
 // -`sortField` must map to a field of type TIMESTAMP (DATE) or STRING or INTEGER
-
-// Ports represent domain entities, not DB rows — no view/TOut here. Mapping
-// an entity into a presentation shape belongs to the read layer, not the
-// repo. @a2zb/types's ByKey/Pageable/Countable already match this shape.
-
-// the pgTable for TTable — excludes the View branch of SchemaEntry, since
-// InferSelectModel/getColumns only accept a real Table.
 type PgTableOf<
   TRelations extends AnyRelations,
   TTable extends keyof TRelations,
@@ -42,8 +30,6 @@ export const makeReadRepoWithRelations = <
   db: NodePgDatabase<TRelations>,
   table: TTable,
   cursorIdColumnName: keyof InferSelectModel<PgTableOf<TRelations, TTable>>, // EXPECTS UNIQUE COLUMN!
-  // DB row -> domain entity. Always applied; this is the repo's only
-  // mapping responsibility.
   // toEntity: (row: InferSelectModel<TTable>) => TEntity,
 ) => {
   const pgTable = db._.relations[table]!["table"]; // drizzle allows `View`in relations, but here we are strictly assuming `Table`type
@@ -75,14 +61,12 @@ export const makeReadRepoWithRelations = <
 
     // async findByKeys(keys: TKeys)Type 'keyof Extract<TRelations[TTable]["table"], Table<TableConfig<Columns>>>["_"]["columns"] & string' cannot be used to index type 'SchemaEntry'.
     async findPage(
-      pageQuery: PageQuery,
+      { sortField, sortDir, cursor, filters, limit }: FindPageQuery,
       withs: DBQueryConfigWith<
         TRelations,
         TRelations[TTable]["relations"]
       > = {},
     ): Promise<Page<Row & Record<string, unknown>>> {
-      const { sortField, sortDir, cursor, filters, limit } = pageQuery;
-
       // validate sortField/cursorIdColumnName exist on the table — the
       // columns themselves aren't used below, the RAW callback re-resolves
       // them off the relational query builder's own table proxy

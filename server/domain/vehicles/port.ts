@@ -1,4 +1,4 @@
-import { ByKey, Countable, Pageable } from "@a2zb/mongo";
+import { ByKey, Countable, Pageable } from "@a2zb/types";
 import { Vehicle } from "@/types/vehicle";
 
 export interface VehiclePort

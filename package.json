@@ -14,11 +14,10 @@
     "seed:pg:employees": "tsx --env-file=.env.local seed-db-scripts/postgres/seed.employees.ts",
     "seed:pg:eu-inspections": "tsx --env-file=.env.local seed-db-scripts/postgres/seed.eu-inspections.ts",
     "test": "vitest run",
-    "clean": "rm -rf .next node_modules package-lock.json"
+    "clean": "rm -rf .next node_modules"
   },
   "dependencies": {
     "@a2zb/lib": "file:../../izblocks/shared-packages/lib",
-    "@a2zb/mongo": "file:../../izblocks/shared-packages/mongo",
     "@a2zb/node": "file:../../izblocks/shared-packages/node",
     "@a2zb/react": "file:../../izblocks/shared-packages/react",
     "@a2zb/styles": "file:../../izblocks/shared-packages/styles",
@@ -27,7 +26,6 @@
     "clsx": "^2.1.1",
     "drizzle-orm": "^1.0.0-rc.4",
     "lucide-react": "^1.30.0",
-    "mongodb": "^7.5.0",
     "next": "16.3.0",
     "nodemailer": "^9.0.5",
     "pg": "^8.23.0",

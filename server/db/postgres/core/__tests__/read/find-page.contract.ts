@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PageQuery, Page } from "@a2zb/types";
+import { FindPageQuery, Page } from "@a2zb/types";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 import {
@@ -23,9 +23,9 @@ const insertionSize = 100;
 
 export function runFindPageContractTests(
   getDb: () => NodePgDatabase,
-  findPage: (query: PageQuery) => Promise<Page<TestEventInsertedRow>>,
+  findPage: (query: FindPageQuery) => Promise<Page<TestEventInsertedRow>>,
 ) {
-  const pageQuery = (args: Partial<PageQuery> = {}): PageQuery => ({
+  const pageQuery = (args: Partial<FindPageQuery> = {}): FindPageQuery => ({
     limit: insertionSize,
     sortField: "name",
     sortDir: "desc",
