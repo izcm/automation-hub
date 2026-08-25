@@ -16,7 +16,7 @@ import {
   TestDb,
 } from "../setup";
 
-describe("makeReadRepoWithRelations — findByKeys", () => {
+describe("makeReadRepoWithRelations — findOne", () => {
   let testDb: TestDb;
 
   beforeAll(async () => {
@@ -50,10 +50,10 @@ describe("makeReadRepoWithRelations — findByKeys", () => {
       "id", // not relevant in these tests
     );
 
-    const result = await repo.findByKey(
+    const result = await repo.findOne(
       { id: "1" },
       {
-        eventNotifications: { with: { notification: true } },
+        eventNotifications: { include: { notification: true } },
       },
     );
 

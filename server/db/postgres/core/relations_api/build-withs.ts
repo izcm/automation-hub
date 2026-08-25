@@ -2,48 +2,6 @@ import { AnyRelations, RelationsRecord } from "drizzle-orm";
 import { buildPgRelationalQuery } from "./build-pg-conditions-relational";
 import { RawIncludes } from "@a2zb/types";
 
-/*
-const include: RawIncludes = {
-  tags: {
-    filters: { color: "red" },
-    sortField: "createdAt",
-    sortDir: "desc",
-  },
-
-  notifications: {
-    filters: { status: "sent" },
-    sortField: "createdAt",
-    sortDir: "desc",
-    limit: 5,
-
-    include: {
-      recipient: true,
-
-      deliveries: {
-        filters: { status: "delivered" },
-        sortField: "createdAt",
-        sortDir: "desc",
-        limit: 3,
-      },
-    },
-  },
-};
-
-withs = {
-  comments: {
-    where: { status: "active" },
-
-    with: {
-      author: {
-        with: {
-          profile: true, // ← STOP for profile because value === true
-        },
-      },
-    },
-  },
-};
- */
-
 export function buildWiths<
   TAllRelations extends AnyRelations,
   TResourceRelations extends RelationsRecord,

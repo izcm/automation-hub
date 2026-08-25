@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { FindPageQuery, Page } from "@a2zb/types";
+import { FindPageQuery, Page, RawIncludes } from "@a2zb/types";
 
 import { TestEventInsertedRow } from "../../../__tests__/setup";
 import { runFindPageContractTests } from "../../../__tests__/read/find-page.contract";
@@ -112,9 +112,7 @@ describe("makeReadRepoWithRelations — findPage", () => {
       title: "attaches a related resource to each item on the page",
       nNotificationsPerEvent: 0,
       nNotesPerEvent: 2,
-      withs: {
-        notes: true,
-      },
+      includes: { notes: true },
       expected: [{ name: "notes", nPer: 2 }],
       notExpected: ["eventNotifications"],
     },
@@ -122,8 +120,8 @@ describe("makeReadRepoWithRelations — findPage", () => {
       title: "attaches a nested related resource to each item on the page",
       nNotificationsPerEvent: 2,
       nNotesPerEvent: 0,
-      withs: {
-        eventNotifications: { with: { notification: true } },
+      includes: {
+        eventNotifications: { include: { notification: true } },
       },
       expected: [{ name: "eventNotifications", nPer: 2 }],
       notExpected: ["notes"],
@@ -133,8 +131,8 @@ describe("makeReadRepoWithRelations — findPage", () => {
         "attaches multiple related resources, both simple and nested, to each item on the page",
       nNotificationsPerEvent: 2,
       nNotesPerEvent: 4,
-      withs: {
-        eventNotifications: { with: { notification: true } },
+      includes: {
+        eventNotifications: { include: { notification: true } },
         notes: true,
       },
       expected: [
@@ -148,7 +146,7 @@ describe("makeReadRepoWithRelations — findPage", () => {
     async ({
       nNotificationsPerEvent,
       nNotesPerEvent,
-      withs,
+      includes,
       expected,
       notExpected,
     }) => {
@@ -158,7 +156,10 @@ describe("makeReadRepoWithRelations — findPage", () => {
         nNotesPerEvent,
       });
 
-      const { items } = await repo.findPage(pageQuery(), withs);
+      const { items } = await repo.findPage(
+        pageQuery(),
+        includes as RawIncludes,
+      );
 
       expect(items).toHaveLength(3);
       expectAttached(items, expected);
@@ -232,7 +233,7 @@ describe("makeReadRepoWithRelations — findPage", () => {
             },
           },
         }),
-        { eventNotifications: { with: { notification: true } } },
+        { eventNotifications: { include: { notification: true } } },
       );
 
       expect(items).toHaveLength(1);
@@ -268,10 +269,11 @@ describe("makeReadRepoWithRelations — findPage", () => {
       await insertMany(testDb.db, testEventNotes, [zzzzNote!, lowestNote!]);
 
       const { items } = await repo.findPage(pageQuery(), {
-        notes: { orderBy: { content: "desc" } },
+        notes: { sortField: "content", sortDir: "desc" },
       });
 
-      const notes = (items[0] as unknown as { notes: { content: string }[] }).notes;
+      const notes = (items[0] as unknown as { notes: { content: string }[] })
+        .notes;
       expect(notes[0]!.content).toBe("zzzz");
       expect(notes.at(-1)!.content).toBe("0000");
     });

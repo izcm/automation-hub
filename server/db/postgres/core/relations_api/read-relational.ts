@@ -1,18 +1,24 @@
 import {
   AnyRelations,
-  DBQueryConfigWith,
   getColumns,
   InferSelectModel,
   Table,
 } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
-import { Page, Extensible, FindPageQuery } from "@a2zb/types";
+import {
+  Page,
+  Extensible,
+  FindPageQuery,
+  RawIncludes,
+} from "@a2zb/types";
+import { RelationalReadPort } from "@/shared/ports-relational";
 import {
   buildCursorFilter,
   computeNextCursor,
   resolveCursorColumns,
 } from "../../shared/cursor";
+import { buildWiths } from "./build-withs";
 import { buildPgRelationalQuery } from "./build-pg-conditions-relational";
 
 // REQUIREMENTS:
@@ -36,17 +42,21 @@ export const makeReadRepoWithRelations = <
   type Row = InferSelectModel<PgTableOf<TRelations, TTable>>;
 
   const query = db.query[table];
+  const appRelations = db._.relations;
+  const resourceRelations = appRelations[table]!.relations;
 
   const columns = getColumns(pgTable as Extract<typeof pgTable, Table>);
 
   return {
-    async findByKey(
-      key: Record<string, unknown>,
-      withs: DBQueryConfigWith<TRelations, TRelations[TTable]["relations"]>,
+    async findOne(
+      filters: Record<string, unknown>,
+      includes: RawIncludes = {},
     ): Promise<Extensible<Row> | undefined> {
       try {
+        const withs = buildWiths(appRelations, resourceRelations, includes);
+
         return await query.findFirst({
-          where: buildPgRelationalQuery(key),
+          where: buildPgRelationalQuery(filters),
           with: withs,
         } as never);
       } catch (error) {
@@ -62,15 +72,14 @@ export const makeReadRepoWithRelations = <
     // async findByKeys(keys: TKeys)Type 'keyof Extract<TRelations[TTable]["table"], Table<TableConfig<Columns>>>["_"]["columns"] & string' cannot be used to index type 'SchemaEntry'.
     async findPage(
       { sortField, sortDir, cursor, filters, limit }: FindPageQuery,
-      withs: DBQueryConfigWith<
-        TRelations,
-        TRelations[TTable]["relations"]
-      > = {},
+      includes: RawIncludes = {},
     ): Promise<Page<Row & Record<string, unknown>>> {
       // validate sortField/cursorIdColumnName exist on the table — the
       // columns themselves aren't used below, the RAW callback re-resolves
       // them off the relational query builder's own table proxy
       resolveCursorColumns(columns, sortField, String(cursorIdColumnName));
+
+      const withs = buildWiths(appRelations, resourceRelations, includes);
 
       // READ THIS: https://orm.drizzle.team/docs/rqb
       let rows: Extensible<Row>[];
@@ -119,6 +128,5 @@ export const makeReadRepoWithRelations = <
         nextCursor,
       };
     },
-  };
-  // satisfies ByKey<TEntity, TKey> & Pageable<TEntity> & Countable;
+  } satisfies RelationalReadPort<Row>;
 };
