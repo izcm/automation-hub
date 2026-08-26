@@ -1,6 +1,7 @@
 import { boolean, integer, pgTable, text } from "drizzle-orm/pg-core";
 
 import { timestampColumns } from "../shared/schemas";
+import { employeesTable } from "../employees/schema";
 
 // Inferred from ../types/vehicle-row.ts (the previous raw-SQL row shape) —
 // verify against the real migration if one turns up.
@@ -23,7 +24,9 @@ export const vehiclesTable = pgTable("vehicles", {
   euDate: text("eu_date"),
   lastEuApproved: text("last_eu_approved"),
   imageUrl: text("image_url"),
-  maintenanceResponsibleId: text("maintenance_responsible_id"),
+  maintenanceResponsibleId: text("maintenance_responsible_id").references(
+    () => employeesTable.id,
+  ),
   withSvvData: boolean("with_svv_data").notNull(),
   ...timestampColumns,
 });

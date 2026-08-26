@@ -1,20 +1,16 @@
-import { EUInspectionView } from "@/features/EUInspectionView";
-import { getVehicles } from "@/features/vehicles/queries";
-
-import { Vehicle } from "@/types/vehicle";
+import { EUInspectionView } from "@/features/eu-inspections/EUInspectionView";
+import { getEuInspections } from "@/features/eu-inspections/queries";
 
 export default async function EuInspectionsPage() {
-  const vehicles = await getVehicles();
+  const euInspections = await getEuInspections();
 
-  // todo: add to pagination featrue a filter out non-null
-  // upcoming maintenance controls -> filter out non-enriched entities
-  const items = [...vehicles]
-    .filter((v): v is Vehicle & { euDate: string } => v.euDate !== undefined)
-    .sort((a, b) => a.euDate.localeCompare(b.euDate));
+  const items = [...euInspections].sort((a, b) =>
+    a.euDate.localeCompare(b.euDate),
+  );
 
   return (
     <main>
-      <EUInspectionView vehicles={items} />
+      <EUInspectionView euInspections={items} />
     </main>
   );
 }

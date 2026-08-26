@@ -5,5 +5,6 @@ import { timestampColumns } from "../shared/schemas";
 export const employeesTable = pgTable("employees", {
   id: text("id").primaryKey(),
   email: text("email").notNull().unique(),
+  name: text("name").notNull(),
   ...timestampColumns,
 });

@@ -89,19 +89,13 @@ export function BatchSelect<T>({
         getId={getId}
         selected={selected}
         onSelect={onSelect}
-        itemClassName={(isSelected) =>
-          cn(
-            "group",
-            // "border-faint/60 bg-raised hover:bg-raised hover:border hover:border-accent",
-            className?.(isSelected),
-          )
-        }
+        itemClassName={(isSelected) => cn("group", className?.(isSelected))}
         bareRows
         galleryItem={(item) => {
           const picked = batchSelected.includes(getId(item));
           return (
             <div
-              onClick={() => toggle(getId(item))}
+              // onClick={() => toggle(getId(item))}
               className="flex items-center gap-4"
             >
               {/* row keeps its own classes here, as its own flex child.
@@ -112,11 +106,10 @@ export function BatchSelect<T>({
 
               {!selfManagesCheckbox && (
                 <div className="shrink-0">
-                  {/* row's onClick owns the toggle; checkbox is the indicator */}
+                  {/* checkbox owns the toggle now — row click just passes the item through */}
                   <Checkbox
                     checked={picked}
-                    readOnly
-                    className="border border-transparent"
+                    onChange={() => toggle(getId(item))}
                   />
                 </div>
               )}

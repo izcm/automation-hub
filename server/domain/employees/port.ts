@@ -6,5 +6,5 @@ import { Employee } from "@/types/employee";
 export interface EmployeePort
   extends ByKey<Employee, string>, Pageable<Employee> {
   /** Upsert an employee by email, assigning `id` on insert. Returns its id. */
-  ensure(email: string, id: string): Promise<{ id: string }>;
+  ensure(email: string, name: string, id: string): Promise<{ id: string }>;
 }

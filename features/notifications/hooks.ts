@@ -6,14 +6,14 @@ import { confirmWith, rejectWith } from "@lib/toast";
 export function useSendNotifications() {
   return useMutation({
     mutationFn: ({
-      ids, // id of some resource, eg. vehicleIds for eu controll
+      payload, // shape depends on useCase — eg. { vehicleIds } for eu-inspection-reminder
       useCase,
       channel,
     }: {
-      ids: string[];
+      payload: Record<string, unknown>;
       useCase: string; // api layer verifies with zod
       channel: string; // api layer verifies with zod
-    }) => postJson("/api/notifications", { ids, channel, useCase }),
+    }) => postJson("/api/notifications", { payload, channel, useCase }),
     onSuccess: () => confirmWith("Server queued notifications"),
     onError: (error) => rejectWith("Something went wrong", error.message),
   });

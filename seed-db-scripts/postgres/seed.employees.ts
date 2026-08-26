@@ -13,9 +13,11 @@ if (!email)
 // email is unique per row here (unlike the Mongo version) — use +tag
 // addressing so all 4 still land in the same inbox.
 const [user, domain] = email.split("@");
-const seedEmployees = Array.from({ length: 4 }, (_, i) => ({
+const names = ["Erik Nilsen", "Kari Johansen", "Ola Hansen", "Ida Larsen"];
+const seedEmployees = names.map((name, i) => ({
   id: generateId(),
   email: `${user}+${i + 1}@${domain}`,
+  name,
 }));
 
 async function seed() {

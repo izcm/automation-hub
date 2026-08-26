@@ -10,7 +10,7 @@ import { makeReadPage } from "../read/read-page";
 
 // read types
 import { Readers } from "../read/shared/types/reader";
-import * as relational from "../read/shared/types/relational/reader";
+import * as relational from "../read/relational";
 import { AppResources } from "@/shared/resources";
 
 // basic read operations that does not attach related resources
@@ -31,3 +31,5 @@ const relationalReaders: relational.Readers<
 > = {
   euInspections: euInspectionRepo.relations,
 };
+
+export const readPageRelational = relational.makeReadPage(relationalReaders);

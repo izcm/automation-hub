@@ -13,6 +13,7 @@ type EmployeeRow = typeof employeesTable.$inferSelect;
 const toEmployee = (row: EmployeeRow): Employee => ({
   id: row.id,
   email: row.email,
+  name: row.name,
 });
 
 const readRepo = makeReadRepo(
@@ -28,9 +29,13 @@ const rawEnsure = makeEnsure(db, employeesTable, { id: employeesTable.id });
 export const employeeRepo: EmployeePort = {
   ...readRepo,
 
-  async ensure(email: string, id: string): Promise<{ id: string }> {
+  async ensure(
+    email: string,
+    name: string,
+    id: string,
+  ): Promise<{ id: string }> {
     const result = await rawEnsure(
-      { id, email },
+      { id, email, name },
       employeesTable.email,
       eq(employeesTable.email, email),
     );

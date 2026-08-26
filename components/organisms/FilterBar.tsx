@@ -1,4 +1,4 @@
-import { Checkbox, TextInput } from "@a2zb/react";
+import { TextInput } from "@a2zb/react";
 
 import { Filter } from "../icons";
 import { ReactNode, useState } from "react";
@@ -37,7 +37,7 @@ export function FilterBar({
   className,
   children: dropdown,
 }: Props) {
-  const [showFilterMenu, setShowFilterMenu] = useState(true);
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
 
   return (
     <div className={cn("flex flex-col gap-3 flex-1", className)}>

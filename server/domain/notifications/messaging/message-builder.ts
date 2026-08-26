@@ -17,20 +17,23 @@ export const getContact: Record<Channel, (employee: Employee) => string> = {
   email: (e) => e.email,
 };
 
+// payload is opaque here — each use case's builder validates and extracts
+// whatever fields it actually needs (e.g. eu-inspection-reminder expects
+// `vehicleIds`), throwing if the shape is wrong.
 type Builder = (
   ports: Ports,
-  args: { ids: string[]; channel: Channel },
+  args: { payload: Record<string, unknown>; channel: Channel },
 ) => Promise<MessageRequest[]>;
 
 export type Builders = Record<MessageUseCase, Builder>;
 
 export function makeMessageBuilder(ports: Ports, builders: Builders) {
   async function buildMessages(
-    receiverIds: string[],
+    payload: Record<string, unknown>,
     channel: Channel,
     useCase: MessageUseCase,
   ) {
-    return builders[useCase](ports, { ids: receiverIds, channel });
+    return builders[useCase](ports, { payload, channel });
   }
 
   return { buildMessages };

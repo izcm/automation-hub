@@ -24,7 +24,7 @@ import { useSearchFilters } from "@/features/search/use-search-filters";
 import { Truck, Fuel, Transmission, Seat } from "@/components/icons";
 import { VehicleCard } from "@/features/vehicles/VehicleCard";
 
-import { VehicleLookup } from "../lookup/VehicleLookup";
+import { VehicleLookup } from "./VehicleLookup";
 import { useAddVehicle } from "./hooks";
 import Image from "next/image";
 

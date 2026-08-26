@@ -5,7 +5,7 @@ import { Children, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 // Panel width cap — never a width on the list itself. Near-full on small screens.
-const PANE_WIDTH = "w-[min(520px,40vw)] max-sm:w-[85vw]";
+const PANE_WIDTH = "w-[min(420px,40vw)] max-sm:w-[85vw]";
 
 // feel free to use these, generic rows
 export const workspaceRows = cn(
@@ -14,7 +14,7 @@ export const workspaceRows = cn(
   // surface
   "rounded-lg border border-faint/80 bg-raised",
   // interaction
-  "cursor-pointer transition group-hover:border-accent",
+  // "cursor-pointer transition group-hover:border-accent",
 );
 
 type Props = {

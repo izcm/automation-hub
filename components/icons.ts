@@ -24,4 +24,7 @@ export {
   Armchair as Seat,
   Mail,
   LockKeyhole as Lock,
+  Copy,
+  Pencil as Edit,
+  ExternalLink,
 } from "lucide-react";

@@ -45,6 +45,7 @@ const en = {
     notify: (n: number) => `Notify ${n} drivers`,
     showing: (from: number, to: number, total: number) =>
       `Showing ${from}–${to} of ${total}`,
+    openInWorkspace: "Open in workspace",
   },
 
   modal: {
@@ -114,6 +115,7 @@ const no: typeof en = {
     notify: (n: number) => `Varsle ${n} sjåfører`,
     showing: (from: number, to: number, total: number) =>
       `Viser ${from}–${to} av ${total}`,
+    openInWorkspace: "Åpne i workspace",
   },
 
   modal: {
