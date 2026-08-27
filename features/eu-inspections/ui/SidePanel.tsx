@@ -82,8 +82,8 @@ const euInspectionSummary = (euInspection: EuInspectionRow): MetaRowProps[] => {
       label: "Inspection ID",
       value: <CopyableId id={euInspection.id} />,
     },
-    { label: "Created", value: "2025-08-26 10:41" },
-    { label: "Updated", value: "2025-08-26 10:41" },
+    // { label: "Created", value: "2025-08-26 10:41" },
+    // { label: "Updated", value: "2025-08-26 10:41" },
   ];
 };
 
@@ -183,30 +183,30 @@ function VehicleDetailsCard({ vehicle }: { vehicle: Vehicle }) {
   );
 }
 
-function MaintenanceResponsibleCard({ item }: { item: EuInspectionRow }) {
-  return (
-    <div className="raised-outline-panel p-2">
-      <Eyebrow>Maintenance responsible</Eyebrow>
+function EmployeeCard({ item }: { item: EuInspectionRow }) {
+  const { employee } = item.vehicle;
 
-      <div className="flex justify-between items-center">
-        {/* left — name and icon */}
-        <div className="flex items-center p-1 gap-3">
-          <div className="bg-black/12 rounded-full border border-extra-faint p-2">
-            <User size={20} strokeWidth={1} />
-          </div>
-          <div className="flex flex-col">
-            <span>Some Name</span>
-            <div className="text-xs">
-              <CopyableId id={item.id} />
-            </div>
+  return (
+    <div className="flex justify-between items-center">
+      {/* left — name and icon */}
+      <div className="flex items-center p-1 gap-3">
+        <div className="bg-black/12 rounded-full border border-extra-faint p-2">
+          <User size={20} strokeWidth={1} />
+        </div>
+        <div className="flex flex-col">
+          <span>
+            {employee !== undefined ? employee.name : "Error fetching employee"}
+          </span>
+          <div className="text-xs">
+            <CopyableId id={item.id} />
           </div>
         </div>
-
-        {/* right — edit icon */}
-        <button className="btn pointer-cursor text-accent hover:text-accent-strong">
-          <Edit size={20} />
-        </button>
       </div>
+
+      {/* right — edit icon */}
+      <button className="btn pointer-cursor text-accent hover:text-accent-strong">
+        <Edit size={20} />
+      </button>
     </div>
   );
 }
@@ -226,7 +226,12 @@ export function EuInspectionSidePanel({ item }: Props) {
         <Eyebrow>Vehicle</Eyebrow>
 
         <VehicleDetailsCard vehicle={vehicle} />
-        <MaintenanceResponsibleCard item={item} />
+
+        <div className="raised-outline-panel p-2">
+          <Eyebrow>Maintenance responsible</Eyebrow>
+
+          <EmployeeCard item={item} />
+        </div>
       </div>
 
       {/* NOTIFICATIONS */}

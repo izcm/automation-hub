@@ -23,7 +23,8 @@ export async function getEuInspections(
 
   const query = new URLSearchParams();
   query.set("include[vehicle][include][employee]", "true");
-  query.set("include[notifications]", "true");
+  query.set("include[notifications][sortField]", "createdAt");
+  query.set("include[notifications][sortDir]", "desc");
 
   const res = await getPage<EuInspectionRow>({
     baseURL: `${protocol}://${host}/api`,

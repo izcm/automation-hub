@@ -63,38 +63,38 @@ export function EUInspectionView({
   const CORE_LABELS = CORE_UI_LABELS_BY_LANGUAGE[language];
   const RESOURCE_MANAGEMENT_VIEW_LABELS = getListViewLabels(language);
 
-  useEffect(() => {
-    const filterKeyMap = FIELD_ALISES_MAP[language]["vehicles"];
+  // useEffect(() => {
+  //   const filterKeyMap = FIELD_ALISES_MAP[language]["vehicles"];
 
-    const query = buildQuery({
-      filters,
-      keyMap: filterKeyMap,
-      resolveValue: (key, value) =>
-        key === filterKeyMap["responsible"]
-          ? value === "all_others"
-            ? ["empl 1", "empl 2", "empl 3"]
-            : value === "me"
-              ? ["current user"]
-              : value
-          : value,
-    });
+  //   const query = buildQuery({
+  //     filters,
+  //     keyMap: filterKeyMap,
+  //     resolveValue: (key, value) =>
+  //       key === filterKeyMap["responsible"]
+  //         ? value === "all_others"
+  //           ? ["empl 1", "empl 2", "empl 3"]
+  //           : value === "me"
+  //             ? ["current user"]
+  //             : value
+  //         : value,
+  //   });
 
-    query.set("include[vehicle][include][employee]", "true");
-    query.set("include[notifications]", "true");
+  //   query.set("include[vehicle][include][employee]", "true");
+  //   query.set("include[notifications]", "true");
 
-    const controller = new AbortController();
+  //   const controller = new AbortController();
 
-    getPage<EuInspectionRow>({
-      baseURL: "/api",
-      params: "eu-inspections",
-      query,
-      signal: controller.signal,
-    }).then((res) => {
-      if (res.ok) setEuInspections(res.data.items);
-    });
+  //   getPage<EuInspectionRow>({
+  //     baseURL: "/api",
+  //     params: "eu-inspections",
+  //     query,
+  //     signal: controller.signal,
+  //   }).then((res) => {
+  //     if (res.ok) setEuInspections(res.data.items);
+  //   });
 
-    return () => controller.abort();
-  }, [filters, language]);
+  //   return () => controller.abort();
+  // }, [filters, language]);
 
   const [active, setActive] = useState<EuInspectionRow | undefined>(undefined);
 
