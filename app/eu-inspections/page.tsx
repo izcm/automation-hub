@@ -8,6 +8,8 @@ export default async function EuInspectionsPage() {
     a.euDate.localeCompare(b.euDate),
   );
 
+  console.log(items);
+
   return (
     <main>
       <EUInspectionView euInspections={items} />

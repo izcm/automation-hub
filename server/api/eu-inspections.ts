@@ -39,12 +39,8 @@ export async function getEuInspectionsPage({
     }),
   };
 
-  // todo: filters/sortField/sortDir/limit above aren't wired through yet —
-  // readPage/readPageRelational don't accept a query override (read layer,
-  // not this file's problem right now). Validated but currently unused.
-
   return Object.keys(includes).length > 0
-    ? readPageRelational("euInspections", includes)
+    ? readPageRelational("euInspections", {}, includes)
     : readPage("euInspections");
 }
 

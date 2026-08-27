@@ -22,6 +22,11 @@ export async function getEuInspections(
   const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
 
   const query = new URLSearchParams();
+  // filter / sort parent (eu-inspection)
+  query.set("sortField", "euDate");
+  query.set("sortDir", "desc");
+
+  // filter / sort related records
   query.set("include[vehicle][include][employee]", "true");
   query.set("include[notifications][sortField]", "createdAt");
   query.set("include[notifications][sortDir]", "desc");
