@@ -1,7 +1,7 @@
 import {
-  NotificationBatchWriteRequest,
-  processNotificationBatch,
-} from "@/server/api/notifications";
+  EuInspectionNotifyRequest,
+  notifyAboutEuInspections,
+} from "@/server/api/eu-inspections";
 
 export async function POST(request: Request) {
   let body: unknown;
@@ -11,21 +11,21 @@ export async function POST(request: Request) {
     return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const parsed = NotificationBatchWriteRequest.safeParse(body);
+  const parsed = EuInspectionNotifyRequest.safeParse(body);
 
   if (!parsed.success) {
     return Response.json({ error: "Invalid Request" }, { status: 400 });
   }
 
   try {
-    const result = await processNotificationBatch(parsed.data);
+    const result = await notifyAboutEuInspections(parsed.data);
 
     return Response.json({ ok: true, data: result });
   } catch (error) {
-    console.error("Failed to send notifications:", error);
+    console.error("Failed to send eu-inspection notification:", error);
 
     return Response.json(
-      { error: "Could not send notifications" },
+      { error: "Could not send notification" },
       { status: 500 },
     );
   }

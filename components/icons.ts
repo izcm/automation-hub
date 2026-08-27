@@ -27,4 +27,6 @@ export {
   Copy,
   Pencil as Edit,
   ExternalLink,
+  User,
+  Calendar,
 } from "lucide-react";

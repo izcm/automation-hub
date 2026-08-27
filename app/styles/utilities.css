@@ -17,9 +17,14 @@
 }
 
 /* raised surface, faint outline, rounded corners — pagination steps, dropdowns, toolbars */
-/* @utility raised-outline {
+@utility raised-outline {
   @apply rounded-lg bg-raised border border-faint;
-} */
+}
+
+/* darker raised panel, extra-faint outline — side-panel section cards */
+@utility raised-outline-panel {
+  @apply rounded-lg bg-[#212426] border border-extra-faint;
+}
 
 /* extra-wide letter-spacing beyond tailwind's tracking-widest (0.1em) */
 .tracking-lg {

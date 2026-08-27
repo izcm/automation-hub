@@ -17,7 +17,7 @@ type Props = {
 // layout owns the open/close (width) animation, so this stays a plain pane.
 export function WorkspacePanel({ onClose, children, contentClassName }: Props) {
   return (
-    <aside className="panel relative flex h-full w-full flex-col border-l border-line shadow-[-12px_0_32px_-16px_rgba(0,0,0,0.25)]">
+    <aside className="panel relative flex h-full w-full flex-col border-l border-faint shadow-[-12px_0_32px_-16px_rgba(0,0,0,0.25)]">
       <button
         type="button"
         onClick={onClose}

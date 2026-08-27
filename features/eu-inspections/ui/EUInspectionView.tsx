@@ -5,8 +5,8 @@ import { IconBtn } from "@a2zb/react";
 
 import { getPage } from "@/shared/http/page-get";
 import type { EuInspectionRow } from "@/features/eu-inspections/queries";
-import { FilterMenu } from "@/features/eu-inspections/ui/filter-menu";
-import { EuInspectionSidePanel } from "@/features/eu-inspections/ui/side-panel";
+import { FilterMenu } from "@/features/eu-inspections/ui/FilterMenu";
+import { EuInspectionSidePanel } from "@/features/eu-inspections/ui/SidePanel";
 import { cn } from "@lib/cn";
 
 import {
@@ -15,7 +15,7 @@ import {
 } from "@/features/language/ui_labels";
 import { useLanguage } from "@/features/language/LanguageContext";
 
-import { useSendNotifications } from "@features/notifications/hooks";
+import { useNotifyEuInspections } from "@/features/eu-inspections/hooks";
 import { FIELD_ALISES_MAP } from "@/features/language/field-config";
 
 import { Notify, OpenWorkspaceOverlay } from "@components/icons";
@@ -28,8 +28,8 @@ import {
   workspaceRows,
 } from "@/components/organisms";
 
-import { useSearchFilters } from "../search/use-search-filters";
-import { toSearchParams } from "../search/param-mapper";
+import { useSearchFilters } from "../../search/use-search-filters";
+import { toSearchParams } from "../../search/param-mapper";
 
 type Props = {
   euInspections: EuInspectionRow[];
@@ -56,7 +56,7 @@ export function EUInspectionView({
 }: Props) {
   const { filters, handleSearch, resetFilters, searchInput, toggleFilter } =
     useSearchFilters();
-  const sendNotifs = useSendNotifications();
+  const sendNotifs = useNotifyEuInspections();
   const [euInspections, setEuInspections] = useState(initialEuInspections);
 
   const language = useLanguage();
@@ -111,7 +111,7 @@ export function EUInspectionView({
 
             <ResourceManagementView
               items={euInspections}
-              getId={(v) => v.vehicleId}
+              getId={(v) => v.id}
               labels={RESOURCE_MANAGEMENT_VIEW_LABELS}
               searchInput={searchInput}
               handleSearch={handleSearch}
@@ -126,12 +126,8 @@ export function EUInspectionView({
                 {
                   label: (count) => CORE_LABELS.list.notify(count),
                   icon: <Notify size={15} />,
-                  onClick: (vehicleIds) =>
-                    sendNotifs.mutate({
-                      payload: { vehicleIds },
-                      channel: "email",
-                      useCase: "eu-inspection-reminder",
-                    }),
+                  onClick: (euInspectionIds) =>
+                    sendNotifs.mutate({ euInspectionIds, channel: "email" }),
                 },
               ]}
               listItem={(item, picked) => (

@@ -1,6 +1,7 @@
 import * as z from "zod";
 
-import { readPage, readPageRelational } from "@/server/di";
+import { euInspectionActions, readPage, readPageRelational } from "@/server/di";
+import { channels } from "@/server/domain/notifications/messaging/types";
 import { RawIncludes } from "@a2zb/types";
 import { coercedBoolean, includeQuery } from "./shared/zod";
 
@@ -45,4 +46,25 @@ export async function getEuInspectionsPage({
   return Object.keys(includes).length > 0
     ? readPageRelational("euInspections", includes)
     : readPage("euInspections");
+}
+
+export const EuInspectionNotifyRequest = z.strictObject({
+  euInspectionIds: z.array(z.string()).min(1),
+  channel: z.enum(channels),
+});
+
+export type EuInspectionNotifyInput = z.infer<typeof EuInspectionNotifyRequest>;
+
+export async function notifyAboutEuInspections({
+  euInspectionIds,
+  channel,
+}: EuInspectionNotifyInput) {
+  // todo: use Prmise.settleAll instead
+  const results = await Promise.all(
+    euInspectionIds.map((euInspectionId) =>
+      euInspectionActions.notifyAboutInspection(euInspectionId, channel),
+    ),
+  );
+
+  return results.flat();
 }

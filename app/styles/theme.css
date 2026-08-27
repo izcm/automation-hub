@@ -4,6 +4,7 @@
   --font-mono: var(--font-geist-mono);
 
   --color-lowered: var(--lowered);
+  --color-extra-faint: var(--extra-faint);
 }
 
 :root[data-theme="dark"] {
@@ -12,13 +13,13 @@
   }
 
   .panel {
-    background: #1f2226;
+    background: #1d1f21;
   }
 }
 
 :root[data-theme="light"] {
   .landing-surface {
-    background: var(--base);
+    background: var(--ground);
   }
 
   .panel {
@@ -37,7 +38,7 @@
   color-scheme: light;
 
   /* surfaces */
-  --base: #eef1f4;
+  --ground: #eef1f4;
   --raised: #ffffff;
   --lowered: #c4c9cf;
 
@@ -46,6 +47,7 @@
   --subtle: rgba(17, 20, 24, 0.64);
   --muted: rgba(17, 20, 24, 0.48);
   --faint: rgba(17, 20, 24, 0.28);
+  --extra-faint: rgba(17, 20, 24, 0.17);
   --line: rgba(17, 20, 24, 0.16);
 
   /* cool accent */
@@ -72,6 +74,9 @@
   --failure: #d1434c;
   --failure-weak: rgba(209, 67, 76, 0.18);
 
+  --neutral: #607c90;
+  --neutral-weak: rgba(96, 124, 144, 0.16);
+
   /* elevation */
   --panel-shadow:
     0 1px 2px rgba(17, 20, 24, 0.04), 0 8px 24px rgba(17, 20, 24, 0.06);
@@ -81,7 +86,7 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --base: #16171a;
+  --ground: #16171a;
   --raised: #191b1e;
   --lowered: #16181a;
 
@@ -91,6 +96,7 @@
   --subtle: rgba(210, 208, 204, 0.66);
   --muted: rgba(180, 178, 174, 0.5);
   --faint: rgba(180, 178, 174, 0.32);
+  --extra-faint: rgba(180, 178, 174, 0.19);
 
   /* accent → text/bg/border-accent (+ -strong / -weak) */
   /* --accent: #5b9dff;
@@ -108,11 +114,14 @@
 
   /* status → success / warning / failure (+ -weak) */
   --success: #4cff9a;
-  --success-weak: rgba(76, 255, 154, 0.6);
+  --success-weak: rgba(76, 255, 154, 0.18);
   --warning: #ffc12f;
-  --warning-weak: rgba(255, 193, 47, 0.6);
+  --warning-weak: rgba(255, 193, 47, 0.18);
   --failure: #ff5470;
-  --failure-weak: rgba(255, 84, 112, 0.6);
+  --failure-weak: rgba(255, 84, 112, 0.18);
+
+  --neutral: #97a9b5;
+  --neutral-weak: rgba(151, 169, 181, 0.2);
 
   --panel-shadow:
     0 8px 24px rgba(0, 0, 0, 0.35), 0 0 20px rgba(255, 138, 61, 0.08);

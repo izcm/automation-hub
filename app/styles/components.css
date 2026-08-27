@@ -67,26 +67,26 @@
   }
 
   .btn-neutral:hover {
-    background: color-mix(in oklab, var(--accent) 2%, var(--base));
+    background: color-mix(in oklab, var(--accent) 2%, var(--ground));
   }
 
   .btn-neutral:active {
-    background: color-mix(in oklab, var(--accent) 5%, var(--base));
+    background: color-mix(in oklab, var(--accent) 5%, var(--ground));
   }
 
   /* BTN INVERTED STYLES — fg fill, base text; the login modal's high-contrast CTA */
   .btn-inverted {
-    color: var(--base);
+    color: var(--ground);
     border-color: var(--subtle);
     background: var(--fg);
   }
 
   .btn-inverted:hover {
-    background: color-mix(in oklab, var(--fg) 88%, var(--base));
+    background: color-mix(in oklab, var(--fg) 88%, var(--ground));
   }
 
   .btn-inverted:active {
-    background: color-mix(in oklab, var(--fg) 85%, var(--base));
+    background: color-mix(in oklab, var(--fg) 85%, var(--ground));
   }
 
   .btn-menu {
@@ -104,6 +104,45 @@
     color: var(--accent-strong);
     border-color: var(--accent);
     background: color-mix(in oklab, var(--accent) 2%, var(--raised));
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 4px 8px;
+    border-radius: 5px;
+
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .badge__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .badge--success {
+    color: var(--success);
+    background: var(--success-weak);
+  }
+
+  .badge--warning {
+    color: var(--warning);
+    background: var(--warning-weak);
+  }
+
+  .badge--danger {
+    color: var(--failure);
+    background: var(--failure-weak);
+  }
+
+  .badge--neutral {
+    color: var(--neutral);
+    background: var(--neutral-weak);
   }
 }
 

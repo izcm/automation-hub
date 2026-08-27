@@ -44,13 +44,30 @@ export const notificationRepo: NotificationPort = {
     return { id: notification.id };
   },
 
-  saveBatch: function (batch: NewNotification[]): Promise<{ ids: string[] }> {
-    throw new Error("Function not implemented.");
-    console.log(batch); // sick of the ts errors and dont wanna add more lint config
+  saveBatch: async function (
+    batch: NewNotification[],
+  ): Promise<{ ids: string[] }> {
+    if (batch.length === 0) return { ids: [] };
+
+    await db.insert(notificationsTable).values(
+      batch.map((notification) => ({
+        id: notification.id,
+        to: notification.to,
+        channel: notification.channel,
+        status: "queued" as const,
+      })),
+    );
+
+    return { ids: batch.map((notification) => notification.id) };
   },
 
-  update: function (id: string, fields: Partial<Notification>): Promise<void> {
-    throw new Error("Function not implemented.");
-    console.log(id, fields); // sick of the ts errors and dont wanna add more lint config
+  update: async function (
+    id: string,
+    fields: Partial<Notification>,
+  ): Promise<void> {
+    await db
+      .update(notificationsTable)
+      .set({ ...fields, updatedAt: new Date() })
+      .where(eq(notificationsTable.id, id));
   },
 };

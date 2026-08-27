@@ -3,17 +3,15 @@ import { useMutation } from "@tanstack/react-query";
 import { postJson } from "@lib/http";
 import { confirmWith, rejectWith } from "@lib/toast";
 
-export function useSendNotifications() {
+export function useNotifyEuInspections() {
   return useMutation({
     mutationFn: ({
-      payload, // shape depends on useCase — eg. { vehicleIds } for eu-inspection-reminder
-      useCase,
+      euInspectionIds,
       channel,
     }: {
-      payload: Record<string, unknown>;
-      useCase: string; // api layer verifies with zod
+      euInspectionIds: string[];
       channel: string; // api layer verifies with zod
-    }) => postJson("/api/notifications", { payload, channel, useCase }),
+    }) => postJson("/api/eu-inspections/notify", { euInspectionIds, channel }),
     onSuccess: () => confirmWith("Server queued notifications"),
     onError: (error) => rejectWith("Something went wrong", error.message),
   });

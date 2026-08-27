@@ -22,10 +22,10 @@ import { useLanguage } from "@/features/language/LanguageContext";
 import { FIELD_ALISES_MAP } from "@/features/language/field-config";
 import { useSearchFilters } from "@/features/search/use-search-filters";
 import { Truck, Fuel, Transmission, Seat } from "@/components/icons";
-import { VehicleCard } from "@/features/vehicles/VehicleCard";
+import { VehicleCard } from "@/features/vehicles/ui/VehicleCard";
 
 import { VehicleLookup } from "./VehicleLookup";
-import { useAddVehicle } from "./hooks";
+import { useAddVehicle } from "../hooks";
 import Image from "next/image";
 
 type Props = {
@@ -100,7 +100,7 @@ export function VehiclesView({ vehicles }: Props) {
                   className={cn(
                     workspaceRows,
                     active?.id === v.id &&
-                      "border-faint/60 border-l-4 border-l-accent/80",
+                      "border-extra-faint border-l-4 border-l-accent/80",
                   )}
                   onOpenInWorkspace={() => setActive(v)}
                 />
@@ -187,7 +187,7 @@ export function VehiclesView({ vehicles }: Props) {
                         // layout
                         "inline-flex items-center gap-2 px-3 py-2",
                         // surface
-                        "rounded-lg border border-faint/40 bg-lowered",
+                        "rounded-lg border border-extra-faint bg-lowered",
                         // typography
                         "text-sm text-fg",
                       )}
@@ -217,7 +217,7 @@ export function VehiclesView({ vehicles }: Props) {
                       // layout
                       "flex flex-col gap-2 p-4",
                       // surface
-                      "rounded-lg border border-faint/40 bg-lowered",
+                      "rounded-lg border border-extra-faint bg-lowered",
                     )}
                   >
                     <span

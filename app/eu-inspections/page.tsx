@@ -1,4 +1,4 @@
-import { EUInspectionView } from "@/features/eu-inspections/EUInspectionView";
+import { EUInspectionView } from "@/features/eu-inspections/ui/EUInspectionView";
 import { getEuInspections } from "@/features/eu-inspections/queries";
 
 export default async function EuInspectionsPage() {
