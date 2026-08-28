@@ -1,24 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { IconBtn } from "@a2zb/react";
+import { useMemo, useState } from "react";
+import { IconBtn, Spinner } from "@a2zb/react";
 
-import { getPage } from "@/shared/http/page-get";
-import type { EuInspectionRow } from "@/features/eu-inspections/queries";
-import { FilterMenu } from "@/features/eu-inspections/ui/FilterMenu";
-import { EuInspectionSidePanel } from "@/features/eu-inspections/ui/SidePanel";
 import { cn } from "@lib/cn";
+import { useLanguage } from "@/lib/contexts/LanguageContext";
 
 import {
-  CORE_UI_LABELS_BY_LANGUAGE,
-  getListViewLabels,
-} from "@/features/language/ui_labels";
-import { useLanguage } from "@/features/language/LanguageContext";
-
-import { useNotifyEuInspections } from "@/features/eu-inspections/hooks";
-import { FIELD_ALISES_MAP } from "@/features/language/field-config";
-
-import { Notify, OpenWorkspaceOverlay } from "@components/icons";
+  Notify,
+  OpenWorkspaceOverlay,
+  Confirm,
+  Failure,
+} from "@components/icons";
 import { DateStamp, SimpleRow } from "@/components/molecules";
 import {
   Header,
@@ -27,6 +20,20 @@ import {
   WorkspacePanel,
   workspaceRows,
 } from "@/components/organisms";
+
+import {
+  CORE_UI_LABELS_BY_LANGUAGE,
+  getListViewLabels,
+  type Language,
+} from "@/features/labels";
+import {
+  type EuInspectionRow,
+  EU_INSPECTIONS_LABELS,
+  useNotifyEuInspections,
+  FilterMenu,
+  EuInspectionSidePanel,
+} from "@/features/eu-inspections";
+import { usePollNotifications } from "@/features/notifications/hooks/use-poll-notifications";
 
 import { useSearchFilters } from "../../search/use-search-filters";
 import { toSearchParams } from "../../search/param-mapper";
@@ -58,10 +65,76 @@ export function EUInspectionView({
     useSearchFilters();
   const sendNotifs = useNotifyEuInspections();
   const [euInspections, setEuInspections] = useState(initialEuInspections);
+  const [sentNotifications, setSentNotifications] = useState<
+    { notificationId: string; euInspectionId: string }[]
+  >(
+    // TEMP dummy data for testing the polling UI
+    initialEuInspections.slice(0, 4).map((item, i) => ({
+      notificationId: `dummy-${i}`,
+      euInspectionId: item.id,
+    })),
+  );
 
-  const language = useLanguage();
+  const language = useLanguage() as Language;
   const CORE_LABELS = CORE_UI_LABELS_BY_LANGUAGE[language];
-  const RESOURCE_MANAGEMENT_VIEW_LABELS = getListViewLabels(language);
+  const LABELS = EU_INSPECTIONS_LABELS[language];
+  const RESOURCE_MANAGEMENT_VIEW_LABELS = getListViewLabels(
+    language,
+    LABELS.searchPlaceholder,
+  );
+
+  const { data: notifications } = usePollNotifications(
+    sentNotifications.map((sent) => sent.notificationId),
+  );
+
+  // still "queued" per the latest poll — drops out once sent/failed
+  const { queuedNotifications, failedNotifications, successfullNotifications } =
+    useMemo(() => {
+      const matchOf = (id: string) => notifications?.find((n) => n.id === id);
+
+      return {
+        queuedNotifications: sentNotifications.filter((sent) => {
+          const match = matchOf(sent.notificationId);
+          return !match || match.status === "queued";
+        }),
+        failedNotifications: sentNotifications.filter(
+          (sent) => matchOf(sent.notificationId)?.status === "failed",
+        ),
+        successfullNotifications: sentNotifications.filter(
+          (sent) => matchOf(sent.notificationId)?.status === "sent",
+        ),
+      };
+    }, [sentNotifications, notifications]);
+
+  const notificationIndicators = [
+    {
+      list: queuedNotifications,
+      render: () => <Spinner size={14} title={LABELS.sendingNotification} />,
+    },
+    {
+      list: successfullNotifications,
+      render: () => (
+        <span className="inline-flex gap-2 text-success text-sm">
+          {LABELS.notificationSent}
+          <Confirm size={14} />
+        </span>
+      ),
+    },
+    {
+      list: failedNotifications,
+      render: () => (
+        <span className="inline-flex gap-2 text-failure text-sm">
+          {LABELS.notificationFailed}
+          <Failure size={14} />
+        </span>
+      ),
+    },
+  ];
+
+  // useEffect(() => {
+  //   // so its here im supposed to?
+  //   // 1. foreach
+  // }, [queuedNotifications]);
 
   // useEffect(() => {
   //   const filterKeyMap = FIELD_ALISES_MAP[language]["vehicles"];
@@ -105,8 +178,8 @@ export function EUInspectionView({
           <div className="resource-page">
             <Header
               backHref="/"
-              title={CORE_LABELS.header.heading}
-              labels={CORE_LABELS.header}
+              title={LABELS.heading}
+              labels={{ ...CORE_LABELS.header, theme: CORE_LABELS.theme }}
             />
 
             <ResourceManagementView
@@ -124,10 +197,16 @@ export function EUInspectionView({
               }
               batchActions={[
                 {
-                  label: (count) => CORE_LABELS.list.notify(count),
+                  label: (count) => LABELS.notify(count),
                   icon: <Notify size={14} />,
-                  onClick: (euInspectionIds) =>
-                    sendNotifs.mutate({ euInspectionIds, channel: "email" }),
+                  onClick: async (euInspectionIds) => {
+                    const result = await sendNotifs.mutateAsync({
+                      euInspectionIds,
+                      channel: "email",
+                    });
+
+                    setSentNotifications(result);
+                  },
                 },
               ]}
               listItem={(item, picked) => (
@@ -137,19 +216,24 @@ export function EUInspectionView({
                     workspaceRows,
                     picked && "border border-accent", // picked = when member of batch select
                     active?.id === item.id && // active = the item open in workspace
-                      "border-l-6 border-l-accent-strong/80 bg-panel",
+                      "border-l-4 border-l-accent-strong/80 bg-panel",
                   )}
                   media={<DateStamp date={item.euDate} />}
                   title={item.vehicle.plateNumber}
                   subtitle={
                     <div className="flex flex-col items-start">
                       <span className="text-subtle">
-                        {CORE_LABELS.list.euDate}: {item.euDate}
+                        {LABELS.euDate}: {item.euDate}
                       </span>
                     </div>
                   }
                   endContent={
-                    <div className="">
+                    <div className="flex-center">
+                      {notificationIndicators
+                        .find(({ list }) =>
+                          list.some((n) => n.euInspectionId === item.id),
+                        )
+                        ?.render()}
                       <IconBtn
                         className={cn(
                           active?.id === item.id &&
@@ -159,8 +243,8 @@ export function EUInspectionView({
                         icon={OpenWorkspaceOverlay}
                       >
                         {active?.id === item.id
-                          ? CORE_LABELS.list.inWorkspace
-                          : CORE_LABELS.list.openInWorkspace}
+                          ? LABELS.inWorkspace
+                          : LABELS.openInWorkspace}
                       </IconBtn>
                     </div>
                   }

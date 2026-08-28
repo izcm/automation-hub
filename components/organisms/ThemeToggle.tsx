@@ -2,34 +2,38 @@
 
 import { useEffect, useState } from "react";
 import { useTheme } from "@a2zb/react";
-import { CORE_UI_LABELS_BY_LANGUAGE } from "@/features/language/ui_labels";
-import { useLanguage } from "@/features/language/LanguageContext";
 import { DarkTheme, LightTheme } from "../icons";
+
+export type ThemeToggleLabels = {
+  toLight: string;
+  toDark: string;
+};
+
+type Props = {
+  labels: ThemeToggleLabels;
+};
 
 // useTheme() reads localStorage during render, which isn't available during
 // Next's SSR — so gate the hook behind a mount check. The no-flash script in
 // layout.tsx has already set the correct theme on <html> before paint.
-export function ThemeToggle() {
+export function ThemeToggle({ labels }: Props) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-
-  const LABELS = CORE_UI_LABELS_BY_LANGUAGE[useLanguage()];
 
   if (!mounted) {
     return (
       <button className="btn btn-menu gap-2" aria-hidden>
         <DarkTheme size={16} />
-        {LABELS.theme.toDark}
+        {labels.toDark}
       </button>
     );
   }
-  return <ThemeToggleInner />;
+  return <ThemeToggleInner labels={labels} />;
 }
 
-function ThemeToggleInner() {
+function ThemeToggleInner({ labels }: Props) {
   const { theme, applyTheme } = useTheme();
   const isDark = theme === "dark";
-  const LABELS = CORE_UI_LABELS_BY_LANGUAGE[useLanguage()];
 
   return (
     <button
@@ -37,7 +41,7 @@ function ThemeToggleInner() {
       onClick={() => applyTheme(isDark ? "light" : "dark")}
     >
       {isDark ? <LightTheme size={16} /> : <DarkTheme size={16} />}
-      {isDark ? LABELS.theme.toLight : LABELS.theme.toDark}
+      {isDark ? labels.toLight : labels.toDark}
     </button>
   );
 }

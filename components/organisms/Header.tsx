@@ -10,6 +10,7 @@ export type HeaderLabels = {
   back: string;
   menu: string;
   logOut: string;
+  theme: { toLight: string; toDark: string };
 };
 
 type Props = {
@@ -41,7 +42,7 @@ export function Header({ backHref, title, labels }: Props) {
         }
       >
         <div className="flex flex-col gap-1">
-          <ThemeToggle />
+          <ThemeToggle labels={labels.theme} />
           <button className="btn btn-menu gap-2">
             <LogOut size={16} />
             {labels.logOut}

@@ -8,6 +8,8 @@ export {
   Moon as DarkTheme,
   Check as Confirm,
   X as Cancel,
+  X as Failure,
+  Check as Success,
   Search as Lookup,
   SlidersHorizontal as Filter,
   Send as Notify,

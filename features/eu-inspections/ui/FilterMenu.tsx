@@ -1,7 +1,8 @@
 import { Checkbox } from "@a2zb/react";
 
-import { useLanguage } from "@/features/language/LanguageContext";
-import { EU_INSPECTION_FILTER_LABELS_BY_LANGUAGE } from "@/features/language/eu-inspection/filter-labels";
+import { useLanguage } from "@/lib/contexts/LanguageContext";
+import { EU_INSPECTION_FILTER_LABELS_BY_LANGUAGE } from "@/features/eu-inspections/labels/filters";
+import type { Language } from "@/features/labels";
 import { MultiSelectDropdown } from "@/components/molecules";
 
 const EMPLOYEES = ["empl 1", "empl 2", "empl 3"];
@@ -21,7 +22,7 @@ type Props = {
 };
 
 export function FilterMenu({ filters, toggleFilter, resetFilters }: Props) {
-  const language = useLanguage();
+  const language = useLanguage() as Language;
   const FILTER_UI_LABELS = EU_INSPECTION_FILTER_LABELS_BY_LANGUAGE[language];
 
   const isChecked = (key: string, value: string) =>

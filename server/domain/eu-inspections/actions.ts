@@ -46,7 +46,7 @@ export const makeEuInspectionActions = ({
       notificationId: notification.id,
     });
 
-    return notification;
+    return { euInspectionId, notificationId: notification.id };
   }
 
   return { notifyAboutInspection };

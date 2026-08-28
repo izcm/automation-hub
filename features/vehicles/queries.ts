@@ -15,8 +15,6 @@ export async function getVehicles(signal?: AbortSignal): Promise<Vehicle[]> {
     signal,
   });
 
-  // todo: make generic read layer similar to applyDtos dmrkt-indexer
-  // here all _id => id transforms should happen + additional stuff
   if (!res.ok) return [];
   return res.data.items;
 }

@@ -1,7 +1,4 @@
-import { Vehicle } from "@/types/vehicle";
-import { Employee } from "@/types/employee";
-import { Notification } from "@/types/notification";
-import { EuInspection } from "@/types/eu-inspection";
+import { Vehicle, Employee, Notification, EuInspection } from "@/types";
 
 export type AppResources = {
   vehicles: {

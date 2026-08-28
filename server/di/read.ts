@@ -5,7 +5,7 @@ import { notificationRepo } from "../db/postgres/notifications/repo";
 import { euInspectionRepo } from "../db/postgres/eu-inspections/repo";
 
 // read functions
-import { makeReadOne } from "../read/read-one";
+import { makeReadKeyed } from "../read/read-keyed";
 import { makeReadPage } from "../read/read-page";
 
 // read types
@@ -21,7 +21,7 @@ const readers: Readers<AppResources> = {
   euInspections: euInspectionRepo,
 };
 
-export const { readByKey, readByKeys } = makeReadOne(readers);
+export const { readByKey, readByKeys } = makeReadKeyed(readers);
 export const readPage = makeReadPage(readers);
 
 // repos that attach related resources to the requested resource

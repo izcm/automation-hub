@@ -2,8 +2,8 @@
 
 import { ReactNode } from "react";
 import Link from "next/link";
-import { CORE_UI_LABELS_BY_LANGUAGE } from "@/features/language/ui_labels";
-import { useLanguage } from "@/features/language/LanguageContext";
+import { CORE_UI_LABELS_BY_LANGUAGE, type Language } from "@/features/labels";
+import { useLanguage } from "@/lib/contexts/LanguageContext";
 
 import { ChevronRight, Inspection, Truck } from "@/components/icons";
 import { powerOfficeFetch } from "@/server/external/power-office/client";
@@ -29,7 +29,7 @@ function LandingLink({
 }
 
 export default function Landing() {
-  const LABELS = CORE_UI_LABELS_BY_LANGUAGE[useLanguage()];
+  const LABELS = CORE_UI_LABELS_BY_LANGUAGE[useLanguage() as Language];
 
   return (
     <div className="flex-1 flex-center landing-surface">

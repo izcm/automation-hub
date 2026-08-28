@@ -62,5 +62,5 @@ export async function notifyAboutEuInspections({
     ),
   );
 
-  return results.flat();
+  return results;
 }

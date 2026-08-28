@@ -1,10 +1,12 @@
+import { Copyable } from "@a2zb/react";
+
 import type { EuInspectionRow } from "@/features/eu-inspections/queries";
-import { Copy, Edit, User, Calendar, Notify } from "@components/icons";
-import { Badge } from "@/components/molecules";
 import { NotificationList } from "@/features/notifications/ui/NotificationList";
 
+import { Copy, Edit, User, Calendar, Notify } from "@components/icons";
+import { Badge } from "@/components/molecules";
+
 import { cn } from "@/lib/cn";
-import { Copyable } from "@a2zb/react";
 import { Vehicle } from "@/types/vehicle";
 
 type Props = {
@@ -20,8 +22,13 @@ type FieldProps = {
 
 function Field({ label, children, size = "md", className }: FieldProps) {
   return (
-    <div className={cn("flex flex-col gap-1 p-1", className)}>
-      <dt className={"text-subtle text-[12px]"}>{label}</dt>
+    <div
+      className={cn(
+        "flex min-w-0 flex-col gap-1 p-1 [&>*]:truncate",
+        className,
+      )}
+    >
+      <dt className="text-subtle text-[12px]">{label}</dt>
       <dd className={size === "sm" ? "text-[14px]" : "text-[16px]"}>
         {children}
       </dd>
@@ -48,7 +55,7 @@ function MetaRow({ label, value, last }: MetaRowProps) {
   return (
     <div
       className={cn(
-        "grid grid-cols-[120px_1fr] p-2",
+        "grid grid-cols-[120px_1fr] p-2 [&>*]:truncate",
         !last && "border-b border-extra-faint",
       )}
     >

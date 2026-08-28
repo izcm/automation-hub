@@ -1,4 +1,4 @@
-import type { Language } from "@/features/language/field-config";
+import type { Language } from "@/features/labels";
 
 export const euStatusFilters = ["overdue", "within30", "within90"] as const;
 

@@ -1,6 +1,4 @@
-import { Vehicle } from "@/types/vehicle";
-import { Notification } from "@/types/notification";
-import { Employee } from "@/types/employee";
+import { Vehicle, Notification, Employee } from "@/types";
 
 export const vehicleViews = {
   list: (vehicle: Vehicle) => ({

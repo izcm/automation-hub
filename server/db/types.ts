@@ -1,6 +1,4 @@
-import { Employee } from "@/types/employee";
-import { Notification } from "@/types/notification";
-import { Vehicle } from "@/types/vehicle";
+import { Employee, Notification, Vehicle } from "@/types";
 
 export type WithTimestamp = {
   createdAt: number;

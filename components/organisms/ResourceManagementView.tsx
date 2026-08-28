@@ -97,7 +97,6 @@ export function ResourceManagementView<T>({
           className={itemClassName}
         />
       )}
-
       <Pagination
         page={page}
         pageCount={pageCount}

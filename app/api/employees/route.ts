@@ -3,8 +3,9 @@
 import { powerOfficeFetch } from "@/server/external/power-office/client";
 
 export async function GET() {
-  const result = await powerOfficeFetch("/employees");
+  throw new Error("Not implemented");
 
+  const result = await powerOfficeFetch("/employees");
   // todo: handle result
   return Response.json(result);
 }

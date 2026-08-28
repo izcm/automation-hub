@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   try {
     const result = await notifyAboutEuInspections(parsed.data);
 
-    return Response.json({ ok: true, data: result });
+    return Response.json(result);
   } catch (error) {
     console.error("Failed to send eu-inspection notification:", error);
 

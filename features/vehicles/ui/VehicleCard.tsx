@@ -1,7 +1,8 @@
-import type { Vehicle } from "@/types/vehicle";
-import { cn } from "@/lib/cn";
 import { IconBtn } from "@a2zb/react";
+import { cn } from "@/lib/cn";
+
 import { OpenWorkspaceOverlay } from "@/components/icons";
+import type { Vehicle } from "@/types/vehicle";
 
 type Props = {
   vehicle: Vehicle;

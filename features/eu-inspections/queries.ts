@@ -1,18 +1,9 @@
 import { headers } from "next/headers";
 
 import { getPage } from "@/shared/http/page-get";
-import type { EuInspection } from "@/types/eu-inspection";
-import type { Vehicle } from "@/types/vehicle";
-import type { Notification } from "@/types/notification";
-import type { Employee } from "@/types/employee";
+import type { EuInspectionRow } from "./types";
 
-// todo: relational readRepo returns Extensible<EuInspection> (attached
-// relations aren't typed) — this is the shape we actually expect back once
-// include[vehicle]/include[notifications] are requested.
-export type EuInspectionRow = EuInspection & {
-  vehicle: Vehicle & { employee?: Employee };
-  notifications: Notification[];
-};
+export type { EuInspectionRow } from "./types";
 
 // Server-side loader: hit the /api/eu-inspections GET and return the list.
 export async function getEuInspections(
@@ -38,6 +29,6 @@ export async function getEuInspections(
     signal,
   });
 
-  if (!res.ok) return [];
+  if (!res.ok) throw new Error(res.error);
   return res.data.items;
 }
