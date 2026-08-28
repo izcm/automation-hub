@@ -151,6 +151,10 @@ export function EUInspectionView({
                   endContent={
                     <div className="">
                       <IconBtn
+                        className={cn(
+                          active?.id === item.id &&
+                            "[&>svg]:!text-muted cursor-default",
+                        )}
                         onClick={() => setActive(item)}
                         icon={OpenWorkspaceOverlay}
                       >
