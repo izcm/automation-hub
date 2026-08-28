@@ -1,14 +1,7 @@
 import type { EuInspectionRow } from "@/features/eu-inspections/queries";
-import {
-  Copy,
-  Edit,
-  User,
-  Calendar,
-  Mail,
-  Confirm,
-  Cancel,
-} from "@components/icons";
-import { Badge, IconBadge } from "@/components/molecules";
+import { Copy, Edit, User, Calendar, Notify } from "@components/icons";
+import { Badge } from "@/components/molecules";
+import { NotificationList } from "@/features/notifications/ui/NotificationList";
 
 import { cn } from "@/lib/cn";
 import { Copyable } from "@a2zb/react";
@@ -183,9 +176,7 @@ function VehicleDetailsCard({ vehicle }: { vehicle: Vehicle }) {
   );
 }
 
-function EmployeeCard({ item }: { item: EuInspectionRow }) {
-  const { employee } = item.vehicle;
-
+function EmployeeCard({ id, name }: { id: string; name: string }) {
   return (
     <div className="flex justify-between items-center">
       {/* left — name and icon */}
@@ -194,11 +185,9 @@ function EmployeeCard({ item }: { item: EuInspectionRow }) {
           <User size={20} strokeWidth={1} />
         </div>
         <div className="flex flex-col">
-          <span>
-            {employee !== undefined ? employee.name : "Error fetching employee"}
-          </span>
+          <span>{name}</span>
           <div className="text-xs">
-            <CopyableId id={item.id} />
+            <CopyableId id={id} />
           </div>
         </div>
       </div>
@@ -212,11 +201,11 @@ function EmployeeCard({ item }: { item: EuInspectionRow }) {
 }
 
 export function EuInspectionSidePanel({ item }: Props) {
-  const { vehicle } = item;
-  const { notifications } = item;
+  const { vehicle, notifications } = item;
+  const { employee: maintenanceResponsible } = vehicle;
 
   return (
-    <div className="flex flex-col gap-3 p-4 text-start">
+    <div className="flex h-full flex-col gap-3 p-4 text-start">
       <SidePanelHeader vehicle={vehicle} />
 
       <EuInspectionSection item={item} />
@@ -230,7 +219,14 @@ export function EuInspectionSidePanel({ item }: Props) {
         <div className="raised-outline-panel p-2">
           <Eyebrow>Maintenance responsible</Eyebrow>
 
-          <EmployeeCard item={item} />
+          {maintenanceResponsible ? (
+            <EmployeeCard
+              id={maintenanceResponsible.id}
+              name={maintenanceResponsible.name}
+            />
+          ) : (
+            <div>Issues reading maintenance responsible.</div>
+          )}
         </div>
       </div>
 
@@ -247,7 +243,7 @@ export function EuInspectionSidePanel({ item }: Props) {
                 { label: "Failed", status: "failed" },
               ] as const
             ).map(({ label, status }) => (
-              <Field key={label} label={label} className="py-2 px-3">
+              <Field key={label} label={label} className="py-1 px-3">
                 {status === undefined
                   ? item.notifications.length
                   : item.notifications.filter((n) => n.status === status)
@@ -255,51 +251,18 @@ export function EuInspectionSidePanel({ item }: Props) {
               </Field>
             ))}
           </dl>
-
-          <ul className="text-sm">
-            {notifications.map((notification, i) => (
-              <li
-                key={i}
-                className={cn(
-                  "grid grid-cols-[180px_90px_1fr] border-b border-extra-faint p-1",
-                  i === notifications.length - 1 && "border-none",
-                )}
-              >
-                <Field label="To" size="sm">
-                  <span className="inline-flex gap-2">
-                    <Mail size={16} className="text-accent" /> {notification.to}
-                  </span>
-                </Field>
-                <Field size="sm" label="Status">
-                  <IconBadge
-                    icon={notification.status === "failed" ? Cancel : Confirm}
-                    variant={
-                      notification.status === "failed"
-                        ? "danger"
-                        : notification.status === "sent"
-                          ? "success"
-                          : "neutral"
-                    }
-                  >
-                    {notification.status}
-                  </IconBadge>
-                </Field>
-
-                <Field size="sm" label="Created">
-                  <time
-                    dateTime={new Date(notification.createdAt).toISOString()}
-                  >
-                    {new Date(notification.createdAt).toLocaleString("nb-NO", {
-                      dateStyle: "short",
-                      timeStyle: "short",
-                    })}
-                  </time>
-                </Field>
-              </li>
-            ))}
-          </ul>
+          {/* TODO: slice here but have "show all" btn that extend list, panel should scroll itself not page */}
+          <NotificationList notifications={notifications.slice(0, 3)} />
         </div>
       </div>
+
+      <button
+        className="btn btn-secondary mt-auto inline-flex items-center gap-2"
+        disabled={!maintenanceResponsible}
+      >
+        <Notify size={14} />
+        Notify {maintenanceResponsible?.name}
+      </button>
     </div>
   );
 }

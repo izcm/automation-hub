@@ -19,7 +19,6 @@ import {
   getListViewLabels,
 } from "@/features/language/ui_labels";
 import { useLanguage } from "@/features/language/LanguageContext";
-import { FIELD_ALISES_MAP } from "@/features/language/field-config";
 import { useSearchFilters } from "@/features/search/use-search-filters";
 import { Truck, Fuel, Transmission, Seat } from "@/components/icons";
 import { VehicleCard } from "@/features/vehicles/ui/VehicleCard";

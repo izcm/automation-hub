@@ -125,7 +125,7 @@ export function EUInspectionView({
               batchActions={[
                 {
                   label: (count) => CORE_LABELS.list.notify(count),
-                  icon: <Notify size={15} />,
+                  icon: <Notify size={14} />,
                   onClick: (euInspectionIds) =>
                     sendNotifs.mutate({ euInspectionIds, channel: "email" }),
                 },
@@ -135,7 +135,9 @@ export function EUInspectionView({
                   // onClick={() => setActive(item)}
                   className={cn(
                     workspaceRows,
-                    picked && "border border-accent",
+                    picked && "border border-accent", // picked = when member of batch select
+                    active?.id === item.id && // active = the item open in workspace
+                      "border-l-6 border-l-accent-strong/80 bg-panel",
                   )}
                   media={<DateStamp date={item.euDate} />}
                   title={item.vehicle.plateNumber}
@@ -149,11 +151,12 @@ export function EUInspectionView({
                   endContent={
                     <div className="">
                       <IconBtn
-                        className="btn"
                         onClick={() => setActive(item)}
                         icon={OpenWorkspaceOverlay}
                       >
-                        {CORE_LABELS.list.openInWorkspace}
+                        {active?.id === item.id
+                          ? CORE_LABELS.list.inWorkspace
+                          : CORE_LABELS.list.openInWorkspace}
                       </IconBtn>
                     </div>
                   }

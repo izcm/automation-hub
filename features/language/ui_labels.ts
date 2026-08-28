@@ -46,6 +46,7 @@ const en = {
     showing: (from: number, to: number, total: number) =>
       `Showing ${from}–${to} of ${total}`,
     openInWorkspace: "Open in workspace",
+    inWorkspace: "In workspace",
   },
 
   modal: {
@@ -116,6 +117,7 @@ const no: typeof en = {
     showing: (from: number, to: number, total: number) =>
       `Viser ${from}–${to} av ${total}`,
     openInWorkspace: "Åpne i workspace",
+    inWorkspace: "I workspace",
   },
 
   modal: {

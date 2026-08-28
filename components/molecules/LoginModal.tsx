@@ -52,7 +52,7 @@ export function LoginModal({ containerClassName }: Props) {
 
       <IconBtn
         icon={MicrosoftIcon}
-        className="btn btn-neutral justify-center flex-row-reverse py-3"
+        className="btn-neutral flex-row-reverse py-3"
       >
         Microsoft Entra ID
       </IconBtn>
