@@ -1,9 +1,8 @@
 import * as z from "zod";
 
-import { euInspectionActions, readPage, readPageRelational } from "@/server/di";
-import { channels } from "@/server/domain/notifications/messaging/types";
+import { readPage, readPageRelational } from "@/server/di";
 import { RawIncludes } from "@a2zb/types";
-import { coercedBoolean, includeQuery } from "./shared/zod";
+import { coercedBoolean, includeQuery } from "../shared/zod";
 
 // `notifications` now points straight at real notification rows (through
 // the junction table under the hood) — no separate nested hop needed.
@@ -42,25 +41,4 @@ export async function getEuInspectionsPage({
   return Object.keys(includes).length > 0
     ? readPageRelational("euInspections", {}, includes)
     : readPage("euInspections");
-}
-
-export const EuInspectionNotifyRequest = z.strictObject({
-  euInspectionIds: z.array(z.string()).min(1),
-  channel: z.enum(channels),
-});
-
-export type EuInspectionNotifyInput = z.infer<typeof EuInspectionNotifyRequest>;
-
-export async function notifyAboutEuInspections({
-  euInspectionIds,
-  channel,
-}: EuInspectionNotifyInput) {
-  // todo: use Prmise.settleAll instead
-  const results = await Promise.all(
-    euInspectionIds.map((euInspectionId) =>
-      euInspectionActions.notifyAboutInspection(euInspectionId, channel),
-    ),
-  );
-
-  return results;
 }

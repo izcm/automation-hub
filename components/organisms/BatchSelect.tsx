@@ -4,7 +4,7 @@ import { cn } from "@/lib/cn";
 
 export type BatchAction = {
   label: ReactNode | ((count: number) => ReactNode);
-  onClick: (ids: string[]) => void;
+  onClick: (ids: string[], clearSelection: () => void) => void;
   icon?: ReactNode;
   className?: string;
 };
@@ -68,7 +68,9 @@ export function BatchSelect<T>({
             {actions.map((action, i) => (
               <button
                 key={i}
-                onClick={() => action.onClick(batchSelected)}
+                onClick={() => {
+                  action.onClick(batchSelected, () => setBatchSelected([]));
+                }}
                 className={
                   action.className ??
                   "btn btn-primary flex-center gap-2 text-sm"

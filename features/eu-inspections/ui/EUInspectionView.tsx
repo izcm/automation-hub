@@ -12,7 +12,7 @@ import {
   Confirm,
   Failure,
 } from "@components/icons";
-import { DateStamp, SimpleRow } from "@/components/molecules";
+import { DateStamp, IconBadge, SimpleRow } from "@/components/molecules";
 import {
   Header,
   ResourceManagementView,
@@ -87,49 +87,19 @@ export function EUInspectionView({
     sentNotifications.map((sent) => sent.notificationId),
   );
 
-  // still "queued" per the latest poll — drops out once sent/failed
-  const { queuedNotifications, failedNotifications, successfullNotifications } =
-    useMemo(() => {
-      const matchOf = (id: string) => notifications?.find((n) => n.id === id);
+  // one status per inspection — "queued" until the poll says otherwise
+  const notificationStatusByInspectionId = useMemo(() => {
+    const map = new Map<string, "queued" | "sent" | "failed">();
 
-      return {
-        queuedNotifications: sentNotifications.filter((sent) => {
-          const match = matchOf(sent.notificationId);
-          return !match || match.status === "queued";
-        }),
-        failedNotifications: sentNotifications.filter(
-          (sent) => matchOf(sent.notificationId)?.status === "failed",
-        ),
-        successfullNotifications: sentNotifications.filter(
-          (sent) => matchOf(sent.notificationId)?.status === "sent",
-        ),
-      };
-    }, [sentNotifications, notifications]);
+    for (const sent of sentNotifications) {
+      const status =
+        notifications?.find((n) => n.id === sent.notificationId)?.status ??
+        "queued";
+      map.set(sent.euInspectionId, status);
+    }
 
-  const notificationIndicators = [
-    {
-      list: queuedNotifications,
-      render: () => <Spinner size={14} title={LABELS.sendingNotification} />,
-    },
-    {
-      list: successfullNotifications,
-      render: () => (
-        <span className="inline-flex gap-2 text-success text-sm">
-          {LABELS.notificationSent}
-          <Confirm size={14} />
-        </span>
-      ),
-    },
-    {
-      list: failedNotifications,
-      render: () => (
-        <span className="inline-flex gap-2 text-failure text-sm">
-          {LABELS.notificationFailed}
-          <Failure size={14} />
-        </span>
-      ),
-    },
-  ];
+    return map;
+  }, [sentNotifications, notifications]);
 
   // useEffect(() => {
   //   // so its here im supposed to?
@@ -199,13 +169,14 @@ export function EUInspectionView({
                 {
                   label: (count) => LABELS.notify(count),
                   icon: <Notify size={14} />,
-                  onClick: async (euInspectionIds) => {
+                  onClick: async (euInspectionIds, clearSelection) => {
                     const result = await sendNotifs.mutateAsync({
                       euInspectionIds,
                       channel: "email",
                     });
 
                     setSentNotifications(result);
+                    clearSelection();
                   },
                 },
               ]}
@@ -221,32 +192,58 @@ export function EUInspectionView({
                   media={<DateStamp date={item.euDate} />}
                   title={item.vehicle.plateNumber}
                   subtitle={
-                    <div className="flex flex-col items-start">
-                      <span className="text-subtle">
-                        {LABELS.euDate}: {item.euDate}
-                      </span>
-                    </div>
+                    <span className="inline-flex items-center gap-1.5 text-subtle">
+                      {LABELS.euDate}: {item.euDate}
+                      {(() => {
+                        const status = notificationStatusByInspectionId.get(
+                          item.id,
+                        );
+
+                        if (status === "queued")
+                          return (
+                            <>
+                              {" · "}
+                              <Spinner
+                                size={14}
+                                title={LABELS.sendingNotification}
+                              />
+                            </>
+                          );
+                        if (status === "sent")
+                          return (
+                            <>
+                              {" · "}
+                              <IconBadge icon={Confirm} variant="success">
+                                {LABELS.notificationSent}
+                              </IconBadge>
+                            </>
+                          );
+                        if (status === "failed")
+                          return (
+                            <>
+                              {" · "}
+                              <IconBadge icon={Failure} variant="danger">
+                                {LABELS.notificationFailed}
+                              </IconBadge>
+                            </>
+                          );
+                        return null;
+                      })()}
+                    </span>
                   }
                   endContent={
-                    <div className="flex-center">
-                      {notificationIndicators
-                        .find(({ list }) =>
-                          list.some((n) => n.euInspectionId === item.id),
-                        )
-                        ?.render()}
-                      <IconBtn
-                        className={cn(
-                          active?.id === item.id &&
-                            "[&>svg]:!text-muted cursor-default",
-                        )}
-                        onClick={() => setActive(item)}
-                        icon={OpenWorkspaceOverlay}
-                      >
-                        {active?.id === item.id
-                          ? LABELS.inWorkspace
-                          : LABELS.openInWorkspace}
-                      </IconBtn>
-                    </div>
+                    <IconBtn
+                      className={cn(
+                        active?.id === item.id &&
+                          "[&>svg]:!text-muted cursor-default",
+                      )}
+                      onClick={() => setActive(item)}
+                      icon={OpenWorkspaceOverlay}
+                    >
+                      {active?.id === item.id
+                        ? LABELS.inWorkspace
+                        : LABELS.openInWorkspace}
+                    </IconBtn>
                   }
                 />
               )}

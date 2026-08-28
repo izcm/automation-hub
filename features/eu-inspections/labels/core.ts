@@ -3,25 +3,25 @@ import type { Language } from "@/features/labels";
 const en = {
   heading: "Upcoming EU Inspections",
   searchPlaceholder: "Search plate number, set timespan...",
-  euDate: "EU date",
+  euDate: "Due",
   notify: (n: number) => `Notify ${n} drivers`,
   openInWorkspace: "Open in workspace",
   inWorkspace: "In workspace",
   sendingNotification: "Sending notification…",
-  notificationSent: "Notification sent",
-  notificationFailed: "Notification failed",
+  notificationSent: "Notified",
+  notificationFailed: "Couldn't notify",
 };
 
 const no: typeof en = {
   heading: "Kommende EU-kontroller",
   searchPlaceholder: "Søk registreringsnummer, angi tidsrom...",
-  euDate: "EU-frist",
+  euDate: "Frist",
   notify: (n: number) => `Varsle ${n} sjåfører`,
   openInWorkspace: "Åpne i workspace",
   inWorkspace: "I workspace",
   sendingNotification: "Sender varsel…",
-  notificationSent: "Varsel sendt",
-  notificationFailed: "Varsel feilet",
+  notificationSent: "Varslet",
+  notificationFailed: "Kunne ikke varsle",
 };
 
 export const EU_INSPECTIONS_LABELS = { en, no } satisfies Record<

@@ -22,7 +22,7 @@ export function SimpleRow({
     <div
       onClick={onClick}
       className={cn(
-        "grid grid-cols-[auto_1fr_auto] items-center gap-4 p-1",
+        "grid grid-cols-[auto_auto_minmax(0,1fr)] items-center gap-4 p-1",
         className,
       )}
     >
@@ -30,8 +30,8 @@ export function SimpleRow({
         {media}
       </div>
 
-      <div className="flex flex-col justify-center text-start min-w-0">
-        <span data-slot="title" className="text-sm font-semibold truncate">
+      <div className="flex flex-col justify-center text-start">
+        <span data-slot="title" className="text-sm font-semibold">
           {title}
         </span>
         <span data-slot="subtitle" className="text-xs text-muted inline-block">
@@ -39,7 +39,7 @@ export function SimpleRow({
         </span>
       </div>
 
-      {endContent}
+      <div className="flex min-w-0 justify-end">{endContent}</div>
     </div>
   );
 }
