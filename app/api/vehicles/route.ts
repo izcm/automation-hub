@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { readPage, vehicleActions } from "@server/di";
 import { vehicleRepo } from "@/server/db/postgres/vehicles/repo";
@@ -14,7 +14,7 @@ export async function GET() {
   return NextResponse.json(page); // NextResponse.json defaults to 200
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const { plateNumber } = await request.json();
 
   if (!plateNumber || !/^[A-Z]{2} ?\d{5}$/.test(plateNumber)) {

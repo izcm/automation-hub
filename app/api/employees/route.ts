@@ -1,5 +1,7 @@
 // app/api/employees/route.ts
 
+import { NextResponse } from "next/server";
+
 import { powerOfficeFetch } from "@/server/external/power-office/client";
 
 export async function GET() {
@@ -7,5 +9,5 @@ export async function GET() {
 
   const result = await powerOfficeFetch("/employees");
   // todo: handle result
-  return Response.json(result);
+  return NextResponse.json(result);
 }

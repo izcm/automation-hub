@@ -1,5 +1,6 @@
 import * as client from "openid-client";
-import { readEnvOrThrow } from "../../config/env";
+
+import { getOidcConfig } from "./get-oidc-config";
 
 // const server: URL = new URL(readEnvOrThrow("MSFT_OIDC_ISSUER")); // Authorization Server's Issuer Identifier
 // const clientId: string = readEnvOrThrow("MSFT_CLIENT_ID"); // Client identifier at the Authorization Server
@@ -12,18 +13,9 @@ import { readEnvOrThrow } from "../../config/env";
 // );
 
 export async function createOidcAuthRequest(provider: string) {
-  const server = new URL(readEnvOrThrow(`${provider}_OIDC_ISSUER`));
+  const config = await getOidcConfig(provider);
 
-  const clientId = readEnvOrThrow(`${provider}_CLIENT_ID`);
-  const clientSecret = readEnvOrThrow(`${provider}_CLIENT_SECRET`);
-
-  const config: client.Configuration = await client.discovery(
-    server,
-    clientId,
-    clientSecret,
-  );
-
-  const redirect_uri = "http://localhost:3000/api/auth/callback/msft";
+  const redirect_uri = "http://localhost:3000/api/auth/callback";
 
   const scope = "openid email";
 
