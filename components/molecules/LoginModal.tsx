@@ -1,12 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { TextInput } from "@a2zb/react";
 
-import { GlassModal } from "./GlassModal";
-
-import { Lock, Mail } from "@/components/icons";
-import Link from "next/link";
 import { cn } from "@/lib/cn";
+import { Lock, Mail } from "@/components/icons";
+
+import { GlassModal } from "./GlassModal";
 
 type Props = {
   containerClassName?: string;
@@ -51,13 +51,10 @@ export function LoginModal({ containerClassName }: Props) {
         </span>
       </div>
 
-      <Link
-        href="/api/auth/login"
-        className={"flex w-full btn btn-neutral py-3"}
-      >
+      <a href="/api/auth/login" className="flex w-full btn btn-neutral py-3">
         <MicrosoftIcon className="h-4 w-4" />
         <span>Microsoft Entra ID</span>
-      </Link>
+      </a>
 
       <div className="flex flex-center gap-4">
         <div className="horizontal-line flex-1" />

@@ -1,20 +1,19 @@
-import { createAuthRequest } from "@/server/auth/oidc/create-auth-request";
+import { oidcLogin } from "@/server/di/auth";
+import { NextResponse } from "next/server";
 
 export async function GET() {
-  const { redirectTo, codeVerifier } = await createAuthRequest();
+  const { redirectTo, loginId } = await oidcLogin("MSFT");
 
-  const loginId = crypto.randomUUID();
+  const response = NextResponse.redirect(redirectTo);
 
-  //  store state + code_verifier + login_id
-  //  assign login_id as cookie to caller
-  //
-  //  code_verifier is part of PKCE protocol
-  // - code_verifier is secret
-  // - code_challenge + method are public
-  // - OIDC issuer receives the public values
-  //
-  // when the communication is between our server and issuer, with no browser in-between
-  //  we can safely send the code_verifier, and the issuer does the method + check
-  // and basically says "yep, this matches the code_challenge from earlier"
-  return Response.redirect(redirectTo);
+  // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie
+  response.cookies.set("oidc_login_id", loginId, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 10 * 60,
+  });
+
+  return response;
 }

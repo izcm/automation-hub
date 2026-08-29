@@ -67,11 +67,11 @@
   }
 
   .btn-neutral:hover {
-    background: color-mix(in oklab, var(--accent) 2%, var(--ground));
+    background: color-mix(in oklab, var(--accent) 4%, var(--ground));
   }
 
   .btn-neutral:active {
-    background: color-mix(in oklab, var(--accent) 5%, var(--ground));
+    background: color-mix(in oklab, var(--accent) 8%, var(--ground));
   }
 
   /* BTN INVERTED STYLES — fg fill, base text; the login modal's high-contrast CTA */

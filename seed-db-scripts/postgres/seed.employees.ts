@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { db } from "@server/db/postgres/pool";
 import { employeesTable } from "@server/db/postgres/employees/schema";
 import { generateId } from "@/server/shared/id";
@@ -21,7 +22,9 @@ const seedEmployees = names.map((name, i) => ({
 }));
 
 async function seed() {
-  await db.delete(employeesTable); // wipe first so re-running is idempotent
+  // wipe first so re-running is idempotent — CASCADE also clears rows in
+  // other tables (e.g. vehicles) that reference employees, since a plain
+  await db.execute(sql`TRUNCATE TABLE ${employeesTable} CASCADE`);
   const res = await db
     .insert(employeesTable)
     .values(seedEmployees)
