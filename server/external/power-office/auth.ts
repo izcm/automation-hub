@@ -1,10 +1,7 @@
 import { getBearerToken } from "@a2zb/node";
-import { readEnvOrThrow } from "@server/config/env";
 
-export type BearerToken = {
-  token: string;
-  expiresAt: number;
-};
+import { readEnvOrThrow } from "@server/config/env";
+import { BearerToken } from "@/server/auth/get-bearer-token";
 
 let cachedToken: BearerToken | undefined;
 

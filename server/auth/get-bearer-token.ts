@@ -5,8 +5,6 @@ export type BearerToken = {
   expiresAt: number;
 };
 
-let cachedToken: BearerToken | undefined;
-
 export async function getBearerToken<T>({
   endpoint,
   headers,

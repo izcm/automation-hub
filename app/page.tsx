@@ -55,9 +55,9 @@ export default function Landing() {
             {LABELS.home.goToEuInspections}
           </LandingLink>
 
-          <LandingLink href="/vehicles" icon={<Truck strokeWidth={1} />}>
+          {/* <LandingLink href="/vehicles" icon={<Truck strokeWidth={1} />}>
             {LABELS.home.goToVehicles}
-          </LandingLink>
+          </LandingLink> */}
         </div>
       </div>
     </div>

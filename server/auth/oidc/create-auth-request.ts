@@ -16,16 +16,16 @@ export async function createAuthRequest() {
 
   const scope = "openid email";
 
-  const code_verifier = client.randomPKCECodeVerifier();
+  const codeVerifier = client.randomPKCECodeVerifier();
 
-  const code_challenge = await client.calculatePKCECodeChallenge(code_verifier);
+  const codeChallenge = await client.calculatePKCECodeChallenge(codeVerifier);
 
   const state = client.randomState();
 
   const parameters = {
     redirect_uri,
     scope,
-    code_challenge,
+    code_challenge: codeChallenge,
     code_challenge_method: "S256",
     state,
   };
@@ -34,7 +34,7 @@ export async function createAuthRequest() {
 
   return {
     redirectTo,
-    code_verifier,
+    codeVerifier,
     state,
   };
 }
