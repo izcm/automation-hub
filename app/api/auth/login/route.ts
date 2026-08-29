@@ -1,4 +1,4 @@
-import { createAuthRequest } from "@/server/auth/ocid-auth-request";
+import { createAuthRequest } from "@/server/auth/oidc/create-auth-request";
 
 export async function GET() {
   const { redirectTo, code_verifier } = await createAuthRequest();

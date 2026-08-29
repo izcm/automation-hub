@@ -1,5 +1,5 @@
 import * as client from "openid-client";
-import { readEnvOrThrow } from "../config/env";
+import { readEnvOrThrow } from "../../config/env";
 
 const server: URL = new URL(readEnvOrThrow("MSFT_OIDC_ISSUER")); // Authorization Server's Issuer Identifier
 const clientId: string = readEnvOrThrow("MSFT_CLIENT_ID"); // Client identifier at the Authorization Server
