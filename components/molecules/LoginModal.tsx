@@ -1,6 +1,6 @@
 "use client";
 
-import { IconBtn, TextInput } from "@a2zb/react";
+import { TextInput } from "@a2zb/react";
 
 import { GlassModal } from "./GlassModal";
 
@@ -12,13 +12,14 @@ type Props = {
   containerClassName?: string;
 };
 
-function MicrosoftIcon() {
+function MicrosoftIcon({ className }: { className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="21"
       height="21"
       viewBox="0 0 21 21"
+      className={className}
     >
       <rect x="1" y="1" width="9" height="9" fill="#f25022" />
       <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
@@ -50,12 +51,13 @@ export function LoginModal({ containerClassName }: Props) {
         </span>
       </div>
 
-      <IconBtn
-        icon={MicrosoftIcon}
-        className="btn-neutral flex-row-reverse py-3"
+      <Link
+        href="/api/auth/login"
+        className={"flex w-full btn btn-neutral py-3"}
       >
-        Microsoft Entra ID
-      </IconBtn>
+        <MicrosoftIcon className="h-4 w-4" />
+        <span>Microsoft Entra ID</span>
+      </Link>
 
       <div className="flex flex-center gap-4">
         <div className="horizontal-line flex-1" />

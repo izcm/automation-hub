@@ -69,10 +69,11 @@ export function EUInspectionView({
     { notificationId: string; euInspectionId: string }[]
   >(
     // TEMP dummy data for testing the polling UI
-    initialEuInspections.slice(0, 4).map((item, i) => ({
-      notificationId: `dummy-${i}`,
-      euInspectionId: item.id,
-    })),
+    // initialEuInspections.slice(0, 4).map((item, i) => ({
+    //   notificationId: `dummy-${i}`,
+    //   euInspectionId: item.id,
+    // })),
+    [],
   );
 
   const language = useLanguage() as Language;
