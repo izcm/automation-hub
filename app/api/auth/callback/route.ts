@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { authSessionStore, oidcLogin } from "@/server/di/auth";
+import { sessionStore, oidcLogin } from "@/server/di/auth";
 import { IS_DEMO } from "@/server/config/env";
 
 import { setSessionCookie } from "@/lib/next/session-cookie";
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
 
   const oidcIdentity = await oidcLogin.complete(state, new URL(request.url));
 
-  const session = await authSessionStore.create(oidcIdentity.subject);
+  const session = await sessionStore.create(oidcIdentity.subject);
 
   // demo-only: readable at /me/email while the session is valid, so the UI
   // can show it when asking if EU-inspection notifications should go here

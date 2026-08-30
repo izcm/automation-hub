@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { authSessionStore } from "./server/di/auth";
+import { sessionStore } from "./server/di/auth";
 
 export async function proxy(request: NextRequest) {
   const session = request.cookies.get("session")?.value;
@@ -33,7 +33,7 @@ export const config = {
 async function isAuthenticated(session: string | undefined) {
   if (!session) return false;
 
-  const retrieved = await authSessionStore.get(session);
+  const retrieved = await sessionStore.get(session);
   if (!retrieved) return false;
 
   return true;

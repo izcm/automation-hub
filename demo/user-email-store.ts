@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 
 import { db } from "@server/db/postgres/pool";
-import { authSessionStore } from "@server/di/auth";
+import { sessionStore } from "@server/di/auth";
 
 import { demoUserEmails } from "./schema";
 
@@ -18,7 +18,7 @@ export async function getDemoUserEmail(
   sessionId: string,
 ): Promise<string | null> {
   // unreachable once the session's dead — no session, no email
-  const session = await authSessionStore.get(sessionId);
+  const session = await sessionStore.get(sessionId);
   if (!session) return null;
 
   const [row] = await db

@@ -5,6 +5,8 @@ import { Popover } from "@a2zb/react";
 
 import { Back, ChevronDown, LogOut } from "../icons";
 import { ThemeToggle } from "./ThemeToggle";
+import { postJsonOrThrow } from "@/lib/fetch-json-or-throw";
+import { rejectWith } from "@/lib/toast";
 
 export type HeaderLabels = {
   back: string;
@@ -17,6 +19,7 @@ type Props = {
   backHref?: string;
   title?: string;
   labels: HeaderLabels;
+  logoutPath: string;
 };
 
 export function Header({ backHref, title, labels }: Props) {
@@ -43,7 +46,23 @@ export function Header({ backHref, title, labels }: Props) {
       >
         <div className="flex flex-col gap-1">
           <ThemeToggle labels={labels.theme} />
-          <button className="btn btn-menu gap-2">
+          <button
+            className="btn btn-menu gap-2"
+            onClick={async () => {
+              try {
+                await postJsonOrThrow("/api/auth/logout", {});
+                // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- hard reload is intentional
+                window.location.href = "/";
+              } catch (err) {
+                rejectWith(
+                  "Couldn't log out.",
+                  typeof err === "string"
+                    ? err
+                    : "There was an issue logging out.",
+                );
+              }
+            }}
+          >
             <LogOut size={16} />
             {labels.logOut}
           </button>

@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { TextInput } from "@a2zb/react";
 
 import { cn } from "@/lib/cn";
@@ -43,8 +42,6 @@ export function LoginModal({
   endpoints,
   successRedirectPath,
 }: Props) {
-  const router = useRouter();
-
   return (
     <GlassModal
       ariaLabel="Log in"
@@ -91,7 +88,7 @@ export function LoginModal({
             const password = formData.get("password");
 
             await postJsonOrThrow(endpoints.demoLogin, { username, password });
-            router.push(successRedirectPath);
+            window.location.href = successRedirectPath;
           } catch (err) {
             console.log(err);
             rejectWith(

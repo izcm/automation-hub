@@ -17,7 +17,7 @@ export const oidcLogin = makeOidcLogin({
   handleCallback: handleOidcCallback,
 });
 
-export const authSessionStore = makeSessionStore({
+export const sessionStore = makeSessionStore({
   storage: authSessionRepo,
   generateId: generateId,
 });

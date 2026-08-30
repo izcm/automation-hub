@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { authSessionStore } from "@/server/di/auth";
+import { sessionStore } from "@/server/di/auth";
 import { setSessionCookie } from "@/lib/next/session-cookie";
 import { IS_DEMO } from "@/server/config/env";
 
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
   }
 
-  const session = await authSessionStore.create("demo");
+  const session = await sessionStore.create("demo");
   const response = NextResponse.json({ success: true });
 
   return setSessionCookie(response, session);
