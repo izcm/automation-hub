@@ -1,22 +1,9 @@
 import type { Notification } from "@/types/notification";
-import { Mail, Confirm, Cancel } from "@components/icons";
-import { IconBadge } from "@/components/molecules";
+
 import { cn } from "@/lib/cn";
 
-type FieldProps = {
-  label: string;
-  children: React.ReactNode;
-  className?: string;
-};
-
-function Field({ label, children, className }: FieldProps) {
-  return (
-    <div className={cn("flex flex-col gap-1 p-1", className)}>
-      <dt className="truncate text-subtle text-[12px]">{label}</dt>
-      <dd className="truncate text-[14px]">{children}</dd>
-    </div>
-  );
-}
+import { Mail, Confirm, Cancel } from "@components/icons";
+import { IconBadge } from "@/components/molecules";
 
 type Props = {
   notifications: Notification[];
@@ -24,48 +11,58 @@ type Props = {
 
 export function NotificationList({ notifications }: Props) {
   return (
-    <ul className="text-sm">
-      {notifications.map((notification, i) => (
-        <li
-          key={notification.id}
-          className={cn(
-            "grid grid-cols-[180px_90px_minmax(0,1fr)] border-b border-extra-faint p-1",
-            i === notifications.length - 1 && "border-none",
-          )}
-        >
-          <Field label="To" className="min-w-0">
-            <span className="inline-flex gap-2">
-              <Mail size={16} className="text-accent" /> {notification.to}
-            </span>
-          </Field>
-          <Field label="Status">
-            <IconBadge
-              icon={notification.status === "failed" ? Cancel : Confirm}
-              variant={
-                notification.status === "failed"
-                  ? "danger"
-                  : notification.status === "sent"
-                    ? "success"
-                    : "neutral"
-              }
-            >
-              {notification.status}
-            </IconBadge>
-          </Field>
-
-          <Field label="Created" className="min-w-0">
-            <time
-              className="block truncate"
-              dateTime={new Date(notification.createdAt).toISOString()}
-            >
-              {new Date(notification.createdAt).toLocaleString("nb-NO", {
-                dateStyle: "short",
-                timeStyle: "short",
-              })}
-            </time>
-          </Field>
-        </li>
-      ))}
-    </ul>
+    <table className="w-full table-fixed text-sm">
+      <thead>
+        <tr className="border-b border-extra-faint text-[12px] text-subtle">
+          <th className="w-[200px] p-2 text-start font-normal">To</th>
+          <th className="w-[80px] p-2 text-start font-normal">Status</th>
+          <th className="w-auto truncate p-2 text-start font-normal">
+            Created
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {notifications.map((notification, i) => (
+          <tr
+            key={notification.id}
+            className={cn(
+              "border-b border-extra-faint py-1",
+              i === notifications.length - 1 && "border-none",
+            )}
+          >
+            <td className="min-w-0 truncate p-2">
+              <span className="inline-flex gap-2">
+                <Mail size={16} className="text-accent" /> {notification.to}
+              </span>
+            </td>
+            <td className="p-2">
+              <IconBadge
+                icon={notification.status === "failed" ? Cancel : Confirm}
+                variant={
+                  notification.status === "failed"
+                    ? "danger"
+                    : notification.status === "sent"
+                      ? "success"
+                      : "neutral"
+                }
+              >
+                {notification.status}
+              </IconBadge>
+            </td>
+            <td className="min-w-0 p-2">
+              <time
+                className="block truncate"
+                dateTime={new Date(notification.createdAt).toISOString()}
+              >
+                {new Date(notification.createdAt).toLocaleString("nb-NO", {
+                  dateStyle: "short",
+                  timeStyle: "short",
+                })}
+              </time>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }

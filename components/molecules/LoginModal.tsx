@@ -90,7 +90,6 @@ export function LoginModal({
             await postJsonOrThrow(endpoints.demoLogin, { username, password });
             window.location.href = successRedirectPath;
           } catch (err) {
-            console.log(err);
             rejectWith(
               "Couldn't log in.",
               typeof err === "string" ? err : "There was an issue logging in.",

@@ -18,3 +18,11 @@ export function rejectWith(
 ) {
   toast.error(title, { description, ...opts });
 }
+
+export function warningWith(
+  title: string,
+  description?: string,
+  opts?: ToastOpts,
+) {
+  toast.warning(title, { description, ...opts });
+}

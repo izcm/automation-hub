@@ -14,7 +14,7 @@ type Props = {
 };
 
 const step =
-  "flex-center h-9 min-w-9 raised-outline px-2 hover:border-accent disabled:opacity-60 disabled:hover:border-faint";
+  "flex-center h-9 min-w-9 raised-outline px-2 hover:border-accent disabled:cursor-default disabled:pointer-events-none disabled:opacity-60";
 
 export function Pagination({
   page,
@@ -45,6 +45,7 @@ export function Pagination({
         {pages.map((p) => (
           <button
             key={p}
+            disabled={pageCount === 1}
             onClick={() => onChange(p)}
             aria-current={p === page ? "page" : undefined}
             className={cn(step, p === page && "border-accent text-accent")}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { IconBtn, Spinner } from "@a2zb/react";
 
 import { cn } from "@lib/cn";
@@ -38,6 +38,7 @@ import { usePollNotifications } from "@/features/notifications/hooks/use-poll-no
 
 import { useSearchFilters } from "../../search/use-search-filters";
 import { toSearchParams } from "../../search/param-mapper";
+import { confirmWith, rejectWith, warningWith } from "@/lib/toast";
 
 type Props = {
   euInspections: EuInspectionRow[];
@@ -68,7 +69,13 @@ export function EUInspectionView({
   const [euInspections, setEuInspections] = useState(initialEuInspections);
   const [sentNotifications, setSentNotifications] = useState<
     { notificationId: string; euInspectionId: string }[]
-  >([]);
+  >(
+    // TEMP dummy data for testing the polling UI
+    initialEuInspections.slice(0, 4).map((item, i) => ({
+      notificationId: `dummy-${i}`,
+      euInspectionId: item.id,
+    })),
+  );
 
   const language = useLanguage() as Language;
   const CORE_LABELS = CORE_UI_LABELS_BY_LANGUAGE[language];
@@ -95,6 +102,47 @@ export function EUInspectionView({
 
     return map;
   }, [sentNotifications, notifications]);
+
+  const notificationCountOfStatus = useCallback(
+    (status: string) =>
+      [...notificationStatusByInspectionId.values()].filter((n) => n === status)
+        .length,
+    [notificationStatusByInspectionId],
+  );
+
+  const notificationQueuedCount = notificationCountOfStatus("queued");
+
+  const batchNotificationsResolved = useMemo(
+    // sentNotifications has to have at least 1 element
+    // AND
+    // none of the polled notifications has status 'queued'
+    () => sentNotifications.length > 0 && notificationQueuedCount === 0,
+    [sentNotifications, notificationQueuedCount],
+  );
+
+  useEffect(() => {
+    if (!batchNotificationsResolved) return;
+
+    const failedCount = notificationCountOfStatus("failed");
+    const successCount = notificationCountOfStatus("sent");
+
+    if (failedCount === 0) {
+      // SUCCESS
+      confirmWith(
+        "Notifications sent!",
+        "All notifications were sent successfully.",
+      );
+    } else if (successCount === 0) {
+      // FAILURE
+      rejectWith("Notifications failed", "No notifications could be sent.");
+    } else {
+      // PARTIAL SUCCESS / WARNING
+      warningWith(
+        "Some notifications failed",
+        `${successCount} sent, ${failedCount} failed.`,
+      );
+    }
+  }, [batchNotificationsResolved, notificationCountOfStatus]);
 
   // useEffect(() => {
   //   const filterKeyMap = FIELD_ALISES_MAP[language]["vehicles"];
@@ -166,7 +214,7 @@ export function EUInspectionView({
                       channel: "email",
                     });
 
-                    setSentNotifications(result);
+                    setSentNotifications((prev) => [...prev, ...result]);
                     clearSelection();
                   },
                 },
@@ -184,7 +232,7 @@ export function EUInspectionView({
                   title={item.vehicle.plateNumber}
                   subtitle={
                     <div className="flex flex-col gap-0.5">
-                      <span className="inline-flex items-center gap-1.5 text-muted">
+                      <span className="inline-flex items-center gap-1.5 text-subtle/80">
                         {LABELS.euDate}: {item.euDate}
                         {(() => {
                           const status = notificationStatusByInspectionId.get(
@@ -234,21 +282,31 @@ export function EUInspectionView({
                         })()}
                       </span>
 
-                      {daysUntil(item.euDate) < 30 && (
-                        <span className="text-warning bg-current/12 border border-current/25 rounded-md w-16 text-center">
-                          {(() => {
-                            const days = daysUntil(item.euDate);
-                            return days > 0
-                              ? `In ${days} days`
-                              : `${Math.abs(days)} days overdue`;
-                          })()}
-                        </span>
-                      )}
+                      {(() => {
+                        const days = daysUntil(item.euDate);
+                        return (
+                          <span
+                            className={cn(
+                              "text-subtle",
+                              days < 30 && "text-warning",
+                              "bg-current/8 border border-current/12",
+                              "rounded-md w-20 text-center",
+                            )}
+                          >
+                            {days > 365
+                              ? "In 1+ years"
+                              : days > 0
+                                ? `In ${days} days`
+                                : `${Math.abs(days)} days overdue`}
+                          </span>
+                        );
+                      })()}
                     </div>
                   }
                   endContent={
                     <IconBtn
                       className={cn(
+                        "py-1 px-2 mr-1 hover:text-accent",
                         active?.id === item.id &&
                           "[&>svg]:!text-muted cursor-default",
                       )}

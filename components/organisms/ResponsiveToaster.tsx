@@ -25,7 +25,8 @@ export function ResponsiveToaster() {
   return (
     <Toaster
       // top-center
-      position={isMobile ? "top-center" : "top-center"}
+      position={isMobile ? "top-center" : "bottom-right"}
+      richColors
       closeButton
       // hotkey={["KeyK"]}
       toastOptions={{
