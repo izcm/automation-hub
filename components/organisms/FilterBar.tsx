@@ -46,8 +46,11 @@ export function FilterBar({
           value={searchInput}
           onSubmit={handleSearch}
           submitLabel={applyLabel}
-          placeholder={searchPlaceholder}
-          className="[&_input]:text-subtle"
+          input={{
+            placeholder: searchPlaceholder,
+            className: "text-subtle",
+          }}
+          // className="[&_input]:text-subtle"
         />
 
         {dropdown && (

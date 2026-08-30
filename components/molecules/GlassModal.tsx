@@ -30,7 +30,7 @@ export function GlassModal({
       className={cn(
         `
         w-full
-        flex flex-col gap-5
+        flex flex-col gap-6
         p-2
 
         panel

@@ -22,6 +22,6 @@ const pool =
 export const db = drizzle({
   client: pool,
   relations: appRelations,
-  logger: true,
+  logger: false,
 });
 // export const query: QueryFn = (text, params) => pool.query(text, params);

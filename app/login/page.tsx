@@ -4,7 +4,14 @@ import { LoginModal } from "@/components/molecules/LoginModal";
 export default function Login() {
   return (
     <BackdropLayout>
-      <LoginModal containerClassName="max-w-sm landing-surface" />
+      <LoginModal
+        containerClassName="max-w-sm landing-surface"
+        endpoints={{
+          oidcLogin: "/api/auth/login",
+          demoLogin: "/api/auth/demo",
+        }}
+        successRedirectPath="/"
+      />
     </BackdropLayout>
   );
 }

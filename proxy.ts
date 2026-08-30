@@ -5,16 +5,16 @@ import { authSessionStore } from "./server/di/auth";
 export async function proxy(request: NextRequest) {
   const session = request.cookies.get("session")?.value;
 
-  console.log("##############");
-  console.log(JSON.stringify(session));
-  console.log("##############");
-
   const authenticated = await isAuthenticated(session);
   if (!authenticated) {
-    return Response.json(
-      { success: false, message: "authentication failed" },
-      { status: 401 },
-    );
+    if (request.nextUrl.pathname.startsWith("/api/")) {
+      return Response.json(
+        { success: false, message: "authentication failed" },
+        { status: 401 },
+      );
+    }
+
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   return NextResponse.next();

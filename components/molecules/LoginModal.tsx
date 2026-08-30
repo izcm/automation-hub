@@ -1,15 +1,24 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { TextInput } from "@a2zb/react";
 
 import { cn } from "@/lib/cn";
 import { Lock, Mail } from "@/components/icons";
 
 import { GlassModal } from "./GlassModal";
+import { postJsonOrThrow } from "@/lib/fetch-json-or-throw";
+import { rejectWith } from "@/lib/toast";
 
 type Props = {
   containerClassName?: string;
+
+  endpoints: {
+    oidcLogin: string;
+    demoLogin: string;
+  };
+
+  successRedirectPath: string;
 };
 
 function MicrosoftIcon({ className }: { className?: string }) {
@@ -29,7 +38,13 @@ function MicrosoftIcon({ className }: { className?: string }) {
   );
 }
 
-export function LoginModal({ containerClassName }: Props) {
+export function LoginModal({
+  containerClassName,
+  endpoints,
+  successRedirectPath,
+}: Props) {
+  const router = useRouter();
+
   return (
     <GlassModal
       ariaLabel="Log in"
@@ -51,7 +66,10 @@ export function LoginModal({ containerClassName }: Props) {
         </span>
       </div>
 
-      <a href="/api/auth/login" className="flex w-full btn btn-neutral py-3">
+      <a
+        href={endpoints.oidcLogin}
+        className="flex w-full btn btn-neutral py-3"
+      >
         <MicrosoftIcon className="h-4 w-4" />
         <span>Microsoft Entra ID</span>
       </a>
@@ -62,15 +80,46 @@ export function LoginModal({ containerClassName }: Props) {
         <div className="horizontal-line flex-1" />
       </div>
 
-      <div className="flex flex-col gap-2">
-        <TextInput placeholder="Email address" startIcon={<Mail size={16} />} />
-        <TextInput placeholder="Password" startIcon={<Lock size={16} />} />
-      </div>
+      <form
+        className="flex flex-col gap-4"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          try {
+            const formData = new FormData(e.currentTarget);
 
-      <Link href={"/"} className="btn btn-primary">
-        Log In
-      </Link>
-      {/* <button className="btn btn-inverted">Log in</button> */}
+            const username = formData.get("username");
+            const password = formData.get("password");
+
+            await postJsonOrThrow(endpoints.demoLogin, { username, password });
+            router.push(successRedirectPath);
+          } catch (err) {
+            console.log(err);
+            rejectWith(
+              "Couldn't log in.",
+              typeof err === "string" ? err : "There was an issue logging in.",
+            );
+          }
+        }}
+      >
+        <div className="flex flex-col gap-2">
+          <TextInput
+            input={{ name: "username", placeholder: "Email address" }}
+            startIcon={<Mail size={16} />}
+          />
+          <TextInput
+            input={{
+              name: "password",
+              placeholder: "Password",
+              type: "password",
+            }}
+            startIcon={<Lock size={16} />}
+          />
+        </div>
+
+        <button type="submit" className="btn btn-primary">
+          Log In
+        </button>
+      </form>
     </GlassModal>
   );
 }

@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
-import { postJsonOrThrow } from "@lib/http";
+import { postJsonOrThrow } from "@/lib/fetch-json-or-throw";
 import { confirmWith, rejectWith } from "@lib/toast";
 
 export function useAddVehicle() {
