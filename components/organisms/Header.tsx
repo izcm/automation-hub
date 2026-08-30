@@ -19,10 +19,10 @@ type Props = {
   backHref?: string;
   title?: string;
   labels: HeaderLabels;
-  logoutPath: string;
+  logoutEndpoint: string;
 };
 
-export function Header({ backHref, title, labels }: Props) {
+export function Header({ backHref, title, labels, logoutEndpoint }: Props) {
   return (
     <div className="relative flex items-center justify-between">
       {backHref ? (
@@ -50,7 +50,7 @@ export function Header({ backHref, title, labels }: Props) {
             className="btn btn-menu gap-2"
             onClick={async () => {
               try {
-                await postJsonOrThrow("/api/auth/logout", {});
+                await postJsonOrThrow(logoutEndpoint, {});
                 // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- hard reload is intentional
                 window.location.href = "/";
               } catch (err) {

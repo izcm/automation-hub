@@ -151,6 +151,7 @@ export function EUInspectionView({
               backHref="/"
               title={LABELS.heading}
               labels={{ ...CORE_LABELS.header, theme: CORE_LABELS.theme }}
+              logoutEndpoint="/api/auth/logout"
             />
 
             <ResourceManagementView
