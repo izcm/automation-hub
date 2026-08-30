@@ -1,4 +1,5 @@
-import { oidcLogin } from "@/server/di/auth";
+import { authSessionStore, oidcLogin } from "@/server/di/auth";
+import { saveDemoUserEmail } from "@/demo/user-email-store";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -12,26 +13,25 @@ export async function GET(request: NextRequest) {
   }
 
   const oidcIdentity = await oidcLogin.complete(state, new URL(request.url));
-  console.log("################################");
-  console.log(oidcIdentity);
-  console.log("################################");
 
-  // 3. identity now tells YOUR app who Microsoft authenticated
-  // {
-  //   provider: "MSFT",
-  //   subject: "abc123",
-  //   email: "iz@example.com"
-  // }
+  const session = await authSessionStore.create(oidcIdentity.subject);
 
-  // 4. Find YOUR employee/user
-  // const employee = await findEmployee(identity);
+  // demo-only: readable at /me/email while the session is valid, so the UI
+  // can show it when asking if EU-inspection notifications should go here
+  // instead of the backend's @example placeholder addresses
+  if (oidcIdentity.email) {
+    await saveDemoUserEmail(session.id, oidcIdentity.email);
+  }
 
-  // 5. Create YOUR session
-  // const sessionId = await createSession(employee.id);
+  const response = NextResponse.redirect(request.nextUrl.origin);
 
-  // 6. Put sessionId in cookie
+  response.cookies.set("session", session.id, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    expires: session.expiresAt,
+    sameSite: "strict",
+    path: "/",
+  });
 
-  // 7. Redirect browser to /
-
-  return NextResponse.redirect(request.nextUrl.origin);
+  return response;
 }

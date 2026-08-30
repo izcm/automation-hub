@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { authSessionStore } from "./server/di/auth";
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const session = request.cookies.get("session")?.value;
 
-  if (!isAuthenticated(session)) {
+  console.log("##############");
+  console.log(JSON.stringify(session));
+  console.log("##############");
+
+  const authenticated = await isAuthenticated(session);
+  if (!authenticated) {
     return Response.json(
       { success: false, message: "authentication failed" },
       { status: 401 },
@@ -24,8 +30,11 @@ export const config = {
   ],
 };
 
-function isAuthenticated(session: string | undefined) {
+async function isAuthenticated(session: string | undefined) {
   if (!session) return false;
 
-  return false;
+  const retrieved = await authSessionStore.get(session);
+  if (!retrieved) return false;
+
+  return true;
 }

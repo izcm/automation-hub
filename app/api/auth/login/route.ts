@@ -10,7 +10,7 @@ export async function GET() {
   response.cookies.set("oidc_state", state, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "lax", // strict here wouldn't work because provider redirects back to us
     path: "/",
     maxAge: 10 * 60,
   });
