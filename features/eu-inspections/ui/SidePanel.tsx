@@ -8,6 +8,7 @@ import { Badge } from "@/components/molecules";
 
 import { cn } from "@/lib/cn";
 import { Vehicle } from "@/types/vehicle";
+import { daysUntil } from "@/lib/time";
 
 type Props = {
   item: EuInspectionRow;
@@ -38,11 +39,6 @@ function Field({ label, children, size = "md", className }: FieldProps) {
 
 function truncateId(id: string, length = 8) {
   return id.length > length ? `${id.slice(0, length)}...` : id;
-}
-
-function daysUntil(date: string) {
-  const ms = new Date(date).getTime() - Date.now();
-  return Math.ceil(ms / (1000 * 60 * 60 * 24));
 }
 
 type MetaRowProps = {
@@ -126,6 +122,7 @@ function SidePanelHeader({ vehicle }: { vehicle: Vehicle }) {
 
 function EuInspectionSection({ item }: { item: EuInspectionRow }) {
   const summary = euInspectionSummary(item);
+  const days = daysUntil(item.euDate);
 
   return (
     <div className="flex flex-col gap-2">
@@ -140,8 +137,19 @@ function EuInspectionSection({ item }: { item: EuInspectionRow }) {
                 <Calendar size={16} />
                 {item.euDate}
               </span>
-              <span className="bg-accent-weak/40 text-accent rounded px-2 text-xs inline-flex flex-center font-semibold">
-                In {daysUntil(item.euDate)} days
+              <span
+                className={cn(
+                  "text-accent",
+                  days < 30 && "text-warning",
+                  days < 0 && "text-failure",
+                  "bg-current/16",
+                  "inline-flex flex-center",
+                  "rounded px-2 text-xs font-semibold",
+                )}
+              >
+                {days > 0
+                  ? `In ${days} days`
+                  : `${Math.abs(days)} days overdue`}
               </span>
             </span>
           </Field>

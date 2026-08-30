@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { Popover } from "@a2zb/react";
 
-import { Back, ChevronDown, LogOut } from "../icons";
-import { ThemeToggle } from "./ThemeToggle";
 import { postJsonOrThrow } from "@/lib/fetch-json-or-throw";
 import { rejectWith } from "@/lib/toast";
+
+import { ThemeToggle } from "./ThemeToggle";
+import { Back, ChevronDown, LogOut } from "../icons";
 
 export type HeaderLabels = {
   back: string;

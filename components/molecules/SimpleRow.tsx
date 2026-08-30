@@ -31,12 +31,12 @@ export function SimpleRow({
       </div>
 
       <div className="flex flex-col justify-center text-start">
-        <span data-slot="title" className="text-sm font-semibold">
+        <div data-slot="title" className="text-sm font-semibold">
           {title}
-        </span>
-        <span data-slot="subtitle" className="text-xs text-muted inline-block">
+        </div>
+        <div data-slot="subtitle" className="text-xs text-subtle">
           {subtitle}
-        </span>
+        </div>
       </div>
 
       <div className="flex min-w-0 justify-end">{endContent}</div>

@@ -39,7 +39,7 @@ export function IconBadge({
       <span
         className={cn(
           `badge--${variant}`,
-          "inline-flex flex-center rounded p-1",
+          "inline-flex flex-center rounded p-0.5",
         )}
       >
         <Icon size={12} />

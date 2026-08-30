@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { IconBtn, Spinner } from "@a2zb/react";
 
 import { cn } from "@lib/cn";
+import { daysUntil } from "@/lib/time";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
 
 import {
@@ -67,14 +68,7 @@ export function EUInspectionView({
   const [euInspections, setEuInspections] = useState(initialEuInspections);
   const [sentNotifications, setSentNotifications] = useState<
     { notificationId: string; euInspectionId: string }[]
-  >(
-    // TEMP dummy data for testing the polling UI
-    // initialEuInspections.slice(0, 4).map((item, i) => ({
-    //   notificationId: `dummy-${i}`,
-    //   euInspectionId: item.id,
-    // })),
-    [],
-  );
+  >([]);
 
   const language = useLanguage() as Language;
   const CORE_LABELS = CORE_UI_LABELS_BY_LANGUAGE[language];
@@ -101,11 +95,6 @@ export function EUInspectionView({
 
     return map;
   }, [sentNotifications, notifications]);
-
-  // useEffect(() => {
-  //   // so its here im supposed to?
-  //   // 1. foreach
-  // }, [queuedNotifications]);
 
   // useEffect(() => {
   //   const filterKeyMap = FIELD_ALISES_MAP[language]["vehicles"];
@@ -194,44 +183,68 @@ export function EUInspectionView({
                   media={<DateStamp date={item.euDate} />}
                   title={item.vehicle.plateNumber}
                   subtitle={
-                    <span className="inline-flex items-center gap-1.5 text-subtle">
-                      {LABELS.euDate}: {item.euDate}
-                      {(() => {
-                        const status = notificationStatusByInspectionId.get(
-                          item.id,
-                        );
+                    <div className="flex flex-col gap-0.5">
+                      <span className="inline-flex items-center gap-1.5 text-muted">
+                        {LABELS.euDate}: {item.euDate}
+                        {(() => {
+                          const status = notificationStatusByInspectionId.get(
+                            item.id,
+                          );
 
-                        if (status === "queued")
-                          return (
-                            <>
-                              {" · "}
-                              <Spinner
-                                size={14}
-                                title={LABELS.sendingNotification}
-                              />
-                            </>
-                          );
-                        if (status === "sent")
-                          return (
-                            <>
-                              {" · "}
-                              <IconBadge icon={Confirm} variant="success">
-                                {LABELS.notificationSent}
-                              </IconBadge>
-                            </>
-                          );
-                        if (status === "failed")
-                          return (
-                            <>
-                              {" · "}
-                              <IconBadge icon={Failure} variant="danger">
-                                {LABELS.notificationFailed}
-                              </IconBadge>
-                            </>
-                          );
-                        return null;
-                      })()}
-                    </span>
+                          if (status === "queued")
+                            return (
+                              <>
+                                {" · "}
+                                <span className="inline-flex items-center gap-1.5">
+                                  <Spinner
+                                    size={14}
+                                    title={LABELS.sendingNotification}
+                                  />
+                                  Notifying...
+                                </span>
+                              </>
+                            );
+                          if (status === "sent")
+                            return (
+                              <>
+                                {" · "}
+                                <IconBadge
+                                  icon={Confirm}
+                                  variant="success"
+                                  className="[&>span:first-child]:p-0.25"
+                                >
+                                  {LABELS.notificationSent}
+                                </IconBadge>
+                              </>
+                            );
+                          if (status === "failed")
+                            return (
+                              <>
+                                {" · "}
+                                <IconBadge
+                                  icon={Failure}
+                                  variant="danger"
+                                  className="[&>span:first-child]:p-0.25"
+                                >
+                                  {LABELS.notificationFailed}
+                                </IconBadge>
+                              </>
+                            );
+                          return null;
+                        })()}
+                      </span>
+
+                      {daysUntil(item.euDate) < 30 && (
+                        <span className="text-warning bg-current/12 border border-current/25 rounded-md w-16 text-center">
+                          {(() => {
+                            const days = daysUntil(item.euDate);
+                            return days > 0
+                              ? `In ${days} days`
+                              : `${Math.abs(days)} days overdue`;
+                          })()}
+                        </span>
+                      )}
+                    </div>
                   }
                   endContent={
                     <IconBtn
