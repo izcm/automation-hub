@@ -1,9 +1,6 @@
 import { eq } from "drizzle-orm";
 
-import {
-  AuthSession,
-  AuthSessionPort,
-} from "@/server/auth/user-sessions/types";
+import { AuthSession, AuthSessionPort } from "@/server/auth/sessions/types";
 import { db } from "../pool";
 import { authSessions as table } from "./schema";
 
