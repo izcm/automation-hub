@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Checkbox, IconBtn, Spinner } from "@a2zb/react";
 
 import { cn } from "@lib/cn";
@@ -34,12 +34,11 @@ import {
   FilterMenu,
   EuInspectionSidePanel,
 } from "@/features/eu-inspections";
-import { usePollNotifications } from "@/features/notifications/hooks/use-poll-notifications";
+import { useNotifications } from "../hooks/use-notifications";
 
 import { useSearchFilters } from "../../search/use-search-filters";
 import { toSearchParams } from "../../search/param-mapper";
 import { confirmWith, rejectWith, warningWith } from "@/lib/toast";
-import { fetchJSON } from "@a2zb/lib";
 
 type Props = {
   euInspections: EuInspectionRow[];
@@ -68,15 +67,6 @@ export function EUInspectionView({
     useSearchFilters();
   const sendNotifs = useNotifyEuInspections();
   const [euInspections, setEuInspections] = useState(initialEuInspections);
-  const [sentNotifications, setSentNotifications] = useState<
-    { notificationId: string; euInspectionId: string }[]
-  >(
-    // TEMP dummy data for testing the polling UI
-    initialEuInspections.slice(0, 4).map((item, i) => ({
-      notificationId: `dummy-${i}`,
-      euInspectionId: item.id,
-    })),
-  );
 
   const language = useLanguage() as Language;
   const CORE_LABELS = CORE_UI_LABELS_BY_LANGUAGE[language];
@@ -86,85 +76,36 @@ export function EUInspectionView({
     LABELS.searchPlaceholder,
   );
 
-  const { data: notifications } = usePollNotifications(
-    sentNotifications.map((sent) => sent.notificationId),
+  const { statusBySubjectId, addSent } = useNotifications(
+    (v: EuInspectionRow) => v.id,
+    setEuInspections,
+    ({ success, failed }) => {
+      if (failed === 0) {
+        confirmWith(
+          "Notifications sent!",
+          "All notifications were sent successfully.",
+        );
+      } else if (success === 0) {
+        rejectWith("Notifications failed", "No notifications could be sent.");
+      } else {
+        warningWith(
+          "Some notifications failed",
+          `${success} sent, ${failed} failed.`,
+        );
+      }
+    },
   );
 
-  // one status per inspection — "queued" until the poll says otherwise
-  const notificationStatusByInspectionId = useMemo(() => {
-    const map = new Map<string, "queued" | "sent" | "failed">();
-
-    for (const sent of sentNotifications) {
-      const status =
-        notifications?.find((n) => n.id === sent.notificationId)?.status ??
-        "queued";
-      map.set(sent.euInspectionId, status);
-    }
-
-    return map;
-  }, [sentNotifications, notifications]);
-
-  const notificationCountOfStatus = useCallback(
-    (status: string) =>
-      [...notificationStatusByInspectionId.values()].filter((n) => n === status)
-        .length,
-    [notificationStatusByInspectionId],
-  );
-
-  const notificationQueuedCount = notificationCountOfStatus("queued");
-
-  // determine whether polled notifications have resolved
-  const batchNotificationsResolved = useMemo(
-    // sentNotifications has to have at least 1 element
-    // AND
-    // none of the polled notifications has status 'queued'
-    () => sentNotifications.length > 0 && notificationQueuedCount === 0,
-    [sentNotifications, notificationQueuedCount],
-  );
-
-  // after polling has resolved every notification's status
-  // this useEffect counts how many failed vs succeeded and shows an appropriate toast
-  useEffect(() => {
-    if (!batchNotificationsResolved) return;
-
-    const failedCount = notificationCountOfStatus("failed");
-    const successCount = notificationCountOfStatus("sent");
-
-    if (failedCount === 0) {
-      // SUCCESS
-      confirmWith(
-        "Notifications sent!",
-        "All notifications were sent successfully.",
-      );
-    } else if (successCount === 0) {
-      // FAILURE
-      rejectWith("Notifications failed", "No notifications could be sent.");
-    } else {
-      // PARTIAL SUCCESS / WARNING
-      warningWith(
-        "Some notifications failed",
-        `${successCount} sent, ${failedCount} failed.`,
-      );
-    }
-  }, [batchNotificationsResolved, notificationCountOfStatus]);
-
-  // track statuses and update in later useEffect
-  // by having access to these we can determine when a notification has changed status
-  // and then refetch its notifications for realtime ui updates
-  const prevStatuses = useRef(notificationStatusByInspectionId);
-
-  // track when a notification has changed status from queued to resolve (eg. failed / sent)
-  useEffect(() => {
-    notificationStatusByInspectionId.forEach((status, inspectionId) => {
-      const prevStatus = prevStatuses.current.get(inspectionId);
-      const justFinished = prevStatus === "queued" && status !== "queued";
-
-      // if a notification has "just finished"
-      // `notificationStatusByInspectionId` holds the inspectionId and status
-      // connect to `sentNotifications` on `euInspectionId`
-      // connect to `notifications` on `notificationId`
-    });
-  }, [notificationStatusByInspectionId]);
+  // TEMP dummy data for testing the polling UI
+  // useEffect(() => {
+  //   addSent(
+  //     initialEuInspections.slice(0, 4).map((item, i) => ({
+  //       notificationId: `dummy-${i}`,
+  //       subjectId: item.id,
+  //     })),
+  //   );
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
   // useEffect(() => {
   //   const filterKeyMap = FIELD_ALISES_MAP[language]["vehicles"];
 
@@ -172,7 +113,8 @@ export function EUInspectionView({
   //     filters,
   //     keyMap: filterKeyMap,
   //     resolveValue: (key, value) =>
-  //       key === filterKeyMap["responsible"]
+  //       key === filterKeyMap["responsible"]￼
+
   //         ? value === "all_others"
   //           ? ["empl 1", "empl 2", "empl 3"]
   //           : value === "me"
@@ -198,12 +140,17 @@ export function EUInspectionView({
   //   return () => controller.abort();
   // }, [filters, language]);
 
-  const [active, setActive] = useState<EuInspectionRow | undefined>(undefined);
+  const [activeId, setActiveId] = useState<string | undefined>(undefined);
+
+  const activeItem: EuInspectionRow | undefined =
+    activeId === undefined
+      ? undefined
+      : euInspections.find((item) => item.id === activeId);
 
   return (
     <>
       <main className="min-h-screen flex-1 flex">
-        <WorkspaceLayout open={active !== undefined}>
+        <WorkspaceLayout open={activeId !== undefined}>
           <div className="resource-page">
             <Header
               backHref="/"
@@ -235,7 +182,12 @@ export function EUInspectionView({
                       channel: "email",
                     });
 
-                    setSentNotifications((prev) => [...prev, ...result]);
+                    addSent(
+                      result.map(({ euInspectionId, notificationId }) => ({
+                        subjectId: euInspectionId,
+                        notificationId,
+                      })),
+                    );
                     clearSelection();
                   },
                 },
@@ -243,7 +195,7 @@ export function EUInspectionView({
               listItem={(item, picked, _, toggle) => (
                 <>
                   <div
-                    className={cn(active !== undefined && "hidden lg:block")}
+                    className={cn(activeId !== undefined && "hidden lg:block")}
                   >
                     <Checkbox
                       checked={picked}
@@ -257,7 +209,7 @@ export function EUInspectionView({
                       "selected-focus-within",
                       workspaceRows,
                       picked && "border border-accent", // picked = when member of batch select
-                      active?.id === item.id && // active = the item open in workspace
+                      activeId === item.id && // active = the item open in workspace
                         "border-l-4 border-l-accent-strong/80 bg-panel",
                     )}
                     media={<DateStamp date={item.euDate} />}
@@ -265,11 +217,12 @@ export function EUInspectionView({
                     subtitle={
                       <div className="flex flex-col gap-0.5">
                         <span className="inline-flex items-center gap-1.5 text-subtle/80">
-                          {LABELS.euDate}: {item.euDate}
+                          <span>
+                            {LABELS.euDate}:
+                            <span className="tabular-nums"> {item.euDate}</span>
+                          </span>
                           {(() => {
-                            const status = notificationStatusByInspectionId.get(
-                              item.id,
-                            );
+                            const status = statusBySubjectId.get(item.id);
 
                             if (status === "queued")
                               return (
@@ -339,13 +292,13 @@ export function EUInspectionView({
                     <IconBtn
                       className={cn(
                         "py-1 px-2 mr-1 hover:text-accent",
-                        active?.id === item.id &&
+                        activeId === item.id &&
                           "[&>svg]:!text-muted cursor-default",
                       )}
-                      onClick={() => setActive(item)}
+                      onClick={() => setActiveId(item.id)}
                       icon={OpenWorkspaceOverlay}
                     >
-                      {active?.id === item.id
+                      {activeId === item.id
                         ? LABELS.inWorkspace
                         : LABELS.openInWorkspace}
                     </IconBtn>
@@ -355,8 +308,8 @@ export function EUInspectionView({
             />
           </div>
 
-          <WorkspacePanel onClose={() => setActive(undefined)}>
-            {active && <EuInspectionSidePanel item={active} />}
+          <WorkspacePanel onClose={() => setActiveId(undefined)}>
+            {activeItem && <EuInspectionSidePanel item={activeItem} />}
           </WorkspacePanel>
         </WorkspaceLayout>
       </main>

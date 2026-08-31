@@ -29,8 +29,8 @@ function getDummyNotifications(notificationIds: string[]): Notification[] {
 export function usePollNotifications(notificationIds: string[]) {
   return useQuery({
     queryKey: ["notifications", notificationIds],
-    // queryFn: () => getNotifications(notificationIds),
-    queryFn: () => getDummyNotifications(notificationIds),
+    queryFn: () => getNotifications(notificationIds),
+    // queryFn: () => getDummyNotifications(notificationIds),
     enabled: notificationIds.length > 0,
     refetchInterval: (query) =>
       query.state.data?.some((n) => n.status === "queued") ? 1000 : false,

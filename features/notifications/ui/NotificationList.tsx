@@ -52,7 +52,7 @@ export function NotificationList({ notifications }: Props) {
             </td>
             <td className="min-w-0 p-2">
               <time
-                className="block truncate"
+                className="block tabular-nums truncate"
                 dateTime={new Date(notification.createdAt).toISOString()}
               >
                 {new Date(notification.createdAt).toLocaleString("nb-NO", {
