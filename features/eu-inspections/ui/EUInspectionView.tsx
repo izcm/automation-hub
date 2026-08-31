@@ -223,6 +223,7 @@ export function EUInspectionView({
                 <SimpleRow
                   // onClick={() => setActive(item)}
                   className={cn(
+                    "selected-focus-within",
                     workspaceRows,
                     picked && "border border-accent", // picked = when member of batch select
                     active?.id === item.id && // active = the item open in workspace

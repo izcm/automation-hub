@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useLayoutEffect, useState } from "react";
 import { Gallery } from "@a2zb/react";
 
 import { cn } from "@/lib/cn";
@@ -56,6 +56,23 @@ export function ResourceManagementView<T>({
   const pageCount = Math.ceil(items.length / PAGE_SIZE);
   const pageItems = items.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
+  const selectedId = selected ? getId(selected) : undefined;
+
+  useLayoutEffect(() => {
+    if (!selectedId) return;
+
+    console.log(selectedId);
+
+    const arrowRow = document.querySelector<HTMLElement>(
+      `[data-id="${selectedId}"]`,
+    );
+
+    console.log(arrowRow);
+    document
+      .querySelector<HTMLElement>(`[data-id="${selectedId}"]`)
+      ?.querySelector<HTMLElement>(".selected-focus-within")
+      ?.focus();
+  }, [selectedId]);
   return (
     <>
       <div className="flex gap-3">

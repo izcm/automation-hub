@@ -91,7 +91,9 @@ export function BatchSelect<T>({
         getId={getId}
         selected={selected}
         onSelect={onSelect}
-        itemClassName={(isSelected) => cn("group", className?.(isSelected))}
+        itemClassName={(isSelected) =>
+          cn("group rounded", className?.(isSelected))
+        }
         bareRows
         galleryItem={(item) => {
           const picked = batchSelected.includes(getId(item));
@@ -104,8 +106,6 @@ export function BatchSelect<T>({
                   group-hover highlights only this child, not the checkbox 
                   for separate design set `bareRows`*/}
 
-              {galleryItem(item, picked, batchSelected.length)}
-
               {!selfManagesCheckbox && (
                 <div className="shrink-0">
                   {/* checkbox owns the toggle now — row click just passes the item through */}
@@ -115,6 +115,8 @@ export function BatchSelect<T>({
                   />
                 </div>
               )}
+
+              {galleryItem(item, picked, batchSelected.length)}
             </div>
           );
         }}
