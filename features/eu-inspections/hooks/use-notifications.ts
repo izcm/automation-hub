@@ -93,11 +93,14 @@ export function useNotifications<T extends { notifications: Notification[] }>(
       }
 
       setSubjects((prev) =>
-        prev.map((item) =>
-          getId(item) === subjectId
-            ? { ...item, notifications: [notification, ...item.notifications] }
-            : item,
-        ),
+        prev.map((item) => {
+          if (getId(item) !== subjectId) return item;
+          // already there (eg. came in via the initial server payload) — don't duplicate
+          if (item.notifications.some((n) => n.id === notification.id)) {
+            return item;
+          }
+          return { ...item, notifications: [notification, ...item.notifications] };
+        }),
       );
     });
 

@@ -77,53 +77,54 @@ export function ResourceManagementView<T>({
 
   return (
     <>
-      <div className="flex gap-3">
-        <FilterBar
-          searchPlaceholder={labels.searchBar.placeholder}
-          applyLabel={labels.searchBar.apply}
-          filterLabel={labels.searchBar.filter}
-          searchInput={searchInput}
-          handleSearch={handleSearch}
-        >
-          {filterMenu}
-        </FilterBar>
-      </div>
+      <FilterBar
+        searchPlaceholder={labels.searchBar.placeholder}
+        applyLabel={labels.searchBar.apply}
+        filterLabel={labels.searchBar.filter}
+        searchInput={searchInput}
+        handleSearch={handleSearch}
+      >
+        {filterMenu}
+      </FilterBar>
 
-      {batchActions === undefined ? (
-        <Gallery
-          items={pageItems}
-          getId={getId}
-          selected={selected}
-          onSelect={setSelected}
-          itemClassName={(isSelected) =>
-            cn("group", itemClassName?.(isSelected))
-          }
-          bareRows
-          galleryItem={(item) => listItem(item, false, 0, () => {})}
+      <div className="overflow-y-scroll scrollbar-hide">
+        {batchActions === undefined ? (
+          <Gallery
+            items={pageItems}
+            getId={getId}
+            selected={selected}
+            onSelect={setSelected}
+            itemClassName={(isSelected) =>
+              cn("group", itemClassName?.(isSelected))
+            }
+            bareRows
+            galleryItem={(item) => listItem(item, false, 0, () => {})}
+          />
+        ) : (
+          <BatchSelect
+            items={pageItems}
+            getId={getId}
+            selected={selected}
+            onSelect={setSelected}
+            batchSelected={batchSelected}
+            setBatchSelected={setBatchSelected}
+            selectedLabel={labels.batching.selected}
+            clearLabel={labels.batching.clearSelection}
+            actions={batchActions}
+            galleryItem={listItem}
+            className={itemClassName}
+          />
+        )}
+
+        <Pagination
+          page={page}
+          pageCount={pageCount}
+          total={items.length}
+          pageSize={PAGE_SIZE}
+          onChange={setPage}
+          label={labels.pagination.showing}
         />
-      ) : (
-        <BatchSelect
-          items={pageItems}
-          getId={getId}
-          selected={selected}
-          onSelect={setSelected}
-          batchSelected={batchSelected}
-          setBatchSelected={setBatchSelected}
-          selectedLabel={labels.batching.selected}
-          clearLabel={labels.batching.clearSelection}
-          actions={batchActions}
-          galleryItem={listItem}
-          className={itemClassName}
-        />
-      )}
-      <Pagination
-        page={page}
-        pageCount={pageCount}
-        total={items.length}
-        pageSize={PAGE_SIZE}
-        onChange={setPage}
-        label={labels.pagination.showing}
-      />
+      </div>
     </>
   );
 }

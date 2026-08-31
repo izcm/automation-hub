@@ -140,7 +140,9 @@ export function EUInspectionView({
   //   return () => controller.abort();
   // }, [filters, language]);
 
-  const [activeId, setActiveId] = useState<string | undefined>(undefined);
+  const [activeId, setActiveId] = useState<string | undefined>(
+    euInspections[0]?.id,
+  );
 
   const activeItem: EuInspectionRow | undefined =
     activeId === undefined
@@ -149,170 +151,170 @@ export function EUInspectionView({
 
   return (
     <>
-      <main className="min-h-screen flex-1 flex">
-        <WorkspaceLayout open={activeId !== undefined}>
-          <div className="resource-page">
-            <Header
-              backHref="/"
-              title={LABELS.heading}
-              labels={{ ...CORE_LABELS.header, theme: CORE_LABELS.theme }}
-              logoutEndpoint="/api/auth/logout"
-            />
+      <WorkspaceLayout open={activeId !== undefined}>
+        <div
+          className=" 
+              flex flex-col gap-3 min-h-0
+              h-full max-w-3xl mx-auto p-2
+              "
+        >
+          <Header
+            backHref="/"
+            title={LABELS.heading}
+            labels={{ ...CORE_LABELS.header, theme: CORE_LABELS.theme }}
+            logoutEndpoint="/api/auth/logout"
+          />
 
-            <ResourceManagementView
-              items={euInspections}
-              getId={(v) => v.id}
-              labels={RESOURCE_MANAGEMENT_VIEW_LABELS}
-              searchInput={searchInput}
-              handleSearch={handleSearch}
-              filterMenu={
-                <FilterMenu
-                  filters={filters}
-                  toggleFilter={toggleFilter}
-                  resetFilters={resetFilters}
-                />
-              }
-              batchActions={[
-                {
-                  label: (count) => LABELS.notify(count),
-                  icon: <Notify size={14} />,
-                  onClick: async (euInspectionIds, clearSelection) => {
-                    const result = await sendNotifs.mutateAsync({
-                      euInspectionIds,
-                      channel: "email",
-                    });
+          <ResourceManagementView
+            items={euInspections}
+            getId={(v) => v.id}
+            labels={RESOURCE_MANAGEMENT_VIEW_LABELS}
+            searchInput={searchInput}
+            handleSearch={handleSearch}
+            filterMenu={
+              <FilterMenu
+                filters={filters}
+                toggleFilter={toggleFilter}
+                resetFilters={resetFilters}
+              />
+            }
+            batchActions={[
+              {
+                label: (count) => LABELS.notify(count),
+                icon: <Notify size={14} />,
+                onClick: async (euInspectionIds, clearSelection) => {
+                  const result = await sendNotifs.mutateAsync({
+                    euInspectionIds,
+                    channel: "email",
+                  });
 
-                    addSent(
-                      result.map(({ euInspectionId, notificationId }) => ({
-                        subjectId: euInspectionId,
-                        notificationId,
-                      })),
-                    );
-                    clearSelection();
-                  },
+                  addSent(
+                    result.map(({ euInspectionId, notificationId }) => ({
+                      subjectId: euInspectionId,
+                      notificationId,
+                    })),
+                  );
+                  clearSelection();
                 },
-              ]}
-              listItem={(item, picked, _, toggle) => (
-                <>
-                  <div
-                    className={cn(activeId !== undefined && "hidden lg:block")}
-                  >
-                    <Checkbox
-                      checked={picked}
-                      onChange={() => toggle(item.id)}
-                    />
-                  </div>
+              },
+            ]}
+            listItem={(item, picked, _, toggle) => (
+              <>
+                <div
+                  className={cn(activeId !== undefined && "hidden lg:block")}
+                >
+                  <Checkbox checked={picked} onChange={() => toggle(item.id)} />
+                </div>
 
-                  <SimpleRow
-                    // onClick={() => setActive(item)}
-                    className={cn(
-                      "selected-focus-within",
-                      workspaceRows,
-                      picked && "border border-accent", // picked = when member of batch select
-                      activeId === item.id && // active = the item open in workspace
-                        "border-l-4 border-l-accent-strong/80 bg-panel",
-                    )}
-                    media={<DateStamp date={item.euDate} />}
-                    title={item.vehicle.plateNumber}
-                    subtitle={
-                      <div className="flex flex-col gap-0.5">
-                        <span className="inline-flex items-center gap-1.5 text-subtle/80">
-                          <span>
-                            {LABELS.euDate}:
-                            <span className="tabular-nums"> {item.euDate}</span>
-                          </span>
-                          {(() => {
-                            const status = statusBySubjectId.get(item.id);
-
-                            if (status === "queued")
-                              return (
-                                <>
-                                  {" · "}
-                                  <span className="inline-flex items-center gap-1.5">
-                                    <Spinner
-                                      size={14}
-                                      title={LABELS.sendingNotification}
-                                    />
-                                    Notifying...
-                                  </span>
-                                </>
-                              );
-                            if (status === "sent")
-                              return (
-                                <>
-                                  {" · "}
-                                  <IconBadge
-                                    icon={Confirm}
-                                    variant="success"
-                                    className="[&>span:first-child]:p-0.25"
-                                  >
-                                    {LABELS.notificationSent}
-                                  </IconBadge>
-                                </>
-                              );
-                            if (status === "failed")
-                              return (
-                                <>
-                                  {" · "}
-                                  <IconBadge
-                                    icon={Failure}
-                                    variant="danger"
-                                    className="[&>span:first-child]:p-0.25"
-                                  >
-                                    {LABELS.notificationFailed}
-                                  </IconBadge>
-                                </>
-                              );
-                            return null;
-                          })()}
+                <SimpleRow
+                  // onClick={() => setActive(item)}
+                  className={cn(
+                    "selected-focus-within",
+                    workspaceRows,
+                    picked && "border border-accent", // picked = when member of batch select
+                    activeId === item.id && // active = the item open in workspace
+                      "border-l-4 border-l-accent-strong/80 bg-panel",
+                  )}
+                  media={<DateStamp date={item.euDate} />}
+                  title={item.vehicle.plateNumber}
+                  subtitle={
+                    <div className="flex flex-col gap-0.5">
+                      <span className="inline-flex items-center gap-1.5 text-subtle/80">
+                        <span>
+                          {LABELS.euDate}:
+                          <span className="tabular-nums"> {item.euDate}</span>
                         </span>
-
                         {(() => {
-                          const days = daysUntil(item.euDate);
-                          return (
-                            <span
-                              className={cn(
-                                "text-subtle",
-                                days < 30 && "text-warning",
-                                "bg-current/8 border border-current/12",
-                                "rounded-md w-20 text-center",
-                              )}
-                            >
-                              {days > 365
-                                ? "In 1+ years"
-                                : days > 0
-                                  ? `In ${days} days`
-                                  : `${Math.abs(days)} days overdue`}
-                            </span>
-                          );
-                        })()}
-                      </div>
-                    }
-                  >
-                    <IconBtn
-                      className={cn(
-                        "py-1 px-2 mr-1 hover:text-accent",
-                        activeId === item.id &&
-                          "[&>svg]:!text-muted cursor-default",
-                      )}
-                      onClick={() => setActiveId(item.id)}
-                      icon={OpenWorkspaceOverlay}
-                    >
-                      {activeId === item.id
-                        ? LABELS.inWorkspace
-                        : LABELS.openInWorkspace}
-                    </IconBtn>
-                  </SimpleRow>
-                </>
-              )}
-            />
-          </div>
+                          const status = statusBySubjectId.get(item.id);
 
-          <WorkspacePanel onClose={() => setActiveId(undefined)}>
-            {activeItem && <EuInspectionSidePanel item={activeItem} />}
-          </WorkspacePanel>
-        </WorkspaceLayout>
-      </main>
+                          if (status === "queued")
+                            return (
+                              <>
+                                {" · "}
+                                <span className="inline-flex items-center gap-1.5">
+                                  <Spinner
+                                    size={14}
+                                    title={LABELS.sendingNotification}
+                                  />
+                                  Notifying...
+                                </span>
+                              </>
+                            );
+                          if (status === "sent")
+                            return (
+                              <>
+                                {" · "}
+                                <IconBadge
+                                  icon={Confirm}
+                                  variant="success"
+                                  className="[&>span:first-child]:p-0.25"
+                                >
+                                  {LABELS.notificationSent}
+                                </IconBadge>
+                              </>
+                            );
+                          if (status === "failed")
+                            return (
+                              <>
+                                {" · "}
+                                <IconBadge
+                                  icon={Failure}
+                                  variant="danger"
+                                  className="[&>span:first-child]:p-0.25"
+                                >
+                                  {LABELS.notificationFailed}
+                                </IconBadge>
+                              </>
+                            );
+                          return null;
+                        })()}
+                      </span>
+
+                      {(() => {
+                        const days = daysUntil(item.euDate);
+                        return (
+                          <span
+                            className={cn(
+                              "text-subtle",
+                              days < 30 && "text-warning",
+                              "bg-current/8 border border-current/12",
+                              "rounded-md w-20 text-center",
+                            )}
+                          >
+                            {days > 365
+                              ? "In 1+ years"
+                              : days > 0
+                                ? `In ${days} days`
+                                : `${Math.abs(days)} days overdue`}
+                          </span>
+                        );
+                      })()}
+                    </div>
+                  }
+                >
+                  <IconBtn
+                    className={cn(
+                      "py-1 px-2 mr-1 hover:text-accent",
+                      activeId === item.id &&
+                        "[&>svg]:!text-muted cursor-default pointer-events-none hover:text-muted",
+                    )}
+                    onClick={() => setActiveId(item.id)}
+                    icon={OpenWorkspaceOverlay}
+                  >
+                    {activeId === item.id
+                      ? LABELS.inWorkspace
+                      : LABELS.openInWorkspace}
+                  </IconBtn>
+                </SimpleRow>
+              </>
+            )}
+          />
+        </div>
+
+        <WorkspacePanel onClose={() => setActiveId(undefined)}>
+          {activeItem && <EuInspectionSidePanel item={activeItem} />}
+        </WorkspacePanel>
+      </WorkspaceLayout>
     </>
   );
 }

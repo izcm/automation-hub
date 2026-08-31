@@ -33,14 +33,13 @@ export function WorkspaceLayout({ open, children }: Props) {
   const [main, workspace] = Children.toArray(children);
 
   return (
-    <div className="flex w-full overflow-hidden">
+    <div className="flex h-dvh overflow-hidden">
       {/* no width — flex-1 takes the leftover; min-w-0 lets it actually shrink */}
-      <div className="min-w-0 flex-1">{main}</div>
+      <div className="min-h-0 min-w-0 flex-1">{main}</div>
 
       <div
         aria-hidden={!open}
         className={cn(
-          "flex shrink-0 justify-end overflow-hidden",
           "transition-[width] duration-300 ease-out will-change-[width]",
           "motion-reduce:transition-none",
           open ? PANE_WIDTH : "w-0",
