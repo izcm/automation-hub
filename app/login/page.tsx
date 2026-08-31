@@ -5,7 +5,7 @@ export default function Login() {
   return (
     <BackdropLayout>
       <LoginModal
-        containerClassName="max-w-sm landing-surface"
+        containerClassName="max-w-sm bg-elevated"
         endpoints={{
           oidcLogin: "/api/auth/login",
           demoLogin: "/api/auth/demo",

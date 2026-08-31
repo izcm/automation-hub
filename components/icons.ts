@@ -31,4 +31,5 @@ export {
   ExternalLink,
   User,
   Calendar,
+  Bell as Notification,
 } from "lucide-react";

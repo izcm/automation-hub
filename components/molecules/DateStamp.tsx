@@ -16,8 +16,8 @@ export function DateStamp({ date }: Props) {
   const year = d.getFullYear();
 
   return (
-    <div className="flex h-16 w-16 flex-col items-center justify-center rounded-lg border border-extra-faint bg-ground/30">
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-accent">
+    <div className="flex h-16 w-16 flex-col items-center justify-center rounded border border-extra-faint bg-ground/60">
+      <span className="text-[10px] font-semibold uppercase tracking-lg text-accent">
         {month}
       </span>
       <span className="text-xl font-bold leading-none text-fg">{day}</span>

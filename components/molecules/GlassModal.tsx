@@ -37,7 +37,7 @@ export function GlassModal({
         backdrop-blur-lg
 
         border border-line
-        rounded-lg
+        rounded
 
         shadow-[0_8px_32px_rgba(0,0,0,0.25)]
       `,

@@ -30,7 +30,7 @@ export function SimpleRow({
         {media}
       </div>
 
-      <div className="flex flex-col justify-center text-start">
+      <div className="flex flex-col justify-center text-start gap-0.5">
         <div data-slot="title" className="text-sm font-semibold">
           {title}
         </div>

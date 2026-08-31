@@ -8,7 +8,7 @@ import { Badge } from "@/components/molecules";
 
 import { cn } from "@/lib/cn";
 import { Vehicle } from "@/types/vehicle";
-import { daysUntil } from "@/lib/time";
+import { getDaysUntil } from "@a2zb/lib";
 
 type Props = {
   item: EuInspectionRow;
@@ -122,7 +122,7 @@ function SidePanelHeader({ vehicle }: { vehicle: Vehicle }) {
 
 function EuInspectionSection({ item }: { item: EuInspectionRow }) {
   const summary = euInspectionSummary(item);
-  const days = daysUntil(item.euDate);
+  const days = getDaysUntil(item.euDate);
 
   return (
     <div className="flex flex-col gap-2">
@@ -220,56 +220,54 @@ export function EuInspectionSidePanel({ item }: Props) {
   const { employee: maintenanceResponsible } = vehicle;
 
   return (
-    <div className="flex flex-col gap-3 h-full p-4">
-      <div className="flex flex-col gap-3 text-start">
-        <SidePanelHeader vehicle={vehicle} />
+    <div className="flex flex-col h-full p-4 gap-3 text-start">
+      <SidePanelHeader vehicle={vehicle} />
 
-        <EuInspectionSection item={item} />
+      <EuInspectionSection item={item} />
 
-        {/* VEHICLE */}
-        <div className="flex flex-col gap-2">
-          <Eyebrow>Vehicle</Eyebrow>
+      {/* VEHICLE */}
+      <div className="flex flex-col gap-2">
+        <Eyebrow>Vehicle</Eyebrow>
 
-          <VehicleDetailsCard vehicle={vehicle} />
+        <VehicleDetailsCard vehicle={vehicle} />
 
-          <div className="raised-outline-panel p-2">
-            <Eyebrow>Maintenance responsible</Eyebrow>
+        <div className="raised-outline-panel p-2">
+          <Eyebrow>Maintenance responsible</Eyebrow>
 
-            {maintenanceResponsible ? (
-              <EmployeeCard
-                id={maintenanceResponsible.id}
-                name={maintenanceResponsible.name}
-              />
-            ) : (
-              <div>Issues reading maintenance responsible.</div>
-            )}
-          </div>
+          {maintenanceResponsible ? (
+            <EmployeeCard
+              id={maintenanceResponsible.id}
+              name={maintenanceResponsible.name}
+            />
+          ) : (
+            <div>Issues reading maintenance responsible.</div>
+          )}
         </div>
+      </div>
 
-        {/* NOTIFICATIONS */}
-        <div className="flex flex-col gap-2">
-          <Eyebrow>Notifications</Eyebrow>
+      {/* NOTIFICATIONS */}
+      <div className="flex flex-col gap-2">
+        <Eyebrow>Notifications</Eyebrow>
 
-          <div className="raised-outline-panel">
-            <dl className="grid grid-cols-3 gap-4 border-b border-extra-faint">
-              {(
-                [
-                  { label: "Total", status: undefined },
-                  { label: "Sent", status: "sent" },
-                  { label: "Failed", status: "failed" },
-                ] as const
-              ).map(({ label, status }) => (
-                <Field key={label} label={label} className="py-1 px-3">
-                  {status === undefined
-                    ? item.notifications.length
-                    : item.notifications.filter((n) => n.status === status)
-                        .length}
-                </Field>
-              ))}
-            </dl>
-            {/* TODO: slice here but have "show all" btn that extend list, panel should scroll itself not page */}
-            <NotificationList notifications={notifications.slice(0, 6)} />
-          </div>
+        <div className="raised-outline-panel">
+          <dl className="grid grid-cols-3 gap-4 border-b border-extra-faint">
+            {(
+              [
+                { label: "Total", status: undefined },
+                { label: "Sent", status: "sent" },
+                { label: "Failed", status: "failed" },
+              ] as const
+            ).map(({ label, status }) => (
+              <Field key={label} label={label} className="py-1 px-3">
+                {status === undefined
+                  ? item.notifications.length
+                  : item.notifications.filter((n) => n.status === status)
+                      .length}
+              </Field>
+            ))}
+          </dl>
+          {/* TODO: slice here but have "show all" btn that extend list, panel should scroll itself not page */}
+          <NotificationList notifications={notifications.slice(0, 6)} />
         </div>
       </div>
 

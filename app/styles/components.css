@@ -1,17 +1,27 @@
 .text-input {
-  background: var(--raised);
+  background: light-dark(var(--raised), var(--ground));
   border: 1px solid var(--faint);
 }
 
 .text-input:focus-within {
-  background: color-mix(in oklab, var(--raised) 96%, var(--accent));
+  background: color-mix(
+    in oklab,
+    light-dark(var(--raised), var(--ground)) 96%,
+    var(--accent)
+  );
   border-color: transparent;
   border-color: var(--accent);
 }
 
+/* menu elements that look nicer with bg-ground in dark vs raised in light theme*/
+.menu-surface {
+  @apply rounded border border-faint;
+  background: light-dark(var(--raised), var(--ground));
+}
+
 /* Override a2zb's filled btn-secondary with an outlined accent style:
  * orange border + orange text on a transparent ground (the "Filtre" look). */
-/* Match every button's corner radius to the text input's rounded-lg */
+/* Match every button's corner radius to the text input's rounded */
 .btn {
   border-radius: 0.5rem;
 }
@@ -42,8 +52,8 @@
   /* BTN SECONDARY STYLES */
   .btn-secondary {
     color: color-mix(in oklab, var(--fg) 40%, var(--subtle));
-    border-color: color-mix(in oklab, var(--accent) 60%, transparent);
-    background: var(--raised);
+    border-color: color-mix(in oklab, var(--accent) 24%, var(--line));
+    background: light-dark(var(--raised), var(--ground));
     box-shadow: none;
   }
 
@@ -147,5 +157,6 @@
 }
 
 .btn-menu {
-  @apply items-center justify-start bg-raised;
+  @apply items-center justify-start;
+  background: light-dark(var(--raised), var(--ground));
 }

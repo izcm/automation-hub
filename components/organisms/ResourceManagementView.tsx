@@ -88,7 +88,7 @@ export function ResourceManagementView<T>({
       </FilterBar>
 
       <div className="overflow-y-scroll scrollbar-hide">
-        {batchActions === undefined ? (
+        {batchActions == undefined ? (
           <Gallery
             items={pageItems}
             getId={getId}
@@ -99,21 +99,24 @@ export function ResourceManagementView<T>({
             }
             bareRows
             galleryItem={(item) => listItem(item, false, 0, () => {})}
+            className={{ arrowList: "gap-1.5" }}
           />
         ) : (
-          <BatchSelect
-            items={pageItems}
-            getId={getId}
-            selected={selected}
-            onSelect={setSelected}
-            batchSelected={batchSelected}
-            setBatchSelected={setBatchSelected}
-            selectedLabel={labels.batching.selected}
-            clearLabel={labels.batching.clearSelection}
-            actions={batchActions}
-            galleryItem={listItem}
-            className={itemClassName}
-          />
+          <div className="flex flex-col gap-2">
+            <BatchSelect
+              items={pageItems}
+              getId={getId}
+              selected={selected}
+              onSelect={setSelected}
+              batchSelected={batchSelected}
+              setBatchSelected={setBatchSelected}
+              selectedLabel={labels.batching.selected}
+              clearLabel={labels.batching.clearSelection}
+              actions={batchActions}
+              galleryItem={listItem}
+              className={itemClassName}
+            />
+          </div>
         )}
 
         <Pagination

@@ -65,7 +65,7 @@ export function FilterBar({
       </div>
 
       {showFilterMenu && dropdown && (
-        <div className="flex p-4 raised-outline">{dropdown}</div>
+        <div className="flex p-4 menu-surface">{dropdown}</div>
       )}
     </div>
   );

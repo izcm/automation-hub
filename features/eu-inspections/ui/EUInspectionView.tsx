@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+
 import { Checkbox, IconBtn, Spinner } from "@a2zb/react";
+import { getDaysUntil, timeAgo } from "@a2zb/lib";
 
 import { cn } from "@lib/cn";
-import { daysUntil } from "@/lib/time";
+import { confirmWith, rejectWith, warningWith } from "@/lib/toast";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
 
 import {
@@ -12,6 +14,7 @@ import {
   OpenWorkspaceOverlay,
   Confirm,
   Failure,
+  Notification,
 } from "@components/icons";
 import { DateStamp, IconBadge, SimpleRow } from "@/components/molecules";
 import {
@@ -38,7 +41,6 @@ import { useNotifications } from "../hooks/use-notifications";
 
 import { useSearchFilters } from "../../search/use-search-filters";
 import { toSearchParams } from "../../search/param-mapper";
-import { confirmWith, rejectWith, warningWith } from "@/lib/toast";
 
 type Props = {
   euInspections: EuInspectionRow[];
@@ -140,9 +142,7 @@ export function EUInspectionView({
   //   return () => controller.abort();
   // }, [filters, language]);
 
-  const [activeId, setActiveId] = useState<string | undefined>(
-    euInspections[0]?.id,
-  );
+  const [activeId, setActiveId] = useState<string | undefined>(undefined);
 
   const activeItem: EuInspectionRow | undefined =
     activeId === undefined
@@ -155,7 +155,7 @@ export function EUInspectionView({
         <div
           className=" 
               flex flex-col gap-3 min-h-0
-              h-full max-w-3xl mx-auto p-2
+              h-full max-w-3xl mx-auto first:mt-2
               "
         >
           <Header
@@ -209,16 +209,15 @@ export function EUInspectionView({
                 <SimpleRow
                   // onClick={() => setActive(item)}
                   className={cn(
-                    "selected-focus-within",
                     workspaceRows,
                     picked && "border border-accent", // picked = when member of batch select
                     activeId === item.id && // active = the item open in workspace
-                      "border-l-4 border-l-accent-strong/80 bg-panel",
+                      "border-l-4 border-l-accent-strong/80 bg-elevated-alt/60",
                   )}
                   media={<DateStamp date={item.euDate} />}
                   title={item.vehicle.plateNumber}
                   subtitle={
-                    <div className="flex flex-col gap-0.5">
+                    <div className="basis-1/2 flex flex-col gap-0.5">
                       <span className="inline-flex items-center gap-1.5 text-subtle/80">
                         <span>
                           {LABELS.euDate}:
@@ -271,14 +270,14 @@ export function EUInspectionView({
                       </span>
 
                       {(() => {
-                        const days = daysUntil(item.euDate);
+                        const days = getDaysUntil(item.euDate);
                         return (
                           <span
                             className={cn(
-                              "text-subtle",
+                              "text-accent",
                               days < 30 && "text-warning",
                               "bg-current/8 border border-current/12",
-                              "rounded-md w-20 text-center",
+                              "rounded w-20 text-center",
                             )}
                           >
                             {days > 365
@@ -292,19 +291,58 @@ export function EUInspectionView({
                     </div>
                   }
                 >
-                  <IconBtn
-                    className={cn(
-                      "py-1 px-2 mr-1 hover:text-accent",
-                      activeId === item.id &&
-                        "[&>svg]:!text-muted cursor-default pointer-events-none hover:text-muted",
-                    )}
-                    onClick={() => setActiveId(item.id)}
-                    icon={OpenWorkspaceOverlay}
-                  >
-                    {activeId === item.id
-                      ? LABELS.inWorkspace
-                      : LABELS.openInWorkspace}
-                  </IconBtn>
+                  <div className="flex w-100  gap-3">
+                    <div className="vertical-line" />
+
+                    <div className="flex flex-col justify-center text-sm text-start">
+                      {(() => {
+                        const mostRecent = item.notifications[0];
+
+                        if (!mostRecent)
+                          return (
+                            <>
+                              <span className="text-subtle">
+                                No notifications sent
+                              </span>
+                              <span className="text-subtle">—</span>
+                            </>
+                          );
+
+                        return (
+                          <>
+                            <span
+                              className={cn(
+                                // "text-accent"
+                                mostRecent.status === "failed" &&
+                                  "text-failure",
+                              )}
+                            >
+                              {mostRecent.status === "failed"
+                                ? "Last notification failed"
+                                : "Last notification sent"}
+                            </span>
+                            <span className="text-subtle">
+                              {timeAgo(mostRecent.createdAt)}
+                            </span>
+                          </>
+                        );
+                      })()}
+                    </div>
+
+                    <IconBtn
+                      className={cn(
+                        "py-1 px-2 mr-1 hover:text-accent ml-auto",
+                        activeId === item.id &&
+                          "[&>svg]:!text-muted cursor-default pointer-events-none hover:text-muted",
+                      )}
+                      onClick={() => setActiveId(item.id)}
+                      icon={OpenWorkspaceOverlay}
+                    >
+                      {activeId === item.id
+                        ? LABELS.inWorkspace
+                        : LABELS.openInWorkspace}
+                    </IconBtn>
+                  </div>
                 </SimpleRow>
               </>
             )}

@@ -24,7 +24,7 @@ export function MultiSelectDropdown({
       <Popover
         open={open}
         onOpenChange={setOpen}
-        contentClassName="w-full rounded-lg shadow-lg"
+        contentClassName="w-full rounded shadow-lg"
         trigger={
           <div
             className="w-full"
@@ -48,7 +48,7 @@ export function MultiSelectDropdown({
             .map((option) => (
               <label
                 key={option}
-                className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-fg cursor-pointer hover:bg-lowered"
+                className="flex items-center gap-2 rounded px-2 py-1.5 text-sm text-fg cursor-pointer hover:bg-lowered"
               >
                 <Checkbox
                   checked={selected.includes(option)}

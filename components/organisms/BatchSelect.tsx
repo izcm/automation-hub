@@ -44,7 +44,6 @@ export function BatchSelect<T>({
   actions = [],
   selectedLabel = (n) => `${n} selected`,
   clearLabel = "Clear",
-  selfManagesCheckbox = false,
 }: Props<T>) {
   // prev includes selected id
   // true -> filter it out (unselect)
@@ -96,6 +95,7 @@ export function BatchSelect<T>({
         getId={getId}
         selected={selected}
         onSelect={onSelect}
+        className={{ arrowList: "gap-1.5" }}
         itemClassName={(isSelected) =>
           cn("group rounded", className?.(isSelected))
         }
