@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useLayoutEffect, useState } from "react";
+import { ComponentProps, ReactNode, useLayoutEffect, useState } from "react";
 import { Gallery } from "@a2zb/react";
 
 import { cn } from "@/lib/cn";
@@ -28,8 +28,8 @@ type Props<T> = {
   items: T[];
   getId: (item: T) => string;
   batchActions?: BatchAction[]; // actions that user can do with batch selection, eg. notify
-  // parent renders each row; gets `picked`, the selected count, and owns the markup
-  listItem: (item: T, picked: boolean, selectedCount: number) => ReactNode;
+  // same type as BatchSelect's `galleryItem` — always, automatically
+  listItem: ComponentProps<typeof BatchSelect<T>>["galleryItem"];
   labels: ResourceManagementLabels;
   // extra classes for the row wrapper Gallery/BatchSelect render around each item
   itemClassName?: (isSelected: boolean) => string;
@@ -56,23 +56,25 @@ export function ResourceManagementView<T>({
   const pageCount = Math.ceil(items.length / PAGE_SIZE);
   const pageItems = items.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  const selectedId = selected ? getId(selected) : undefined;
+  // later we may want to add checkbox auto focus
+  // const selectedId = selected ? getId(selected) : undefined;
 
-  useLayoutEffect(() => {
-    if (!selectedId) return;
+  // useLayoutEffect(() => {
+  //   if (!selectedId) return;
 
-    console.log(selectedId);
+  //   console.log(selectedId);
 
-    const arrowRow = document.querySelector<HTMLElement>(
-      `[data-id="${selectedId}"]`,
-    );
+  //   const arrowRow = document.querySelector<HTMLElement>(
+  //     `[data-id="${selectedId}"]`,
+  //   );
 
-    console.log(arrowRow);
-    document
-      .querySelector<HTMLElement>(`[data-id="${selectedId}"]`)
-      ?.querySelector<HTMLElement>(".selected-focus-within")
-      ?.focus();
-  }, [selectedId]);
+  //   console.log(arrowRow);
+  //   document
+  //     .querySelector<HTMLElement>(`[data-id="${selectedId}"]`)
+  //     ?.querySelector<HTMLElement>(".selected-focus-within")
+  //     ?.focus();
+  // }, [selectedId]);
+
   return (
     <>
       <div className="flex gap-3">
@@ -97,7 +99,7 @@ export function ResourceManagementView<T>({
             cn("group", itemClassName?.(isSelected))
           }
           bareRows
-          galleryItem={(item) => listItem(item, false, 0)}
+          galleryItem={(item) => listItem(item, false, 0, () => {})}
         />
       ) : (
         <BatchSelect

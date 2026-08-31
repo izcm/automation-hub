@@ -5,7 +5,7 @@ type Props = {
   media?: ReactNode; // leading visual: image, stamp, avatar, icon, …
   title: ReactNode;
   subtitle?: ReactNode;
-  endContent?: ReactNode;
+  children?: ReactNode; // trailing content, right-aligned
   className?: string;
   onClick?: () => void;
 };
@@ -14,7 +14,7 @@ export function SimpleRow({
   media,
   title,
   subtitle,
-  endContent,
+  children,
   className,
   onClick,
 }: Props) {
@@ -39,7 +39,7 @@ export function SimpleRow({
         </div>
       </div>
 
-      <div className="flex min-w-0 justify-end">{endContent}</div>
+      <div className="flex min-w-0 justify-end">{children}</div>
     </div>
   );
 }

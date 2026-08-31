@@ -5,7 +5,10 @@ import { Children, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 // Panel width cap — never a width on the list itself. Near-full on small screens.
-const PANE_WIDTH = "w-[min(520px,40vw)] max-sm:w-[85vw]";
+// apply 85% width when viewport is MAX tailwind `sm`
+// apply 70% width when viewport is MAX tailwind `md`
+const PANE_WIDTH =
+  "w-[min(520px,40vw)] max-lg:w-[45vw] max-sm:w-[85vw] max-md:w-[70vw]";
 
 // feel free to use these, generic rows
 export const workspaceRows = cn(
@@ -41,6 +44,8 @@ export function WorkspaceLayout({ open, children }: Props) {
           "transition-[width] duration-300 ease-out will-change-[width]",
           "motion-reduce:transition-none",
           open ? PANE_WIDTH : "w-0",
+          // below md: float on top of the main pane instead of squeezing it
+          "max-md:fixed max-md:inset-y-0 max-md:right-0 max-md:z-20",
         )}
       >
         {/* fixed inner width so the panel content never reflows mid-animation;

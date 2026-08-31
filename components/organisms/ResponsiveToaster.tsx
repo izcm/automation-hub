@@ -5,16 +5,16 @@ import { Toaster } from "sonner";
 import { useEffect, useState } from "react";
 
 export function ResponsiveToaster() {
-  const [isMobile, setIsMobile] = useState(
-    () => window.matchMedia("(max-width: 768px)").matches,
+  const [isSmallerScreen, setIsSmallerScreen] = useState(
+    () => window.matchMedia("(max-width: 1024px)").matches,
   );
 
   useEffect(() => {
     // NEW object/reference HERE, but this line runs ONCE
     // https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Media_queries/Using*
-    const query = window.matchMedia("(max-width: 768px)");
+    const query = window.matchMedia("(max-width: 1024px)");
 
-    const update = () => setIsMobile(query.matches);
+    const update = () => setIsSmallerScreen(query.matches);
 
     // Listener attached ONCE
     query.addEventListener("change", update);
@@ -25,7 +25,7 @@ export function ResponsiveToaster() {
   return (
     <Toaster
       // top-center
-      position={isMobile ? "top-center" : "bottom-right"}
+      position={isSmallerScreen ? "top-center" : "bottom-right"}
       richColors
       closeButton
       // hotkey={["KeyK"]}

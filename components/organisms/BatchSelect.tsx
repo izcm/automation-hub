@@ -19,7 +19,12 @@ type Props<T> = {
   onSelect: (item: T) => void;
   className?: (isSelected: boolean) => string;
   // parent renders the row; we hand it `picked`, the selected count, and own the toggle
-  galleryItem: (item: T, picked: boolean, selectedCount: number) => ReactNode;
+  galleryItem: (
+    item: T,
+    picked: boolean,
+    selectedCount: number,
+    toggle: (id: string) => void,
+  ) => ReactNode;
   // action bar (shown once ≥1 item is selected)
   actions?: BatchAction[];
   selectedLabel?: (count: number) => ReactNode;
@@ -106,17 +111,7 @@ export function BatchSelect<T>({
                   group-hover highlights only this child, not the checkbox 
                   for separate design set `bareRows`*/}
 
-              {!selfManagesCheckbox && (
-                <div className="shrink-0">
-                  {/* checkbox owns the toggle now — row click just passes the item through */}
-                  <Checkbox
-                    checked={picked}
-                    onChange={() => toggle(getId(item))}
-                  />
-                </div>
-              )}
-
-              {galleryItem(item, picked, batchSelected.length)}
+              {galleryItem(item, picked, batchSelected.length, toggle)}
             </div>
           );
         }}

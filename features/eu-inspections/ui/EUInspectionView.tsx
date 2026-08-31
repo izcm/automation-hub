@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { IconBtn, Spinner } from "@a2zb/react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Checkbox, IconBtn, Spinner } from "@a2zb/react";
 
 import { cn } from "@lib/cn";
 import { daysUntil } from "@/lib/time";
@@ -39,6 +39,7 @@ import { usePollNotifications } from "@/features/notifications/hooks/use-poll-no
 import { useSearchFilters } from "../../search/use-search-filters";
 import { toSearchParams } from "../../search/param-mapper";
 import { confirmWith, rejectWith, warningWith } from "@/lib/toast";
+import { fetchJSON } from "@a2zb/lib";
 
 type Props = {
   euInspections: EuInspectionRow[];
@@ -112,6 +113,7 @@ export function EUInspectionView({
 
   const notificationQueuedCount = notificationCountOfStatus("queued");
 
+  // determine whether polled notifications have resolved
   const batchNotificationsResolved = useMemo(
     // sentNotifications has to have at least 1 element
     // AND
@@ -120,6 +122,8 @@ export function EUInspectionView({
     [sentNotifications, notificationQueuedCount],
   );
 
+  // after polling has resolved every notification's status
+  // this useEffect counts how many failed vs succeeded and shows an appropriate toast
   useEffect(() => {
     if (!batchNotificationsResolved) return;
 
@@ -144,6 +148,23 @@ export function EUInspectionView({
     }
   }, [batchNotificationsResolved, notificationCountOfStatus]);
 
+  // track statuses and update in later useEffect
+  // by having access to these we can determine when a notification has changed status
+  // and then refetch its notifications for realtime ui updates
+  const prevStatuses = useRef(notificationStatusByInspectionId);
+
+  // track when a notification has changed status from queued to resolve (eg. failed / sent)
+  useEffect(() => {
+    notificationStatusByInspectionId.forEach((status, inspectionId) => {
+      const prevStatus = prevStatuses.current.get(inspectionId);
+      const justFinished = prevStatus === "queued" && status !== "queued";
+
+      // if a notification has "just finished"
+      // `notificationStatusByInspectionId` holds the inspectionId and status
+      // connect to `sentNotifications` on `euInspectionId`
+      // connect to `notifications` on `notificationId`
+    });
+  }, [notificationStatusByInspectionId]);
   // useEffect(() => {
   //   const filterKeyMap = FIELD_ALISES_MAP[language]["vehicles"];
 
@@ -219,92 +240,102 @@ export function EUInspectionView({
                   },
                 },
               ]}
-              listItem={(item, picked) => (
-                <SimpleRow
-                  // onClick={() => setActive(item)}
-                  className={cn(
-                    "selected-focus-within",
-                    workspaceRows,
-                    picked && "border border-accent", // picked = when member of batch select
-                    active?.id === item.id && // active = the item open in workspace
-                      "border-l-4 border-l-accent-strong/80 bg-panel",
-                  )}
-                  media={<DateStamp date={item.euDate} />}
-                  title={item.vehicle.plateNumber}
-                  subtitle={
-                    <div className="flex flex-col gap-0.5">
-                      <span className="inline-flex items-center gap-1.5 text-subtle/80">
-                        {LABELS.euDate}: {item.euDate}
+              listItem={(item, picked, _, toggle) => (
+                <>
+                  <div
+                    className={cn(active !== undefined && "hidden lg:block")}
+                  >
+                    <Checkbox
+                      checked={picked}
+                      onChange={() => toggle(item.id)}
+                    />
+                  </div>
+
+                  <SimpleRow
+                    // onClick={() => setActive(item)}
+                    className={cn(
+                      "selected-focus-within",
+                      workspaceRows,
+                      picked && "border border-accent", // picked = when member of batch select
+                      active?.id === item.id && // active = the item open in workspace
+                        "border-l-4 border-l-accent-strong/80 bg-panel",
+                    )}
+                    media={<DateStamp date={item.euDate} />}
+                    title={item.vehicle.plateNumber}
+                    subtitle={
+                      <div className="flex flex-col gap-0.5">
+                        <span className="inline-flex items-center gap-1.5 text-subtle/80">
+                          {LABELS.euDate}: {item.euDate}
+                          {(() => {
+                            const status = notificationStatusByInspectionId.get(
+                              item.id,
+                            );
+
+                            if (status === "queued")
+                              return (
+                                <>
+                                  {" · "}
+                                  <span className="inline-flex items-center gap-1.5">
+                                    <Spinner
+                                      size={14}
+                                      title={LABELS.sendingNotification}
+                                    />
+                                    Notifying...
+                                  </span>
+                                </>
+                              );
+                            if (status === "sent")
+                              return (
+                                <>
+                                  {" · "}
+                                  <IconBadge
+                                    icon={Confirm}
+                                    variant="success"
+                                    className="[&>span:first-child]:p-0.25"
+                                  >
+                                    {LABELS.notificationSent}
+                                  </IconBadge>
+                                </>
+                              );
+                            if (status === "failed")
+                              return (
+                                <>
+                                  {" · "}
+                                  <IconBadge
+                                    icon={Failure}
+                                    variant="danger"
+                                    className="[&>span:first-child]:p-0.25"
+                                  >
+                                    {LABELS.notificationFailed}
+                                  </IconBadge>
+                                </>
+                              );
+                            return null;
+                          })()}
+                        </span>
+
                         {(() => {
-                          const status = notificationStatusByInspectionId.get(
-                            item.id,
+                          const days = daysUntil(item.euDate);
+                          return (
+                            <span
+                              className={cn(
+                                "text-subtle",
+                                days < 30 && "text-warning",
+                                "bg-current/8 border border-current/12",
+                                "rounded-md w-20 text-center",
+                              )}
+                            >
+                              {days > 365
+                                ? "In 1+ years"
+                                : days > 0
+                                  ? `In ${days} days`
+                                  : `${Math.abs(days)} days overdue`}
+                            </span>
                           );
-
-                          if (status === "queued")
-                            return (
-                              <>
-                                {" · "}
-                                <span className="inline-flex items-center gap-1.5">
-                                  <Spinner
-                                    size={14}
-                                    title={LABELS.sendingNotification}
-                                  />
-                                  Notifying...
-                                </span>
-                              </>
-                            );
-                          if (status === "sent")
-                            return (
-                              <>
-                                {" · "}
-                                <IconBadge
-                                  icon={Confirm}
-                                  variant="success"
-                                  className="[&>span:first-child]:p-0.25"
-                                >
-                                  {LABELS.notificationSent}
-                                </IconBadge>
-                              </>
-                            );
-                          if (status === "failed")
-                            return (
-                              <>
-                                {" · "}
-                                <IconBadge
-                                  icon={Failure}
-                                  variant="danger"
-                                  className="[&>span:first-child]:p-0.25"
-                                >
-                                  {LABELS.notificationFailed}
-                                </IconBadge>
-                              </>
-                            );
-                          return null;
                         })()}
-                      </span>
-
-                      {(() => {
-                        const days = daysUntil(item.euDate);
-                        return (
-                          <span
-                            className={cn(
-                              "text-subtle",
-                              days < 30 && "text-warning",
-                              "bg-current/8 border border-current/12",
-                              "rounded-md w-20 text-center",
-                            )}
-                          >
-                            {days > 365
-                              ? "In 1+ years"
-                              : days > 0
-                                ? `In ${days} days`
-                                : `${Math.abs(days)} days overdue`}
-                          </span>
-                        );
-                      })()}
-                    </div>
-                  }
-                  endContent={
+                      </div>
+                    }
+                  >
                     <IconBtn
                       className={cn(
                         "py-1 px-2 mr-1 hover:text-accent",
@@ -318,8 +349,8 @@ export function EUInspectionView({
                         ? LABELS.inWorkspace
                         : LABELS.openInWorkspace}
                     </IconBtn>
-                  }
-                />
+                  </SimpleRow>
+                </>
               )}
             />
           </div>

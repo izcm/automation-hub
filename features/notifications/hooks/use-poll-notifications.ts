@@ -1,21 +1,27 @@
 import { useQuery } from "@tanstack/react-query";
 
+import type { Notification } from "@/types/notification";
 import { getNotifications } from "@/features/notifications/queries";
 
 const start = Date.now();
 
 // TEMP dummy data — delete and switch back to getNotifications(notificationIds)
-function getDummyNotifications(notificationIds: string[]) {
+function getDummyNotifications(notificationIds: string[]): Notification[] {
   return notificationIds.map((id, i) => {
     const resolvesAfter = i % 2 === 0 ? 10_000 : 3_000;
     const done = Date.now() - start > resolvesAfter;
+    const now = new Date();
     return {
       id,
+      to: "dummy@example.com",
+      channel: "email",
       status: done
         ? i % 2 === 0
           ? ("failed" as const)
           : ("sent" as const)
         : ("queued" as const),
+      createdAt: now,
+      updatedAt: now,
     };
   });
 }

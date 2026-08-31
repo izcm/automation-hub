@@ -30,9 +30,10 @@ export function NotificationList({ notifications }: Props) {
               i === notifications.length - 1 && "border-none",
             )}
           >
-            <td className="min-w-0 truncate p-2">
-              <span className="inline-flex gap-2">
-                <Mail size={16} className="text-accent" /> {notification.to}
+            <td className="min-w-0 p-2">
+              <span className="inline-flex min-w-0 items-center gap-2">
+                <Mail size={16} className="shrink-0 text-accent" />
+                <span className="truncate">{notification.to}</span>
               </span>
             </td>
             <td className="p-2">
