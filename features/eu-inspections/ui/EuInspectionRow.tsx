@@ -105,7 +105,8 @@ export function EuInspectionRow({
         className={cn(
           // narrow container
           "py-3 px-2 hover:text-accent justify-self-end",
-          "col-span-full w-full rounded-t-none bg-lowered mr-auto",
+          "col-span-full w-full rounded-t-none mr-auto",
+          "bg-[light-dark(var(--elevated-alt),var(--lowered))]",
 
           // wide container
           "@min-[512px]:py-1 @min-[512px]:col-span-1 @min-[512px]:w-auto @min-[512px]:bg-transparent @min-[512px]:rounded @min-[512px]:mr-1",

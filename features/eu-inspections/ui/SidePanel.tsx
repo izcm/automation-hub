@@ -267,8 +267,7 @@ export function EuInspectionSummary({ item }: Props) {
                 </Field>
               ))}
             </dl>
-            {/* TODO: slice here but have "show all" btn that extend list, panel should scroll itself not page */}
-            <NotificationList notifications={notifications.slice(0, 3)} />
+            <NotificationList notifications={notifications} initialCount={3} />
           </div>
         </div>
       </div>

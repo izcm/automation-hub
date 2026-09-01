@@ -31,56 +31,51 @@
  * node_modules/@a2zb/styles/theme.css references them literally.
  * ------------------------------------------------------------------------- */
 
-/* light — cool concrete + blue */
-/* light — cool concrete white */
+/* light — blue */
 :root[data-theme="light"] {
   color-scheme: light;
 
   /* surfaces */
-  --ground: #eef1f4;
+  --ground: #f5f6f7;
   --raised: #ffffff;
-  --elevated: #e1e5e8;
-  --elevated-alt: #fbfcfd;
-  --lowered: #c4c9cf;
+  --lowered: #eef0f2;
+
+  /* workspace can retain a TINY cool tint */
+  --elevated: #f0f3f7;
+  --elevated-alt: #fafbfc;
 
   /* ink */
-  --fg: rgba(17, 20, 24, 0.92);
-  --subtle: rgba(17, 20, 24, 0.64);
-  --muted: rgba(17, 20, 24, 0.48);
-  --faint: rgba(17, 20, 24, 0.28);
-  --extra-faint: rgba(17, 20, 24, 0.17);
-  --line: rgba(17, 20, 24, 0.16);
+  --fg: rgba(15, 21, 28, 0.92);
+  --subtle: rgba(15, 21, 28, 0.62);
+  --muted: rgba(15, 21, 28, 0.46);
+  --faint: rgba(15, 21, 28, 0.28);
+  --extra-faint: rgba(15, 21, 28, 0.13);
 
-  /* cool accent */
-  --accent-cool: #4a6bff;
-  --accent-cool-strong: #3557e0;
-  --accent-cool-weak: rgba(74, 107, 255, 0.18);
-  --accent-cool-subtle: rgba(74, 107, 255, 0.1);
+  --line: rgba(15, 21, 28, 0.16);
 
-  /* orange — primary */
-  --accent: #ff6b1a;
-  --accent-strong: #e65300;
-  --accent-weak: rgba(255, 107, 26, 0.2);
+  /* accent */
+  --accent: #3f63e0;
+  --accent-strong: #2a49bf;
+  --accent-weak: rgba(63, 99, 224, 0.18);
 
-  --accent-neutral: #ff9a5c;
-  --accent-neutral-weak: rgba(255, 154, 92, 0.18);
+  --accent-neutral: #6f8fe6;
+  --accent-neutral-weak: rgba(111, 143, 230, 0.18);
 
   /* semantic */
-  --success: #1e8f5a;
-  --success-weak: rgba(30, 143, 90, 0.18);
+  --success: #1f9d64;
+  --success-weak: rgba(31, 157, 100, 0.18);
 
-  --warning: #c88a00;
-  --warning-weak: rgba(200, 138, 0, 0.18);
+  --warning: #c1860a;
+  --warning-weak: rgba(193, 134, 10, 0.18);
 
-  --failure: #d1434c;
-  --failure-weak: rgba(209, 67, 76, 0.18);
+  --failure: #e0435f;
+  --failure-weak: rgba(224, 67, 95, 0.18);
 
-  --neutral: #607c90;
-  --neutral-weak: rgba(96, 124, 144, 0.16);
+  --neutral: #5f7290;
+  --neutral-weak: rgba(95, 114, 144, 0.16);
 
-  /* elevation */
   --panel-shadow:
-    0 1px 2px rgba(17, 20, 24, 0.04), 0 8px 24px rgba(17, 20, 24, 0.06);
+    0 1px 2px rgba(15, 21, 28, 0.04), 0 8px 24px rgba(15, 21, 28, 0.06);
 }
 
 /* dark — dark grey + blue */
