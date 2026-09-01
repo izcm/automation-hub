@@ -25,7 +25,8 @@ export function ResponsiveToaster() {
   return (
     <Toaster
       // top-center
-      position={isSmallerScreen ? "top-center" : "bottom-right"}
+      // position={isSmallerScreen ? "top-center" : "bottom-right"}
+      position={"top-center"}
       richColors
       closeButton
       // hotkey={["KeyK"]}

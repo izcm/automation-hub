@@ -58,19 +58,17 @@ export function BatchSelect<T>({
   return (
     <>
       {batchSelected.length > 0 && (
-        <div className="flex items-center justify-between gap-3 raised-outline px-4 py-3">
-          <div className="flex items-center gap-4">
-            <span className="font-medium">
-              {selectedLabel(batchSelected.length)}
-            </span>
-            <button
-              onClick={() => setBatchSelected([])}
-              className="text-accent hover:text-accent-strong"
-            >
-              {clearLabel}
-            </button>
-          </div>
-          <div className="flex gap-2">
+        <div className="flex items-center gap-2 raised-outline px-4 py-3">
+          <span className="font-medium">
+            {selectedLabel(batchSelected.length)}
+          </span>
+          <button
+            onClick={() => setBatchSelected([])}
+            className="text-accent hover:text-accent-strong"
+          >
+            {clearLabel}
+          </button>
+          <div className="ml-auto">
             {actions(batchSelected).map(
               ({ label, onClick, icon, className, ...rest }, i) => (
                 <button
@@ -106,18 +104,7 @@ export function BatchSelect<T>({
         bareRows
         galleryItem={(item) => {
           const picked = batchSelected.includes(getId(item));
-          return (
-            <div
-              // onClick={() => toggle(getId(item))}
-              className="flex items-center gap-4"
-            >
-              {/* row keeps its own classes here, as its own flex child.
-                  group-hover highlights only this child, not the checkbox 
-                  for separate design set `bareRows`*/}
-
-              {galleryItem(item, picked, batchSelected.length, toggle)}
-            </div>
-          );
+          return galleryItem(item, picked, batchSelected.length, toggle);
         }}
       />
     </>

@@ -1,23 +1,19 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-
-import { Checkbox, IconBtn, Spinner } from "@a2zb/react";
-import { getDaysUntil, timeAgo } from "@a2zb/lib";
 import { toast } from "sonner";
+
+import { Checkbox, IconBtn } from "@a2zb/react";
+import { getDaysUntil } from "@a2zb/lib";
 
 import { cn } from "@lib/cn";
 import { confirmWith, rejectWith, warningWith } from "@/lib/toast";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
+import { useRegexValidatedInput } from "@/lib/hooks/use-regex-validated-input";
 
-import {
-  Notify,
-  OpenWorkspaceOverlay,
-  Confirm,
-  Failure,
-  Notification,
-} from "@components/icons";
-import { DateStamp, IconBadge, SimpleRow } from "@/components/molecules";
+import { Notify, OpenWorkspaceOverlay } from "@components/icons";
+import { DateStamp, SimpleRow } from "@/components/molecules";
+import { NotificationRowStatus } from "@/features/notifications/ui/NotificationRowStatus";
 import {
   Header,
   ResourceManagementView,
@@ -40,10 +36,10 @@ import {
 } from "@/features/eu-inspections";
 import { useNotifications } from "../hooks/use-notifications";
 
+import { getPage } from "@/shared/http/page-get";
+
 import { useSearchFilters } from "../../search/use-search-filters";
 import { toSearchParams } from "../../search/param-mapper";
-import { getPage } from "@/shared/http/page-get";
-import { useRegexValidatedInput } from "@/lib/hooks/use-regex-validated-input";
 
 // lenient: 2 letters + 4-5 digits, space optional/anywhere — normalize strips
 // all whitespace and re-inserts the single space the API expects
@@ -106,29 +102,28 @@ export function EUInspectionView({
 
   const resolvedToastIdRef = useRef<string | number | undefined>(undefined);
 
-  const { statusBySubjectId, hasPending, addSent, resetBatch } =
-    useNotifications(
-      (v: EuInspectionRow) => v.id,
-      setEuInspections,
-      ({ success, failed }) => {
-        if (failed === 0) {
-          resolvedToastIdRef.current = confirmWith(
-            "Notifications sent!",
-            "All notifications were sent successfully.",
-          );
-        } else if (success === 0) {
-          resolvedToastIdRef.current = rejectWith(
-            "Notifications failed",
-            "No notifications could be sent.",
-          );
-        } else {
-          resolvedToastIdRef.current = warningWith(
-            "Some notifications failed",
-            `${success} sent, ${failed} failed.`,
-          );
-        }
-      },
-    );
+  const { statusBySubjectId, addSent } = useNotifications(
+    (v: EuInspectionRow) => v.id,
+    setEuInspections,
+    ({ success, failed }) => {
+      if (failed === 0) {
+        resolvedToastIdRef.current = confirmWith(
+          "Notifications sent!",
+          "All notifications were sent successfully.",
+        );
+      } else if (success === 0) {
+        resolvedToastIdRef.current = rejectWith(
+          "Notifications failed",
+          "No notifications could be sent.",
+        );
+      } else {
+        resolvedToastIdRef.current = warningWith(
+          "Some notifications failed",
+          `${success} sent, ${failed} failed.`,
+        );
+      }
+    },
+  );
 
   // don't let the resolved-notification toast survive navigating away
   useEffect(() => {
@@ -138,6 +133,20 @@ export function EUInspectionView({
       }
     };
   }, []);
+
+  async function sendNotification(euInspectionIds: string[]) {
+    const result = await sendNotifs.mutateAsync({
+      euInspectionIds,
+      channel: "email",
+    });
+
+    addSent(
+      result.map(({ euInspectionId, notificationId }) => ({
+        subjectId: euInspectionId,
+        notificationId,
+      })),
+    );
+  }
 
   function handleSearch(search: string) {
     if (!search) return;
@@ -165,55 +174,6 @@ export function EUInspectionView({
       if (res.ok) setEuInspections(res.data.items);
     });
   }
-
-  // TEMP dummy data for testing the polling UI
-  // useEffect(() => {
-  //   addSent(
-  //     initialEuInspections.slice(0, 4).map((item, i) => ({
-  //       notificationId: `dummy-${i}-${Date.now()}`,
-  //       subjectId: item.id,
-  //     })),
-  //   );
-
-  //   // undoes this batch on StrictMode's dev-only double-invoke, so it
-  //   // doesn't stack with the real mount's batch
-  //   return () => resetBatch();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
-
-  // useEffect(() => {
-  //   const filterKeyMap = FIELD_ALISES_MAP[language]["vehicles"];
-
-  //   const query = buildQuery({
-  //     filters,
-  //     keyMap: filterKeyMap,
-  //     resolveValue: (key, value) =>
-  //       key === filterKeyMap["responsible"]￼
-
-  //         ? value === "all_others"
-  //           ? ["empl 1", "empl 2", "empl 3"]
-  //           : value === "me"
-  //             ? ["current user"]
-  //             : value
-  //         : value,
-  //   });
-
-  //   query.set("include[vehicle][include][employee]", "true");
-  //   query.set("include[notifications]", "true");
-
-  //   const controller = new AbortController();
-
-  //   getPage<EuInspectionRow>({
-  //     baseURL: "/api",
-  //     params: "eu-inspections",
-  //     query,
-  //     signal: controller.signal,
-  //   }).then((res) => {
-  //     if (res.ok) setEuInspections(res.data.items);
-  //   });
-
-  //   return () => controller.abort();
-  // }, [filters, language]);
 
   const searchbarRef = useRef<HTMLInputElement>(null);
 
@@ -279,31 +239,24 @@ export function EUInspectionView({
                   (id) => statusBySubjectId.get(id) === "queued",
                 ),
                 onClick: async (euInspectionIds, clearSelection) => {
-                  const result = await sendNotifs.mutateAsync({
-                    euInspectionIds,
-                    channel: "email",
-                  });
-
-                  addSent(
-                    result.map(({ euInspectionId, notificationId }) => ({
-                      subjectId: euInspectionId,
-                      notificationId,
-                    })),
-                  );
+                  await sendNotification(euInspectionIds);
                   clearSelection();
                 },
               },
             ]}
             listItem={(item, picked, _, toggle) => (
-              <>
+              <div className="flex items-center gap-4">
                 <div
-                  className={cn(activeId !== undefined && "hidden lg:block")}
+                  className={cn(
+                    "w-10 h-10 grid place-items-center",
+                    activeId !== undefined && "hidden h-full lg:grid",
+                  )}
+                  onClick={() => toggle(item.id)}
                 >
-                  <Checkbox checked={picked} onChange={() => toggle(item.id)} />
+                  <Checkbox checked={picked} readOnly />
                 </div>
 
                 <SimpleRow
-                  // onClick={() => setActive(item)}
                   className={cn(
                     workspaceRows,
                     picked && "border border-accent", // picked = when member of batch select
@@ -347,59 +300,11 @@ export function EUInspectionView({
                     <div className="vertical-line" />
 
                     <div className="flex flex-col justify-center text-sm">
-                      {(() => {
-                        const sentInThisSession = statusBySubjectId.get(
-                          item.id,
-                        );
-
-                        if (sentInThisSession === "queued") {
-                          return (
-                            <>
-                              <span className="text-accent inline-flex items-center gap-1.5">
-                                <Spinner
-                                  size={14}
-                                  title={LABELS.sendingNotification}
-                                />
-                                Notifying...
-                              </span>
-                              <span className="text-subtle">—</span>
-                            </>
-                          );
-                        }
-                        const mostRecent = item.notifications[0];
-
-                        if (!mostRecent)
-                          return (
-                            <>
-                              <span className="text-subtle">
-                                No notifications sent
-                              </span>
-                              <span className="text-subtle">—</span>
-                            </>
-                          );
-
-                        return (
-                          <>
-                            <span
-                              className={cn(
-                                sentInThisSession === "sent" &&
-                                  "text-success/80",
-                                mostRecent.status === "failed" &&
-                                  "text-failure",
-                              )}
-                            >
-                              {mostRecent.status === "failed"
-                                ? "Last notification failed"
-                                : sentInThisSession === "sent"
-                                  ? "Successfully sent"
-                                  : "Last notification sent"}
-                            </span>
-                            <span className="text-subtle">
-                              {timeAgo(mostRecent.createdAt)}
-                            </span>
-                          </>
-                        );
-                      })()}
+                      <NotificationRowStatus
+                        status={statusBySubjectId.get(item.id)}
+                        mostRecent={item.notifications[0]}
+                        sendingTitle={LABELS.sendingNotification}
+                      />
                     </div>
 
                     <IconBtn
@@ -417,7 +322,7 @@ export function EUInspectionView({
                     </IconBtn>
                   </div>
                 </SimpleRow>
-              </>
+              </div>
             )}
           />
         </div>
@@ -427,8 +332,12 @@ export function EUInspectionView({
             <div className="h-dvh flex flex-col overflow-hidden p-4">
               <EuInspectionSummary item={activeItem} />
               <button
+                onClick={() => sendNotification([activeItem.id])}
                 className="btn btn-secondary mt-auto inline-flex items-center gap-2"
-                disabled={!activeItem.vehicle.employee}
+                disabled={
+                  !activeItem.vehicle.employee ||
+                  statusBySubjectId.get(activeItem.id) === "queued"
+                }
               >
                 <Notify size={14} />
                 Notify {activeItem.vehicle.employee?.name}
