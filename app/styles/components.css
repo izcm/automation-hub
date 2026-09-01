@@ -73,7 +73,7 @@
   .btn-neutral {
     color: var(--fg);
     border-color: var(--faint);
-    background: var(--raised);
+    background: var(--ground);
   }
 
   .btn-neutral:hover {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { Checkbox, IconBtn, Spinner } from "@a2zb/react";
 import { getDaysUntil, timeAgo } from "@a2zb/lib";
@@ -41,6 +41,7 @@ import { useNotifications } from "../hooks/use-notifications";
 
 import { useSearchFilters } from "../../search/use-search-filters";
 import { toSearchParams } from "../../search/param-mapper";
+import { getPage } from "@/shared/http/page-get";
 
 type Props = {
   euInspections: EuInspectionRow[];
@@ -65,8 +66,16 @@ export function buildQuery({
 export function EUInspectionView({
   euInspections: initialEuInspections,
 }: Props) {
-  const { filters, handleSearch, resetFilters, searchInput, toggleFilter } =
-    useSearchFilters();
+  const {
+    filters,
+    handleSearch: tmpNotInUse,
+    resetFilters,
+    searchInput: tmpNotInUseSecond,
+    toggleFilter,
+  } = useSearchFilters();
+
+  const [searchInput] = useState<string>("");
+
   const sendNotifs = useNotifyEuInspections();
   const [euInspections, setEuInspections] = useState(initialEuInspections);
 
@@ -97,6 +106,28 @@ export function EUInspectionView({
       }
     },
   );
+
+  function handleSearch(search: string) {
+    if (!search) return;
+
+    const query = new URLSearchParams();
+    query.set("filters[vehicle][plateNumber]", search);
+
+    query.set("include[vehicle][include][employee]", "true");
+    query.set("include[notifications]", "true");
+
+    // sort
+    query.set("sortField", "euDate");
+    query.set("sortDir", "asc");
+
+    getPage<EuInspectionRow>({
+      baseURL: "/api",
+      params: "eu-inspections",
+      query,
+    }).then((res) => {
+      if (res.ok) setEuInspections(res.data.items);
+    });
+  }
 
   // TEMP dummy data for testing the polling UI
   // useEffect(() => {
@@ -141,6 +172,11 @@ export function EUInspectionView({
 
   //   return () => controller.abort();
   // }, [filters, language]);
+  const searchbarRef = useRef<HTMLInputElement>(null);
+
+  useLayoutEffect(() => {
+    searchbarRef.current?.focus();
+  }, []);
 
   const [activeId, setActiveId] = useState<string | undefined>(undefined);
 
@@ -165,12 +201,17 @@ export function EUInspectionView({
             logoutEndpoint="/api/auth/logout"
           />
 
+          <div></div>
           <ResourceManagementView
             items={euInspections}
             getId={(v) => v.id}
             labels={RESOURCE_MANAGEMENT_VIEW_LABELS}
-            searchInput={searchInput}
-            handleSearch={handleSearch}
+            textInputProps={{
+              value: searchInput,
+              onSubmit: handleSearch,
+              ref: searchbarRef,
+              className: "focus-within:!border-accent/60",
+            }}
             filterMenu={
               <FilterMenu
                 filters={filters}

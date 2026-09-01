@@ -1,7 +1,7 @@
 import { TextInput } from "@a2zb/react";
 
 import { Filter } from "../icons";
-import { ReactNode, useState } from "react";
+import { ComponentProps, ReactNode, useState } from "react";
 import { cn } from "@/lib/cn";
 
 export type SearchConfig = { keyMap: Record<string, string> };
@@ -19,43 +19,28 @@ export type FilterCategoryLabels = {
 export type FilterCategoriesLabels = Record<string, FilterCategoryLabels>;
 
 type Props = {
-  searchPlaceholder: string;
-  applyLabel: string;
   filterLabel: string;
-  searchInput: string;
-  handleSearch: (search: string) => void;
+  textInputProps: ComponentProps<typeof TextInput>;
   className?: string;
   children?: ReactNode;
 };
 
 export function FilterBar({
-  searchPlaceholder,
-  applyLabel,
   filterLabel,
-  searchInput,
-  handleSearch,
+  textInputProps,
   className,
   children: dropdown,
 }: Props) {
   const [showFilterMenu, setShowFilterMenu] = useState(false);
 
   return (
-    <div className={cn("flex flex-col gap-3 flex-1", className)}>
+    <div className={cn("flex flex-col gap-3", className)}>
       <div className="flex gap-3 h-10">
-        <TextInput
-          value={searchInput}
-          onSubmit={handleSearch}
-          submitLabel={applyLabel}
-          input={{
-            placeholder: searchPlaceholder,
-            className: "text-subtle",
-          }}
-          // className="[&_input]:text-subtle"
-        />
+        <TextInput {...textInputProps} />
 
         {dropdown && (
           <button
-            className="btn btn-secondary"
+            className="btn btn-secondary hidden"
             onClick={() => setShowFilterMenu((prev) => !prev)}
           >
             <Filter size={16} />

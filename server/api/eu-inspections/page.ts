@@ -2,22 +2,22 @@ import * as z from "zod";
 
 import { readPage, readPageRelational } from "@/server/di";
 import { RawIncludes } from "@a2zb/types";
-import { coercedBoolean, includeQuery } from "../shared/zod";
+import { coercedBoolean, pageQueryBase } from "../shared/zod";
 
 // `notifications` now points straight at real notification rows (through
 // the junction table under the hood) — no separate nested hop needed.
-const notificationsInclude = z.union([coercedBoolean, includeQuery]);
+const notificationsInclude = z.union([coercedBoolean, pageQueryBase]);
 
-const employeeInclude = z.union([coercedBoolean, includeQuery]);
+const employeeInclude = z.union([coercedBoolean, pageQueryBase]);
 
 const vehicleInclude = z.union([
   coercedBoolean,
-  includeQuery.extend({
+  pageQueryBase.extend({
     include: z.strictObject({ employee: employeeInclude }).optional(),
   }),
 ]);
 
-export const EuInspectionPageRequest = includeQuery.extend({
+export const EuInspectionPageRequest = pageQueryBase.extend({
   include: z
     .strictObject({
       vehicle: vehicleInclude.optional(),
@@ -30,6 +30,7 @@ export type EuInspectionPageQuery = z.infer<typeof EuInspectionPageRequest>;
 
 export async function getEuInspectionsPage({
   include = {},
+  ...pageQuery
 }: EuInspectionPageQuery) {
   const includes: RawIncludes = {
     ...(include.vehicle !== undefined && { vehicle: include.vehicle }),
@@ -39,6 +40,6 @@ export async function getEuInspectionsPage({
   };
 
   return Object.keys(includes).length > 0
-    ? readPageRelational("euInspections", {}, includes)
-    : readPage("euInspections");
+    ? readPageRelational("euInspections", pageQuery, includes)
+    : readPage("euInspections", pageQuery);
 }

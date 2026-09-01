@@ -2,7 +2,8 @@ import type { Language } from "@/features/labels";
 
 const en = {
   heading: "Upcoming EU Inspections",
-  searchPlaceholder: "Search plate number, set timespan...",
+  // searchPlaceholder: "Search plate number, set timespan...",
+  searchPlaceholder: "Search plate number",
   euDate: "Due",
   notify: (n: number) => `Notify ${n} drivers`,
   openInWorkspace: "Inspect",
@@ -14,7 +15,7 @@ const en = {
 
 const no: typeof en = {
   heading: "Kommende EU-kontroller",
-  searchPlaceholder: "Søk registreringsnummer, angi tidsrom...",
+  searchPlaceholder: "Søk registreringsnummer",
   euDate: "Frist",
   notify: (n: number) => `Varsle ${n} sjåfører`,
   openInWorkspace: "Inspiser",

@@ -97,7 +97,9 @@ export function VehicleLookup({ onDone }: Props) {
         ).map((f) => (
           <div key={f.label} className="flex items-center justify-between">
             <dt className="text-sm text-muted">{f.label}</dt>
-            <dd className="text-sm font-medium text-fg">{f.getValue(vehicle)}</dd>
+            <dd className="text-sm font-medium text-fg">
+              {f.getValue(vehicle)}
+            </dd>
           </div>
         ))}
         <div className="flex gap-2">

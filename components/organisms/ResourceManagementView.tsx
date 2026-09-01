@@ -33,8 +33,7 @@ type Props<T> = {
   labels: ResourceManagementLabels;
   // extra classes for the row wrapper Gallery/BatchSelect render around each item
   itemClassName?: (isSelected: boolean) => string;
-  searchInput: string;
-  handleSearch: (search: string) => void;
+  textInputProps: ComponentProps<typeof FilterBar>["textInputProps"];
   filterMenu?: ReactNode;
 };
 
@@ -45,8 +44,7 @@ export function ResourceManagementView<T>({
   listItem,
   labels,
   itemClassName,
-  searchInput,
-  handleSearch,
+  textInputProps,
   filterMenu,
 }: Props<T>) {
   const [selected, setSelected] = useState<T | undefined>(undefined);
@@ -78,16 +76,20 @@ export function ResourceManagementView<T>({
   return (
     <>
       <FilterBar
-        searchPlaceholder={labels.searchBar.placeholder}
-        applyLabel={labels.searchBar.apply}
         filterLabel={labels.searchBar.filter}
-        searchInput={searchInput}
-        handleSearch={handleSearch}
+        textInputProps={{
+          submitLabel: labels.searchBar.apply,
+          input: {
+            placeholder: labels.searchBar.placeholder,
+            className: "text-subtle",
+          },
+          ...textInputProps,
+        }}
       >
         {filterMenu}
       </FilterBar>
 
-      <div className="overflow-y-scroll scrollbar-hide">
+      <div className="flex flex-col h-full overflow-y-scroll scrollbar-hide">
         {batchActions == undefined ? (
           <Gallery
             items={pageItems}
@@ -119,14 +121,16 @@ export function ResourceManagementView<T>({
           </div>
         )}
 
-        <Pagination
-          page={page}
-          pageCount={pageCount}
-          total={items.length}
-          pageSize={PAGE_SIZE}
-          onChange={setPage}
-          label={labels.pagination.showing}
-        />
+        <div className="mt-auto">
+          <Pagination
+            page={page}
+            pageCount={pageCount}
+            total={items.length}
+            pageSize={PAGE_SIZE}
+            onChange={setPage}
+            label={labels.pagination.showing}
+          />
+        </div>
       </div>
     </>
   );
