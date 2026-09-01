@@ -8,12 +8,12 @@ import { cn } from "@/lib/cn";
 // apply 85% width when viewport is MAX tailwind `sm`
 // apply 70% width when viewport is MAX tailwind `md`
 const PANE_WIDTH =
-  "w-[min(520px,45vw)] max-lg:w-[50vw] max-sm:w-[85vw] max-md:w-[70vw]";
+  "w-[min(520px,45vw)] max-lg:w-[max(450px,50vw)] max-sm:w-[85vw] max-md:w-[70vw]";
 
 // feel free to use these, generic rows
 export const workspaceRows = cn(
   // layout
-  "min-w-0 flex-1",
+  "min-w-flex-1",
   // surface
   "rounded border border-extra-faint bg-raised",
   // interaction
@@ -40,7 +40,7 @@ export function WorkspaceLayout({ open, children }: Props) {
       <div
         aria-hidden={!open}
         className={cn(
-          "transition-[width] duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[width]",
+          "transition-[width] duration-600 ease-[cubic-bezier(0.16,1,0.3,1)]",
           "motion-reduce:transition-none",
           open ? PANE_WIDTH : "w-0",
           // below md: float on top of the main pane instead of squeezing it

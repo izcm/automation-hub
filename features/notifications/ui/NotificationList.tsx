@@ -14,9 +14,13 @@ export function NotificationList({ notifications }: Props) {
     <table className="w-full table-fixed text-sm">
       <thead>
         <tr className="border-b border-extra-faint text-[12px] text-subtle">
-          <th className="w-[200px] p-2 font-normal">To</th>
-          <th className="w-[80px] p-2 font-normal">Status</th>
-          <th className="w-auto truncate p-2 font-normal">Created</th>
+          <th className="w-[200px] p-2 font-normal text-start">To</th>
+          <th className="w-[80px] min-w-0 p-2 font-normal text-start">
+            Status
+          </th>
+          <th className="w-auto truncate p-2 font-normal text-start">
+            Created
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -29,7 +33,7 @@ export function NotificationList({ notifications }: Props) {
             )}
           >
             <td className="min-w-0 p-2">
-              <span className="inline-flex min-w-0 items-center gap-2">
+              <span className="flex w-full items-center gap-2">
                 <Mail size={16} className="shrink-0 text-accent" />
                 <span className="truncate">{notification.to}</span>
               </span>

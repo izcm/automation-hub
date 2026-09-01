@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Checkbox, Popover, TextInput } from "@a2zb/react";
+import { ReactNode, useEffect, useRef, useState } from "react";
+import { Checkbox, TextInput } from "@a2zb/react";
+import { cn } from "@/lib/cn";
 
 type Props = {
   options: string[];
@@ -62,6 +63,68 @@ export function MultiSelectDropdown({
             ))}
         </div>
       </Popover>
+    </div>
+  );
+}
+
+type PopoverProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  trigger: ReactNode;
+  children: ReactNode;
+  align?: "left" | "right";
+  contentClassName?: string;
+};
+
+export function Popover({
+  open,
+  onOpenChange,
+  trigger,
+  children,
+  align = "right",
+  contentClassName,
+}: PopoverProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    function handleMouseDown(e: MouseEvent) {
+      if (!ref.current?.contains(e.target as Node)) {
+        onOpenChange(false);
+      }
+    }
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        onOpenChange(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open, onOpenChange]);
+
+  return (
+    <div ref={ref} className="relative">
+      {trigger}
+
+      {open && (
+        <div
+          className={cn(
+            "absolute top-full z-50 mt-1 whitespace-nowrap border border-line bg-raised p-2",
+            align === "right" ? "right-0" : "left-0",
+            contentClassName,
+          )}
+        >
+          {children}
+        </div>
+      )}
     </div>
   );
 }

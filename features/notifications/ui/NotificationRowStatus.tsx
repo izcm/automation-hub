@@ -21,7 +21,7 @@ export function NotificationRowStatus({
   if (status === "queued") {
     return (
       <>
-        <span className="text-accent inline-flex items-center gap-1.5">
+        <span className="text-accent inline-flex items-center gap-1.5 min-w-0 truncate">
           <Spinner size={14} title={sendingTitle} />
           Notifying...
         </span>
@@ -33,7 +33,7 @@ export function NotificationRowStatus({
   if (!mostRecent) {
     return (
       <>
-        <span className="text-subtle">No notifications sent</span>
+        <span className="text-subtle truncate">No notifications sent</span>
         <span className="text-subtle">—</span>
       </>
     );
@@ -43,6 +43,7 @@ export function NotificationRowStatus({
     <>
       <span
         className={cn(
+          "truncate",
           status === "sent" && "text-success/80",
           mostRecent.status === "failed" && "text-failure",
         )}

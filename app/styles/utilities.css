@@ -13,7 +13,7 @@
 }
 
 @utility vertical-line {
-  @apply bg-line w-px h-full;
+  @apply bg-line w-px self-stretch;
 }
 
 /* raised surface, faint outline, rounded corners — pagination steps, dropdowns, toolbars */

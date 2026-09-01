@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { Popover } from "@a2zb/react";
 
 import { postJsonOrThrow } from "@/lib/fetch-json-or-throw";
 import { rejectWith } from "@/lib/toast";
 
 import { ThemeToggle } from "./ThemeToggle";
 import { Back, ChevronDown, LogOut } from "../icons";
+import { ClickPopover } from "@a2zb/react";
 
 export type HeaderLabels = {
   back: string;
@@ -36,7 +36,7 @@ export function Header({ backHref, title, labels, logoutEndpoint }: Props) {
 
       {title && <h1 className="font-medium text-fg/80">{title}</h1>}
 
-      <Popover
+      <ClickPopover
         align="right"
         contentClassName="menu-surface"
         trigger={
@@ -68,7 +68,7 @@ export function Header({ backHref, title, labels, logoutEndpoint }: Props) {
             {labels.logOut}
           </button>
         </div>
-      </Popover>
+      </ClickPopover>
     </div>
   );
 }

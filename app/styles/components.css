@@ -19,14 +19,14 @@
   background: light-dark(var(--raised), var(--ground));
 }
 
-/* Override a2zb's filled btn-secondary with an outlined accent style:
- * orange border + orange text on a transparent ground (the "Filtre" look). */
-/* Match every button's corner radius to the text input's rounded */
-.btn {
-  border-radius: 0.5rem;
-}
-
 @layer components {
+  /* Override a2zb's filled btn-secondary with an outlined accent style:
+   * orange border + orange text on a transparent ground (the "Filtre" look). */
+  /* Match every button's corner radius to the text input's rounded */
+  .btn {
+    border-radius: 0.5rem;
+  }
+
   /* Solid, strong primary: orange fill + black text */
 
   .btn-primary {

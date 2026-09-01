@@ -73,7 +73,6 @@ export function useNotifications<T extends { notifications: Notification[] }>(
   const prevStatuses = useRef(statusBySubjectId);
 
   useEffect(() => {
-    console.log("wtf");
     statusBySubjectId.forEach((status, subjectId) => {
       const prevStatus = prevStatuses.current.get(subjectId);
       const justFinished = prevStatus === "queued" && status !== "queued";

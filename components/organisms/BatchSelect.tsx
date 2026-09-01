@@ -97,7 +97,7 @@ export function BatchSelect<T>({
         getId={getId}
         selected={selected}
         onSelect={onSelect}
-        className={{ arrowList: "gap-1.5" }}
+        className={{ arrowList: "flex flex-col gap-1.5" }}
         itemClassName={(isSelected) =>
           cn("group rounded", className?.(isSelected))
         }

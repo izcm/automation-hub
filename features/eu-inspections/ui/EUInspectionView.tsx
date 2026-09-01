@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Checkbox, IconBtn } from "@a2zb/react";
-import { getDaysUntil } from "@a2zb/lib";
+import { getDaysUntil, tsShort, tsSuperShort } from "@a2zb/lib";
 
 import { cn } from "@lib/cn";
 import { confirmWith, rejectWith, warningWith } from "@/lib/toast";
@@ -19,7 +19,6 @@ import {
   ResourceManagementView,
   WorkspaceLayout,
   WorkspacePanel,
-  workspaceRows,
 } from "@/components/organisms";
 
 import {
@@ -181,7 +180,9 @@ export function EUInspectionView({
     searchbarRef.current?.focus();
   }, []);
 
-  const [activeId, setActiveId] = useState<string | undefined>(undefined);
+  const [activeId, setActiveId] = useState<string | undefined>(
+    euInspections[0]?.id,
+  );
 
   const activeItem: EuInspectionRow | undefined =
     activeId === undefined
@@ -245,10 +246,10 @@ export function EUInspectionView({
               },
             ]}
             listItem={(item, picked, _, toggle) => (
-              <div className="flex items-center gap-4">
+              <div className="@container flex gap-4">
                 <div
                   className={cn(
-                    "w-10 h-10 grid place-items-center",
+                    "w-10 h-10 my-auto grid place-items-center",
                     activeId !== undefined && "hidden h-full lg:grid",
                   )}
                   onClick={() => toggle(item.id)}
@@ -256,60 +257,80 @@ export function EUInspectionView({
                   <Checkbox checked={picked} readOnly />
                 </div>
 
-                <SimpleRow
+                <div
                   className={cn(
-                    workspaceRows,
+                    // base styling
+                    "flex-1 grid",
+                    "items-center gap-4",
+                    "rounded border border-extra-faint bg-raised",
+
+                    // narrow container
+                    "grid-cols-[auto_auto_minmax(0,1fr)]",
+
+                    // wide container
+                    "@min-[600px]:grid-cols-[auto_auto_auto_minmax(0,1fr)]",
+
+                    // conditional styling
                     picked && "border border-accent", // picked = when member of batch select
                     activeId === item.id && // active = the item open in workspace
                       "border-l-4 border-l-accent-strong/80 bg-elevated-alt/60",
                   )}
-                  media={<DateStamp date={item.euDate} />}
-                  title={item.vehicle.plateNumber}
-                  subtitle={
-                    <div className="basis-1/2 flex flex-col gap-0.5">
-                      <span className="inline-flex items-center gap-1.5 text-subtle/80">
-                        <span>
+                >
+                  <SimpleRow
+                    media={<DateStamp date={item.euDate} />}
+                    title={item.vehicle.plateNumber}
+                    subtitle={
+                      <div className="flex flex-col gap-0.5">
+                        <span className="inline-flex items-center gap-1.5 text-subtle/80">
                           {LABELS.euDate}:
                           <span className="tabular-nums"> {item.euDate}</span>
                         </span>
-                      </span>
 
-                      {(() => {
-                        const days = getDaysUntil(item.euDate);
-                        return (
-                          <span
-                            className={cn(
-                              "text-accent",
-                              days < 30 && "text-warning",
-                              "bg-current/8 border border-current/12",
-                              "rounded text-center",
-                            )}
-                          >
-                            {days > 365
-                              ? "In 1+ years"
-                              : days > 0
-                                ? `In ${days} days`
-                                : `${Math.abs(days)} days overdue`}
-                          </span>
-                        );
-                      })()}
-                    </div>
-                  }
-                >
-                  <div className="flex w-100  gap-3">
-                    <div className="vertical-line" />
+                        {(() => {
+                          const days = getDaysUntil(item.euDate);
+                          return (
+                            <span
+                              className={cn(
+                                "text-accent",
+                                days < 30 && "text-warning",
+                                "bg-current/8 border border-current/12",
+                                "rounded text-center",
+                              )}
+                            >
+                              {days > 365
+                                ? "In 1+ years"
+                                : days > 0
+                                  ? `In ${days} days`
+                                  : // : `${Math.abs(days)} days overdue`}
+                                    `overdue`}
+                            </span>
+                          );
+                        })()}
+                      </div>
+                    }
+                  >
+                    {/* CHILDREN */}
+                    <div className="flex gap-3 min-w-0">
+                      <div className="vertical-line" />
 
-                    <div className="flex flex-col justify-center text-sm">
-                      <NotificationRowStatus
-                        status={statusBySubjectId.get(item.id)}
-                        mostRecent={item.notifications[0]}
-                        sendingTitle={LABELS.sendingNotification}
-                      />
+                      <div className="flex flex-col justify-center text-sm min-w-0">
+                        <NotificationRowStatus
+                          status={statusBySubjectId.get(item.id)}
+                          mostRecent={item.notifications[0]}
+                          sendingTitle={LABELS.sendingNotification}
+                        />
+                      </div>
                     </div>
 
                     <IconBtn
                       className={cn(
-                        "py-1 px-2 mr-1 hover:text-accent ml-auto",
+                        // narrow container
+                        "py-3 px-2 hover:text-accent justify-self-end",
+                        "col-span-full w-full rounded-t-none bg-lowered mr-auto",
+
+                        // wide container
+                        "@min-[600px]:py-1 @min-[600px]:col-span-1 @min-[600px]:w-auto @min-[600px]:bg-transparent @min-[600px]:rounded @min-[600px]:mr-1",
+
                         activeId === item.id &&
                           "[&>svg]:!text-muted cursor-default pointer-events-none hover:text-muted",
                       )}
@@ -320,8 +341,8 @@ export function EUInspectionView({
                         ? LABELS.inWorkspace
                         : LABELS.openInWorkspace}
                     </IconBtn>
-                  </div>
-                </SimpleRow>
+                  </SimpleRow>
+                </div>
               </div>
             )}
           />
@@ -329,7 +350,7 @@ export function EUInspectionView({
 
         <WorkspacePanel onClose={() => setActiveId(undefined)}>
           {activeItem && (
-            <div className="h-dvh flex flex-col overflow-hidden p-4">
+            <div className="h-dvh flex flex-col gap-3 overflow-hidden p-4">
               <EuInspectionSummary item={activeItem} />
               <button
                 onClick={() => sendNotification([activeItem.id])}
