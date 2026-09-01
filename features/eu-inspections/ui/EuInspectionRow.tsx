@@ -4,7 +4,7 @@ import { getDaysUntil } from "@a2zb/lib";
 import { cn } from "@lib/cn";
 
 import { OpenWorkspaceOverlay } from "@components/icons";
-import { DateStamp, SimpleRow } from "@/components/molecules";
+import { DateStamp, MediaLabel } from "@/components/molecules";
 import { NotificationRowStatus } from "@/features/notifications/ui/NotificationRowStatus";
 
 import type {
@@ -41,10 +41,10 @@ export function EuInspectionRow({
         "rounded border border-extra-faint bg-raised",
 
         // narrow container
-        "grid-cols-[auto_auto_minmax(0,1fr)]",
+        "grid-cols-[auto_minmax(0,1fr)]",
 
         // wide container
-        "@min-[512px]:grid-cols-[auto_auto_auto_minmax(0,1fr)]",
+        "@min-[512px]:grid-cols-[40%_auto_minmax(0,1fr)]",
 
         // conditional styling
         picked && "border border-accent", // picked = when member of batch select
@@ -52,70 +52,72 @@ export function EuInspectionRow({
           "border-l-4 border-l-accent-strong/80 bg-elevated-alt/60",
       )}
     >
-      <SimpleRow
-        media={<DateStamp date={item.euDate} />}
-        title={item.vehicle.plateNumber}
-        subtitle={
-          <div className="flex flex-col gap-0.5">
-            <span className="inline-flex items-center gap-1.5 text-subtle/80">
-              {LABELS.euDate}:
-              <span className="tabular-nums"> {item.euDate}</span>
-            </span>
+      <div className="flex gap-2">
+        <MediaLabel
+          media={<DateStamp date={item.euDate} />}
+          title={item.vehicle.plateNumber}
+          subtitle={
+            <div className="flex flex-col gap-0.5">
+              <span className="inline-flex items-center gap-1.5 text-subtle/80">
+                {LABELS.euDate}:
+                <span className="tabular-nums"> {item.euDate}</span>
+              </span>
 
-            {(() => {
-              const days = getDaysUntil(item.euDate);
-              return (
-                <span
-                  className={cn(
-                    "text-accent",
-                    days < 30 && "text-warning",
-                    "bg-current/8 border border-current/12",
-                    "rounded text-center",
-                  )}
-                >
-                  {days > 365
-                    ? "In 1+ years"
-                    : days > 0
-                      ? `In ${days} days`
-                      : // : `${Math.abs(days)} days overdue`}
-                        `overdue`}
-                </span>
-              );
-            })()}
-          </div>
-        }
-      >
-        {/* CHILDREN */}
-        <div className="flex gap-3 min-w-0">
-          <div className="vertical-line" />
+              {(() => {
+                const days = getDaysUntil(item.euDate);
+                return (
+                  <span
+                    className={cn(
+                      "text-accent",
+                      days < 30 && "text-warning",
+                      "bg-current/8 border border-current/12",
+                      "rounded text-center",
+                    )}
+                  >
+                    {days > 365
+                      ? "In 1+ years"
+                      : days > 0
+                        ? `In ${days} days`
+                        : // : `${Math.abs(days)} days overdue`}
+                          `overdue`}
+                  </span>
+                );
+              })()}
+            </div>
+          }
+        />
+      </div>
 
-          <div className="flex flex-col justify-center text-sm min-w-0">
-            <NotificationRowStatus
-              status={statusBySubjectId.get(item.id)}
-              mostRecent={item.notifications[0]}
-              sendingTitle={LABELS.sendingNotification}
-            />
-          </div>
+      {/* CHILDREN */}
+      <div className="flex gap-3 min-w-0">
+        <div className="vertical-line" />
+
+        <div className="flex flex-col justify-center text-sm min-w-0">
+          <NotificationRowStatus
+            status={statusBySubjectId.get(item.id)}
+            mostRecent={item.notifications[0]}
+            sendingTitle={LABELS.sendingNotification}
+          />
         </div>
+      </div>
 
-        <IconBtn
-          className={cn(
-            // narrow container
-            "py-3 px-2 hover:text-accent justify-self-end",
-            "col-span-full w-full rounded-t-none bg-lowered mr-auto",
+      <IconBtn
+        className={cn(
+          // narrow container
+          "py-3 px-2 hover:text-accent justify-self-end",
+          "col-span-full w-full rounded-t-none bg-lowered mr-auto",
 
-            // wide container
-            "@min-[512px]:py-1 @min-[512px]:col-span-1 @min-[512px]:w-auto @min-[512px]:bg-transparent @min-[512px]:rounded @min-[512px]:mr-1",
+          // wide container
+          "@min-[512px]:py-1 @min-[512px]:col-span-1 @min-[512px]:w-auto @min-[512px]:bg-transparent @min-[512px]:rounded @min-[512px]:mr-1",
 
-            activeId === item.id &&
-              "[&>svg]:!text-muted cursor-default pointer-events-none hover:text-muted",
-          )}
-          onClick={() => setActiveId(item.id)}
-          icon={OpenWorkspaceOverlay}
-        >
-          {activeId === item.id ? LABELS.inWorkspace : LABELS.openInWorkspace}
-        </IconBtn>
-      </SimpleRow>
+          activeId === item.id &&
+            "[&>svg]:!text-muted cursor-default pointer-events-none hover:text-muted",
+        )}
+        onClick={() => setActiveId(item.id)}
+        icon={OpenWorkspaceOverlay}
+      >
+        {activeId === item.id ? LABELS.inWorkspace : LABELS.openInWorkspace}
+      </IconBtn>
     </div>
   );
 }
