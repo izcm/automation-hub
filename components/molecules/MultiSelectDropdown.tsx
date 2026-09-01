@@ -33,9 +33,12 @@ export function MultiSelectDropdown({
           >
             <TextInput
               value={search}
-              onChange={setSearch}
-              placeholder={placeholder}
-              className="h-8 w-full [&__input]:text-subtle [&__input]:text-sm"
+              input={{
+                placeholder,
+                onChange: (e) => setSearch(e.currentTarget.value),
+                className: "text-subtle text-sm",
+              }}
+              className="h-8 w-full"
             />
           </div>
         }
