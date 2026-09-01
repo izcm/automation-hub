@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { DetailField, Spinner, TextInput } from "@a2zb/react";
-import { rejectWith } from "@lib/toast";
+import { usePlateNumberLookup } from "@/features/vehicles/hooks/use-plate-number-lookup";
 
 // internal type – essential characteristics
 // so user can confirm lookup is correct
@@ -21,45 +21,10 @@ type Props = {
 export function VehicleLookup({ onDone }: Props) {
   const focusRef = useRef<HTMLInputElement | HTMLButtonElement>(null);
 
-  const [loading, setLoading] = useState(false);
-  const [vehicle, setVehicle] = useState<LookupResult | null>(null);
+  const { loading, vehicle, setVehicle, hasError, lookup } =
+    usePlateNumberLookup<LookupResult>();
 
-  const [hasError, setHasError] = useState<boolean>(false);
-
-  // const [plateNumber, setPlateNumber] = useState<string | null>(null);
-  // const hasError = plateNumber !== null && plateNumber?.match(/^[A-Z] ?\d{5}$/);
-
-  const handleLookup = async () => {
-    const plateInput = focusRef.current?.value ?? "";
-    if (!plateInput?.match(/^[A-Z]{2} ?\d{5}$/)) {
-      setHasError(true);
-      return;
-    }
-
-    let vehicle;
-
-    setHasError(false);
-    setLoading(true);
-
-    try {
-      const res = await fetch(`/api/vehicles/lookup?plateNumber=${plateInput}`);
-      const body = await res.json();
-
-      if (!res.ok) {
-        rejectWith("Something went wrong", body.error);
-        vehicle = null;
-      } else {
-        vehicle = body;
-      }
-    } catch {
-      // config errors
-      rejectWith("Contact IT Support", "Something went wrong");
-      vehicle = null;
-    }
-
-    setLoading(false);
-    setVehicle(vehicle);
-  };
+  const handleLookup = () => lookup(focusRef.current?.value ?? "");
 
   useEffect(() => {
     focusRef.current?.focus();
@@ -126,7 +91,7 @@ export function VehicleLookup({ onDone }: Props) {
   return (
     <>
       <TextInput
-        placeholder="PLATE NUMBER"
+        input={{ placeholder: "PLATE NUMBER" }}
         ref={(el) => {
           focusRef.current = el;
         }}

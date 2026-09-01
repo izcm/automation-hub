@@ -49,14 +49,14 @@ export function LoginModal({
     >
       <div
         className="
-        grid place-items-center 
+        grid place-items-center
         rounded-full bg-raised
         mx-auto h-12 w-12"
       >
         <Lock strokeWidth="1" />
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 text-center">
         <h2 className="text-2xl font-semibold">Welcome</h2>
         <span className="text-xs text-subtle">
           Log in to continue to your account

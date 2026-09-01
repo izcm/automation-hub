@@ -73,6 +73,7 @@ export function useNotifications<T extends { notifications: Notification[] }>(
   const prevStatuses = useRef(statusBySubjectId);
 
   useEffect(() => {
+    console.log("wtf");
     statusBySubjectId.forEach((status, subjectId) => {
       const prevStatus = prevStatuses.current.get(subjectId);
       const justFinished = prevStatus === "queued" && status !== "queued";
@@ -99,7 +100,10 @@ export function useNotifications<T extends { notifications: Notification[] }>(
           if (item.notifications.some((n) => n.id === notification.id)) {
             return item;
           }
-          return { ...item, notifications: [notification, ...item.notifications] };
+          return {
+            ...item,
+            notifications: [notification, ...item.notifications],
+          };
         }),
       );
     });
@@ -107,11 +111,21 @@ export function useNotifications<T extends { notifications: Notification[] }>(
     prevStatuses.current = statusBySubjectId;
   }, [statusBySubjectId, notifications, sentNotifications, setSubjects, getId]);
 
+  // only start a fresh batch once the previous one is fully resolved —
+  // otherwise (something's still queued) append onto it as before
   const addSent = useCallback(
     (sent: SentNotification[]) =>
-      setSentNotifications((prev) => [...prev, ...sent]),
-    [],
+      setSentNotifications((prev) => (isResolved ? sent : [...prev, ...sent])),
+    [isResolved],
   );
 
-  return { statusBySubjectId, isResolved, addSent };
+  const resetBatch = useCallback(() => setSentNotifications([]), []);
+
+  return {
+    statusBySubjectId,
+    isResolved,
+    hasPending: queuedCount > 0,
+    addSent,
+    resetBatch,
+  };
 }

@@ -14,11 +14,9 @@ export function NotificationList({ notifications }: Props) {
     <table className="w-full table-fixed text-sm">
       <thead>
         <tr className="border-b border-extra-faint text-[12px] text-subtle">
-          <th className="w-[200px] p-2 text-start font-normal">To</th>
-          <th className="w-[80px] p-2 text-start font-normal">Status</th>
-          <th className="w-auto truncate p-2 text-start font-normal">
-            Created
-          </th>
+          <th className="w-[200px] p-2 font-normal">To</th>
+          <th className="w-[80px] p-2 font-normal">Status</th>
+          <th className="w-auto truncate p-2 font-normal">Created</th>
         </tr>
       </thead>
       <tbody>

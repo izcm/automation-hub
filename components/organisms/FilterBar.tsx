@@ -23,6 +23,7 @@ type Props = {
   textInputProps: ComponentProps<typeof TextInput>;
   className?: string;
   children?: ReactNode;
+  belowSearchBar?: ReactNode;
 };
 
 export function FilterBar({
@@ -30,6 +31,7 @@ export function FilterBar({
   textInputProps,
   className,
   children: dropdown,
+  belowSearchBar,
 }: Props) {
   const [showFilterMenu, setShowFilterMenu] = useState(false);
 
@@ -48,6 +50,8 @@ export function FilterBar({
           </button>
         )}
       </div>
+
+      {belowSearchBar}
 
       {showFilterMenu && dropdown && (
         <div className="flex p-4 menu-surface">{dropdown}</div>

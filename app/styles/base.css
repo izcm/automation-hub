@@ -8,6 +8,8 @@
 body {
   margin: 0;
   background: var(--ground);
+  width: 100%;
+  height: 100%;
   color: var(--fg);
   font-family: var(--font-sans);
   /* guarantees ≥24px at the top; margins collapse (max, not sum), so it never

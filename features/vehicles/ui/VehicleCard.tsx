@@ -17,7 +17,7 @@ export function VehicleCard({ vehicle, className, onOpenInWorkspace }: Props) {
   const meta = [vehicleType, fuelType].filter(Boolean).join(" · ");
 
   return (
-    <article className={cn("@container text-start", className)}>
+    <article className={cn("@container", className)}>
       {/* below ~480px of *its own* container width, stack instead of clip */}
       <div className="flex gap-4 p-5 @max-[480px]:flex-col">
         <div className="flex min-w-0 flex-1 flex-col gap-3">

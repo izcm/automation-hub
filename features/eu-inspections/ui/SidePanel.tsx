@@ -215,69 +215,63 @@ function EmployeeCard({ id, name }: { id: string; name: string }) {
   );
 }
 
-export function EuInspectionSidePanel({ item }: Props) {
+export function EuInspectionSummary({ item }: Props) {
   const { vehicle, notifications } = item;
   const { employee: maintenanceResponsible } = vehicle;
 
   return (
-    <div className="flex flex-col h-full p-4 gap-3 text-start">
+    <>
       <SidePanelHeader vehicle={vehicle} />
 
       <EuInspectionSection item={item} />
 
       {/* VEHICLE */}
-      <div className="flex flex-col gap-2">
-        <Eyebrow>Vehicle</Eyebrow>
+      <div className="flex flex-col gap-3 overflow-y-scroll scrollbar-hide">
+        <div className="flex flex-col gap-2">
+          <Eyebrow>Vehicle</Eyebrow>
 
-        <VehicleDetailsCard vehicle={vehicle} />
+          <VehicleDetailsCard vehicle={vehicle} />
 
-        <div className="raised-outline-panel p-2">
-          <Eyebrow>Maintenance responsible</Eyebrow>
+          <div className="raised-outline-panel p-2">
+            <Eyebrow>Maintenance responsible</Eyebrow>
 
-          {maintenanceResponsible ? (
-            <EmployeeCard
-              id={maintenanceResponsible.id}
-              name={maintenanceResponsible.name}
-            />
-          ) : (
-            <div>Issues reading maintenance responsible.</div>
-          )}
+            {maintenanceResponsible ? (
+              <EmployeeCard
+                id={maintenanceResponsible.id}
+                name={maintenanceResponsible.name}
+              />
+            ) : (
+              <div>Issues reading maintenance responsible.</div>
+            )}
+          </div>
+        </div>
+
+        {/* NOTIFICATIONS */}
+        <div className="flex flex-col gap-2">
+          <Eyebrow>Notifications</Eyebrow>
+
+          <div className="raised-outline-panel">
+            <dl className="grid grid-cols-3 gap-4 border-b border-extra-faint">
+              {(
+                [
+                  { label: "Total", status: undefined },
+                  { label: "Sent", status: "sent" },
+                  { label: "Failed", status: "failed" },
+                ] as const
+              ).map(({ label, status }) => (
+                <Field key={label} label={label} className="py-1 px-3">
+                  {status === undefined
+                    ? item.notifications.length
+                    : item.notifications.filter((n) => n.status === status)
+                        .length}
+                </Field>
+              ))}
+            </dl>
+            {/* TODO: slice here but have "show all" btn that extend list, panel should scroll itself not page */}
+            <NotificationList notifications={notifications.slice(0, 3)} />
+          </div>
         </div>
       </div>
-
-      {/* NOTIFICATIONS */}
-      <div className="flex flex-col gap-2">
-        <Eyebrow>Notifications</Eyebrow>
-
-        <div className="raised-outline-panel">
-          <dl className="grid grid-cols-3 gap-4 border-b border-extra-faint">
-            {(
-              [
-                { label: "Total", status: undefined },
-                { label: "Sent", status: "sent" },
-                { label: "Failed", status: "failed" },
-              ] as const
-            ).map(({ label, status }) => (
-              <Field key={label} label={label} className="py-1 px-3">
-                {status === undefined
-                  ? item.notifications.length
-                  : item.notifications.filter((n) => n.status === status)
-                      .length}
-              </Field>
-            ))}
-          </dl>
-          {/* TODO: slice here but have "show all" btn that extend list, panel should scroll itself not page */}
-          <NotificationList notifications={notifications.slice(0, 6)} />
-        </div>
-      </div>
-
-      <button
-        className="btn btn-secondary mt-auto inline-flex items-center gap-2"
-        disabled={!maintenanceResponsible}
-      >
-        <Notify size={14} />
-        Notify {maintenanceResponsible?.name}
-      </button>
-    </div>
+    </>
   );
 }

@@ -1,12 +1,14 @@
-import { ReactNode, SetStateAction } from "react";
+import { ComponentProps, ReactNode, SetStateAction } from "react";
 import { Checkbox, Gallery } from "@a2zb/react";
 import { cn } from "@/lib/cn";
 
-export type BatchAction = {
+export type BatchAction = Omit<
+  ComponentProps<"button">,
+  "onClick" | "children"
+> & {
   label: ReactNode | ((count: number) => ReactNode);
   onClick: (ids: string[], clearSelection: () => void) => void;
   icon?: ReactNode;
-  className?: string;
 };
 
 type Props<T> = {
@@ -26,7 +28,7 @@ type Props<T> = {
     toggle: (id: string) => void,
   ) => ReactNode;
   // action bar (shown once ≥1 item is selected)
-  actions?: BatchAction[];
+  actions?: (batchSelected: string[]) => BatchAction[];
   selectedLabel?: (count: number) => ReactNode;
   clearLabel?: string;
   selfManagesCheckbox?: boolean;
@@ -41,7 +43,7 @@ export function BatchSelect<T>({
   onSelect,
   className,
   galleryItem,
-  actions = [],
+  actions = () => [],
   selectedLabel = (n) => `${n} selected`,
   clearLabel = "Clear",
 }: Props<T>) {
@@ -69,23 +71,25 @@ export function BatchSelect<T>({
             </button>
           </div>
           <div className="flex gap-2">
-            {actions.map((action, i) => (
-              <button
-                key={i}
-                onClick={() => {
-                  action.onClick(batchSelected, () => setBatchSelected([]));
-                }}
-                className={
-                  action.className ??
-                  "btn btn-primary flex-center gap-2 text-sm"
-                }
-              >
-                {action.icon}
-                {typeof action.label === "function"
-                  ? action.label(batchSelected.length)
-                  : action.label}
-              </button>
-            ))}
+            {actions(batchSelected).map(
+              ({ label, onClick, icon, className, ...rest }, i) => (
+                <button
+                  key={i}
+                  onClick={() => {
+                    onClick(batchSelected, () => setBatchSelected([]));
+                  }}
+                  className={
+                    className ?? "btn btn-primary flex-center gap-2 text-sm"
+                  }
+                  {...rest}
+                >
+                  {icon}
+                  {typeof label === "function"
+                    ? label(batchSelected.length)
+                    : label}
+                </button>
+              ),
+            )}
           </div>
         </div>
       )}

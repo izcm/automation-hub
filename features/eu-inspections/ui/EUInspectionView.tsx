@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { Checkbox, IconBtn, Spinner } from "@a2zb/react";
 import { getDaysUntil, timeAgo } from "@a2zb/lib";
+import { toast } from "sonner";
 
 import { cn } from "@lib/cn";
 import { confirmWith, rejectWith, warningWith } from "@/lib/toast";
@@ -35,13 +36,23 @@ import {
   EU_INSPECTIONS_LABELS,
   useNotifyEuInspections,
   FilterMenu,
-  EuInspectionSidePanel,
+  EuInspectionSummary,
 } from "@/features/eu-inspections";
 import { useNotifications } from "../hooks/use-notifications";
 
 import { useSearchFilters } from "../../search/use-search-filters";
 import { toSearchParams } from "../../search/param-mapper";
 import { getPage } from "@/shared/http/page-get";
+import { useRegexValidatedInput } from "@/lib/hooks/use-regex-validated-input";
+
+// lenient: 2 letters + 4-5 digits, space optional/anywhere — normalize strips
+// all whitespace and re-inserts the single space the API expects
+const SEARCH_PLATE_NUMBER_PATTERN = /^[A-Z]{2} \d{4,5}$/;
+
+function normalizeSearchPlateNumber(input: string): string {
+  const stripped = input.replace(/\s+/g, "").toUpperCase();
+  return `${stripped.slice(0, 2)} ${stripped.slice(2)}`;
+}
 
 type Props = {
   euInspections: EuInspectionRow[];
@@ -68,13 +79,19 @@ export function EUInspectionView({
 }: Props) {
   const {
     filters,
-    handleSearch: tmpNotInUse,
+    //handleSearch: tmpNotInUse,
     resetFilters,
-    searchInput: tmpNotInUseSecond,
+    //searchInput: tmpNotInUseSecond,
     toggleFilter,
   } = useSearchFilters();
 
-  const [searchInput] = useState<string>("");
+  const [searchInput, setSearchInput] = useState<string>("");
+
+  const { hasError: hasSearchError, parse: parsePlateNumber } =
+    useRegexValidatedInput(
+      SEARCH_PLATE_NUMBER_PATTERN,
+      normalizeSearchPlateNumber,
+    );
 
   const sendNotifs = useNotifyEuInspections();
   const [euInspections, setEuInspections] = useState(initialEuInspections);
@@ -87,31 +104,51 @@ export function EUInspectionView({
     LABELS.searchPlaceholder,
   );
 
-  const { statusBySubjectId, addSent } = useNotifications(
-    (v: EuInspectionRow) => v.id,
-    setEuInspections,
-    ({ success, failed }) => {
-      if (failed === 0) {
-        confirmWith(
-          "Notifications sent!",
-          "All notifications were sent successfully.",
-        );
-      } else if (success === 0) {
-        rejectWith("Notifications failed", "No notifications could be sent.");
-      } else {
-        warningWith(
-          "Some notifications failed",
-          `${success} sent, ${failed} failed.`,
-        );
+  const resolvedToastIdRef = useRef<string | number | undefined>(undefined);
+
+  const { statusBySubjectId, hasPending, addSent, resetBatch } =
+    useNotifications(
+      (v: EuInspectionRow) => v.id,
+      setEuInspections,
+      ({ success, failed }) => {
+        if (failed === 0) {
+          resolvedToastIdRef.current = confirmWith(
+            "Notifications sent!",
+            "All notifications were sent successfully.",
+          );
+        } else if (success === 0) {
+          resolvedToastIdRef.current = rejectWith(
+            "Notifications failed",
+            "No notifications could be sent.",
+          );
+        } else {
+          resolvedToastIdRef.current = warningWith(
+            "Some notifications failed",
+            `${success} sent, ${failed} failed.`,
+          );
+        }
+      },
+    );
+
+  // don't let the resolved-notification toast survive navigating away
+  useEffect(() => {
+    return () => {
+      if (resolvedToastIdRef.current !== undefined) {
+        toast.dismiss(resolvedToastIdRef.current);
       }
-    },
-  );
+    };
+  }, []);
 
   function handleSearch(search: string) {
     if (!search) return;
 
+    const plateNumber = parsePlateNumber(search);
+    if (!plateNumber) return;
+
+    setSearchInput(plateNumber);
+
     const query = new URLSearchParams();
-    query.set("filters[vehicle][plateNumber]", search);
+    query.set("filters[vehicle][plateNumber]", plateNumber);
 
     query.set("include[vehicle][include][employee]", "true");
     query.set("include[notifications]", "true");
@@ -133,12 +170,17 @@ export function EUInspectionView({
   // useEffect(() => {
   //   addSent(
   //     initialEuInspections.slice(0, 4).map((item, i) => ({
-  //       notificationId: `dummy-${i}`,
+  //       notificationId: `dummy-${i}-${Date.now()}`,
   //       subjectId: item.id,
   //     })),
   //   );
+
+  //   // undoes this batch on StrictMode's dev-only double-invoke, so it
+  //   // doesn't stack with the real mount's batch
+  //   return () => resetBatch();
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, []);
+
   // useEffect(() => {
   //   const filterKeyMap = FIELD_ALISES_MAP[language]["vehicles"];
 
@@ -172,6 +214,7 @@ export function EUInspectionView({
 
   //   return () => controller.abort();
   // }, [filters, language]);
+
   const searchbarRef = useRef<HTMLInputElement>(null);
 
   useLayoutEffect(() => {
@@ -212,6 +255,13 @@ export function EUInspectionView({
               ref: searchbarRef,
               className: "focus-within:!border-accent/60",
             }}
+            searchError={
+              hasSearchError && (
+                <span className="text-warning text-sm">
+                  {LABELS.invalidPlateNumber}
+                </span>
+              )
+            }
             filterMenu={
               <FilterMenu
                 filters={filters}
@@ -219,10 +269,15 @@ export function EUInspectionView({
                 resetFilters={resetFilters}
               />
             }
-            batchActions={[
+            batchActions={(batchSelected) => [
               {
                 label: (count) => LABELS.notify(count),
+                title:
+                  "Can't notify as a selected item has an unresolved notification. Please wait.",
                 icon: <Notify size={14} />,
+                disabled: batchSelected.some(
+                  (id) => statusBySubjectId.get(id) === "queued",
+                ),
                 onClick: async (euInspectionIds, clearSelection) => {
                   const result = await sendNotifs.mutateAsync({
                     euInspectionIds,
@@ -264,50 +319,6 @@ export function EUInspectionView({
                           {LABELS.euDate}:
                           <span className="tabular-nums"> {item.euDate}</span>
                         </span>
-                        {(() => {
-                          const status = statusBySubjectId.get(item.id);
-
-                          if (status === "queued")
-                            return (
-                              <>
-                                {" · "}
-                                <span className="inline-flex items-center gap-1.5">
-                                  <Spinner
-                                    size={14}
-                                    title={LABELS.sendingNotification}
-                                  />
-                                  Notifying...
-                                </span>
-                              </>
-                            );
-                          if (status === "sent")
-                            return (
-                              <>
-                                {" · "}
-                                <IconBadge
-                                  icon={Confirm}
-                                  variant="success"
-                                  className="[&>span:first-child]:p-0.25"
-                                >
-                                  {LABELS.notificationSent}
-                                </IconBadge>
-                              </>
-                            );
-                          if (status === "failed")
-                            return (
-                              <>
-                                {" · "}
-                                <IconBadge
-                                  icon={Failure}
-                                  variant="danger"
-                                  className="[&>span:first-child]:p-0.25"
-                                >
-                                  {LABELS.notificationFailed}
-                                </IconBadge>
-                              </>
-                            );
-                          return null;
-                        })()}
                       </span>
 
                       {(() => {
@@ -318,7 +329,7 @@ export function EUInspectionView({
                               "text-accent",
                               days < 30 && "text-warning",
                               "bg-current/8 border border-current/12",
-                              "rounded w-20 text-center",
+                              "rounded text-center",
                             )}
                           >
                             {days > 365
@@ -335,8 +346,26 @@ export function EUInspectionView({
                   <div className="flex w-100  gap-3">
                     <div className="vertical-line" />
 
-                    <div className="flex flex-col justify-center text-sm text-start">
+                    <div className="flex flex-col justify-center text-sm">
                       {(() => {
+                        const sentInThisSession = statusBySubjectId.get(
+                          item.id,
+                        );
+
+                        if (sentInThisSession === "queued") {
+                          return (
+                            <>
+                              <span className="text-accent inline-flex items-center gap-1.5">
+                                <Spinner
+                                  size={14}
+                                  title={LABELS.sendingNotification}
+                                />
+                                Notifying...
+                              </span>
+                              <span className="text-subtle">—</span>
+                            </>
+                          );
+                        }
                         const mostRecent = item.notifications[0];
 
                         if (!mostRecent)
@@ -353,14 +382,17 @@ export function EUInspectionView({
                           <>
                             <span
                               className={cn(
-                                // "text-accent"
+                                sentInThisSession === "sent" &&
+                                  "text-success/80",
                                 mostRecent.status === "failed" &&
                                   "text-failure",
                               )}
                             >
                               {mostRecent.status === "failed"
                                 ? "Last notification failed"
-                                : "Last notification sent"}
+                                : sentInThisSession === "sent"
+                                  ? "Successfully sent"
+                                  : "Last notification sent"}
                             </span>
                             <span className="text-subtle">
                               {timeAgo(mostRecent.createdAt)}
@@ -391,7 +423,18 @@ export function EUInspectionView({
         </div>
 
         <WorkspacePanel onClose={() => setActiveId(undefined)}>
-          {activeItem && <EuInspectionSidePanel item={activeItem} />}
+          {activeItem && (
+            <div className="h-dvh flex flex-col overflow-hidden p-4">
+              <EuInspectionSummary item={activeItem} />
+              <button
+                className="btn btn-secondary mt-auto inline-flex items-center gap-2"
+                disabled={!activeItem.vehicle.employee}
+              >
+                <Notify size={14} />
+                Notify {activeItem.vehicle.employee?.name}
+              </button>
+            </div>
+          )}
         </WorkspacePanel>
       </WorkspaceLayout>
     </>

@@ -4,6 +4,7 @@ const en = {
   heading: "Upcoming EU Inspections",
   // searchPlaceholder: "Search plate number, set timespan...",
   searchPlaceholder: "Search plate number",
+  invalidPlateNumber: "Must be 2 letters + 4-5 digits",
   euDate: "Due",
   notify: (n: number) => `Notify ${n} drivers`,
   openInWorkspace: "Inspect",
@@ -16,6 +17,7 @@ const en = {
 const no: typeof en = {
   heading: "Kommende EU-kontroller",
   searchPlaceholder: "Søk registreringsnummer",
+  invalidPlateNumber: "Må være 2 bokstaver + 4-5 tall",
   euDate: "Frist",
   notify: (n: number) => `Varsle ${n} sjåfører`,
   openInWorkspace: "Inspiser",

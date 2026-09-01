@@ -8,7 +8,7 @@ export function confirmWith(
   description?: string,
   opts?: ToastOpts,
 ) {
-  toast.success(title, { description, ...opts });
+  return toast.success(title, { description, ...opts });
 }
 
 export function rejectWith(
@@ -16,7 +16,7 @@ export function rejectWith(
   description?: string,
   opts?: ToastOpts,
 ) {
-  toast.error(title, { description, ...opts });
+  return toast.error(title, { description, ...opts });
 }
 
 export function warningWith(
@@ -24,5 +24,5 @@ export function warningWith(
   description?: string,
   opts?: ToastOpts,
 ) {
-  toast.warning(title, { description, ...opts });
+  return toast.warning(title, { description, ...opts });
 }

@@ -27,7 +27,8 @@ export type ResourceManagementLabels = {
 type Props<T> = {
   items: T[];
   getId: (item: T) => string;
-  batchActions?: BatchAction[]; // actions that user can do with batch selection, eg. notify
+  // actions that user can do with batch selection, eg. notify
+  batchActions?: (batchSelected: string[]) => BatchAction[];
   // same type as BatchSelect's `galleryItem` — always, automatically
   listItem: ComponentProps<typeof BatchSelect<T>>["galleryItem"];
   labels: ResourceManagementLabels;
@@ -35,6 +36,7 @@ type Props<T> = {
   itemClassName?: (isSelected: boolean) => string;
   textInputProps: ComponentProps<typeof FilterBar>["textInputProps"];
   filterMenu?: ReactNode;
+  searchError?: ReactNode;
 };
 
 export function ResourceManagementView<T>({
@@ -46,6 +48,7 @@ export function ResourceManagementView<T>({
   itemClassName,
   textInputProps,
   filterMenu,
+  searchError,
 }: Props<T>) {
   const [selected, setSelected] = useState<T | undefined>(undefined);
   const [batchSelected, setBatchSelected] = useState<string[]>([]);
@@ -85,6 +88,7 @@ export function ResourceManagementView<T>({
           },
           ...textInputProps,
         }}
+        belowSearchBar={searchError}
       >
         {filterMenu}
       </FilterBar>
