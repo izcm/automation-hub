@@ -3,17 +3,14 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { Checkbox, IconBtn } from "@a2zb/react";
-import { getDaysUntil, tsShort, tsSuperShort } from "@a2zb/lib";
+import { Checkbox } from "@a2zb/react";
 
 import { cn } from "@lib/cn";
 import { confirmWith, rejectWith, warningWith } from "@/lib/toast";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
 import { useRegexValidatedInput } from "@/lib/hooks/use-regex-validated-input";
 
-import { Notify, OpenWorkspaceOverlay } from "@components/icons";
-import { DateStamp, SimpleRow } from "@/components/molecules";
-import { NotificationRowStatus } from "@/features/notifications/ui/NotificationRowStatus";
+import { Notify } from "@components/icons";
 import {
   Header,
   ResourceManagementView,
@@ -33,6 +30,7 @@ import {
   FilterMenu,
   EuInspectionSummary,
 } from "@/features/eu-inspections";
+import { EuInspectionRow as EuInspectionRowCard } from "./EuInspectionRow";
 import { useNotifications } from "../hooks/use-notifications";
 
 import { getPage } from "@/shared/http/page-get";
@@ -246,7 +244,7 @@ export function EUInspectionView({
               },
             ]}
             listItem={(item, picked, _, toggle) => (
-              <div className="@container flex gap-4">
+              <div className="flex gap-4">
                 <div
                   className={cn(
                     "w-10 h-10 my-auto grid place-items-center",
@@ -257,91 +255,15 @@ export function EUInspectionView({
                   <Checkbox checked={picked} readOnly />
                 </div>
 
-                <div
-                  className={cn(
-                    // base styling
-                    "flex-1 grid",
-                    "items-center gap-4",
-                    "rounded border border-extra-faint bg-raised",
-
-                    // narrow container
-                    "grid-cols-[auto_auto_minmax(0,1fr)]",
-
-                    // wide container
-                    "@min-[600px]:grid-cols-[auto_auto_auto_minmax(0,1fr)]",
-
-                    // conditional styling
-                    picked && "border border-accent", // picked = when member of batch select
-                    activeId === item.id && // active = the item open in workspace
-                      "border-l-4 border-l-accent-strong/80 bg-elevated-alt/60",
-                  )}
-                >
-                  <SimpleRow
-                    media={<DateStamp date={item.euDate} />}
-                    title={item.vehicle.plateNumber}
-                    subtitle={
-                      <div className="flex flex-col gap-0.5">
-                        <span className="inline-flex items-center gap-1.5 text-subtle/80">
-                          {LABELS.euDate}:
-                          <span className="tabular-nums"> {item.euDate}</span>
-                        </span>
-
-                        {(() => {
-                          const days = getDaysUntil(item.euDate);
-                          return (
-                            <span
-                              className={cn(
-                                "text-accent",
-                                days < 30 && "text-warning",
-                                "bg-current/8 border border-current/12",
-                                "rounded text-center",
-                              )}
-                            >
-                              {days > 365
-                                ? "In 1+ years"
-                                : days > 0
-                                  ? `In ${days} days`
-                                  : // : `${Math.abs(days)} days overdue`}
-                                    `overdue`}
-                            </span>
-                          );
-                        })()}
-                      </div>
-                    }
-                  >
-                    {/* CHILDREN */}
-                    <div className="flex gap-3 min-w-0">
-                      <div className="vertical-line" />
-
-                      <div className="flex flex-col justify-center text-sm min-w-0">
-                        <NotificationRowStatus
-                          status={statusBySubjectId.get(item.id)}
-                          mostRecent={item.notifications[0]}
-                          sendingTitle={LABELS.sendingNotification}
-                        />
-                      </div>
-                    </div>
-
-                    <IconBtn
-                      className={cn(
-                        // narrow container
-                        "py-3 px-2 hover:text-accent justify-self-end",
-                        "col-span-full w-full rounded-t-none bg-lowered mr-auto",
-
-                        // wide container
-                        "@min-[600px]:py-1 @min-[600px]:col-span-1 @min-[600px]:w-auto @min-[600px]:bg-transparent @min-[600px]:rounded @min-[600px]:mr-1",
-
-                        activeId === item.id &&
-                          "[&>svg]:!text-muted cursor-default pointer-events-none hover:text-muted",
-                      )}
-                      onClick={() => setActiveId(item.id)}
-                      icon={OpenWorkspaceOverlay}
-                    >
-                      {activeId === item.id
-                        ? LABELS.inWorkspace
-                        : LABELS.openInWorkspace}
-                    </IconBtn>
-                  </SimpleRow>
+                <div className="@container flex-1 min-w-0">
+                  <EuInspectionRowCard
+                    item={item}
+                    picked={picked}
+                    activeId={activeId}
+                    setActiveId={setActiveId}
+                    statusBySubjectId={statusBySubjectId}
+                    LABELS={LABELS}
+                  />
                 </div>
               </div>
             )}
