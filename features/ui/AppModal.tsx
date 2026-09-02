@@ -13,9 +13,10 @@ export function AppModal({ overlayClassName, className, ...props }: Props) {
     <Modal
       overlayClassName={cn("bg-black/40 backdrop-blur-xs", overlayClassName)}
       className={cn(
-        "flex flex-col bg-elevated rounded border border-line max-w-[90vw] p-4",
+        "bg-elevated rounded border border-line max-w-[90vw] p-4",
         className,
       )}
+      hideCancelBtn
       {...props}
     />
   );

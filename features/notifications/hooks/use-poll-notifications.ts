@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 
-import type { Notification } from "@/types/notification";
 import { getNotifications } from "@/features/notifications/queries";
 
 // TEMP dummy data — delete and switch back to getNotifications(notificationIds)

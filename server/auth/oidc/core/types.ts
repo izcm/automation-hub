@@ -1,4 +1,7 @@
-export type OidcAuthRequestCreatos = (provider: string) => Promise<{
+export type OidcAuthRequestCreatos = (
+  provider: string,
+  redirectUri: string, // send by OUR APP -> OIDC PROVIDER
+) => Promise<{
   redirectTo: URL;
   codeVerifier: string;
   state: string;
@@ -8,7 +11,7 @@ export type OidcAuthRequestCreatos = (provider: string) => Promise<{
 // calls issuer with codeVerifier and receives tokens
 export type OidcCallbackHandler = (
   provider: string,
-  callbackUrl: URL,
+  receivedCallback: URL,
   codeVerifier: string,
   expectedState: string,
 ) => Promise<OidcIdentity>;

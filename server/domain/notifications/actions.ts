@@ -4,7 +4,7 @@ import { MessageRequest } from "./messaging/types";
 import { GenerateId } from "@server/shared/id";
 
 import { NotificationPort } from "./port";
-import { IS_DEMO } from "@/server/config/env";
+import { IS_DEMO } from "@/server/config/app";
 
 type SendEmail = (req: MessageRequest) => Promise<void>;
 

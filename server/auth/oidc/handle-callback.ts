@@ -5,13 +5,13 @@ import { OidcIdentity } from "./core/types";
 
 export async function handleOidcCallback(
   provider: string,
-  callbackUrl: URL,
+  receivedCallback: URL,
   codeVerifier: string,
   expectedState: string,
 ): Promise<OidcIdentity> {
   const config = await getOidcConfig(provider);
 
-  const tokens = await client.authorizationCodeGrant(config, callbackUrl, {
+  const tokens = await client.authorizationCodeGrant(config, receivedCallback, {
     pkceCodeVerifier: codeVerifier,
     expectedState,
   });

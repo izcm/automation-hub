@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { DetailField, Spinner, TextInput } from "@a2zb/react";
-import { usePlateNumberLookup } from "@/features/vehicles/hooks/use-plate-number-lookup";
+import { usePlateNumberLookup } from "../hooks/use-plate-number-lookup";
 
 // internal type – essential characteristics
 // so user can confirm lookup is correct

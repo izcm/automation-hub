@@ -1,6 +1,6 @@
 import { Copyable } from "@a2zb/react";
 
-import type { EuInspectionRow } from "@/features/eu-inspections/queries";
+import type { EuInspectionRow } from "@/features/eu-inspections/actions/query";
 import { NotificationList } from "@/features/notifications/ui/NotificationList";
 
 import { Copy, Edit, User, Calendar, Notify } from "@components/icons";

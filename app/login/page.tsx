@@ -12,12 +12,13 @@ import {
 } from "@/components/organisms";
 import { MicrosoftIcon } from "@/components/icons";
 
-import { AppModal } from "@/features/AppModal";
+import { AppModal } from "@/features/ui/AppModal";
+import { loginWithDemoCredentials } from "@/features/auth/login-with-demo-credentials";
+import { setEmailStorage } from "@/features/auth/set-email.storage";
 
 const SUCCESS_REDIRECT_PATH = "/";
-const OIDC_LOGIN_HREF = "/api/auth/login";
 
-export default function Login() {
+export default function LoginPage() {
   const router = useRouter();
   // TODO demo-only GDPR consent gate — remove once a real consent flow exists
   const [showGdprConsent, setShowGdprConsent] = useState(false);
@@ -44,10 +45,8 @@ export default function Login() {
           <LoginModal
             containerClassName={sharedClasses}
             oidcProviders={oidcProviders}
-            endpoints={{
-              credentialsLogin: "/api/auth/demo",
-            }}
-            onCredentialsLoginSuccess={() => {
+            onCredentialsSubmit={async (formData) => {
+              await loginWithDemoCredentials(formData);
               router.push(SUCCESS_REDIRECT_PATH);
             }}
           />
@@ -78,31 +77,53 @@ export default function Login() {
         <AppModal
           isOpen={showGdprConsent}
           onClose={() => setShowGdprConsent(false)}
-          hideCancelBtn
-          className="max-w-md"
+          className="w-sm"
         >
-          <div className="flex flex-col gap-4 p-2">
-            <h2 className="text-lg font-semibold">Email notifications</h2>
+          <div className="flex flex-col gap-12">
+            <div className="flex flex-col gap-4 p-2">
+              <h2 className="text-lg font-semibold">Notification feature</h2>
 
-            <div className="flex flex-col gap-3 text-sm text-subtle">
-              <p>
-                The demo includes email notifications, you can test the feature
-                using your own inbox.
-              </p>
-              <p>
-                <strong className="font-semibold text-fg">IZBLOCKS</strong> can
-                save your Microsoft email for up to 24 hours so you don’t have
-                to enter it yourself. It’s never shown to other users, and you
-                can withdraw permission anytime by logging out.
-              </p>
-              <p>
-                If you choose not to let us store, you will get the chance to
-                type it in manually in-app — then it won’t be stored at all.
-              </p>
-              <p className="font-semibold text-fg">
-                No marketing emails. All emails are initiated by you.
-              </p>
+              <div className="flex flex-col gap-3 text-sm text-subtle">
+                <p>
+                  The demo has a notification feature, you can test it using
+                  your own inbox.
+                </p>
+                <p>
+                  Would you like{" "}
+                  <strong className="font-semibold text-fg">IZBLOCKS</strong> to
+                  store your Microsoft email so you don’t have to enter it
+                  manually later?
+                </p>
+                <p className="font-semibold text-fg">
+                  It’s never shown to other users. Deleted within 24h, or when
+                  you log out.
+                </p>
+                <p>
+                  Prefer not to save it? You will get the chance to type it in
+                  manually in-app — then it won’t be stored at all.
+                </p>
+              </div>
             </div>
+
+            <form
+              action={setEmailStorage}
+              className="flex justify-end gap-2 h-10"
+            >
+              <button
+                name="storeEmail"
+                value="false"
+                className="btn btn-neutral"
+              >
+                Don’t store
+              </button>
+              <button
+                name="storeEmail"
+                value="true"
+                className="btn btn-secondary"
+              >
+                Store email
+              </button>
+            </form>
           </div>
         </AppModal>
       )}

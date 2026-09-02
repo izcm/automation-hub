@@ -11,10 +11,13 @@ import { makeSessionStore } from "../auth/sessions/session-store";
 import { authSessionRepo } from "../db/postgres/auth/session-repo";
 import { generateId } from "../shared/id";
 
+import { OIDC_REDIRECT_URI } from "../config/app";
+
 export const oidcLogin = makeOidcLogin({
   storage: oidcStorageRepo,
   createAuthRequest: createOidcAuthRequest,
   handleCallback: handleOidcCallback,
+  redirectUri: OIDC_REDIRECT_URI, // our app's callback route, static.
 });
 
 export const sessionStore = makeSessionStore({

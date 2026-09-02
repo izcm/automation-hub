@@ -6,7 +6,6 @@ import { TextInput } from "@a2zb/react";
 import { cn } from "@/lib/cn";
 import { Lock, Mail } from "@/components/icons";
 
-import { postJsonOrThrow } from "@/lib/fetch-json-or-throw";
 import { rejectWith } from "@/lib/toast";
 
 export type OIDCProvider = {
@@ -20,19 +19,15 @@ type Props = {
 
   oidcProviders: OIDCProvider[];
 
-  endpoints: {
-    credentialsLogin: string;
-  };
-
-  // called once the credentials POST succeeds — caller decides what happens next
-  onCredentialsLoginSuccess: () => void;
+  // caller-provided server function — handles the credentials POST, session,
+  // and success redirect itself
+  onCredentialsSubmit: (formData: FormData) => Promise<void>;
 };
 
 export function LoginModal({
   containerClassName,
   oidcProviders,
-  endpoints,
-  onCredentialsLoginSuccess,
+  onCredentialsSubmit,
 }: Props) {
   return (
     <div
@@ -86,15 +81,7 @@ export function LoginModal({
           e.preventDefault();
           try {
             const formData = new FormData(e.currentTarget);
-
-            const username = formData.get("username");
-            const password = formData.get("password");
-
-            await postJsonOrThrow(endpoints.credentialsLogin, {
-              username,
-              password,
-            });
-            onCredentialsLoginSuccess();
+            await onCredentialsSubmit(formData);
           } catch (err) {
             rejectWith(
               "Couldn't log in.",

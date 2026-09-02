@@ -12,10 +12,11 @@ import { getOidcConfig } from "./get-oidc-config";
 //   clientSecret,
 // );
 
-export async function createOidcAuthRequest(provider: string) {
+export async function createOidcAuthRequest(
+  provider: string,
+  redirectUri: string,
+) {
   const config = await getOidcConfig(provider);
-
-  const redirect_uri = "http://localhost:3000/api/auth/callback";
 
   const scope = "openid email";
 
@@ -26,7 +27,7 @@ export async function createOidcAuthRequest(provider: string) {
   const state = client.randomState();
 
   const parameters = {
-    redirect_uri,
+    redirect_uri: redirectUri,
     scope,
     code_challenge: codeChallenge,
     code_challenge_method: "S256",

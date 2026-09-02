@@ -32,8 +32,8 @@ import { useNotifications } from "../hooks/use-notifications";
 
 import { getPage } from "@/shared/http/page-get";
 
-import { useSearchFilters } from "../../search/use-search-filters";
-import { toSearchParams } from "../../search/param-mapper";
+import { useSearchFilters } from "../../filters-core/use-search-filters";
+import { toSearchParams } from "../../filters-core/param-mapper";
 
 // lenient: 2 letters + 4-5 digits, space optional/anywhere — normalize strips
 // all whitespace and re-inserts the single space the API expects

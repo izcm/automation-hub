@@ -8,6 +8,7 @@ type Deps = {
   storage: OidcStoragePort;
   createAuthRequest: OidcAuthRequestCreatos;
   handleCallback: OidcCallbackHandler;
+  redirectUri: string;
 };
 
 //  store state + code_verifier, keyed by state itself
@@ -26,10 +27,13 @@ export const makeOidcLogin = ({
   storage,
   createAuthRequest,
   handleCallback,
+  redirectUri,
 }: Deps) => {
   async function start(provider: string) {
-    const { redirectTo, codeVerifier, state } =
-      await createAuthRequest(provider);
+    const { redirectTo, codeVerifier, state } = await createAuthRequest(
+      provider,
+      redirectUri,
+    );
 
     await storage.save({
       provider,
@@ -44,7 +48,7 @@ export const makeOidcLogin = ({
     };
   }
 
-  async function complete(state: string, callbackUrl: URL) {
+  async function complete(state: string, receivedCallback: URL) {
     const loginRequest = await storage.get(state);
 
     if (!loginRequest) {
@@ -60,7 +64,7 @@ export const makeOidcLogin = ({
 
     const oidcIdentity = await handleCallback(
       provider,
-      callbackUrl,
+      receivedCallback,
       codeVerifier,
       state,
     );
