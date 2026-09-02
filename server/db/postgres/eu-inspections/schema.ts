@@ -1,4 +1,11 @@
-import { boolean, pgEnum, pgTable, text, unique } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  date,
+  pgEnum,
+  pgTable,
+  text,
+  unique,
+} from "drizzle-orm/pg-core";
 
 import { euInspectionStatuses } from "@/types/eu-inspection";
 import { timestampColumns } from "../shared/schemas";
@@ -18,7 +25,7 @@ export const euInspectionsTable = pgTable(
       .references(() => vehiclesTable.id),
     // a vehicle can have multiple eu dates over its lifetime, but only one
     // row per (vehicle, date) — enforced below, used as ensure()'s upsert target.
-    euDate: text("eu_date").notNull(),
+    euDate: date("eu_date").notNull(),
     hasBeen: boolean("has_been").notNull(),
     status: euInspectionStatusEnum().notNull(),
     ...timestampColumns,

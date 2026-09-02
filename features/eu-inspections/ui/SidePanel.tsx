@@ -91,7 +91,10 @@ const vehicleSummary = (vehicle: Vehicle): MetaRowProps[] => {
       value: [vehicle.make, vehicle.model].filter(Boolean).join(" ") || "—",
     },
     { label: "Registration status", value: vehicle.registrationStatus ?? "—" },
-    { label: "First registered", value: vehicle.firstRegistered ?? "—" },
+    {
+      label: "First registered",
+      value: vehicle.firstRegistered ? vehicle.firstRegistered : "—",
+    },
     { label: "VIN", value: vehicle.vin ?? "—" },
     { label: "Vehicle type", value: vehicle.vehicleType ?? "—" },
     { label: "Fuel type", value: vehicle.fuelType ?? "—" },

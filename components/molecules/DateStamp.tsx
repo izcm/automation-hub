@@ -1,18 +1,19 @@
 type Props = {
-  date?: string;
+  date?: Date | string;
 };
 
-// Small calendar-style stamp, e.g. "SEP / 1 / 2026" — Norwegian month names.
 export function DateStamp({ date }: Props) {
   if (!date) return null;
 
-  const d = new Date(date);
-  if (Number.isNaN(d.getTime())) return null;
+  const d = typeof date === "string" ? new Date(date) : date;
+  if (isNaN(d.getTime())) return null;
 
   const day = d.toLocaleDateString("nb-NO", { day: "numeric" });
+
   const month = d
     .toLocaleDateString("nb-NO", { month: "short" })
     .replace(".", "");
+
   const year = d.getFullYear();
 
   return (

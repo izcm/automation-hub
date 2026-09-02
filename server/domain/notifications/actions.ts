@@ -4,6 +4,7 @@ import { MessageRequest } from "./messaging/types";
 import { GenerateId } from "@server/shared/id";
 
 import { NotificationPort } from "./port";
+import { IS_DEMO } from "@/server/config/env";
 
 type SendEmail = (req: MessageRequest) => Promise<void>;
 
@@ -23,7 +24,7 @@ export const makeNotificationActions = ({
   async function ingestNotificationRequests(requests: MessageRequest[]) {
     const queued: NewNotification[] = requests.map((req) => ({
       id: generateId(),
-      to: req.to,
+      to: IS_DEMO ? "hidden@izblocks.com" : req.to,
       channel: req.channel,
     }));
 

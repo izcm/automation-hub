@@ -1,6 +1,5 @@
 import * as z from "zod";
 
-import { messageBuilder, notificationActions } from "@/server/di";
 import { channels } from "@/server/domain/notifications/messaging/types";
 import { MESSAGE_USE_CASES } from "@/server/domain/notifications/messaging/templates";
 
@@ -18,17 +17,3 @@ export const NotificationBatchWriteRequest = z.strictObject({
 export type NotificationBatchInput = z.infer<
   typeof NotificationBatchWriteRequest
 >;
-
-export async function processNotificationBatch({
-  payload,
-  channel,
-  useCase,
-}: NotificationBatchInput) {
-  const messageRequests = await messageBuilder.buildMessages(
-    payload,
-    channel,
-    useCase,
-  );
-
-  return notificationActions.ingestNotificationRequests(messageRequests);
-}

@@ -1,7 +1,6 @@
 import * as z from "zod";
 
-import { readPage, readPageRelational } from "@/server/di";
-import { RawIncludes } from "@a2zb/types";
+import { channels } from "@/server/domain/notifications/messaging/types";
 import { coercedBoolean, pageQueryBase } from "../shared/zod";
 
 // `notifications` now points straight at real notification rows (through
@@ -28,18 +27,9 @@ export const EuInspectionPageRequest = pageQueryBase.extend({
 
 export type EuInspectionPageQuery = z.infer<typeof EuInspectionPageRequest>;
 
-export async function getEuInspectionsPage({
-  include = {},
-  ...pageQuery
-}: EuInspectionPageQuery) {
-  const includes: RawIncludes = {
-    ...(include.vehicle !== undefined && { vehicle: include.vehicle }),
-    ...(include.notifications !== undefined && {
-      notifications: include.notifications,
-    }),
-  };
+export const EuInspectionNotifyRequest = z.strictObject({
+  euInspectionIds: z.array(z.string()).min(1),
+  channel: z.enum(channels),
+});
 
-  return Object.keys(includes).length > 0
-    ? readPageRelational("euInspections", pageQuery, includes)
-    : readPage("euInspections", pageQuery);
-}
+export type EuInspectionNotifyInput = z.infer<typeof EuInspectionNotifyRequest>;

@@ -34,6 +34,15 @@ const en = {
     showing: (from: number, to: number, total: number) =>
       `Showing ${from}–${to} of ${total}`,
   },
+
+  toggle: {
+    enable: "Enable",
+    disable: "Disable",
+  },
+
+  batchSelect: {
+    label: "batch select",
+  },
 };
 
 const no: typeof en = {
@@ -66,6 +75,15 @@ const no: typeof en = {
     showing: (from: number, to: number, total: number) =>
       `Viser ${from}–${to} av ${total}`,
   },
+
+  toggle: {
+    enable: "Slå på",
+    disable: "Slå av",
+  },
+
+  batchSelect: {
+    label: "flervalg",
+  },
 };
 
 export const CORE_UI_LABELS_BY_LANGUAGE = { en, no } satisfies Record<
@@ -90,6 +108,8 @@ export function getListViewLabels(
     batching: {
       selected: l.list.selected,
       clearSelection: l.list.clearSelection,
+      enableMobile: `${l.toggle.enable} ${l.batchSelect.label}`,
+      disableMobile: `${l.toggle.disable} ${l.batchSelect.label}`,
     },
     pagination: {
       showing: l.list.showing,

@@ -3,9 +3,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { Checkbox } from "@a2zb/react";
-
-import { cn } from "@lib/cn";
 import { confirmWith, rejectWith, warningWith } from "@/lib/toast";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
 import { useRegexValidatedInput } from "@/lib/hooks/use-regex-validated-input";
@@ -178,9 +175,7 @@ export function EUInspectionView({
     searchbarRef.current?.focus();
   }, []);
 
-  const [activeId, setActiveId] = useState<string | undefined>(
-    euInspections[0]?.id,
-  );
+  const [activeId, setActiveId] = useState<string | undefined>();
 
   const activeItem: EuInspectionRow | undefined =
     activeId === undefined
@@ -189,106 +184,96 @@ export function EUInspectionView({
 
   return (
     <>
-      <WorkspaceLayout open={activeId !== undefined}>
-        <div
-          className=" 
+      <main>
+        <WorkspaceLayout open={activeId !== undefined}>
+          <div
+            className=" 
               flex flex-col gap-3 min-h-0
               h-full max-w-3xl mx-auto first:mt-2
               "
-        >
-          <Header
-            backHref="/"
-            title={LABELS.heading}
-            labels={{ ...CORE_LABELS.header, theme: CORE_LABELS.theme }}
-            logoutEndpoint="/api/auth/logout"
-          />
+          >
+            <Header
+              backHref="/"
+              title={LABELS.heading}
+              labels={{ ...CORE_LABELS.header, theme: CORE_LABELS.theme }}
+              logoutEndpoint="/api/auth/logout"
+            />
 
-          <div></div>
-          <ResourceManagementView
-            items={euInspections}
-            getId={(v) => v.id}
-            labels={RESOURCE_MANAGEMENT_VIEW_LABELS}
-            textInputProps={{
-              value: searchInput,
-              onSubmit: handleSearch,
-              ref: searchbarRef,
-              className: "focus-within:!border-accent/60",
-            }}
-            searchError={
-              hasSearchError && (
-                <span className="text-warning text-sm">
-                  {LABELS.invalidPlateNumber}
-                </span>
-              )
-            }
-            filterMenu={
-              <FilterMenu
-                filters={filters}
-                toggleFilter={toggleFilter}
-                resetFilters={resetFilters}
-              />
-            }
-            batchActions={(batchSelected) => [
-              {
-                label: (count) => LABELS.notify(count),
-                title:
-                  "Can't notify as a selected item has an unresolved notification. Please wait.",
-                icon: <Notify size={14} />,
-                disabled: batchSelected.some(
-                  (id) => statusBySubjectId.get(id) === "queued",
-                ),
-                onClick: async (euInspectionIds, clearSelection) => {
-                  await sendNotification(euInspectionIds);
-                  clearSelection();
+            <div></div>
+            <ResourceManagementView
+              items={euInspections}
+              getId={(v) => v.id}
+              labels={RESOURCE_MANAGEMENT_VIEW_LABELS}
+              textInputProps={{
+                value: searchInput,
+                onSubmit: handleSearch,
+                ref: searchbarRef,
+                className: "focus-within:!border-accent/60",
+              }}
+              belowSearchBar={
+                hasSearchError && (
+                  <span className="text-warning text-sm text-center">
+                    {LABELS.invalidPlateNumber}
+                  </span>
+                )
+              }
+              checkboxClassName={activeId === undefined ? "sm:grid" : "lg:grid"}
+              filterMenu={
+                <FilterMenu
+                  filters={filters}
+                  toggleFilter={toggleFilter}
+                  resetFilters={resetFilters}
+                />
+              }
+              batchActions={(batchSelected) => [
+                {
+                  label: (count) => LABELS.notify(count),
+                  title:
+                    "Can't notify as a selected item has an unresolved notification. Please wait.",
+                  icon: <Notify size={14} />,
+                  disabled: batchSelected.some(
+                    (id) => statusBySubjectId.get(id) === "queued",
+                  ),
+                  onClick: async (euInspectionIds, clearSelection) => {
+                    await sendNotification(euInspectionIds);
+                    clearSelection();
+                  },
                 },
-              },
-            ]}
-            listItem={(item, picked, _, toggle) => (
-              <div className="flex gap-4">
-                <div
-                  className={cn(
-                    "w-10 h-10 my-auto grid place-items-center",
-                    activeId !== undefined && "hidden h-full lg:grid",
-                  )}
-                  onClick={() => toggle(item.id)}
-                >
-                  <Checkbox checked={picked} readOnly />
-                </div>
+              ]}
+              listItem={(item, picked, _, __, batchSelectMobile) => (
+                <EuInspectionRowCard
+                  item={item}
+                  picked={picked}
+                  activeId={activeId}
+                  setActiveId={setActiveId}
+                  statusBySubjectId={statusBySubjectId}
+                  LABELS={LABELS}
+                  mode={batchSelectMobile ? "batchSelect" : "inspection"}
+                />
+              )}
+            />
+          </div>
 
-                <div className="@container flex-1 min-w-0">
-                  <EuInspectionRowCard
-                    item={item}
-                    picked={picked}
-                    activeId={activeId}
-                    setActiveId={setActiveId}
-                    statusBySubjectId={statusBySubjectId}
-                    LABELS={LABELS}
-                  />
-                </div>
+          <WorkspacePanel onClose={() => setActiveId(undefined)}>
+            {activeItem && (
+              <div className="h-dvh flex flex-col gap-3 overflow-hidden p-4">
+                <EuInspectionSummary item={activeItem} />
+                <button
+                  onClick={() => sendNotification([activeItem.id])}
+                  className="btn btn-secondary mt-auto inline-flex items-center gap-2"
+                  disabled={
+                    !activeItem.vehicle.employee ||
+                    statusBySubjectId.get(activeItem.id) === "queued"
+                  }
+                >
+                  <Notify size={14} />
+                  Notify {activeItem.vehicle.employee?.name}
+                </button>
               </div>
             )}
-          />
-        </div>
-
-        <WorkspacePanel onClose={() => setActiveId(undefined)}>
-          {activeItem && (
-            <div className="h-dvh flex flex-col gap-3 overflow-hidden p-4">
-              <EuInspectionSummary item={activeItem} />
-              <button
-                onClick={() => sendNotification([activeItem.id])}
-                className="btn btn-secondary mt-auto inline-flex items-center gap-2"
-                disabled={
-                  !activeItem.vehicle.employee ||
-                  statusBySubjectId.get(activeItem.id) === "queued"
-                }
-              >
-                <Notify size={14} />
-                Notify {activeItem.vehicle.employee?.name}
-              </button>
-            </div>
-          )}
-        </WorkspacePanel>
-      </WorkspaceLayout>
+          </WorkspacePanel>
+        </WorkspaceLayout>
+      </main>
     </>
   );
 }

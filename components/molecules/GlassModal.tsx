@@ -25,16 +25,12 @@ export function GlassModal({
       onClose={onClose}
       hideCancelBtn
       bare
-      noOverlay
       ariaLabel={ariaLabel}
       className={cn(
         `
         w-full
         flex flex-col gap-6
         p-2
-
-        panel
-        backdrop-blur-lg
 
         border border-line
         rounded

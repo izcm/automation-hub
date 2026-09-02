@@ -3,21 +3,15 @@ import { db } from "@server/db/postgres/pool";
 import { employeesTable } from "@server/db/postgres/employees/schema";
 import { generateId } from "@/server/shared/id";
 
-// All demo employees point at your own inbox so every notification lands with you.
-// Pass as an arg (`npm run seed:pg:employees -- you@example.com`) or set SEED_EMAIL.
-const email = process.argv[2] ?? process.env.SEED_EMAIL;
-if (!email)
-  throw new Error(
-    "Provide an email: `npm run seed:pg:employees -- you@example.com`",
-  );
+// Set SEED_EMAIL_DOMAIN to override; defaults to the designated test domain.
+const domain = process.env.SEED_EMAIL_DOMAIN ?? "example.com";
 
-// email is unique per row here (unlike the Mongo version) — use +tag
-// addressing so all 4 still land in the same inbox.
-const [user, domain] = email.split("@");
 const names = ["Erik Nilsen", "Kari Johansen", "Ola Hansen", "Ida Larsen"];
+const usernames = names.map((name) => name.toLowerCase().replace(" ", "."));
+
 const seedEmployees = names.map((name, i) => ({
   id: generateId(),
-  email: `${user}+${i + 1}@${domain}`,
+  email: `${usernames[i]}@${domain}`,
   name,
 }));
 
@@ -30,7 +24,7 @@ async function seed() {
     .values(seedEmployees)
     .returning({ id: employeesTable.id });
 
-  console.log(`✅ seeded ${res.length} employees → ${email}`);
+  console.log(`✅ seeded ${res.length} employees → ${domain}`);
   process.exit(0);
 }
 

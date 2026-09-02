@@ -3,7 +3,7 @@ import { getDaysUntil } from "@a2zb/lib";
 
 import { cn } from "@lib/cn";
 
-import { OpenWorkspaceOverlay } from "@components/icons";
+import { OpenWorkspaceOverlay, Plus } from "@components/icons";
 import { DateStamp, MediaLabel } from "@/components/molecules";
 import { NotificationRowStatus } from "@/features/notifications/ui/NotificationRowStatus";
 
@@ -12,6 +12,7 @@ import type {
   EU_INSPECTIONS_LABELS,
 } from "@/features/eu-inspections";
 import type { NotificationStatus } from "@/types/notification";
+import { formatDate } from "@/lib/time";
 
 type Props = {
   item: EuInspectionRow;
@@ -20,6 +21,7 @@ type Props = {
   setActiveId: (id: string) => void;
   statusBySubjectId: Map<string, NotificationStatus>;
   LABELS: (typeof EU_INSPECTIONS_LABELS)["en"];
+  mode?: "inspection" | "batchSelect";
 };
 
 // Important read! : https://tailwindcss.com/docs/responsive-design
@@ -31,6 +33,7 @@ export function EuInspectionRow({
   setActiveId,
   statusBySubjectId,
   LABELS,
+  mode = "inspection",
 }: Props) {
   return (
     <div
@@ -114,10 +117,16 @@ export function EuInspectionRow({
           activeId === item.id &&
             "[&>svg]:!text-muted cursor-default pointer-events-none hover:text-muted",
         )}
-        onClick={() => setActiveId(item.id)}
-        icon={OpenWorkspaceOverlay}
+        onClick={() => {
+          if (mode === "inspection") setActiveId(item.id);
+        }}
+        icon={mode === "batchSelect" ? Plus : OpenWorkspaceOverlay}
       >
-        {activeId === item.id ? LABELS.inWorkspace : LABELS.openInWorkspace}
+        {mode === "batchSelect"
+          ? LABELS.addToBatch
+          : activeId === item.id
+            ? LABELS.inWorkspace
+            : LABELS.openInWorkspace}
       </IconBtn>
     </div>
   );

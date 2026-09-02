@@ -5,8 +5,8 @@ import { generateId } from "@/server/shared/id";
 
 // a vehicle can have multiple eu dates over its lifetime (unique on
 // vehicle+date, not vehicle alone) — shift a "YYYY-MM-DD" string by years
-function shiftYears(dateStr: string, years: number): string {
-  const d = new Date(dateStr);
+function shiftYears(date: string, years: number): string {
+  const d = new Date(date);
   d.setFullYear(d.getFullYear() + years);
   return d.toISOString().slice(0, 10);
 }

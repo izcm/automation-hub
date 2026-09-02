@@ -10,7 +10,7 @@ export type { EuInspectionRow } from "./types";
 export async function getEuInspections(): Promise<EuInspectionRow[]> {
   const page = await getEuInspectionsPage({
     sortField: "euDate",
-    sortDir: "desc",
+    sortDir: "asc",
     include: {
       vehicle: { include: { employee: true } },
       notifications: { sortField: "createdAt", sortDir: "desc" },
