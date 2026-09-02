@@ -1,51 +1,48 @@
 "use client";
 
+import { ComponentProps, ReactNode } from "react";
 import { TextInput } from "@a2zb/react";
 
 import { cn } from "@/lib/cn";
 import { Lock, Mail } from "@/components/icons";
 
-import { GlassModal } from "./GlassModal";
 import { postJsonOrThrow } from "@/lib/fetch-json-or-throw";
 import { rejectWith } from "@/lib/toast";
+
+export type OIDCProvider = {
+  label: ReactNode;
+  icon?: ReactNode;
+  buttonProps: ComponentProps<"a">;
+};
 
 type Props = {
   containerClassName?: string;
 
+  oidcProviders: OIDCProvider[];
+
   endpoints: {
-    oidcLogin: string;
-    demoLogin: string;
+    credentialsLogin: string;
   };
 
-  successRedirectPath: string;
+  // called once the credentials POST succeeds — caller decides what happens next
+  onCredentialsLoginSuccess: () => void;
 };
-
-function MicrosoftIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="21"
-      height="21"
-      viewBox="0 0 21 21"
-      className={className}
-    >
-      <rect x="1" y="1" width="9" height="9" fill="#f25022" />
-      <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
-      <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
-      <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
-    </svg>
-  );
-}
 
 export function LoginModal({
   containerClassName,
+  oidcProviders,
   endpoints,
-  successRedirectPath,
+  onCredentialsLoginSuccess,
 }: Props) {
   return (
-    <GlassModal
-      ariaLabel="Log in"
-      containerClassName={cn(containerClassName, "p-6")}
+    <div
+      aria-label="Log in"
+      className={cn(
+        "flex flex-col gap-6",
+        "shadow-[0_8px_32px_rgba(0,0,0,0.25)]",
+        containerClassName,
+        "p-6",
+      )}
     >
       <div
         className="
@@ -57,19 +54,25 @@ export function LoginModal({
       </div>
 
       <div className="flex flex-col gap-2 text-center">
-        <h2 className="text-2xl font-semibold">Welcome</h2>
+        <h1 className="text-2xl font-semibold">Welcome</h1>
         <span className="text-xs text-subtle">
           Log in to continue to your account
         </span>
       </div>
 
-      <a
-        href={endpoints.oidcLogin}
-        className="flex w-full btn btn-neutral py-3"
-      >
-        <MicrosoftIcon className="h-4 w-4" />
-        <span>Microsoft Entra ID</span>
-      </a>
+      {oidcProviders.map(({ label, icon, buttonProps }, i) => (
+        <a
+          key={i}
+          {...buttonProps}
+          className={cn(
+            "flex w-full btn btn-neutral py-3",
+            buttonProps.className,
+          )}
+        >
+          {icon}
+          <span>{label}</span>
+        </a>
+      ))}
 
       <div className="flex flex-center gap-4">
         <div className="horizontal-line flex-1" />
@@ -87,8 +90,11 @@ export function LoginModal({
             const username = formData.get("username");
             const password = formData.get("password");
 
-            await postJsonOrThrow(endpoints.demoLogin, { username, password });
-            window.location.href = successRedirectPath;
+            await postJsonOrThrow(endpoints.credentialsLogin, {
+              username,
+              password,
+            });
+            onCredentialsLoginSuccess();
           } catch (err) {
             rejectWith(
               "Couldn't log in.",
@@ -99,7 +105,11 @@ export function LoginModal({
       >
         <div className="flex flex-col gap-2">
           <TextInput
-            input={{ name: "username", placeholder: "Email address" }}
+            input={{
+              name: "username",
+              placeholder: "Email address",
+              required: true,
+            }}
             startIcon={<Mail size={16} />}
           />
           <TextInput
@@ -107,6 +117,7 @@ export function LoginModal({
               name: "password",
               placeholder: "Password",
               type: "password",
+              required: true,
             }}
             startIcon={<Lock size={16} />}
           />
@@ -116,6 +127,6 @@ export function LoginModal({
           Log In
         </button>
       </form>
-    </GlassModal>
+    </div>
   );
 }

@@ -7,7 +7,7 @@ type Props = {
 // full-bleed themed background image + black wash, shared by / and /login
 export function BackdropLayout({ children }: Props) {
   return (
-    <main className="relative isolate flex flex-1 flex-col overflow-hidden">
+    <main className="relative h-full w-full overflow-hidden">
       {/* background — image swaps with the active theme */}
       <div className="landing-bg absolute inset-0 -z-10 bg-cover bg-center bg-no-repeat" />
 

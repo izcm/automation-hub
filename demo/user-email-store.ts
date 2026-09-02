@@ -14,6 +14,10 @@ export async function saveDemoUserEmail(sessionId: string, email: string) {
     .onConflictDoUpdate({ target: demoUserEmails.id, set: { email } });
 }
 
+export async function deleteDemoUserEmail(sessionId: string) {
+  await db.delete(demoUserEmails).where(eq(demoUserEmails.id, sessionId));
+}
+
 export async function getDemoUserEmail(
   sessionId: string,
 ): Promise<string | null> {

@@ -1,3 +1,4 @@
+export { BackdropLayout } from "./BackdropLayout";
 export { BatchSelect, type BatchAction } from "./BatchSelect";
 export {
   FilterBar,
@@ -5,6 +6,7 @@ export {
   type FilterCategoriesLabels,
 } from "./FilterBar";
 export { Header } from "./Header";
+export { LoginModal, type OIDCProvider } from "./LoginModal";
 // export { PageLayout } from "./PageLayout"; // imported in server components so cannot be included in barrell export
 export {
   ResourceManagementView,
