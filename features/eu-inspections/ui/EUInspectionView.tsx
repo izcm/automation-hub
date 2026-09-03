@@ -32,8 +32,9 @@ import { useNotifications } from "../hooks/use-notifications";
 
 import { getPage } from "@/shared/http/page-get";
 
-import { useSearchFilters } from "../../filters-core/use-search-filters";
-import { toSearchParams } from "../../filters-core/param-mapper";
+import { useSearchFilters } from "../../filtering/use-search-filters";
+import { toSearchParams } from "../../filtering/param-mapper";
+import { AppModal } from "@/features/ui/AppModal";
 
 // lenient: 2 letters + 4-5 digits, space optional/anywhere — normalize strips
 // all whitespace and re-inserts the single space the API expects
@@ -46,6 +47,8 @@ function normalizeSearchPlateNumber(input: string): string {
 
 type Props = {
   euInspections: EuInspectionRow[];
+  demoUserEmail?: string;
+  isDemo: boolean;
 };
 
 export function buildQuery({
@@ -66,6 +69,8 @@ export function buildQuery({
 
 export function EUInspectionView({
   euInspections: initialEuInspections,
+  demoUserEmail: initialDemoUserEmail,
+  isDemo,
 }: Props) {
   const {
     filters,
@@ -93,6 +98,35 @@ export function EUInspectionView({
     language,
     LABELS.searchPlaceholder,
   );
+
+  // --- notifications ---
+
+  // for demo – lets users test notifications with own inbox
+  const [demoUserEmail, setDemoUserEmail] = useState<string | undefined>(
+    initialDemoUserEmail,
+  );
+  // even if `demoUserEmail` is passed we'll ask again in case they'd like to change it
+  const hasAskedAboutEmail = useRef(false);
+  const [showModal, setShowModal] = useState(false);
+
+  async function sendNotification(euInspectionIds: string[]) {
+    if (isDemo && !hasAskedAboutEmail.current) {
+      setShowModal(true);
+      return;
+    }
+
+    const result = await sendNotifs.mutateAsync({
+      euInspectionIds,
+      channel: "email",
+    });
+
+    addSent(
+      result.map(({ euInspectionId, notificationId }) => ({
+        subjectId: euInspectionId,
+        notificationId,
+      })),
+    );
+  }
 
   const resolvedToastIdRef = useRef<string | number | undefined>(undefined);
 
@@ -128,19 +162,7 @@ export function EUInspectionView({
     };
   }, []);
 
-  async function sendNotification(euInspectionIds: string[]) {
-    const result = await sendNotifs.mutateAsync({
-      euInspectionIds,
-      channel: "email",
-    });
-
-    addSent(
-      result.map(({ euInspectionId, notificationId }) => ({
-        subjectId: euInspectionId,
-        notificationId,
-      })),
-    );
-  }
+  // --- search / filters ---
 
   function handleSearch(search: string) {
     if (!search) return;
@@ -171,9 +193,7 @@ export function EUInspectionView({
 
   const searchbarRef = useRef<HTMLInputElement>(null);
 
-  useLayoutEffect(() => {
-    searchbarRef.current?.focus();
-  }, []);
+  // --- workspace ---
 
   const [activeId, setActiveId] = useState<string | undefined>();
 
@@ -181,6 +201,12 @@ export function EUInspectionView({
     activeId === undefined
       ? undefined
       : euInspections.find((item) => item.id === activeId);
+
+  // --- etc. ui effects ---
+
+  useLayoutEffect(() => {
+    searchbarRef.current?.focus();
+  }, []);
 
   return (
     <>
@@ -274,6 +300,10 @@ export function EUInspectionView({
           </WorkspacePanel>
         </WorkspaceLayout>
       </main>
+
+      <AppModal isOpen={showModal} onClose={() => setShowModal(false)}>
+        <button>hello</button>
+      </AppModal>
     </>
   );
 }

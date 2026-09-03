@@ -13,8 +13,7 @@ import {
 import { MicrosoftIcon } from "@/components/icons";
 
 import { AppModal } from "@/features/ui/AppModal";
-import { loginWithDemoCredentials } from "@/features/auth/login-with-demo-credentials";
-import { setEmailStorage } from "@/features/auth/set-email.storage";
+import { loginWithDemoCredentials, setEmailStorage } from "@/features/actions";
 
 const SUCCESS_REDIRECT_PATH = "/";
 

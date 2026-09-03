@@ -1,3 +1,5 @@
+"use client";
+
 import { Copyable } from "@a2zb/react";
 
 import type { EuInspectionRow } from "@/features/eu-inspections/actions/query";

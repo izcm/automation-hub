@@ -12,7 +12,6 @@ import type {
   EU_INSPECTIONS_LABELS,
 } from "@/features/eu-inspections";
 import type { NotificationStatus } from "@/types/notification";
-import { formatDate } from "@/lib/time";
 
 type Props = {
   item: EuInspectionRow;

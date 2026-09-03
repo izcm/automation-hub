@@ -1,3 +1,5 @@
+import { ByKey, Countable, FindPageQuery, Page, Pageable } from "@a2zb/types";
+
 import {
   and,
   asc,
@@ -11,12 +13,11 @@ import {
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { PgTable } from "drizzle-orm/pg-core";
 
-import { ByKey, Countable, FindPageQuery, Page, Pageable } from "@a2zb/types";
 import {
   buildCursorFilter,
   computeNextCursor,
   resolveCursorColumns,
-} from "../shared/cursor";
+} from "./cursor";
 import { buildPgConditions } from "./build-pg-conditions";
 
 // getCursorId must resolve to a single column that's unique per row — cursor
@@ -80,7 +81,6 @@ export const makeReadRepo = <
       filters,
       limit,
     }: FindPageQuery): Promise<Page<TEntity>> {
-
       const { sortColumn, idColumn } = resolveCursorColumns(
         columns,
         sortField,

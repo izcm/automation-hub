@@ -7,7 +7,7 @@ import {
   buildCursorFilter,
   computeNextCursor,
   resolveCursorColumns,
-} from "../../shared/cursor";
+} from "../cursor";
 import { buildWiths } from "./build-withs";
 import { buildPgConditions } from "./build-pg-conditions";
 

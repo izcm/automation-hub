@@ -1,3 +1,5 @@
+"use client";
+
 import { Checkbox } from "@a2zb/react";
 
 import { useLanguage } from "@/lib/contexts/LanguageContext";
