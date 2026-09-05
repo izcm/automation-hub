@@ -4,7 +4,6 @@ import { MessageRequest } from "./messaging/types";
 import { GenerateId } from "@server/shared/id";
 
 import { NotificationPort } from "./port";
-import { IS_DEMO } from "@/server/config/app";
 
 type SendEmail = (req: MessageRequest) => Promise<void>;
 
@@ -21,10 +20,16 @@ export const makeNotificationActions = ({
   generateId,
   sendEmail,
 }: Deps) => {
-  async function ingestNotificationRequests(requests: MessageRequest[]) {
+  // overrideEmail: demo-only — where the email actually goes if set. Never
+  // stored (queued below always keeps the real recipient), only used when
+  // sendMessages actually sends it.
+  async function ingestNotificationRequests(
+    requests: MessageRequest[],
+    overrideEmail?: string,
+  ) {
     const queued: NewNotification[] = requests.map((req) => ({
       id: generateId(),
-      to: IS_DEMO ? "hidden@izblocks.com" : req.to,
+      to: overrideEmail ? "hidden@demo_user.com" : req.to,
       channel: req.channel,
     }));
 
@@ -36,6 +41,7 @@ export const makeNotificationActions = ({
 
     const requestsWithId = requests.map((req, i) => ({
       ...req,
+      to: overrideEmail ?? req.to,
       // `queued` is built 1:1 from `requests` above, so this index always exists.
       id: queued[i]!.id,
     }));

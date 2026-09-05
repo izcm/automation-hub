@@ -47,13 +47,14 @@ export const messageBuilder = makeMessageBuilder(
 async function notifyForEuInspectionReminder(
   vehicleIds: string[],
   channel: Channel,
+  overrideEmail?: string,
 ) {
   const requests = await messageBuilder.buildMessages(
     { vehicleIds },
     channel,
     "eu-inspection-reminder",
   );
-  return notificationActions.ingestNotificationRequests(requests);
+  return notificationActions.ingestNotificationRequests(requests, overrideEmail);
 }
 
 export const euInspectionActions = makeEuInspectionActions({

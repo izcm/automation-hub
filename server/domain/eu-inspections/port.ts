@@ -1,4 +1,4 @@
-import * as relational from "@/shared/relational/port";
+import * as relational from "@/lib/relational/port";
 import { ByKey, Countable, Pageable } from "@a2zb/types";
 import { EuInspection } from "@/types/eu-inspection";
 

@@ -5,7 +5,7 @@ import {
   ResourceMap,
   ResourceName,
   ResourceType,
-} from "@/shared/resource";
+} from "@/lib/resource";
 
 // all read repos that implement the `ByKey` interface can be read
 export type ByIdReaders<T extends ResourceMap> = {

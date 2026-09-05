@@ -5,15 +5,15 @@ import { useRouter } from "next/navigation";
 
 import { cn } from "@/lib/cn";
 
-import {
-  BackdropLayout,
-  LoginModal,
-  type OIDCProvider,
-} from "@/components/organisms";
+import { LoginModal, type OIDCProvider } from "@/components/organisms";
 import { MicrosoftIcon } from "@/components/icons";
 
 import { AppModal } from "@/features/ui/AppModal";
-import { loginWithDemoCredentials, setEmailStorage } from "@/features/actions";
+import {
+  loginWithDemoCredentials,
+  setEmailStorage,
+} from "@/features/server-actions";
+import { BackdropLayout } from "@/features/ui/BackdropLayout";
 
 const SUCCESS_REDIRECT_PATH = "/";
 
@@ -36,7 +36,9 @@ export default function LoginPage() {
     },
   ];
 
-  const sharedClasses = "border border-line rounded bg-elevated";
+  const sharedClasses =
+    "border border-line rounded bg-elevated [&:button]:base-element [&:input]:base-element";
+
   return (
     <>
       <BackdropLayout>
@@ -76,54 +78,42 @@ export default function LoginPage() {
         <AppModal
           isOpen={showGdprConsent}
           onClose={() => setShowGdprConsent(false)}
-          className="w-sm"
+          className="w-md"
+          title="Notification feature"
         >
-          <div className="flex flex-col gap-12">
-            <div className="flex flex-col gap-4 p-2">
-              <h2 className="text-lg font-semibold">Notification feature</h2>
-
-              <div className="flex flex-col gap-3 text-sm text-subtle">
-                <p>
-                  The demo has a notification feature, you can test it using
-                  your own inbox.
-                </p>
-                <p>
-                  Would you like{" "}
-                  <strong className="font-semibold text-fg">IZBLOCKS</strong> to
-                  store your Microsoft email so you don’t have to enter it
-                  manually later?
-                </p>
-                <p className="font-semibold text-fg">
-                  It’s never shown to other users. Deleted within 24h, or when
-                  you log out.
-                </p>
-                <p>
-                  Prefer not to save it? You will get the chance to type it in
-                  manually in-app — then it won’t be stored at all.
-                </p>
-              </div>
-            </div>
-
-            <form
-              action={setEmailStorage}
-              className="flex justify-end gap-2 h-10"
-            >
-              <button
-                name="storeEmail"
-                value="false"
-                className="btn btn-neutral"
-              >
-                Don’t store
-              </button>
-              <button
-                name="storeEmail"
-                value="true"
-                className="btn btn-secondary"
-              >
-                Store email
-              </button>
-            </form>
+          <div className="flex flex-col gap-3 text-sm text-subtle">
+            <p>
+              The demo has a notification feature, you can test it using your
+              own inbox.
+            </p>
+            <p>
+              Would you like{" "}
+              <strong className="font-semibold text-fg">IZBLOCKS</strong> to
+              store your Microsoft email so you don’t have to enter it manually
+              later?
+            </p>
+            <p className="font-semibold text-fg">
+              It’s never shown to other users. Deleted within 24h, or when you
+              log out.
+            </p>
+            <p>
+              Prefer not? You can still test the notification flow in the app —
+              you just won’t receive the email yourself.
+            </p>
           </div>
+
+          <form action={setEmailStorage} className="flex justify-end gap-2 h-8">
+            <button name="storeEmail" value="false" className="btn btn-neutral">
+              Don’t store
+            </button>
+            <button
+              name="storeEmail"
+              value="true"
+              className="btn btn-secondary"
+            >
+              Store email
+            </button>
+          </form>
         </AppModal>
       )}
     </>

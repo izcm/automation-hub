@@ -2,7 +2,7 @@ import { AnyRelations, getColumns, InferSelectModel, Table } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 import { Page, Extensible, FindPageQuery, RawIncludes } from "@a2zb/types";
-import { ReadPort } from "@/shared/relational/port";
+import { ReadPort } from "@/lib/relational/port";
 import {
   buildCursorFilter,
   computeNextCursor,

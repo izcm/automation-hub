@@ -1,4 +1,4 @@
-import { ResourceMap, ResourceName, ResourceType } from "@/shared/resource";
+import { ResourceMap, ResourceName, ResourceType } from "@/lib/resource";
 
 // for every resource there can be several views
 // a view is referenced by its key and provides a transform function `Resource` => object

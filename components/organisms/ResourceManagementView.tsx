@@ -102,7 +102,7 @@ export function ResourceManagementView<T>({
         filterLabel={labels.searchBar.filter}
         textInputProps={{
           submitLabel: labels.searchBar.apply,
-          input: {
+          htmlInputProps: {
             placeholder: labels.searchBar.placeholder,
             className: "text-subtle",
           },
@@ -156,7 +156,7 @@ export function ResourceManagementView<T>({
                   <div
                     className={cn(
                       "hidden",
-                      "w-10 h-10 my-auto place-items-center h-full",
+                      "w-10 h-10 my-auto place-items-center",
                       checkboxClassName,
                     )}
                     onClick={() => toggle(getId(item))}

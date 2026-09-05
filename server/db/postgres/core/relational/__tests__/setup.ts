@@ -7,15 +7,14 @@ import {
 import { Pool } from "pg";
 import { drizzle, NodePgDatabase } from "drizzle-orm/node-postgres";
 
+import { restrictRelationNames } from "@/lib/relational/relation";
+
 import {
   testEvents,
   generateTestEvents,
   insertMany,
   insertManyTestEvents,
 } from "../../__tests__/setup";
-
-// todo: move this to a2zb package instead of this extreme import
-import { restrictRelationNames } from "../../../../../../shared/relation";
 
 export { testEvents, generateTestEvents, insertMany, insertManyTestEvents };
 

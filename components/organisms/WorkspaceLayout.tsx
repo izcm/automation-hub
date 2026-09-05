@@ -35,7 +35,7 @@ export function WorkspaceLayout({ open, children }: Props) {
   return (
     <div className="flex h-dvh overflow-hidden">
       {/* no width — flex-1 takes the leftover; min-w-0 lets it actually shrink */}
-      <div className="min-h-0 min-w-0 flex-1 px-2">{main}</div>
+      <div className="min-h-0 min-w-0 flex-1 px-2 mt-2">{main}</div>
 
       <div
         aria-hidden={!open}

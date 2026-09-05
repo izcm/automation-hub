@@ -1,5 +1,5 @@
 import { FindPageQuery } from "@a2zb/types";
-import { ResourceMap, ResourceName } from "@/shared/resource";
+import { ResourceMap, ResourceName } from "@/lib/resource";
 
 import { Readers } from "./shared/types/reader";
 import { DEFAULT_PAGE_QUERY } from "./shared/default-page-query";

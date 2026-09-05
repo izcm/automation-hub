@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 
-import { postJsonOrThrow } from "@/lib/fetch-json-or-throw";
+import { ClickPopover } from "@a2zb/react";
+import { postJsonOrThrow } from "@a2zb/lib";
+
 import { rejectWith } from "@/lib/toast";
 
-import { ThemeToggle } from "./ThemeToggle";
-import { Back, ChevronDown, LogOut } from "../icons";
-import { ClickPopover } from "@a2zb/react";
+import { ThemeToggle } from "@/components/organisms";
+import { Back, ChevronDown, LogOut } from "@components/icons";
 
 export type HeaderLabels = {
   back: string;
@@ -25,7 +26,7 @@ type Props = {
 
 export function Header({ backHref, title, labels, logoutEndpoint }: Props) {
   return (
-    <div className="relative flex items-center justify-between">
+    <div className="relative flex items-center justify-between [&:button]:base-element">
       {backHref ? (
         <Link href={backHref} className="btn btn-menu" aria-label={labels.back}>
           <Back size={16} />

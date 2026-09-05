@@ -22,33 +22,16 @@ async function seed() {
     );
   }
 
-  // 3 inspections per vehicle (this year's + one past, one future) so there's
-  // more than one row per vehicle to look at
+  // one inspection per vehicle, using its already-future euDate
   const rows = vehicleRows
     .filter((v) => v.euDate !== null)
-    .flatMap((v) => [
-      {
-        id: generateId(),
-        vehicleId: v.id,
-        euDate: v.euDate!,
-        hasBeen: false,
-        status: "upcoming" as const,
-      },
-      {
-        id: generateId(),
-        vehicleId: v.id,
-        euDate: shiftYears(v.euDate!, 1),
-        hasBeen: false,
-        status: "upcoming" as const,
-      },
-      {
-        id: generateId(),
-        vehicleId: v.id,
-        euDate: shiftYears(v.euDate!, 2),
-        hasBeen: false,
-        status: "upcoming" as const,
-      },
-    ]);
+    .map((v) => ({
+      id: generateId(),
+      vehicleId: v.id,
+      euDate: v.euDate!,
+      hasBeen: false,
+      status: "upcoming" as const,
+    }));
 
   await db.delete(euInspectionsTable); // wipe first so re-running is idempotent
   const res = await db

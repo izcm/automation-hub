@@ -8,11 +8,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "start:postgres": "docker compose up -d && sleep 10 && npm run db:push && npm run seed:pg:employees && npm run seed:pg:vehicles && npm run seed:pg:eu-inspections",
+    "start:postgres": "docker compose up -d && sleep 10 && npm run db:push && npm run seed:pg:employees && npm run seed:pg:vehicles && npm run seed:pg:eu-inspections && npm run seed:pg:notifications",
     "db:push": "set -a && . ./.env.local && set +a && npx drizzle-kit push",
     "seed:pg:vehicles": "tsx --env-file=.env.local seed-db-scripts/postgres/seed.vehicles.ts",
     "seed:pg:employees": "tsx --env-file=.env.local seed-db-scripts/postgres/seed.employees.ts",
     "seed:pg:eu-inspections": "tsx --env-file=.env.local seed-db-scripts/postgres/seed.eu-inspections.ts",
+    "seed:pg:notifications": "tsx --env-file=.env.local seed-db-scripts/postgres/seed.notifications.ts",
     "test": "vitest run",
     "clean": "rm -rf .next node_modules"
   },
@@ -35,7 +36,8 @@
     "react-dom": "19.2.8",
     "server-only": "^0.0.1",
     "sonner": "^2.0.7",
-    "tailwind-merge": "^3.6.0"
+    "tailwind-merge": "^3.6.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

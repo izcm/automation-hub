@@ -1,4 +1,4 @@
-import { ResourceMap, ResourceName } from "@/shared/resource";
+import { ResourceMap, ResourceName } from "@/lib/resource";
 import { FindPageQuery, RawIncludes } from "@a2zb/types";
 
 import { Readers } from "./reader";

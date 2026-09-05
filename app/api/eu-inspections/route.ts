@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   EuInspectionPageRequest,
   getEuInspectionsPage,
-} from "@/server/api/eu-inspections";
+} from "@/server/boundry/eu-inspections";
 
 export async function GET(request: NextRequest) {
   const parsedQuery = QueryString.parse(request.nextUrl.search.slice(1));

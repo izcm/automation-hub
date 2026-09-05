@@ -6,7 +6,18 @@ import { generateId } from "@/server/shared/id";
 // Set SEED_EMAIL_DOMAIN to override; defaults to the designated test domain.
 const domain = process.env.SEED_EMAIL_DOMAIN ?? "example.com";
 
-const names = ["Erik Nilsen", "Kari Johansen", "Ola Hansen", "Ida Larsen"];
+const names = [
+  "Erik Nilsen",
+  "Kari Johansen",
+  "Ola Hansen",
+  "Ida Larsen",
+  "Anders Pedersen",
+  "Marte Olsen",
+  "Sindre Kristiansen",
+  "Silje Andersen",
+  "Magnus Berg",
+  "Thea Haugen",
+];
 const usernames = names.map((name) => name.toLowerCase().replace(" ", "."));
 
 const seedEmployees = names.map((name, i) => ({

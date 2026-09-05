@@ -3,13 +3,15 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { useRegexValidatedInput } from "@a2zb/react";
+
 import { confirmWith, rejectWith, warningWith } from "@/lib/toast";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
-import { useRegexValidatedInput } from "@/lib/hooks/use-regex-validated-input";
+
+import { Header } from "@/features/ui/Header";
 
 import { Notify } from "@components/icons";
 import {
-  Header,
   ResourceManagementView,
   WorkspaceLayout,
   WorkspacePanel,
@@ -23,18 +25,20 @@ import {
 import {
   type EuInspectionRow,
   EU_INSPECTIONS_LABELS,
-  useNotifyEuInspections,
   FilterMenu,
-  EuInspectionSummary,
 } from "@/features/eu-inspections";
-import { EuInspectionRow as EuInspectionRowCard } from "./EuInspectionRow";
-import { useNotifications } from "../hooks/use-notifications";
 
-import { getPage } from "@/shared/http/page-get";
+import { Employee } from "@/types";
+import { getPage } from "@/lib/page-get";
+
+import { EuInspectionRow as EuInspectionRowCard } from "./EuInspectionRow";
+import { SidePanel } from "./SidePanel";
+import { useDemoInboxChoice } from "../demo-behaviour/use-demo-inbox-choice";
+import { useNotifications } from "../hooks/use-notifications";
 
 import { useSearchFilters } from "../../filtering/use-search-filters";
 import { toSearchParams } from "../../filtering/param-mapper";
-import { AppModal } from "@/features/ui/AppModal";
+import { sendEuInspectionNotifications } from "../server-actions/mutate";
 
 // lenient: 2 letters + 4-5 digits, space optional/anywhere — normalize strips
 // all whitespace and re-inserts the single space the API expects
@@ -47,8 +51,10 @@ function normalizeSearchPlateNumber(input: string): string {
 
 type Props = {
   euInspections: EuInspectionRow[];
-  demoUserEmail?: string;
+  alternativeReceiver?: string;
+  employees: Employee[];
   isDemo: boolean;
+  errors?: string[];
 };
 
 export function buildQuery({
@@ -68,9 +74,10 @@ export function buildQuery({
 }
 
 export function EUInspectionView({
-  euInspections: initialEuInspections,
-  demoUserEmail: initialDemoUserEmail,
-  isDemo,
+  euInspections: initialEuInspections, // may or may not implement pagination here later
+  alternativeReceiver, // static
+  employees, // static
+  isDemo, // static
 }: Props) {
   const {
     filters,
@@ -88,7 +95,6 @@ export function EUInspectionView({
       normalizeSearchPlateNumber,
     );
 
-  const sendNotifs = useNotifyEuInspections();
   const [euInspections, setEuInspections] = useState(initialEuInspections);
 
   const language = useLanguage() as Language;
@@ -101,30 +107,27 @@ export function EUInspectionView({
 
   // --- notifications ---
 
-  // for demo – lets users test notifications with own inbox
-  const [demoUserEmail, setDemoUserEmail] = useState<string | undefined>(
-    initialDemoUserEmail,
-  );
-  // even if `demoUserEmail` is passed we'll ask again in case they'd like to change it
-  const hasAskedAboutEmail = useRef(false);
-  const [showModal, setShowModal] = useState(false);
+  const { getEmailChoice, modal: demoInboxModal } = useDemoInboxChoice({
+    alternativeReceiver,
+  });
 
   async function sendNotification(euInspectionIds: string[]) {
-    if (isDemo && !hasAskedAboutEmail.current) {
-      setShowModal(true);
-      return;
-    }
+    const overrideEmail = isDemo ? await getEmailChoice() : undefined;
 
-    const result = await sendNotifs.mutateAsync({
+    const result = await sendEuInspectionNotifications(
       euInspectionIds,
-      channel: "email",
-    });
+      "email",
+      overrideEmail,
+    );
+    if (!result.ok) return;
 
     addSent(
-      result.map(({ euInspectionId, notificationId }) => ({
-        subjectId: euInspectionId,
-        notificationId,
-      })),
+      result.data
+        .filter((r) => r !== undefined)
+        .map(({ euInspectionId, notificationId }) => ({
+          subjectId: euInspectionId,
+          notificationId,
+        })),
     );
   }
 
@@ -215,7 +218,7 @@ export function EUInspectionView({
           <div
             className=" 
               flex flex-col gap-3 min-h-0
-              h-full max-w-3xl mx-auto first:mt-2
+              h-full max-w-3xl mx-auto
               "
           >
             <Header
@@ -225,7 +228,6 @@ export function EUInspectionView({
               logoutEndpoint="/api/auth/logout"
             />
 
-            <div></div>
             <ResourceManagementView
               items={euInspections}
               getId={(v) => v.id}
@@ -233,8 +235,11 @@ export function EUInspectionView({
               textInputProps={{
                 value: searchInput,
                 onSubmit: handleSearch,
-                ref: searchbarRef,
-                className: "focus-within:!border-accent/60",
+                htmlInputProps: {
+                  autoFocus: true,
+                  placeholder: LABELS.searchPlaceholder,
+                },
+                className: "focus-within:!border-accent/60 rounded-lg",
               }}
               belowSearchBar={
                 hasSearchError && (
@@ -282,28 +287,19 @@ export function EUInspectionView({
 
           <WorkspacePanel onClose={() => setActiveId(undefined)}>
             {activeItem && (
-              <div className="h-dvh flex flex-col gap-3 overflow-hidden p-4">
-                <EuInspectionSummary item={activeItem} />
-                <button
-                  onClick={() => sendNotification([activeItem.id])}
-                  className="btn btn-secondary mt-auto inline-flex items-center gap-2"
-                  disabled={
-                    !activeItem.vehicle.employee ||
-                    statusBySubjectId.get(activeItem.id) === "queued"
-                  }
-                >
-                  <Notify size={14} />
-                  Notify {activeItem.vehicle.employee?.name}
-                </button>
-              </div>
+              <SidePanel
+                activeItem={activeItem}
+                employees={employees}
+                statusBySubjectId={statusBySubjectId}
+                setEuInspections={setEuInspections}
+                sendNotification={sendNotification}
+              />
             )}
           </WorkspacePanel>
         </WorkspaceLayout>
       </main>
 
-      <AppModal isOpen={showModal} onClose={() => setShowModal(false)}>
-        <button>hello</button>
-      </AppModal>
+      {demoInboxModal}
     </>
   );
 }

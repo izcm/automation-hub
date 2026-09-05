@@ -6,8 +6,8 @@ import { notificationsTable as notifications } from "./notifications/schema";
 import { employeesTable as employees } from "./employees/schema";
 import { euInspectionNotificationsTable as euInspectionNotifications } from "./bridge-schemas/eu-inspection-notifications-schema";
 
-import { AppResources } from "@/shared/resources";
-import { restrictRelationNames } from "@/shared/relation";
+import { AppResources } from "@/lib/resources";
+import { restrictRelationNames } from "@/lib/relational/relation";
 
 const resourceRelations = restrictRelationNames<keyof AppResources>();
 
@@ -18,7 +18,13 @@ const resourceRelations = restrictRelationNames<keyof AppResources>();
 // ResourceName<AppResources> (only each table's own relation *names* are,
 // via resourceRelations()).
 export const appRelations = defineRelations(
-  { vehicles, euInspections, notifications, employees, euInspectionNotifications },
+  {
+    vehicles,
+    euInspections,
+    notifications,
+    employees,
+    euInspectionNotifications,
+  },
   (r) => ({
     euInspections: resourceRelations({
       vehicle: r.one.vehicles({

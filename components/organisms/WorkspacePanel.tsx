@@ -22,7 +22,7 @@ export function WorkspacePanel({ onClose, children, contentClassName }: Props) {
         type="button"
         onClick={onClose}
         aria-label="Close"
-        className="absolute right-4 top-4 z-10 cursor-pointer flex-center h-8 w-8 rounded text-muted transition-colors hover:bg-raised"
+        className="absolute right-4 top-4 z-10 flex-center h-8 w-8 rounded text-muted transition-colors hover:bg-raised"
       >
         <Cancel size={16} />
       </button>

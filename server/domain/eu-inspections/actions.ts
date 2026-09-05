@@ -12,6 +12,7 @@ type Deps = {
   notify: (
     vehicleIds: string[],
     channel: Channel,
+    overrideEmail?: string,
   ) => Promise<NewNotification[]>;
   bridge: Pick<EuInspectionNotificationsPort, "link">;
   generateId: GenerateId;
@@ -33,11 +34,16 @@ export const makeEuInspectionActions = ({
   async function notifyAboutInspection(
     euInspectionId: string,
     channel: Channel,
+    overrideEmail?: string,
   ) {
     const inspection = await euInspections.findByKey(euInspectionId);
     if (!inspection) return undefined;
 
-    const [notification] = await notify([inspection.vehicleId], channel);
+    const [notification] = await notify(
+      [inspection.vehicleId],
+      channel,
+      overrideEmail,
+    );
     if (!notification) return undefined;
 
     await bridge.link({

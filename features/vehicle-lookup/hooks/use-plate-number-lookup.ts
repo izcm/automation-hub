@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { useRegexValidatedInput } from "@a2zb/react";
+
 import { rejectWith } from "@lib/toast";
-import { useRegexValidatedInput } from "@/lib/hooks/use-regex-validated-input";
-import { PLATE_NUMBER_PATTERN, normalizePlateNumber } from "@/features/vehicles/plate-number";
+import { PLATE_NUMBER_PATTERN, normalizePlateNumber } from "../plate-number";
 
 export function usePlateNumberLookup<Vehicle>() {
   const [loading, setLoading] = useState(false);

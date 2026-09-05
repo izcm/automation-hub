@@ -1,18 +1,3 @@
-.text-input {
-  background: light-dark(var(--raised), var(--ground));
-  border: 1px solid var(--faint);
-}
-
-.text-input:focus-within {
-  background: color-mix(
-    in oklab,
-    light-dark(var(--raised), var(--ground)) 96%,
-    var(--accent)
-  );
-  border-color: transparent;
-  border-color: var(--accent);
-}
-
 /* menu elements that look nicer with bg-ground in dark vs raised in light theme*/
 .menu-surface {
   @apply rounded border border-faint;
@@ -154,9 +139,20 @@
     color: var(--neutral);
     background: var(--neutral-weak);
   }
+
+  .text-input {
+    --field-bg: light-dark(var(--raised), transparent);
+    @apply rounded;
+    background: var(--field-bg);
+    border: 1px solid var(--faint);
+  }
+
+  .text-input:focus-within {
+    background: color-mix(in oklab, var(--field-bg) 96%, var(--accent));
+    border-color: var(--accent);
+  }
 }
 
 .btn-menu {
   @apply items-center justify-start;
-  background: light-dark(var(--raised), var(--ground));
 }

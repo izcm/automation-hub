@@ -30,7 +30,7 @@ export function NotificationList({ notifications, initialCount }: Props) {
       <table className="w-full table-fixed text-sm">
         <thead>
           <tr className="border-b border-extra-faint text-[12px] text-subtle">
-            <th className="w-[200px] p-2 font-normal text-start">To</th>
+            <th className="w-[220px] p-2 font-normal text-start">To</th>
             <th className="w-[80px] min-w-0 p-2 font-normal text-start">
               Status
             </th>
@@ -88,7 +88,7 @@ export function NotificationList({ notifications, initialCount }: Props) {
         <button
           type="button"
           onClick={() => setExpanded(!expanded)}
-          className="w-full p-2 text-center text-xs text-accent hover:text-accent-strong cursor-pointer"
+          className="w-full p-2 text-center text-xs text-accent hover:text-accent-strong"
         >
           {expanded ? "See less" : `See all (${remaining} more)`}
         </button>

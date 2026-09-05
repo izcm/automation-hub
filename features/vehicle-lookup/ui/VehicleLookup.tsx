@@ -91,9 +91,11 @@ export function VehicleLookup({ onDone }: Props) {
   return (
     <>
       <TextInput
-        input={{ placeholder: "PLATE NUMBER" }}
-        ref={(el) => {
-          focusRef.current = el;
+        htmlInputProps={{
+          placeholder: "PLATE NUMBER",
+          ref: (el) => {
+            focusRef.current = el;
+          },
         }}
         onSubmit={handleLookup}
       />

@@ -1,5 +1,5 @@
-import * as relational from "@/shared/relational/port";
-import { ResourceMap, ResourceName, ResourceType } from "@/shared/resource";
+import * as relational from "@/lib/relational/port";
+import { ResourceMap, ResourceName, ResourceType } from "@/lib/resource";
 
 export type Reader<
   RMap extends ResourceMap,

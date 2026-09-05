@@ -51,6 +51,16 @@ const seedVehicles = [
   vehicle(8, "Volvo", "FH16 750"),
   vehicle(9, "MAN", "TGX 18.510"),
   vehicle(10, "DAF", "XF 480"),
+  vehicle(11, "Scania", "R 450"),
+  vehicle(12, "Volvo", "FH 460", { color: "Blå" }),
+  vehicle(13, "Mercedes-Benz", "Actros 1845"),
+  vehicle(14, "MAN", "TGX 26.440", { bodyType: "Skap" }),
+  vehicle(15, "DAF", "XF 450"),
+  vehicle(16, "Iveco", "S-Way 490"),
+  vehicle(17, "Scania", "R 450", { registrationStatus: "Avskiltet" }),
+  vehicle(18, "Volvo", "FH 460"),
+  vehicle(19, "MAN", "TGX 26.440"),
+  vehicle(20, "DAF", "XF 450"),
 ];
 
 async function seed() {

@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   EuInspectionNotifyRequest,
   notifyAboutEuInspections,
-} from "@/server/api/eu-inspections";
+} from "@/server/boundry/eu-inspections";
 
 export async function POST(request: NextRequest) {
   let body: unknown;

@@ -92,7 +92,8 @@ export function LoginModal({
       >
         <div className="flex flex-col gap-2">
           <TextInput
-            input={{
+            className="base-element"
+            htmlInputProps={{
               name: "username",
               placeholder: "Email address",
               required: true,
@@ -100,7 +101,8 @@ export function LoginModal({
             startIcon={<Mail size={16} />}
           />
           <TextInput
-            input={{
+            className="base-element"
+            htmlInputProps={{
               name: "password",
               placeholder: "Password",
               type: "password",

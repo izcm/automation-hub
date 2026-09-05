@@ -21,6 +21,19 @@ body {
   scrollbar-color: var(--color-line) transparent;
 }
 
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+button:disabled {
+  color: var(--subtle);
+}
+
 .landing-bg {
   background-image: url("/landing.jpg");
+}
+
+.base-element {
+  @apply rounded-lg;
+  background: light-dark(var(--raised), var(--ground));
 }

@@ -1,6 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-
-import { postJsonOrThrow } from "@/lib/fetch-json-or-throw";
+import { postJsonOrThrow } from "@a2zb/lib";
 import { rejectWith } from "@lib/toast";
 
 export function useNotifyEuInspections() {

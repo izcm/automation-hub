@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { VehiclePort } from "@/server/domain/vehicles/port";
 import { makeReadRepo } from "@server/db/postgres/core/read";
 import { makeEnsure } from "@server/db/postgres/core/ensure";
+import { makeUpdate } from "@server/db/postgres/core/update";
 import { nullsToUndefined } from "@server/db/postgres/shared/nulls-to-undefined";
 
 import { Vehicle } from "@/types/vehicle";
@@ -24,9 +25,12 @@ const readRepo = makeReadRepo(
 );
 
 const rawEnsure = makeEnsure(db, vehiclesTable, { id: vehiclesTable.id });
+const rawUpdate = makeUpdate(db, vehiclesTable, vehiclesTable.id);
 
 export const vehicleRepo: VehiclePort = {
   ...readRepo,
+
+  update: rawUpdate,
 
   async ensure(
     plateNumber: string,

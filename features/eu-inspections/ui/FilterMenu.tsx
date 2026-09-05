@@ -59,12 +59,12 @@ export function FilterMenu({ filters, toggleFilter, resetFilters }: Props) {
               </label>
             </div>
 
-            <MultiSelectDropdown
+            {/* <MultiSelectDropdown
               options={EMPLOYEES}
               selected={filters["responsible"] ?? []}
               onToggle={(employee) => toggleFilter("responsible", employee)}
               placeholder="Search employees"
-            />
+            /> */}
           </div>
         </div>
 
