@@ -74,12 +74,12 @@ export function EditableEntityRow<T>({
                 },
               }}
             />
-            <button
+            {/* <button
               disabled={!value}
               className="ml-auto text-accent hover:text-accent-strong"
             >
               <Confirm size={20} />
-            </button>
+            </button> */}
           </>
         ) : (
           <DisplayEntity id={id} label={label} icon={icon} />
@@ -87,9 +87,8 @@ export function EditableEntityRow<T>({
       </div>
 
       {isLoading ? (
-        <span className="inline-flex gap-3 items-center text-accent">
-          <span className="text-xs">Updating...</span>
-          <Spinner />
+        <span className="p-1 inline-flex text-accent">
+          <Spinner size={20} />
         </span>
       ) : (
         <button

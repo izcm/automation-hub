@@ -26,7 +26,7 @@ type Props = {
 
 export function Header({ backHref, title, labels, logoutEndpoint }: Props) {
   return (
-    <div className="relative flex items-center justify-between [&:button]:base-element">
+    <header className="relative flex items-center justify-between [&:button]:base-element">
       {backHref ? (
         <Link href={backHref} className="btn btn-menu" aria-label={labels.back}>
           <Back size={16} />
@@ -70,6 +70,6 @@ export function Header({ backHref, title, labels, logoutEndpoint }: Props) {
           </button>
         </div>
       </ClickPopover>
-    </div>
+    </header>
   );
 }

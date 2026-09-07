@@ -21,6 +21,8 @@ export {
   Plus,
   PanelRightOpen as OpenWorkspaceOverlay,
   ClipboardList as Inspection,
+  UserPlus as Onboarding,
+  UserMinus as Offboarding,
   Fuel,
   Settings as Transmission,
   Armchair as Seat,

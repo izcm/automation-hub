@@ -132,10 +132,9 @@ export function ResourceManagementView<T>({
             getId={getId}
             selected={selected}
             onSelect={setSelected}
-            itemClassName={(isSelected) =>
+            itemClassName={({ isSelected }) =>
               cn("group", itemClassName?.(isSelected))
             }
-            bareRows
             galleryItem={(item) => listItem(item, false, 0, () => {}, false)}
             className={{ arrowList: "gap-1.5" }}
           />

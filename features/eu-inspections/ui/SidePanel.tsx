@@ -35,11 +35,13 @@ export function SidePanel({
   const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <div className="h-dvh flex flex-col gap-3 p-4">
+    <aside className="h-dvh flex flex-col gap-3 p-4">
       <div className="flex-1 flex flex-col gap-3 overflow-y-scroll scrollbar-hide">
-        <EuInspectionSummary item={activeItem} />
+        <section className="flex flex-col gap-2">
+          <EuInspectionSummary item={activeItem} />
+        </section>
 
-        <div className="flex flex-col gap-2">
+        <section className="flex flex-col gap-2">
           <Eyebrow>Maintenance responsible</Eyebrow>
 
           <div className="raised-outline-panel p-2">
@@ -87,9 +89,9 @@ export function SidePanel({
               <div>Issues reading maintenance responsible.</div>
             )}
           </div>
-        </div>
+        </section>
 
-        <div className="flex flex-col gap-2">
+        <section className="flex flex-col gap-2">
           <Eyebrow>Notifications</Eyebrow>
 
           <div className="raised-outline-panel">
@@ -115,7 +117,7 @@ export function SidePanel({
               initialCount={3}
             />
           </div>
-        </div>
+        </section>
       </div>
 
       <button
@@ -129,6 +131,6 @@ export function SidePanel({
         <Notify size={14} />
         Notify {activeItem.vehicle.employee?.name}
       </button>
-    </div>
+    </aside>
   );
 }

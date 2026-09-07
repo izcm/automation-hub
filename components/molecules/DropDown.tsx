@@ -83,7 +83,6 @@ function SelectDropdownBase<T = string>({
               {renderLabel(option)}
             </div>
           )}
-          bareRows
           className={{ arrowList: "flex flex-col gap-0.5 max-h-[150px]" }}
         />
       </Popover>

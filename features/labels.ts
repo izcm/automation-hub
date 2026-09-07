@@ -5,11 +5,29 @@ export type Language = "en" | "no";
 // UI copy — one place for every display string, per language.
 // Interpolated strings are functions so they stay easy to adjust.
 const en = {
-  appTitle: "Drift",
+  appTitle: "The Hub",
 
   home: {
     goToEuInspections: "EU Inspections",
     goToVehicles: "Vehicles",
+    modules: {
+      "eu-inspections": {
+        title: "EU Inspections",
+        description: "Monitor and manage vehicle inspections.",
+      },
+      onboarding: {
+        title: "Onboarding",
+        description: "Streamline new employee onboarding.",
+      },
+      offboarding: {
+        title: "Offboarding",
+        description: "Manage offboarding and tie up loose ends.",
+      },
+      "vehicle-admin": {
+        title: "Vehicle Admin",
+        description: "Fleet, documents and vehicle management.",
+      },
+    },
   },
 
   header: {
@@ -46,11 +64,29 @@ const en = {
 };
 
 const no: typeof en = {
-  appTitle: "Drift",
+  appTitle: "Hubben",
 
   home: {
     goToEuInspections: "EU-kontroller",
     goToVehicles: "Kjøretøy",
+    modules: {
+      "eu-inspections": {
+        title: "EU-kontroller",
+        description: "Overvåk og administrer kjøretøykontroller.",
+      },
+      onboarding: {
+        title: "Onboarding",
+        description: "Effektiviser onboarding av nye ansatte.",
+      },
+      offboarding: {
+        title: "Offboarding",
+        description: "Administrer offboarding og løse tråder.",
+      },
+      "vehicle-admin": {
+        title: "Kjøretøyadministrasjon",
+        description: "Flåte, dokumenter og kjøretøyadministrasjon.",
+      },
+    },
   },
 
   header: {

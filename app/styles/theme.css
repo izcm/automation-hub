@@ -4,14 +4,6 @@
   --font-mono: var(--font-geist-mono);
 
   --radius: 0.3125rem;
-
-  --color-lowered: var(--lowered);
-  --color-extra-faint: var(--extra-faint);
-
-  /* elevated/elevated-alt: a step apart from ground/raised/lowered — used
-     for the workspace panel and its inner items so they stand out */
-  --color-elevated: var(--elevated);
-  --color-elevated-alt: var(--elevated-alt);
 }
 
 :root[data-theme="dark"] {
@@ -49,30 +41,20 @@
   --subtle: rgba(15, 21, 28, 0.62);
   --muted: rgba(15, 21, 28, 0.46);
   --faint: rgba(15, 21, 28, 0.28);
-  --extra-faint: rgba(15, 21, 28, 0.13);
 
   --line: rgba(15, 21, 28, 0.16);
 
   /* accent */
   --accent: #3f63e0;
   --accent-strong: #2a49bf;
-  --accent-weak: rgba(63, 99, 224, 0.18);
 
   --accent-neutral: #6f8fe6;
-  --accent-neutral-weak: rgba(111, 143, 230, 0.18);
 
   /* semantic */
   --success: #1f9d64;
-  --success-weak: rgba(31, 157, 100, 0.18);
-
   --warning: #c1860a;
-  --warning-weak: rgba(193, 134, 10, 0.18);
-
   --failure: #e0435f;
-  --failure-weak: rgba(224, 67, 95, 0.18);
-
   --neutral: #5f7290;
-  --neutral-weak: rgba(95, 114, 144, 0.16);
 
   --panel-shadow:
     0 1px 2px rgba(15, 21, 28, 0.04), 0 8px 24px rgba(15, 21, 28, 0.06);
@@ -91,7 +73,7 @@
 
   /* text / borders */
   --fg: rgba(238, 242, 245, 0.94);
-  --line: rgba(210, 225, 238, 0.24);
+  --line: lab(88.79% -2.46 -8.05 / 0.24);
 
   --subtle: rgba(200, 214, 225, 0.66);
   --muted: rgba(174, 191, 204, 0.5);
@@ -120,50 +102,4 @@
 
   --panel-shadow:
     0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(91, 157, 255, 0.06);
-}
-
-:root[data-theme="dark-2"] {
-  color-scheme: dark;
-
-  --ground: #16171a;
-  --raised: #191b1e;
-  --elevated: #1d1f21;
-  --elevated-alt: #212426;
-  --lowered: #16181a;
-
-  --fg: rgba(238, 236, 233, 0.94);
-  --line: rgba(255, 255, 255, 0.24);
-
-  --subtle: rgba(210, 208, 204, 0.66);
-  --muted: rgba(180, 178, 174, 0.5);
-  --faint: rgba(180, 178, 174, 0.32);
-  --extra-faint: rgba(180, 178, 174, 0.19);
-
-  /* accent → text/bg/border-accent (+ -strong / -weak) */
-  /* --accent: #5b9dff;
-  --accent-strong: #8fbfff;
-  --accent-weak: rgba(91, 157, 255, 0.6);
-  --accent-neutral: #7fb0ff;
-  --accent-neutral-weak: rgba(127, 176, 255, 0.5); */
-
-  /* --- previous accent: orange — kept for easy A/B, delete once blue is confirmed --- */
-  --accent: #ea8440;
-  --accent-strong: #ffa866;
-  --accent-weak: rgba(255, 138, 61, 0.6);
-  --accent-neutral: #ffb066;
-  --accent-neutral-weak: rgba(255, 176, 102, 0.5);
-
-  /* status → success / warning / failure (+ -weak) */
-  --success: #4cff9a;
-  --success-weak: rgba(76, 255, 154, 0.18);
-  --warning: #ffc12f;
-  --warning-weak: rgba(255, 193, 47, 0.18);
-  --failure: #ff5470;
-  --failure-weak: rgba(255, 84, 112, 0.18);
-
-  --neutral: #97a9b5;
-  --neutral-weak: rgba(151, 169, 181, 0.2);
-
-  --panel-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.35), 0 0 20px rgba(255, 138, 61, 0.08);
 }
