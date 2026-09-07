@@ -4,7 +4,7 @@ import { Checkbox } from "@a2zb/react";
 
 import { useLanguage } from "@/lib/contexts/LanguageContext";
 import { EU_INSPECTION_FILTER_LABELS_BY_LANGUAGE } from "@/features/eu-inspections/labels/filters";
-import type { Language } from "@/features/labels";
+import type { Language } from "@/features/config/labels";
 import { MultiSelectDropdown } from "@/components/molecules";
 
 const EMPLOYEES = ["empl 1", "empl 2", "empl 3"];
@@ -36,7 +36,7 @@ export function FilterMenu({ filters, toggleFilter, resetFilters }: Props) {
     <div className="flex-1 flex flex-col gap-3">
       <div className="flex gap-6 flex-1">
         <div className="flex flex-col gap-2 w-1/4 pb-2">
-          <span className="text-xs font-semibold text-subtle tracking-lg">
+          <span className="text-xs font-semibold text-subtle tracking-wider">
             {FILTER_UI_LABELS.headings.responsible.toUpperCase()}
           </span>
 
@@ -71,7 +71,7 @@ export function FilterMenu({ filters, toggleFilter, resetFilters }: Props) {
         <VerticalDivider />
 
         <div className="flex flex-col gap-2 w-1/4 pb-3">
-          <span className="text-xs font-semibold text-subtle tracking-lg">
+          <span className="text-xs font-semibold text-subtle tracking-wider">
             {FILTER_UI_LABELS.headings.status.toUpperCase()}
           </span>
           <div className="flex flex-col gap-1">

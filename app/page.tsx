@@ -2,39 +2,21 @@
 
 import { ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
-import { CORE_UI_LABELS_BY_LANGUAGE, type Language } from "@/features/labels";
+import {
+  CORE_UI_LABELS_BY_LANGUAGE,
+  type Language,
+} from "@/features/config/labels";
+import { modules, moduleIcons } from "@/features/config/modules";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
 
-import {
-  ChevronRight,
-  Inspection,
-  Onboarding,
-  Offboarding,
-  Truck,
-} from "@/components/icons";
+import { ChevronRight } from "@/components/icons";
 import { Gallery, defaultClasses } from "@a2zb/react";
 
-const modules = [
-  "eu-inspections",
-  "onboarding",
-  "offboarding",
-  "vehicle-admin",
-] as const;
-
-const moduleIcons: Record<(typeof modules)[number], ReactNode> = {
-  "eu-inspections": <Inspection size={32} strokeWidth={1} />,
-  onboarding: <Onboarding size={32} strokeWidth={1} />,
-  offboarding: <Offboarding size={32} strokeWidth={1} />,
-  "vehicle-admin": <Truck size={32} strokeWidth={1} />,
-};
-
 // https://recharts.github.io/en-US/api/ – for graphs later
-export default function Landing() {
+export default function Home() {
   const LABELS = CORE_UI_LABELS_BY_LANGUAGE[useLanguage() as Language];
 
-  const [moduleInView, setModuleInView] = useState<(typeof modules)[number]>(
-    modules[0],
-  );
+  const [moduleInView] = useState<(typeof modules)[number]>(modules[0]);
 
   const moduleInfo: Record<
     (typeof modules)[number],
@@ -60,20 +42,20 @@ export default function Landing() {
 
   return (
     <>
-      <main className="flex-1 flex-center flex-col gap-4 mx-auto w-full max-w-5xl p-3">
+      <main
+        className="
+        flex-1 flex-center flex-col gap-4 
+        mx-auto max-w-5xl mt-12 p-4
+        "
+      >
         {/* TITLE */}
         <div className="flex flex-col gap-2 text-sm text-center">
           <h1 className="text-5xl font-bold">{LABELS.appTitle}</h1>
           <span className="text-subtle">Your automation hotspot.</span>
         </div>
 
-        <div className="flex flex-center gap-4 w-64">
-          <div className="horizontal-line" />
-          <span className="text-xs text-subtle">MODULES</span>
-          <div className="horizontal-line" />
-        </div>
-
         {/* MODULE LINKS / CARDS */}
+        <span className="text-sm text-subtle md:self-start">MODULES</span>
 
         <section className="flex gap-3">
           <Gallery
@@ -83,11 +65,14 @@ export default function Landing() {
             onSelect={() => {}}
             isDisabled={(item) => item !== "eu-inspections"}
             itemClassName={defaultClasses}
-            className={{ arrowList: "flex gap-3" }}
+            className={{
+              arrowList: "grid grid-cols-2 md:grid-cols-4 gap-3 p-0",
+              arrowRow: "focus-inset",
+            }}
             direction="horizontal"
             galleryItem={(item) => (
               <>
-                <div className="w-12 h-12 rounded bg-lowered flex-center">
+                <div className="[&_svg]:size-8 w-12 h-12 rounded bg-lowered flex-center">
                   {moduleInfo[item].icon}
                 </div>
 
@@ -115,6 +100,9 @@ export default function Landing() {
             )}
           />
         </section>
+
+        {/* DASHBOARD */}
+        <section className="flex-1 raised-outline bg-raised/40 w-full"></section>
       </main>
     </>
   );

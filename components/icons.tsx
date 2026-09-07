@@ -2,6 +2,7 @@
 // To swap a lucide icon, change only the right-hand side; call sites stay the same.
 export {
   LogOut,
+  Home,
   Car,
   Truck,
   Sun as LightTheme,

@@ -8,8 +8,6 @@ import { useRegexValidatedInput } from "@a2zb/react";
 import { confirmWith, rejectWith, warningWith } from "@/lib/toast";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
 
-import { Header } from "@/features/ui/Header";
-
 import { Notify } from "@components/icons";
 import {
   ResourceManagementView,
@@ -17,11 +15,7 @@ import {
   WorkspacePanel,
 } from "@/components/organisms";
 
-import {
-  CORE_UI_LABELS_BY_LANGUAGE,
-  getListViewLabels,
-  type Language,
-} from "@/features/labels";
+import { getListViewLabels, type Language } from "@/features/config/labels";
 import {
   type EuInspectionRow,
   EU_INSPECTIONS_LABELS,
@@ -98,7 +92,6 @@ export function EUInspectionView({
   const [euInspections, setEuInspections] = useState(initialEuInspections);
 
   const language = useLanguage() as Language;
-  const CORE_LABELS = CORE_UI_LABELS_BY_LANGUAGE[language];
   const LABELS = EU_INSPECTIONS_LABELS[language];
   const RESOURCE_MANAGEMENT_VIEW_LABELS = getListViewLabels(
     language,
@@ -213,91 +206,86 @@ export function EUInspectionView({
 
   return (
     <>
-      <main>
-        <WorkspaceLayout open={activeId !== undefined}>
-          <div
-            className=" 
+      <WorkspaceLayout open={activeId !== undefined}>
+        <div
+          className=" 
               flex flex-col gap-3 min-h-0
               h-full max-w-3xl mx-auto
               "
-          >
-            <Header
-              backHref="/"
-              title={LABELS.heading}
-              labels={{ ...CORE_LABELS.header, theme: CORE_LABELS.theme }}
-              logoutEndpoint="/api/auth/logout"
-            />
+        >
+          <h1 className="font-medium text-fg/80 text-center py-1">
+            {LABELS.heading}
+          </h1>
 
-            <ResourceManagementView
-              items={euInspections}
-              getId={(v) => v.id}
-              labels={RESOURCE_MANAGEMENT_VIEW_LABELS}
-              textInputProps={{
-                value: searchInput,
-                onSubmit: handleSearch,
-                htmlInputProps: {
-                  autoFocus: true,
-                  placeholder: LABELS.searchPlaceholder,
+          <ResourceManagementView
+            items={euInspections}
+            getId={(v) => v.id}
+            labels={RESOURCE_MANAGEMENT_VIEW_LABELS}
+            textInputProps={{
+              value: searchInput,
+              onSubmit: handleSearch,
+              htmlInputProps: {
+                autoFocus: true,
+                placeholder: LABELS.searchPlaceholder,
+              },
+              className: "focus-within:!border-accent/60 rounded-lg",
+            }}
+            belowSearchBar={
+              hasSearchError && (
+                <span className="text-warning text-sm text-center">
+                  {LABELS.invalidPlateNumber}
+                </span>
+              )
+            }
+            checkboxClassName={activeId === undefined ? "sm:grid" : "lg:grid"}
+            filterMenu={
+              <FilterMenu
+                filters={filters}
+                toggleFilter={toggleFilter}
+                resetFilters={resetFilters}
+              />
+            }
+            batchActions={(batchSelected) => [
+              {
+                label: (count) => LABELS.notify(count),
+                title:
+                  "Can't notify as a selected item has an unresolved notification. Please wait.",
+                icon: <Notify size={14} />,
+                disabled: batchSelected.some(
+                  (id) => statusBySubjectId.get(id) === "queued",
+                ),
+                onClick: async (euInspectionIds, clearSelection) => {
+                  await sendNotification(euInspectionIds);
+                  clearSelection();
                 },
-                className: "focus-within:!border-accent/60 rounded-lg",
-              }}
-              belowSearchBar={
-                hasSearchError && (
-                  <span className="text-warning text-sm text-center">
-                    {LABELS.invalidPlateNumber}
-                  </span>
-                )
-              }
-              checkboxClassName={activeId === undefined ? "sm:grid" : "lg:grid"}
-              filterMenu={
-                <FilterMenu
-                  filters={filters}
-                  toggleFilter={toggleFilter}
-                  resetFilters={resetFilters}
-                />
-              }
-              batchActions={(batchSelected) => [
-                {
-                  label: (count) => LABELS.notify(count),
-                  title:
-                    "Can't notify as a selected item has an unresolved notification. Please wait.",
-                  icon: <Notify size={14} />,
-                  disabled: batchSelected.some(
-                    (id) => statusBySubjectId.get(id) === "queued",
-                  ),
-                  onClick: async (euInspectionIds, clearSelection) => {
-                    await sendNotification(euInspectionIds);
-                    clearSelection();
-                  },
-                },
-              ]}
-              listItem={(item, picked, _, __, batchSelectMobile) => (
-                <EuInspectionRowCard
-                  item={item}
-                  picked={picked}
-                  activeId={activeId}
-                  setActiveId={setActiveId}
-                  statusBySubjectId={statusBySubjectId}
-                  LABELS={LABELS}
-                  mode={batchSelectMobile ? "batchSelect" : "inspection"}
-                />
-              )}
-            />
-          </div>
-
-          <WorkspacePanel onClose={() => setActiveId(undefined)}>
-            {activeItem && (
-              <SidePanel
-                activeItem={activeItem}
-                employees={employees}
+              },
+            ]}
+            listItem={(item, picked, _, __, batchSelectMobile) => (
+              <EuInspectionRowCard
+                item={item}
+                picked={picked}
+                activeId={activeId}
+                setActiveId={setActiveId}
                 statusBySubjectId={statusBySubjectId}
-                setEuInspections={setEuInspections}
-                sendNotification={sendNotification}
+                LABELS={LABELS}
+                mode={batchSelectMobile ? "batchSelect" : "inspection"}
               />
             )}
-          </WorkspacePanel>
-        </WorkspaceLayout>
-      </main>
+          />
+        </div>
+
+        <WorkspacePanel onClose={() => setActiveId(undefined)}>
+          {activeItem && (
+            <SidePanel
+              activeItem={activeItem}
+              employees={employees}
+              statusBySubjectId={statusBySubjectId}
+              setEuInspections={setEuInspections}
+              sendNotification={sendNotification}
+            />
+          )}
+        </WorkspacePanel>
+      </WorkspaceLayout>
 
       {demoInboxModal}
     </>

@@ -18,7 +18,7 @@ export function DateStamp({ date }: Props) {
 
   return (
     <div className="flex h-16 w-16 flex-col items-center justify-center rounded border border-extra-faint bg-ground/60">
-      <span className="text-[10px] font-semibold uppercase tracking-lg text-accent">
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-accent">
         {month}
       </span>
       <span className="text-xl font-bold leading-none text-fg">{day}</span>

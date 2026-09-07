@@ -28,9 +28,9 @@
   color-scheme: light;
 
   /* surfaces */
-  --ground: #f5f6f7;
+  --ground: #eef0f2;
   --raised: #ffffff;
-  --lowered: #eef0f2;
+  --lowered: #e4e7eb;
 
   /* workspace can retain a TINY cool tint */
   --elevated: #f0f3f7;

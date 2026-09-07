@@ -1,15 +1,19 @@
 :focus-visible {
   outline: none;
   box-shadow:
-    0 0 0 1px var(--raised),
+    0 0 0 1px var(--ground),
     0 0 0 3px var(--accent);
+}
+
+/* the gap ring reads as a bright halo against light theme's greyer
+   background — a solid accent ring alone looks cleaner there */
+:root[data-theme="light"] :focus-visible {
+  box-shadow: 0 0 0 2px var(--accent);
 }
 
 body {
   margin: 0;
   background: var(--ground);
-  width: 100%;
-  height: 100%;
   color: var(--fg);
   font-family: var(--font-sans);
   /* guarantees ≥24px at the top; margins collapse (max, not sum), so it never

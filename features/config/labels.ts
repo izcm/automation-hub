@@ -7,7 +7,10 @@ export type Language = "en" | "no";
 const en = {
   appTitle: "The Hub",
 
+  skipToContent: "Skip to content",
+
   home: {
+    goHome: "Home",
     goToEuInspections: "EU Inspections",
     goToVehicles: "Vehicles",
     modules: {
@@ -66,7 +69,10 @@ const en = {
 const no: typeof en = {
   appTitle: "Hubben",
 
+  skipToContent: "Hopp til innhold",
+
   home: {
+    goHome: "Hjem",
     goToEuInspections: "EU-kontroller",
     goToVehicles: "Kjøretøy",
     modules: {

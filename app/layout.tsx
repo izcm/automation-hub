@@ -5,6 +5,9 @@ import { Providers } from "./providers";
 import "./globals.css";
 import { ClientToaster } from "./ClientToaster";
 
+import { Sidebar } from "@/features/ui/Sidebar";
+import { GlobalShortcuts } from "@/features/ui/GlobalShortcuts";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -27,7 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="h-full flex flex-col">
+      <body className="h-dvh overflow-hidden flex">
         {/* Set the theme before first paint: saved choice, else OS preference.
             Landing dark-preferring users on "dark" also opts them out of
             the browser's force-dark inversion (color-scheme: dark). */}
@@ -37,7 +40,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           }}
         />
         <Providers>
-          {children}
+          <>
+            <GlobalShortcuts />
+            <Sidebar />
+            <main
+              id="main-content"
+              tabIndex={-1}
+              className="h-dvh overflow-auto flex-1 focus:outline-none"
+            >
+              {children}
+            </main>
+          </>
           <ClientToaster />
         </Providers>
       </body>

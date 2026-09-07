@@ -26,13 +26,8 @@
   @apply rounded bg-elevated-alt border border-extra-faint;
 }
 
-/* extra-wide letter-spacing beyond tailwind's tracking-widest (0.1em) */
-.tracking-lg {
-  letter-spacing: 0.04em;
-}
-.tracking-xl {
-  letter-spacing: 0.08em;
-}
-.tracking-2xl {
-  letter-spacing: 0.15em;
+/* focus ring drawn inward instead of outward — for elements whose focus ring
+   must stay within their own bounds (e.g. clipped or tightly packed grids) */
+@utility focus-inset {
+  @apply focus-visible:!ring-1 focus-visible:!ring-accent focus-visible:!ring-inset;
 }

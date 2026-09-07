@@ -29,7 +29,7 @@ export function AppModal({
 }: Props) {
   return (
     <Modal
-      overlayClassName={cn("bg-black/40 backdrop-blur-xs", overlayClassName)}
+      overlayClassName={cn("bg-black/40 backdrop-blur-xs ", overlayClassName)}
       className={cn(
         "bg-elevated rounded border border-line max-w-[90vw] p-4",
         className,

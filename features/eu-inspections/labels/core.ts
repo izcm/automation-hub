@@ -1,4 +1,4 @@
-import type { Language } from "@/features/labels";
+import type { Language } from "@/features/config/labels";
 
 const en = {
   heading: "Upcoming EU Inspections",

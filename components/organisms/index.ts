@@ -11,6 +11,6 @@ export {
   type ResourceManagementLabels,
 } from "./ResourceManagementView";
 export { ResponsiveToaster } from "./ResponsiveToaster";
-export { ThemeToggle } from "./ThemeToggle";
+export { ThemeToggle, type ThemeToggleLabels } from "./ThemeToggle";
 export { WorkspaceLayout, workspaceRows } from "./WorkspaceLayout";
 export { WorkspacePanel } from "./WorkspacePanel";
