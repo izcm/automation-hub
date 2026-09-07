@@ -91,10 +91,14 @@ export function EuInspectionRow({
       </div>
 
       {/* CHILDREN */}
-      <div className="flex gap-3 min-w-0">
+      <div className="@min-[360]:flex gap-3 min-w-0 hidden ">
         <div className="vertical-line" />
 
-        <div className="flex flex-col justify-center text-sm min-w-0">
+        <div
+          className="
+            flex flex-col justify-center text-sm min-w-0
+            "
+        >
           <NotificationRowStatus
             status={statusBySubjectId.get(item.id)}
             mostRecent={item.notifications[0]}

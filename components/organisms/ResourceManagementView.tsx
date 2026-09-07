@@ -147,8 +147,7 @@ export function ResourceManagementView<T>({
               onSelect={setSelected}
               batchSelected={batchSelected}
               setBatchSelected={setBatchSelected}
-              selectedLabel={labels.batching.selected}
-              clearLabel={labels.batching.clearSelection}
+              labels={labels.batching}
               actions={batchActions}
               galleryItem={(item, picked, selectedCount, toggle) => (
                 <div className="flex gap-4">

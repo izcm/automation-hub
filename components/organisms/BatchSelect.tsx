@@ -29,8 +29,10 @@ type Props<T> = {
   ) => ReactNode;
   // action bar (shown once ≥1 item is selected)
   actions?: (batchSelected: string[]) => BatchAction[];
-  selectedLabel?: (count: number) => ReactNode;
-  clearLabel?: string;
+  labels?: {
+    selected: (count: number) => ReactNode;
+    clearSelection: string;
+  };
   selfManagesCheckbox?: boolean;
 };
 
@@ -44,8 +46,7 @@ export function BatchSelect<T>({
   className,
   galleryItem,
   actions = () => [],
-  selectedLabel = (n) => `${n} selected`,
-  clearLabel = "Clear",
+  labels = { selected: (n) => `${n} selected`, clearSelection: "Clear" },
 }: Props<T>) {
   // prev includes selected id
   // true -> filter it out (unselect)
@@ -60,13 +61,13 @@ export function BatchSelect<T>({
       {batchSelected.length > 0 && (
         <div className="flex items-center gap-2 raised-outline px-4 py-3">
           <span className="font-medium">
-            {selectedLabel(batchSelected.length)}
+            {labels.selected(batchSelected.length)}
           </span>
           <button
             onClick={() => setBatchSelected([])}
             className="text-accent hover:text-accent-strong"
           >
-            {clearLabel}
+            {labels.clearSelection}
           </button>
           <div className="ml-auto">
             {actions(batchSelected).map(

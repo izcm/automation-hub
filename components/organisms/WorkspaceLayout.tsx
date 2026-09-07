@@ -8,7 +8,7 @@ import { cn } from "@/lib/cn";
 // apply 85% width when viewport is MAX tailwind `sm`
 // apply 70% width when viewport is MAX tailwind `md`
 const PANE_WIDTH =
-  "w-[min(480px,45vw)] max-lg:w-[max(450px,50vw)] max-sm:w-[85vw] max-md:w-[70vw]";
+  "w-[min(480px,45vw)] max-lg:w-[max(480px,50vw)] max-sm:w-[85vw] max-md:w-[70vw]";
 
 // feel free to use these, generic rows
 export const workspaceRows = cn(
