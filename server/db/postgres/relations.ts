@@ -5,6 +5,7 @@ import { euInspectionsTable as euInspections } from "./eu-inspections/schema";
 import { notificationsTable as notifications } from "./notifications/schema";
 import { employeesTable as employees } from "./employees/schema";
 import { euInspectionNotificationsTable as euInspectionNotifications } from "./bridge-schemas/eu-inspection-notifications-schema";
+import { euInspectionAttemptsTable as euInspectionAttempts } from "./bridge-schemas/eu-inspection-attempts-schema";
 
 import { AppResources } from "@/lib/resources";
 import { restrictRelationNames } from "@/lib/relational/relation";
@@ -24,6 +25,7 @@ export const appRelations = defineRelations(
     notifications,
     employees,
     euInspectionNotifications,
+    euInspectionAttempts,
   },
   (r) => ({
     euInspections: resourceRelations({
@@ -42,6 +44,13 @@ export const appRelations = defineRelations(
         to: r.notifications.id.through(
           r.euInspectionNotifications.notificationId,
         ),
+      }),
+
+      // plain one-to-many — euInspectionAttempts has a direct FK, it's not
+      // a junction table like euInspectionNotifications above
+      attempts: r.many.euInspectionAttempts({
+        from: r.euInspections.id,
+        to: r.euInspectionAttempts.euInspectionId,
       }),
     }),
 

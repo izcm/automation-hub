@@ -11,6 +11,7 @@ export async function getEuInspectionsPage({
     ...(include.notifications !== undefined && {
       notifications: include.notifications,
     }),
+    ...(include.attempts !== undefined && { attempts: include.attempts }),
   };
 
   return Object.keys(includes).length > 0

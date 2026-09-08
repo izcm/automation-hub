@@ -14,6 +14,7 @@ const baseQueryFields = {
   include: {
     vehicle: { include: { employee: true } },
     notifications: { sortField: "createdAt", sortDir: "desc" },
+    attempts: { sortField: "date", sortDir: "desc" },
   },
 } as const;
 

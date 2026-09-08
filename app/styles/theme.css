@@ -47,6 +47,7 @@
   /* accent */
   --accent: #3f63e0;
   --accent-strong: #2a49bf;
+  --accent-muted: color-mix(in oklab, var(--accent) 45%, var(--muted));
 
   --accent-neutral: #6f8fe6;
 
@@ -83,6 +84,7 @@
   /* accent */
   --accent: #5b9dff;
   --accent-strong: #8fbfff;
+  --accent-muted: color-mix(in oklab, var(--accent) 45%, var(--muted));
   --accent-weak: rgba(91, 157, 255, 0.6);
   --accent-neutral: #7fb0ff;
   --accent-neutral-weak: rgba(127, 176, 255, 0.5);

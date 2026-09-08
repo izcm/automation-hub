@@ -36,6 +36,7 @@ export {
   Calendar,
   Bell as Notification,
   Info,
+  Clock,
 } from "lucide-react";
 
 // custom, non-lucide icons

@@ -7,6 +7,8 @@ import { coercedBoolean, pageQueryBase } from "../schemas/shared";
 // the junction table under the hood) — no separate nested hop needed.
 const notificationsInclude = z.union([coercedBoolean, pageQueryBase]);
 
+const attemptsInclude = z.union([coercedBoolean, pageQueryBase]);
+
 const employeeInclude = z.union([coercedBoolean, pageQueryBase]);
 
 const vehicleInclude = z.union([
@@ -21,6 +23,7 @@ export const EuInspectionPageRequest = pageQueryBase.extend({
     .strictObject({
       vehicle: vehicleInclude.optional(),
       notifications: notificationsInclude.optional(),
+      attempts: attemptsInclude.optional(),
     })
     .optional(),
 });

@@ -39,7 +39,7 @@ export function InspectionsBarChart() {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={data} barCategoryGap="30%">
-        <CartesianGrid vertical={false} stroke="var(--extra-faint)" />
+        <CartesianGrid vertical={false} stroke="none" />
         <XAxis
           dataKey="month"
           axisLine={false}
@@ -47,10 +47,10 @@ export function InspectionsBarChart() {
           tick={{ fill: "var(--subtle)", fontSize: 12 }}
         />
         <Tooltip
-          cursor={{ fill: "var(--accent)", opacity: 0.06 }}
+          cursor={{ fill: "var(--color-accent)", opacity: 0.06 }}
           content={<ChartTooltip />}
         />
-        <Bar dataKey="count" fill="var(--accent)" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="count" fill="var(--color-accent)" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

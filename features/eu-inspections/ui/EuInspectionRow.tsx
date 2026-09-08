@@ -51,7 +51,7 @@ export function EuInspectionRow({
         // conditional styling
         picked && "border border-accent", // picked = when member of batch select
         activeId === item.id && // active = the item open in workspace
-          "border-l-4 border-l-accent-strong/80 bg-elevated-alt/60",
+          "border-l-6 border-l-accent-strong/80 bg-elevated-alt/60",
       )}
     >
       <div className="flex gap-2 shrink-0">
@@ -129,7 +129,7 @@ export function EuInspectionRow({
           "@min-[512px]:py-1 @min-[512px]:col-span-1 @min-[512px]:w-auto @min-[512px]:bg-transparent @min-[512px]:rounded @min-[512px]:mr-1",
 
           activeId === item.id &&
-            "[&>svg]:!text-muted cursor-default pointer-events-none hover:text-muted",
+            "[&>svg]:!text-muted text-subtle cursor-default pointer-events-none hover:text-muted",
         )}
         onClick={() => {
           if (mode === "inspection") setActiveId(item.id);

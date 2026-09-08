@@ -60,7 +60,7 @@ export function LoginModal({
           key={i}
           {...buttonProps}
           className={cn(
-            "flex w-full btn btn-secondary py-3",
+            "flex w-full btn btn-neutral py-3",
             buttonProps.className,
           )}
         >

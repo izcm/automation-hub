@@ -1,9 +1,12 @@
 "use client";
 
-import type { EuInspectionRow } from "@/features/eu-inspections/server-actions/queries";
+import { useState } from "react";
 
-import { Calendar } from "@components/icons";
-import { Badge, CopyableId } from "@/components/molecules";
+import type { EuInspectionRow } from "@/features/eu-inspections/server-actions/queries";
+import type { EuInspectionAttempt } from "@/types/eu-inspection-attempt";
+
+import { Calendar, Confirm, Cancel, Clock } from "@components/icons";
+import { Badge, CopyableId, IconBadge } from "@/components/molecules";
 import { Eyebrow } from "@/components/atoms";
 
 import { cn } from "@/lib/cn";
@@ -22,6 +25,15 @@ const statusBadge: Record<
   pending: { variant: "warning", label: "Pending" },
   approved: { variant: "success", label: "Approved" },
   rejected: { variant: "danger", label: "Rejected" },
+};
+
+const attemptBadge: Record<
+  EuInspectionAttempt["status"],
+  { variant: "success" | "danger" | "neutral"; label: string; icon: typeof Clock }
+> = {
+  upcoming: { variant: "neutral", label: "Upcoming", icon: Clock },
+  approved: { variant: "success", label: "Approved", icon: Confirm },
+  rejected: { variant: "danger", label: "Rejected", icon: Cancel },
 };
 
 type FieldProps = {
@@ -99,6 +111,53 @@ const vehicleSummary = (vehicle: Vehicle): MetaRowProps[] => {
   ];
 };
 
+// one MetaRow per attempt, latest first, with a "see all" toggle past 3 —
+// same interaction as NotificationList's table/button split
+function AttemptRows({ attempts }: { attempts: EuInspectionAttempt[] }) {
+  const [expanded, setExpanded] = useState(false);
+
+  if (attempts.length === 0) return null;
+
+  const sorted = [...attempts].sort((a, b) => b.date.localeCompare(a.date));
+
+  const initialCount = 3;
+  const remaining = sorted.length - initialCount;
+  const hasMore = remaining > 0;
+  const visible = expanded || !hasMore ? sorted : sorted.slice(0, initialCount);
+
+  return (
+    <>
+      <dl className="text-[13px] text-subtle">
+        {visible.map((attempt, i) => {
+          const { variant, label, icon } = attemptBadge[attempt.status];
+          return (
+            <MetaRow
+              key={attempt.id}
+              label={attempt.date}
+              value={
+                <IconBadge icon={icon} variant={variant}>
+                  {label}
+                </IconBadge>
+              }
+              last={i === visible.length - 1 && !hasMore}
+            />
+          );
+        })}
+      </dl>
+
+      {hasMore && (
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className="w-full p-2 text-center text-xs text-accent hover:text-accent-strong"
+        >
+          {expanded ? "See less" : `See all (${remaining} more)`}
+        </button>
+      )}
+    </>
+  );
+}
+
 function SummaryHeader({ vehicle }: { vehicle: Vehicle }) {
   return (
     <header className="flex flex-col gap-1 p-2">
@@ -158,10 +217,12 @@ function EuInspectionSection({ item }: { item: EuInspectionRow }) {
               key={label}
               label={label}
               value={value}
-              last={i === summary.length - 1}
+              last={i === summary.length - 1 && item.attempts.length === 0}
             />
           ))}
         </dl>
+
+        <AttemptRows attempts={item.attempts} />
       </div>
     </div>
   );
