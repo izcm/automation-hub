@@ -2,7 +2,8 @@ import { Dispatch, SetStateAction, useState } from "react";
 
 import { rejectWith } from "@/lib/toast";
 
-import { User, Notify } from "@components/icons";
+import { User, Notify, ChevronDown, Confirm, Cancel } from "@components/icons";
+import { ClickPopover } from "@a2zb/react";
 import { EditableEntityRow } from "@/components/organisms/EditableEntityRow";
 import { Eyebrow } from "@/components/atoms";
 
@@ -23,6 +24,10 @@ type Props = {
   statusBySubjectId: Map<string, NotificationStatus>;
   setEuInspections: Dispatch<SetStateAction<EuInspectionRow[]>>;
   sendNotification: (euInspectionIds: string[]) => Promise<void>;
+  markStatus: (
+    euInspectionIds: string[],
+    status: "approved" | "rejected",
+  ) => Promise<void>;
 };
 
 export function SidePanel({
@@ -31,6 +36,7 @@ export function SidePanel({
   statusBySubjectId,
   setEuInspections,
   sendNotification,
+  markStatus,
 }: Props) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -120,17 +126,48 @@ export function SidePanel({
         </section>
       </div>
 
-      <button
-        onClick={() => sendNotification([activeItem.id])}
-        className="btn btn-secondary mt-auto inline-flex items-center gap-2"
-        disabled={
-          !activeItem.vehicle.employee ||
-          statusBySubjectId.get(activeItem.id) === "queued"
-        }
-      >
-        <Notify size={14} />
-        Notify {activeItem.vehicle.employee?.name}
-      </button>
+      <div className="flex gap-2 mt-auto">
+        <button
+          onClick={() => sendNotification([activeItem.id])}
+          className="btn btn-secondary flex-1 inline-flex items-center justify-center gap-2 min-w-0"
+          disabled={
+            !activeItem.vehicle.employee ||
+            statusBySubjectId.get(activeItem.id) === "queued"
+          }
+        >
+          <Notify size={14} />
+          <span className="truncate">
+            Notify {activeItem.vehicle.employee?.name}
+          </span>
+        </button>
+
+        <ClickPopover
+          align="right"
+          trigger={
+            <button className="btn btn-secondary inline-flex items-center gap-1">
+              Mark as
+              <ChevronDown size={14} />
+            </button>
+          }
+        >
+          <div className="flex flex-col gap-1">
+            <button
+              className="btn btn-menu gap-2"
+              onClick={() => markStatus([activeItem.id], "approved")}
+            >
+              <Confirm size={14} />
+              Approved
+            </button>
+            <button
+              className="btn btn-menu gap-2"
+              onClick={() => markStatus([activeItem.id], "rejected")}
+            >
+              <Cancel size={14} />
+              Rejected
+            </button>
+          </div>
+        </ClickPopover>
+      </div>
     </aside>
   );
 }

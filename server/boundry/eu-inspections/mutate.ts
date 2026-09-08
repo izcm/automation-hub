@@ -1,5 +1,5 @@
 import { euInspectionActions } from "@/server/di";
-import { EuInspectionNotifyInput } from "./schema";
+import { EuInspectionNotifyInput, EuInspectionUpdateStatusInput } from "./schema";
 
 export async function notifyAboutEuInspections({
   euInspectionIds,
@@ -18,4 +18,15 @@ export async function notifyAboutEuInspections({
   );
 
   return results;
+}
+
+export async function updateEuInspectionsStatus({
+  euInspectionIds,
+  status,
+}: EuInspectionUpdateStatusInput) {
+  await Promise.all(
+    euInspectionIds.map((euInspectionId) =>
+      euInspectionActions.updateEuInspectionStatus(euInspectionId, status),
+    ),
+  );
 }

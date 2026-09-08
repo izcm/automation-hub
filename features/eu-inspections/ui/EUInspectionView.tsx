@@ -3,12 +3,12 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { useRegexValidatedInput } from "@a2zb/react";
+import { ClickPopover, useRegexValidatedInput } from "@a2zb/react";
 
 import { confirmWith, rejectWith, warningWith } from "@/lib/toast";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
 
-import { Notify } from "@components/icons";
+import { Notify, Confirm, Cancel, ChevronDown } from "@components/icons";
 import {
   ResourceManagementView,
   WorkspaceLayout,
@@ -32,7 +32,10 @@ import { useNotifications } from "../hooks/use-notifications";
 
 import { useSearchFilters } from "../../filtering/use-search-filters";
 import { toSearchParams } from "../../filtering/param-mapper";
-import { sendEuInspectionNotifications } from "../server-actions/mutate";
+import {
+  sendEuInspectionNotifications,
+  markEuInspectionsStatus,
+} from "../server-actions/mutate";
 
 // lenient: 2 letters + 4-5 digits, space optional/anywhere — normalize strips
 // all whitespace and re-inserts the single space the API expects
@@ -121,6 +124,20 @@ export function EUInspectionView({
           subjectId: euInspectionId,
           notificationId,
         })),
+    );
+  }
+
+  async function markStatus(
+    euInspectionIds: string[],
+    status: "approved" | "rejected",
+  ) {
+    const result = await markEuInspectionsStatus(euInspectionIds, status);
+    if (!result.ok) return;
+
+    setEuInspections((prev) =>
+      prev.map((item) =>
+        euInspectionIds.includes(item.id) ? { ...item, status } : item,
+      ),
     );
   }
 
@@ -259,6 +276,42 @@ export function EUInspectionView({
                   clearSelection();
                 },
               },
+              {
+                render: (euInspectionIds, clearSelection) => (
+                  <ClickPopover
+                    align="right"
+                    trigger={
+                      <button className="btn btn-primary flex-center gap-2 text-sm">
+                        Mark as
+                        <ChevronDown size={14} />
+                      </button>
+                    }
+                  >
+                    <div className="flex flex-col gap-1">
+                      <button
+                        className="btn btn-menu gap-2"
+                        onClick={async () => {
+                          await markStatus(euInspectionIds, "approved");
+                          clearSelection();
+                        }}
+                      >
+                        <Confirm size={14} />
+                        Approved
+                      </button>
+                      <button
+                        className="btn btn-menu gap-2"
+                        onClick={async () => {
+                          await markStatus(euInspectionIds, "rejected");
+                          clearSelection();
+                        }}
+                      >
+                        <Cancel size={14} />
+                        Rejected
+                      </button>
+                    </div>
+                  </ClickPopover>
+                ),
+              },
             ]}
             listItem={(item, picked, _, __, batchSelectMobile) => (
               <EuInspectionRowCard
@@ -282,6 +335,7 @@ export function EUInspectionView({
               statusBySubjectId={statusBySubjectId}
               setEuInspections={setEuInspections}
               sendNotification={sendNotification}
+              markStatus={markStatus}
             />
           )}
         </WorkspacePanel>

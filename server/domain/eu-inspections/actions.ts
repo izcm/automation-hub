@@ -2,11 +2,12 @@ import type { NewNotification } from "@/types/notification";
 import type { Channel } from "@server/domain/notifications/messaging/types";
 import type { GenerateId } from "@server/shared/id";
 import type { EuInspectionNotificationsPort } from "@server/db/postgres/bridge-schemas/eu-inspection-notifications-repo";
+import type { EuInspectionStatus } from "@/types/eu-inspection";
 
 import { EuInspectionPort } from "./port";
 
 type Deps = {
-  euInspections: Pick<EuInspectionPort, "findByKey">;
+  euInspections: Pick<EuInspectionPort, "findByKey" | "update">;
   // pre-wired to the "eu-inspection-reminder" use case — this domain never
   // needs to know that use-case name, only that it can ask for a reminder.
   notify: (
@@ -55,5 +56,12 @@ export const makeEuInspectionActions = ({
     return { euInspectionId, notificationId: notification.id };
   }
 
-  return { notifyAboutInspection };
+  function updateEuInspectionStatus(
+    euInspectionId: string,
+    status: EuInspectionStatus,
+  ) {
+    return euInspections.update(euInspectionId, { status });
+  }
+
+  return { notifyAboutInspection, updateEuInspectionStatus };
 };

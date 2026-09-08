@@ -35,3 +35,13 @@ export const EuInspectionNotifyRequest = z.strictObject({
 });
 
 export type EuInspectionNotifyInput = z.infer<typeof EuInspectionNotifyRequest>;
+
+// only these two — "Mark as" only ever offers approve/reject right now
+export const EuInspectionUpdateStatusRequest = z.strictObject({
+  euInspectionIds: z.array(z.string()).min(1),
+  status: z.enum(["approved", "rejected"]),
+});
+
+export type EuInspectionUpdateStatusInput = z.infer<
+  typeof EuInspectionUpdateStatusRequest
+>;

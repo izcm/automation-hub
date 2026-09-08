@@ -4,6 +4,7 @@ import { EuInspectionPort } from "@/server/domain/eu-inspections/port";
 import { makeReadRepo } from "@server/db/postgres/core/read";
 import * as relational from "@server/db/postgres/core/relational/read";
 import { makeEnsure } from "@server/db/postgres/core/ensure";
+import { makeUpdate } from "@server/db/postgres/core/update";
 
 import { db } from "../pool";
 import { euInspectionsTable } from "./schema";
@@ -22,10 +23,14 @@ const rawEnsure = makeEnsure(db, euInspectionsTable, {
   id: euInspectionsTable.id,
 });
 
+const rawUpdate = makeUpdate(db, euInspectionsTable, euInspectionsTable.id);
+
 export const euInspectionRepo: EuInspectionPort = {
   ...readRepo,
 
   relations: relationalReadRepo,
+
+  update: rawUpdate,
 
   async ensure(
     vehicleId: string,
@@ -33,7 +38,7 @@ export const euInspectionRepo: EuInspectionPort = {
     id: string,
   ): Promise<{ id: string; didUpsert: boolean }> {
     const result = await rawEnsure(
-      { id, vehicleId, euDate, hasBeen: false, status: "upcoming" },
+      { id, vehicleId, euDate, hasBeen: false, status: "unresolved" },
       [euInspectionsTable.vehicleId, euInspectionsTable.euDate],
       and(
         eq(euInspectionsTable.vehicleId, vehicleId),

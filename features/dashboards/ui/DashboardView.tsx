@@ -8,20 +8,84 @@ import {
 } from "@/features/config/labels";
 import { modules, moduleIcons } from "@/features/config/modules";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
+import { cn } from "@/lib/cn";
 
 import { ChevronRight } from "@/components/icons";
 import { Gallery, defaultClasses } from "@a2zb/react";
 
-// TODO: shape this once the per-module dashboard data is wired up
-export type DashboardData = Record<string, never>;
+import { InspectionsBarChart } from "./eu-inspections/InspectionsBarChart";
+import { ResponsibleEmployeesTable } from "./eu-inspections/ResponsibleEmployeesTable";
 
-type Props = {
-  dashboardData: DashboardData;
+const panelBorder = "border border-extra-faint rounded";
+
+// dummy data — replace with real employee/inspection query later
+const dummyEmployeeRows = [
+  {
+    id: "1",
+    name: "Kari Nordmann",
+    euInspectionsNext30Days: 2,
+    euInspectionsWithNotifications: 2,
+    hasVacation: true,
+  },
+  {
+    id: "2",
+    name: "Ola Hansen",
+    euInspectionsNext30Days: 0,
+    euInspectionsWithNotifications: 0,
+    hasVacation: false,
+  },
+  {
+    id: "3",
+    name: "Per Olsen",
+    euInspectionsNext30Days: 3,
+    euInspectionsWithNotifications: 1,
+    hasVacation: false,
+  },
+  {
+    id: "4",
+    name: "Silje Berg",
+    euInspectionsNext30Days: 2,
+    euInspectionsWithNotifications: 0,
+    hasVacation: false,
+  },
+];
+
+type KPIProps = {
+  label: string;
+  value: ReactNode;
+  changePct?: number | null;
 };
 
+function KPI({ label, value, changePct }: KPIProps) {
+  return (
+    <div className="flex flex-col p-3 gap-2">
+      <span className="text-subtle text-sm">{label}</span>
+      <div className="flex flex-col gap-2">
+        <span className="text-3xl">{value}</span>
+        {changePct != null && (
+          <span className={cn("text-sm font-medium text-accent-muted")}>
+            {changePct >= 0 ? "↑" : "↓"} {Math.abs(Math.round(changePct))}% vs
+            last month
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function formatDateRange(from: Date, to: Date): string {
+  const fmt = (d: Date) =>
+    d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  return `${fmt(from)} – ${fmt(to)}`;
+}
+
 // https://recharts.github.io/en-US/api/ – for graphs later
-export function DashboardView({ dashboardData }: Props) {
+export function DashboardView() {
   const LABELS = CORE_UI_LABELS_BY_LANGUAGE[useLanguage() as Language];
+
+  const today = new Date();
+  const in30Days = new Date(today);
+  in30Days.setDate(today.getDate() + 30);
 
   const [moduleInView] = useState<(typeof modules)[number]>(modules[0]);
 
@@ -52,7 +116,7 @@ export function DashboardView({ dashboardData }: Props) {
       <main
         className="
         flex-1 flex-center flex-col gap-4
-        mx-auto max-w-5xl p-4 h-dvh
+        mx-auto max-w-5xl min-h-dvh p-4
         "
       >
         {/* TITLE */}
@@ -68,7 +132,7 @@ export function DashboardView({ dashboardData }: Props) {
           <div className="horizontal-line" />
         </div>
 
-        <section className="flex gap-3">
+        <section className="w-full ">
           <Gallery
             items={[...modules]}
             getId={(item) => item}
@@ -114,9 +178,51 @@ export function DashboardView({ dashboardData }: Props) {
         </section>
 
         {/* DASHBOARD */}
-        <section className="flex-1 raised-outline bg-raised/40 w-full">
-          hello
+        <section className="flex flex-col gap-1 raised-outline bg-raised/40 w-full p-3">
+          <span className="text-xs text-subtle tabular-nums">
+            {formatDateRange(today, in30Days)}
+          </span>
+
+          {/* KPIs */}
+          <div
+            className={cn(
+              panelBorder,
+              "grid grid-cols-2 gap-3 mt-2 divide-x divide-extra-faint",
+            )}
+          >
+            <KPI label="Due" value={12} />
+
+            <div className="grid grid-cols-3 divide-x divide-extra-faint">
+              <KPI label="Unresolved" value={8} />
+              <KPI label="Successful" value={3} />
+              <KPI label="Rejected" value={1} />
+            </div>
+          </div>
+
+          <div className="flex gap-3 justify-center items-center">
+            <div className="w-full">
+              <h2 className="text-sm text-subtle font-medium mb-3">
+                EU inspections — next 3 months
+              </h2>
+              <div className={cn(panelBorder, "h-64")}>
+                <InspectionsBarChart />
+              </div>
+            </div>
+
+            <div className="w-full">
+              <h2 className="text-sm text-subtle font-medium mb-3">
+                Employees responsible for upcoming EU inspections
+              </h2>
+
+              <div className={cn(panelBorder, "h-64 overflow-hidden")}>
+                <ResponsibleEmployeesTable rows={dummyEmployeeRows} />
+              </div>
+            </div>
+          </div>
         </section>
+
+        {/* QUICK OVERVIEW */}
+        <section className="flex-1"></section>
       </main>
     </>
   );

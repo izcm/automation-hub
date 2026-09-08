@@ -2,14 +2,18 @@ import { ComponentProps, ReactNode, SetStateAction } from "react";
 import { Checkbox, Gallery } from "@a2zb/react";
 import { cn } from "@/lib/cn";
 
-export type BatchAction = Omit<
-  ComponentProps<"button">,
-  "onClick" | "children"
-> & {
-  label: ReactNode | ((count: number) => ReactNode);
-  onClick: (ids: string[], clearSelection: () => void) => void;
-  icon?: ReactNode;
-};
+// most actions are a single button — pass label/icon/onClick and BatchSelect
+// renders it. For anything shaped differently (e.g. a "Mark as ▾" dropdown),
+// pass `render` instead and own the whole thing — BatchSelect just places it.
+export type BatchAction =
+  | (Omit<ComponentProps<"button">, "onClick" | "children"> & {
+      label: ReactNode | ((count: number) => ReactNode);
+      onClick: (ids: string[], clearSelection: () => void) => void;
+      icon?: ReactNode;
+    })
+  | {
+      render: (ids: string[], clearSelection: () => void) => ReactNode;
+    };
 
 type Props<T> = {
   getId: (item: T) => string;
@@ -69,14 +73,23 @@ export function BatchSelect<T>({
           >
             {labels.clearSelection}
           </button>
-          <div className="ml-auto">
-            {actions(batchSelected).map(
-              ({ label, onClick, icon, className, ...rest }, i) => (
+          <div className="ml-auto flex gap-2">
+            {actions(batchSelected).map((action, i) => {
+              const clearSelection = () => setBatchSelected([]);
+
+              if ("render" in action) {
+                return (
+                  <div key={i}>
+                    {action.render(batchSelected, clearSelection)}
+                  </div>
+                );
+              }
+
+              const { label, onClick, icon, className, ...rest } = action;
+              return (
                 <button
                   key={i}
-                  onClick={() => {
-                    onClick(batchSelected, () => setBatchSelected([]));
-                  }}
+                  onClick={() => onClick(batchSelected, clearSelection)}
                   className={
                     className ?? "btn btn-primary flex-center gap-2 text-sm"
                   }
@@ -87,8 +100,8 @@ export function BatchSelect<T>({
                     ? label(batchSelected.length)
                     : label}
                 </button>
-              ),
-            )}
+              );
+            })}
           </div>
         </div>
       )}

@@ -46,7 +46,7 @@ export function EuInspectionRow({
         "grid-cols-[auto_minmax(0,1fr)]",
 
         // wide container
-        "@min-[512px]:grid-cols-[40%_auto_minmax(0,1fr)]",
+        "@min-[512px]:grid-cols-[36%_auto_minmax(0,1fr)]",
 
         // conditional styling
         picked && "border border-accent", // picked = when member of batch select
@@ -54,9 +54,20 @@ export function EuInspectionRow({
           "border-l-4 border-l-accent-strong/80 bg-elevated-alt/60",
       )}
     >
-      <div className="flex gap-2">
+      <div className="flex gap-2 shrink-0">
         <MediaLabel
-          media={<DateStamp date={item.euDate} />}
+          media={
+            <DateStamp
+              date={item.euDate}
+              status={
+                item.status === "approved"
+                  ? "success"
+                  : item.status === "rejected"
+                    ? "danger"
+                    : undefined
+              }
+            />
+          }
           title={item.vehicle.plateNumber}
           subtitle={
             <div className="flex flex-col gap-0.5">

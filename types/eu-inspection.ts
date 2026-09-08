@@ -1,5 +1,5 @@
 export const euInspectionStatuses = [
-  "upcoming", // not yet seen by inspectors
+  "unresolved", // not yet seen by inspectors
   "pending", // in verksted
   "approved", // obvious
   "rejected", // obvious

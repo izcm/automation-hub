@@ -30,7 +30,7 @@ async function seed() {
       vehicleId: v.id,
       euDate: v.euDate!,
       hasBeen: false,
-      status: "upcoming" as const,
+      status: "unresolved" as const,
     }));
 
   await db.delete(euInspectionsTable); // wipe first so re-running is idempotent

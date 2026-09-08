@@ -14,6 +14,16 @@ type Props = {
   item: EuInspectionRow;
 };
 
+const statusBadge: Record<
+  EuInspectionRow["status"],
+  { variant: "neutral" | "warning" | "success" | "danger"; label: string }
+> = {
+  unresolved: { variant: "neutral", label: "Unresolved" },
+  pending: { variant: "warning", label: "Pending" },
+  approved: { variant: "success", label: "Approved" },
+  rejected: { variant: "danger", label: "Rejected" },
+};
+
 type FieldProps = {
   label: string;
   children: React.ReactNode;
@@ -115,7 +125,7 @@ function EuInspectionSection({ item }: { item: EuInspectionRow }) {
             <span className="inline-flex gap-2">
               <span className="inline-flex items-center gap-2">
                 <Calendar size={16} />
-                {item.euDate}
+                <span className="tabular-nums">{item.euDate}</span>
               </span>
               <span
                 className={cn(
@@ -135,8 +145,8 @@ function EuInspectionSection({ item }: { item: EuInspectionRow }) {
           </Field>
 
           <Field label="Status">
-            <Badge variant="neutral" className="text-[12px]">
-              Upcoming
+            <Badge variant={statusBadge[item.status].variant} className="text-[12px]">
+              {statusBadge[item.status].label}
             </Badge>
           </Field>
         </dl>
