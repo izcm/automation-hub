@@ -5,7 +5,7 @@ import { useState } from "react";
 import type { EuInspectionRow } from "@/features/eu-inspections/server-actions/queries";
 import type { EuInspectionAttempt } from "@/types/eu-inspection-attempt";
 
-import { Calendar, Confirm, Cancel, Clock } from "@components/icons";
+import { Calendar, CalendarX, Confirm, Cancel, Clock } from "@components/icons";
 import { Badge, CopyableId, IconBadge } from "@/components/molecules";
 import { Eyebrow } from "@/components/atoms";
 
@@ -27,11 +27,25 @@ const statusBadge: Record<
   rejected: { variant: "danger", label: "Rejected" },
 };
 
+// no attempts yet -> real status is "unresolved" already, nothing to derive.
+// an upcoming booking overrides the stored status in the display only —
+// the row itself stays "unresolved" until the attempt resolves.
+function getDisplayStatus(item: EuInspectionRow) {
+  if (item.attempts.some((a) => a.status === "upcoming")) {
+    return { variant: "accent" as const, label: "Upcoming" };
+  }
+  return statusBadge[item.status];
+}
+
 const attemptBadge: Record<
   EuInspectionAttempt["status"],
-  { variant: "success" | "danger" | "neutral"; label: string; icon: typeof Clock }
+  {
+    variant: "success" | "danger" | "accent";
+    label: string;
+    icon: typeof Clock;
+  }
 > = {
-  upcoming: { variant: "neutral", label: "Upcoming", icon: Clock },
+  upcoming: { variant: "accent", label: "Upcoming", icon: Clock },
   approved: { variant: "success", label: "Approved", icon: Confirm },
   rejected: { variant: "danger", label: "Rejected", icon: Cancel },
 };
@@ -69,7 +83,7 @@ function MetaRow({ label, value, last }: MetaRowProps) {
   return (
     <div
       className={cn(
-        "grid grid-cols-[120px_1fr] p-2 [&>*]:truncate",
+        "grid grid-cols-[120px_1fr] items-center min-h-9 p-2 [&>*]:truncate",
         !last && "border-b border-extra-faint",
       )}
     >
@@ -112,49 +126,70 @@ const vehicleSummary = (vehicle: Vehicle): MetaRowProps[] => {
 };
 
 // one MetaRow per attempt, latest first, with a "see all" toggle past 3 —
-// same interaction as NotificationList's table/button split
+// same interaction as NotificationList's table/button split. Always renders
+// at least one row (even when empty) so every panel has the same table
+// length.
 function AttemptRows({ attempts }: { attempts: EuInspectionAttempt[] }) {
   const [expanded, setExpanded] = useState(false);
 
-  if (attempts.length === 0) return null;
+  if (attempts.length === 0) {
+    return (
+      <dl className="text-[13px] text-subtle border-t border-extra-faint">
+        <MetaRow
+          label="—"
+          value={
+            <div className="flex items-center">
+              <IconBadge icon={CalendarX} variant="neutral">
+                No appointments made
+              </IconBadge>
+            </div>
+          }
+          last
+        />
+      </dl>
+    );
+  }
 
   const sorted = [...attempts].sort((a, b) => b.date.localeCompare(a.date));
 
-  const initialCount = 3;
+  // capped at exactly 1 row by default so every panel is the same height —
+  // "See N more" sits inline on that row instead of a separate row/button
+  const initialCount = 1;
   const remaining = sorted.length - initialCount;
   const hasMore = remaining > 0;
-  const visible = expanded || !hasMore ? sorted : sorted.slice(0, initialCount);
+  const visible = expanded ? sorted : sorted.slice(0, initialCount);
 
   return (
-    <>
-      <dl className="text-[13px] text-subtle">
-        {visible.map((attempt, i) => {
-          const { variant, label, icon } = attemptBadge[attempt.status];
-          return (
-            <MetaRow
-              key={attempt.id}
-              label={attempt.date}
-              value={
+    <dl className="text-[13px] text-subtle border-t border-extra-faint">
+      {visible.map((attempt, i) => {
+        const { variant, label, icon } = attemptBadge[attempt.status];
+        const isLastVisible = i === visible.length - 1;
+
+        return (
+          <MetaRow
+            key={attempt.id}
+            label={attempt.date}
+            value={
+              <div className="flex items-center justify-between gap-2">
                 <IconBadge icon={icon} variant={variant}>
                   {label}
                 </IconBadge>
-              }
-              last={i === visible.length - 1 && !hasMore}
-            />
-          );
-        })}
-      </dl>
-
-      {hasMore && (
-        <button
-          type="button"
-          onClick={() => setExpanded(!expanded)}
-          className="w-full p-2 text-center text-xs text-accent hover:text-accent-strong"
-        >
-          {expanded ? "See less" : `See all (${remaining} more)`}
-        </button>
-      )}
-    </>
+                {isLastVisible && (hasMore || expanded) && (
+                  <button
+                    type="button"
+                    onClick={() => setExpanded(!expanded)}
+                    className="shrink-0 text-xs text-accent hover:text-accent-strong"
+                  >
+                    {expanded ? "See less" : `See ${remaining} more`}
+                  </button>
+                )}
+              </div>
+            }
+            last={isLastVisible}
+          />
+        );
+      })}
+    </dl>
   );
 }
 
@@ -204,8 +239,11 @@ function EuInspectionSection({ item }: { item: EuInspectionRow }) {
           </Field>
 
           <Field label="Status">
-            <Badge variant={statusBadge[item.status].variant} className="text-[12px]">
-              {statusBadge[item.status].label}
+            <Badge
+              variant={getDisplayStatus(item).variant}
+              className="text-[12px]"
+            >
+              {getDisplayStatus(item).label}
             </Badge>
           </Field>
         </dl>
@@ -217,7 +255,7 @@ function EuInspectionSection({ item }: { item: EuInspectionRow }) {
               key={label}
               label={label}
               value={value}
-              last={i === summary.length - 1 && item.attempts.length === 0}
+              last={i === summary.length - 1}
             />
           ))}
         </dl>

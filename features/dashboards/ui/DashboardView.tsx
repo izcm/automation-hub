@@ -2,19 +2,23 @@
 
 import { ReactNode, useState } from "react";
 import Link from "next/link";
+
+import { useLanguage } from "@/lib/contexts/LanguageContext";
+import { cn } from "@/lib/cn";
+
+import { Calendar, ChevronRight } from "@/components/icons";
+import { Gallery, defaultClasses } from "@a2zb/react";
+
+import { EuInspectionRow } from "@/features/eu-inspections";
 import {
   CORE_UI_LABELS_BY_LANGUAGE,
   type Language,
 } from "@/features/config/labels";
 import { modules, moduleIcons } from "@/features/config/modules";
-import { useLanguage } from "@/lib/contexts/LanguageContext";
-import { cn } from "@/lib/cn";
-
-import { ChevronRight } from "@/components/icons";
-import { Gallery, defaultClasses } from "@a2zb/react";
 
 import { InspectionsBarChart } from "./eu-inspections/InspectionsBarChart";
 import { ResponsibleEmployeesTable } from "./eu-inspections/ResponsibleEmployeesTable";
+import { countFieldValues } from "../logic";
 
 const panelBorder = "border border-extra-faint rounded";
 
@@ -53,22 +57,31 @@ const dummyEmployeeRows = [
 type KPIProps = {
   label: string;
   value: ReactNode;
-  changePct?: number | null;
+  descr?: string;
+  color?: "success" | "warning" | "failure" | "neutral" | "accent";
 };
 
-function KPI({ label, value, changePct }: KPIProps) {
+const kpiColorClasses: Record<NonNullable<KPIProps["color"]>, string> = {
+  success: "border-success/20 bg-success/2 border-l-success/80",
+  warning: "border-warning/20 bg-warning/2 border-l-warning/80",
+  failure: "border-failure/20 bg-failure/2 border-l-failure/80",
+  neutral: "border-extra-faint bg-neutral/2 border-l-subtle/80",
+  accent: "border-accent/20 bg-accent/2 border-l-accent/80",
+};
+
+function KPI({ label, value, color = "success", descr }: KPIProps) {
   return (
-    <div className="flex flex-col p-3 gap-2">
-      <span className="text-subtle text-sm">{label}</span>
+    <div
+      className={cn(
+        "flex flex-col p-3 gap-2 border rounded border-l-2",
+        kpiColorClasses[color],
+      )}
+    >
+      <span className="text-xs truncate">{label}</span>
       <div className="flex flex-col gap-2">
-        <span className="text-3xl">{value}</span>
-        {changePct != null && (
-          <span className={cn("text-sm font-medium text-accent-muted")}>
-            {changePct >= 0 ? "↑" : "↓"} {Math.abs(Math.round(changePct))}% vs
-            last month
-          </span>
-        )}
+        <span className="text-3xl font-semibold">{value}</span>
       </div>
+      <p className="text-xs text-subtle">{descr}</p>
     </div>
   );
 }
@@ -79,8 +92,25 @@ function formatDateRange(from: Date, to: Date): string {
   return `${fmt(from)} – ${fmt(to)}`;
 }
 
+export type Status =
+  | "approved"
+  | "rejected"
+  | "upcoming"
+  | "unresolved"
+  | "unexpected case";
+
+type EuInspectionAnalyticsRow = EuInspectionRow & {
+  state: Status;
+  latestAttempt?: Status;
+  attemptsStatusCount: Record<string, number>;
+};
+
+type Deps = {
+  inspectionAnalytics: EuInspectionAnalyticsRow[];
+};
+
 // https://recharts.github.io/en-US/api/ – for graphs later
-export function DashboardView() {
+export function DashboardView({ inspectionAnalytics }: Deps) {
   const LABELS = CORE_UI_LABELS_BY_LANGUAGE[useLanguage() as Language];
 
   const today = new Date();
@@ -111,12 +141,26 @@ export function DashboardView() {
     },
   };
 
+  const inspectionStateCounts = countFieldValues(inspectionAnalytics, "state");
+
+  // "rejected" lumps together two very different situations — split it back
+  // apart by checking the actual latest attempt, not just the derived state.
+  const rejected = inspectionAnalytics.filter(
+    (item) => item.state === "rejected",
+  );
+  const rejectedWithBooking = rejected.filter(
+    (item) => item.latestAttempt === "upcoming",
+  ).length;
+  const rejectedWithoutBooking = rejected.filter(
+    (item) => item.latestAttempt === "rejected",
+  ).length;
+
   return (
     <>
       <main
         className="
         flex-1 flex-center flex-col gap-4
-        mx-auto max-w-5xl min-h-dvh p-4
+        mx-auto max-w-6xl min-h-dvh p-4
         "
       >
         {/* TITLE */}
@@ -179,29 +223,51 @@ export function DashboardView() {
 
         {/* DASHBOARD */}
         <section className="flex flex-col gap-1 raised-outline bg-raised/40 w-full p-3">
-          <span className="text-xs text-subtle tabular-nums">
-            {formatDateRange(today, in30Days)}
-          </span>
+          <h2 className="font-semibold inline-flex items-center gap-3">
+            EU Inspections next 30 days{" "}
+            <span className="text-xs text-subtle tabular-nums inline-flex gap-1">
+              <Calendar size={14} />
+              {formatDateRange(today, in30Days)}
+            </span>
+          </h2>
 
           {/* KPIs */}
-          <div
-            className={cn(
-              panelBorder,
-              "grid grid-cols-2 gap-3 mt-2 divide-x divide-extra-faint",
-            )}
-          >
-            <KPI label="Due" value={12} />
-
-            <div className="grid grid-cols-3 divide-x divide-extra-faint">
-              <KPI label="Unresolved" value={8} />
-              <KPI label="Successful" value={3} />
-              <KPI label="Rejected" value={1} />
-            </div>
+          <div className="grid grid-cols-5 gap-3 mt-2">
+            <KPI
+              label="Due in period"
+              value={12}
+              color="accent"
+              descr="Eu inspections due in the next 30 days"
+            />
+            <KPI
+              label="Unresolved"
+              value={inspectionStateCounts.unresolved}
+              color="neutral"
+              descr="No attempts, no booking. Just closing due."
+            />
+            <KPI
+              label="Successful"
+              value={inspectionStateCounts.approved}
+              color="success"
+              descr="Latest attempt was approved."
+            />
+            <KPI
+              label="Rejected — rebooked"
+              value={rejectedWithBooking}
+              color="warning"
+              descr="Rejected, but a new workshop is already booked."
+            />
+            <KPI
+              label="Rejected — unbooked"
+              value={rejectedWithoutBooking}
+              color="failure"
+              descr="Rejected, and nothing new is booked yet."
+            />
           </div>
 
-          <div className="flex gap-3 justify-center items-center">
-            <div className="w-full">
-              <h2 className="text-sm text-subtle font-medium mb-3">
+          <div className="grid grid-cols-3 gap-3 items-center">
+            <div>
+              <h2 className="text-sm text-subtle font-medium my-2">
                 EU inspections — next 3 months
               </h2>
               <div className={cn(panelBorder, "h-64")}>
@@ -209,8 +275,8 @@ export function DashboardView() {
               </div>
             </div>
 
-            <div className="w-full">
-              <h2 className="text-sm text-subtle font-medium mb-3">
+            <div className="col-span-2">
+              <h2 className="text-sm text-subtle font-medium my-2">
                 Employees responsible for upcoming EU inspections
               </h2>
 

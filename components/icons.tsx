@@ -34,6 +34,7 @@ export {
   ExternalLink,
   User,
   Calendar,
+  CalendarX,
   Bell as Notification,
   Info,
   Clock,

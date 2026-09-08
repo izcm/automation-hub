@@ -4,7 +4,7 @@ import { cn } from "@/lib/cn";
 
 type BadgeProps = {
   children: React.ReactNode;
-  variant?: "success" | "warning" | "danger" | "neutral";
+  variant?: "success" | "warning" | "danger" | "neutral" | "accent";
   className?: string;
 };
 
@@ -23,7 +23,7 @@ export function Badge({
 
 type IconBadgeProps = {
   icon: LucideIcon;
-  variant?: "success" | "warning" | "danger" | "neutral";
+  variant?: "success" | "warning" | "danger" | "neutral" | "accent";
   children?: React.ReactNode;
   className?: string;
 };

@@ -51,7 +51,7 @@ export function EuInspectionRow({
         // conditional styling
         picked && "border border-accent", // picked = when member of batch select
         activeId === item.id && // active = the item open in workspace
-          "border-l-6 border-l-accent-strong/80 bg-elevated-alt/60",
+          "border-l-5 border-l-accent-strong/80 bg-elevated-alt/60",
       )}
     >
       <div className="flex gap-2 shrink-0">

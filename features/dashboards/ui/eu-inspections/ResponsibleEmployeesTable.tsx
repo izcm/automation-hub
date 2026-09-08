@@ -16,10 +16,10 @@ type Props = {
   rows: EmployeeInspectionRow[];
 };
 
-function notifiedColor(sent: number, total: number) {
+function color(wantedScenario: number, total: number) {
   if (total === 0) return "text-subtle";
-  if (sent === total) return "text-success";
-  if (sent === 0) return "text-failure";
+  if (wantedScenario === total) return "text-success";
+  if (wantedScenario === 0) return "text-failure";
   return "text-warning";
 }
 
@@ -31,14 +31,19 @@ export function ResponsibleEmployeesTable({ rows }: Props) {
           <th rowSpan={2} className="p-2 font-normal text-start">
             Employee
           </th>
-          <th colSpan={3} className="p-2 font-normal text-center">
+          <th colSpan={2} className="p-2 font-normal text-center">
             Next 30 days
+          </th>
+          <th colSpan={2} className="p-2 font-normal text-center">
+            Inspection statuses
           </th>
         </tr>
         <tr className="border-b border-extra-faint text-[12px] text-subtle">
-          <th className="p-2 font-normal text-start">Inspections</th>
-          <th className="p-2 font-normal text-start">Notified</th>
-          <th className="p-2 font-normal text-start">Vacation</th>
+          <th className="p-2 font-normal text-start">Dues</th>
+          <th className="p-2 font-normal text-start">Approved</th>
+          <th className="p-2 font-normal text-start">Rejected</th>
+          <th className="p-2 font-normal text-start">Booked workshops</th>
+          <th className="p-2 font-normal text-start">Unresolved</th>
         </tr>
       </thead>
       <tbody>
@@ -55,7 +60,7 @@ export function ResponsibleEmployeesTable({ rows }: Props) {
             <td
               className={cn(
                 "p-2 tabular-nums",
-                notifiedColor(
+                color(
                   row.euInspectionsWithNotifications,
                   row.euInspectionsNext30Days,
                 ),

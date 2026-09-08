@@ -139,6 +139,11 @@
     background: var(--neutral-weak);
   }
 
+  .badge--accent {
+    color: var(--accent);
+    background: color-mix(in oklab, var(--accent) 16%, transparent);
+  }
+
   .text-input {
     --field-bg: light-dark(var(--raised), transparent);
     @apply rounded;
