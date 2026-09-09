@@ -64,7 +64,7 @@ export function EuInspectionsTable({ rows }: Props) {
         {visible.map((row, i) => {
           const nextInspectionAt = getNextInspectionAt(row);
           const status = getInspectionStatus(row);
-          const daysUntil = getDaysUntil(row.euDate);
+          const daysUntil = getDaysUntil(row.dueDate);
 
           return (
             <tr
@@ -81,7 +81,7 @@ export function EuInspectionsTable({ rows }: Props) {
                 </span>
               </td>
               <td className={cn("p-2 tabular-nums", dueDateClasses(daysUntil))}>
-                {formatDate(row.euDate)}
+                {formatDate(row.dueDate)}
                 {daysUntil < 0 && " (overdue)"}
               </td>
               <td className="p-2 tabular-nums">

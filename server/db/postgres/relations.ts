@@ -7,17 +7,12 @@ import { employeesTable as employees } from "./employees/schema";
 import { euInspectionNotificationsTable as euInspectionNotifications } from "./bridge-schemas/eu-inspection-notifications-schema";
 import { euInspectionAttemptsTable as euInspectionAttempts } from "./bridge-schemas/eu-inspection-attempts-schema";
 
-import { AppResources } from "@/lib/resources";
-import { restrictRelationNames } from "@/lib/relational/relation";
-
-const resourceRelations = restrictRelationNames<keyof AppResources>();
-
 // https://orm.drizzle.team/docs/relations
 //
-// Not every table here is a first-class app resource — euInspectionNotifications
-// is a bare junction table, so the schema map below isn't restricted to
-// ResourceName<AppResources> (only each table's own relation *names* are,
-// via resourceRelations()).
+// no restrictRelationNames wrapper here — it forced every relation name to
+// equal its resource name (or singular), which breaks the moment you need
+// two relations to the same resource under different roles (e.g. a second
+// employees relation like "driver" alongside "employee").
 export const appRelations = defineRelations(
   {
     vehicles,
@@ -28,7 +23,7 @@ export const appRelations = defineRelations(
     euInspectionAttempts,
   },
   (r) => ({
-    euInspections: resourceRelations({
+    euInspections: {
       vehicle: r.one.vehicles({
         from: r.euInspections.vehicleId,
         to: r.vehicles.id,
@@ -52,15 +47,73 @@ export const appRelations = defineRelations(
         from: r.euInspections.id,
         to: r.euInspectionAttempts.euInspectionId,
       }),
-    }),
+    },
 
-    vehicles: resourceRelations({
+    vehicles: {
       euInspections: r.many.euInspections(),
 
       employee: r.one.employees({
         from: r.vehicles.maintenanceResponsibleId,
         to: r.employees.id,
       }),
-    }),
+    },
   }),
 );
+
+// import { AppResources } from "@/lib/resources";
+// import { restrictRelationNames } from "@/lib/relational/relation";
+//
+// const resourceRelations = restrictRelationNames<keyof AppResources>();
+//
+// // https://orm.drizzle.team/docs/relations
+// //
+// // Not every table here is a first-class app resource — euInspectionNotifications
+// // is a bare junction table, so the schema map below isn't restricted to
+// // ResourceName<AppResources> (only each table's own relation *names* are,
+// // via resourceRelations()).
+// export const appRelations = defineRelations(
+//   {
+//     vehicles,
+//     euInspections,
+//     notifications,
+//     employees,
+//     euInspectionNotifications,
+//     euInspectionAttempts,
+//   },
+//   (r) => ({
+//     euInspections: resourceRelations({
+//       vehicle: r.one.vehicles({
+//         from: r.euInspections.vehicleId,
+//         to: r.vehicles.id,
+//       }),
+//
+//       // many-to-many through the junction table, but it points straight at
+//       // real notification rows — the junction never gets exposed as its
+//       // own relation, so there's no separate hop to attach real data
+//       notifications: r.many.notifications({
+//         from: r.euInspections.id.through(
+//           r.euInspectionNotifications.euInspectionId,
+//         ),
+//         to: r.notifications.id.through(
+//           r.euInspectionNotifications.notificationId,
+//         ),
+//       }),
+//
+//       // plain one-to-many — euInspectionAttempts has a direct FK, it's not
+//       // a junction table like euInspectionNotifications above
+//       attempts: r.many.euInspectionAttempts({
+//         from: r.euInspections.id,
+//         to: r.euInspectionAttempts.euInspectionId,
+//       }),
+//     }),
+//
+//     vehicles: resourceRelations({
+//       euInspections: r.many.euInspections(),
+//
+//       employee: r.one.employees({
+//         from: r.vehicles.maintenanceResponsibleId,
+//         to: r.employees.id,
+//       }),
+//     }),
+//   }),
+// );

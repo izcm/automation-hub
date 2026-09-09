@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useState } from "react";
 
 import { cn } from "@/lib/cn";
 import { ChevronRight } from "@/components/icons";
@@ -7,12 +8,12 @@ import { EuInspectionRow } from "@/features/eu-inspections";
 import { aggregateBy } from "../../logic/aggregate";
 import { getInspectionStatus } from "../logic";
 
-import { EuInspectionsKpis } from "./EuInspectionsKpis";
-import { EuInspectionsTable } from "./EuInspectionsTable";
+import { Filter } from "../../logic/filter";
 
+import { EuInspectionsKPIs } from "./EuInspectionsKPIs";
+import { EuInspectionsTable } from "./EuInspectionsTable";
 import { InspectionsBarChart } from "./InspectionsBarChart";
 import { OutstandingRejectionsCard } from "./OutstandingRejectionsCard";
-
 import {
   ResponsibleEmployeesTable,
   type EmployeeInspectionRow,
@@ -95,9 +96,18 @@ type Props = {
 };
 
 export function EuInspectionDashboard({ inspectionRows }: Props) {
+  const [filters, setFilters] = useState<Filter<EuInspectionRow>[]>([]);
+
+  const applyFilters = () => console.log(`filters length: ${filters.length}`);
+  applyFilters();
+
+  function addFilter(predicate: (item: EuInspectionRow) => boolean) {
+    setFilters([{ predicate }]);
+  }
+
   return (
     <section className="flex flex-col gap-3 raised-outline bg-raised/40 w-full p-3">
-      <EuInspectionsKpis inspectionRows={inspectionRows} />
+      <EuInspectionsKPIs rows={inspectionRows} />
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 items-center">
         {/* BARCHART */}

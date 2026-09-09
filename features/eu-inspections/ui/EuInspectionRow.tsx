@@ -58,7 +58,7 @@ export function EuInspectionRow({
         <MediaLabel
           media={
             <DateStamp
-              date={item.euDate}
+              date={item.dueDate}
               status={
                 item.status === "approved"
                   ? "success"
@@ -72,12 +72,12 @@ export function EuInspectionRow({
           subtitle={
             <div className="flex flex-col gap-0.5">
               <span className="inline-flex items-center gap-1.5 text-subtle/80">
-                {LABELS.euDate}:
-                <span className="tabular-nums"> {item.euDate}</span>
+                {LABELS.dueDate}:
+                <span className="tabular-nums"> {item.dueDate}</span>
               </span>
 
               {(() => {
-                const days = getDaysUntil(item.euDate);
+                const days = getDaysUntil(item.dueDate);
                 return (
                   <span
                     className={cn(

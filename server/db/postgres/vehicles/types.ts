@@ -14,7 +14,7 @@ export type VehicleRow = {
   transmission: string | null;
   seats: number | null;
   registration_status: string | null;
-  eu_date: string | null;
+  due_date: string | null;
   last_eu_approved: string | null;
   image_url: string | null;
   maintenance_responsible_id: string | null;

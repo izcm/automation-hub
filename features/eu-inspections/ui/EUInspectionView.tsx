@@ -192,7 +192,7 @@ export function EUInspectionView({
     query.set("include[notifications]", "true");
 
     // sort
-    query.set("sortField", "euDate");
+    query.set("sortField", "dueDate");
     query.set("sortDir", "asc");
 
     getPage<EuInspectionRow>({

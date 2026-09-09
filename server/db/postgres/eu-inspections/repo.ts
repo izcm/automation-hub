@@ -34,15 +34,15 @@ export const euInspectionRepo: EuInspectionPort = {
 
   async ensure(
     vehicleId: string,
-    euDate: string,
+    dueDate: string,
     id: string,
   ): Promise<{ id: string; didUpsert: boolean }> {
     const result = await rawEnsure(
-      { id, vehicleId, euDate, hasBeen: false, status: "unresolved" },
-      [euInspectionsTable.vehicleId, euInspectionsTable.euDate],
+      { id, vehicleId, dueDate, hasBeen: false, status: "unresolved" },
+      [euInspectionsTable.vehicleId, euInspectionsTable.dueDate],
       and(
         eq(euInspectionsTable.vehicleId, vehicleId),
-        eq(euInspectionsTable.euDate, euDate),
+        eq(euInspectionsTable.dueDate, dueDate),
       )!,
     );
     return { id: result.id as string, didUpsert: result.didUpsert };

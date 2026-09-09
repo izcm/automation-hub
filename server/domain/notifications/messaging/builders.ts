@@ -1,6 +1,9 @@
 import * as z from "zod";
 
-import { MAX_ID_LENGTH, MAX_NOTIFICATIONS_PER_BATCH } from "@/server/config/limits";
+import {
+  MAX_ID_LENGTH,
+  MAX_NOTIFICATIONS_PER_BATCH,
+} from "@/server/config/limits";
 import { euInspectionReminder } from "./templates";
 import { Builders, getContact } from "./message-builder";
 
@@ -20,11 +23,11 @@ export const builders: Builders = {
     const { vehicleIds } = EuInspectionReminderPayload.parse(payload);
     const relevantVehicles = await vehicles.findByKeys(vehicleIds);
     const targets = relevantVehicles.flatMap((v) =>
-      v.maintenanceResponsibleId && v.euDate
+      v.maintenanceResponsibleId && v.dueDate
         ? [
             {
               plateNumber: v.plateNumber,
-              euDate: v.euDate,
+              dueDate: v.dueDate,
               receiverId: v.maintenanceResponsibleId,
             },
           ]
@@ -40,7 +43,7 @@ export const builders: Builders = {
         return {
           to: getContact[channel](employee),
           channel,
-          ...euInspectionReminder(target.plateNumber, target.euDate),
+          ...euInspectionReminder(target.plateNumber, target.dueDate),
         };
       }),
     );

@@ -25,7 +25,7 @@ export type Vehicle = EnrichProgress & {
 
   // Operational
   registrationStatus?: string;
-  euDate?: string;
+  dueDate?: string;
   lastEuApproved?: string;
 
   // UI enrichment

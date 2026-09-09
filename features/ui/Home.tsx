@@ -35,17 +35,13 @@ export function Home({ inspectionRows }: Deps) {
       ...LABELS.home.modules["eu-inspections"],
       icon: moduleIcons["eu-inspections"],
     },
-    onboarding: {
-      ...LABELS.home.modules.onboarding,
-      icon: moduleIcons.onboarding,
-    },
-    offboarding: {
-      ...LABELS.home.modules.offboarding,
-      icon: moduleIcons.offboarding,
-    },
     "vehicle-admin": {
       ...LABELS.home.modules["vehicle-admin"],
       icon: moduleIcons["vehicle-admin"],
+    },
+    onboarding: {
+      ...LABELS.home.modules.onboarding,
+      icon: moduleIcons.onboarding,
     },
   };
 
@@ -80,7 +76,7 @@ export function Home({ inspectionRows }: Deps) {
             itemClassName={defaultClasses}
             className={{
               arrowList:
-                "grid max-[425px]:grid-cols-1 grid-cols-2 md:grid-cols-4 gap-3 p-0",
+                "grid max-[425px]:grid-cols-1 sm:grid-cols-3 gap-3 p-0",
               arrowRow: "focus-inset",
             }}
             direction="horizontal"
@@ -106,7 +102,7 @@ export function Home({ inspectionRows }: Deps) {
                     href={item}
                     className="btn btn-secondary flex justify-between text-sm"
                   >
-                    <span className="min-w-0 truncate">View detailed</span>
+                    <span className="min-w-0 truncate">Go to workspace</span>
                     <ChevronRight size="16" />
                   </Link>
                 )}

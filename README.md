@@ -92,7 +92,7 @@ Running log — append as we decide things. Format: decision + why.
 
 ### 1. Client sends identifiers; the server resolves authoritative data
 
-The client posts `{ vehicleIds }` only — never `userId`, `email`, or `euDate`.
+The client posts `{ vehicleIds }` only — never `userId`, `email`, or `dueDate`.
 The server looks those up from the vehicle row.
 **Why:** trust boundary (client input is attacker-controllable — letting it pick
 recipients is a hole), freshness (server value can't be stale), and single

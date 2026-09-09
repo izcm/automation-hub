@@ -107,12 +107,12 @@ export function InspectionsBarChart({ rows }: { rows: EuInspectionRow[] }) {
     rows,
 
     // getKey – time bucket
-    (row) => getTimeBucket(getDaysUntil(row.euDate)),
+    (row) => getTimeBucket(getDaysUntil(row.dueDate)),
 
     // create – one counter per Status, so entry[state]++ below always has
     // somewhere to land
     (row) => ({
-      timeBucket: getTimeBucket(getDaysUntil(row.euDate)),
+      timeBucket: getTimeBucket(getDaysUntil(row.dueDate)),
       approved: 0,
       rejectedBooked: 0,
       rejectedUnbooked: 0,

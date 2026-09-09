@@ -198,7 +198,7 @@ function SummaryHeader({ vehicle }: { vehicle: Vehicle }) {
     <header className="flex flex-col gap-1 p-2">
       <div className="flex gap-3">
         <h1 className="text-[20px] font-semibold">{vehicle.plateNumber}</h1>
-        <Badge className="text-[12px]">Active Vehicle</Badge>
+        {/* <Badge className="text-[12px]">Active Vehicle</Badge> */}
       </div>
     </header>
   );
@@ -206,7 +206,7 @@ function SummaryHeader({ vehicle }: { vehicle: Vehicle }) {
 
 function EuInspectionSection({ item }: { item: EuInspectionRow }) {
   const summary = euInspectionSummary(item);
-  const days = getDaysUntil(item.euDate);
+  const days = getDaysUntil(item.dueDate);
 
   return (
     <div className="flex flex-col gap-2">
@@ -215,11 +215,11 @@ function EuInspectionSection({ item }: { item: EuInspectionRow }) {
       <div className="raised-outline-panel">
         {/* top */}
         <dl className="flex gap-4 border-b border-extra-faint p-2">
-          <Field label="EU date">
+          <Field label="Due date">
             <span className="inline-flex gap-2">
               <span className="inline-flex items-center gap-2">
                 <Calendar size={16} />
-                <span className="tabular-nums">{item.euDate}</span>
+                <span className="tabular-nums">{item.dueDate}</span>
               </span>
               <span
                 className={cn(

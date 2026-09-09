@@ -2,11 +2,11 @@ export const MESSAGE_USE_CASES = ["eu-inspection-reminder"] as const;
 
 export type MessageUseCase = (typeof MESSAGE_USE_CASES)[number];
 
-export function euInspectionReminder(plateNumber: string, euDate: string) {
+export function euInspectionReminder(plateNumber: string, dueDate: string) {
   return {
     subject: `EU Inspection – ${plateNumber}`,
 
-    text: `Vehicle ${plateNumber} has EU Inspection ${euDate}.`,
+    text: `Vehicle ${plateNumber} has EU Inspection ${dueDate}.`,
 
     html: `
       <div style="
@@ -56,7 +56,7 @@ export function euInspectionReminder(plateNumber: string, euDate: string) {
             font-weight: 500;
             margin-top: 4px;
           ">
-            ${euDate}
+            ${dueDate}
           </div>
         </div>
 

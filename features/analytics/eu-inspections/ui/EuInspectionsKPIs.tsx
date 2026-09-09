@@ -12,16 +12,16 @@ function formatDateRange(from: Date, to: Date): string {
 }
 
 type Props = {
-  inspectionRows: EuInspectionRow[];
+  rows: EuInspectionRow[];
 };
 
-export function EuInspectionsKpis({ inspectionRows }: Props) {
+export function EuInspectionsKPIs({ rows }: Props) {
   const today = new Date();
   const in30Days = new Date(today);
   in30Days.setDate(today.getDate() + 30);
 
   const inspectionStateCounts = countFieldValues(
-    inspectionRows.map((item) => ({ state: getInspectionStatus(item) })),
+    rows.map((item) => ({ state: getInspectionStatus(item) })),
     "state",
   );
 
@@ -35,12 +35,18 @@ export function EuInspectionsKpis({ inspectionRows }: Props) {
         </span>
       </h2>
 
-      <div className="grid grid-cols-3 lg:grid-cols-5 gap-3 mt-2">
+      <div className="grid grid-cols-3 gap-3 mt-2">
         <KPI
           label="Due in period"
-          value={inspectionRows.length}
+          value={rows.length}
           color="accent"
-          descr="Eu inspections due in the next 30 days"
+          descr="EU inspections due in the next 30 days"
+        />{" "}
+        <KPI
+          label="Upcoming first workshop"
+          value={inspectionStateCounts.upcoming}
+          color="accent"
+          descr="No earlier attempt, and has an upcoming booking."
         />
         <KPI
           label={STATUS_LABELS.unresolved}

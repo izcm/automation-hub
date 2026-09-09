@@ -30,7 +30,7 @@ function vehicle(i: number, make: string, model: string, overrides = {}) {
     transmission: "Automat",
     seats: 2,
     registrationStatus: "Registrert",
-    euDate: new Date(
+    dueDate: new Date(
       Date.now() + (30 + Math.random() * 60) * 24 * 60 * 60 * 1000,
     )
       .toISOString()

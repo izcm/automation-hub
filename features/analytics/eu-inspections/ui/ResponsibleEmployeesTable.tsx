@@ -14,6 +14,7 @@ export type EmployeeInspectionRow = {
 
 type Props = {
   rows: EmployeeInspectionRow[];
+  // onRowClick
 };
 
 function color(wantedScenario: number, total: number) {

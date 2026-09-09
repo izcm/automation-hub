@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { cn } from "@/lib/cn";
 import { Calendar, ChevronRight, Info } from "@/components/icons";
 import type { EuInspectionRow } from "@/features/eu-inspections";
 import { getInspectionStatus } from "../logic";
@@ -34,8 +33,8 @@ export function OutstandingRejectionsCard({ inspectionRows }: Props) {
   });
 
   const dueInPeriod = rejected.filter((row) => {
-    const euDate = new Date(row.euDate);
-    return euDate >= today && euDate <= in30Days;
+    const dueDate = new Date(row.dueDate);
+    return dueDate >= today && dueDate <= in30Days;
   });
 
   return (

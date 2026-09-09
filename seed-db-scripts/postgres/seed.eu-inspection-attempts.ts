@@ -6,7 +6,7 @@ import { euInspectionAttemptsTable } from "@server/db/postgres/bridge-schemas/eu
 import { generateId } from "@/server/shared/id";
 import type { EuInspectionAttemptStatus } from "@/types/eu-inspection-attempt";
 
-// leading up to euDate — shift a "YYYY-MM-DD" string back by N days
+// leading up to dueDate — shift a "YYYY-MM-DD" string back by N days
 function shiftDays(date: string, days: number): string {
   const d = new Date(date);
   d.setDate(d.getDate() - days);
@@ -33,7 +33,7 @@ async function seed() {
   const inspectionRows = await db
     .select({
       id: euInspectionsTable.id,
-      euDate: euInspectionsTable.euDate,
+      dueDate: euInspectionsTable.dueDate,
       plateNumber: vehiclesTable.plateNumber,
     })
     .from(euInspectionsTable)
@@ -59,12 +59,12 @@ async function seed() {
     const count = ATTEMPT_COUNT_CYCLE[n % ATTEMPT_COUNT_CYCLE.length]!;
     if (count === 0) continue;
 
-    // attempts lead up to euDate, spaced a few days apart, earliest first
+    // attempts lead up to dueDate, spaced a few days apart, earliest first
     const gaps = Array.from({ length: count }, (_, j) => 3 + ((n + j) % 8));
     let offset = gaps.reduce((sum, gap) => sum + gap, 0);
     const dates = gaps.map((gap) => {
       offset -= gap;
-      return shiftDays(inspection.euDate, offset);
+      return shiftDays(inspection.dueDate, offset);
     });
 
     // >1 attempt: every earlier attempt is already resolved as "rejected"
@@ -72,12 +72,12 @@ async function seed() {
     // (or the only, if count === 1) attempt's outcome may still be unknown
     const finalStatus = FINAL_STATUS_CYCLE[n % FINAL_STATUS_CYCLE.length]!;
 
-    // a still-"upcoming" re-test isn't pinned to euDate — it can land
+    // a still-"upcoming" re-test isn't pinned to dueDate — it can land
     // before or after it, scattered across the ~30 day window the
-    // dashboard cares about, instead of always landing exactly on euDate.
+    // dashboard cares about, instead of always landing exactly on dueDate.
     if (finalStatus === "upcoming") {
-      const spread = (n % 31) - 15; // -15..+15 days relative to euDate
-      dates[dates.length - 1] = shiftDays(inspection.euDate, -spread);
+      const spread = (n % 31) - 15; // -15..+15 days relative to dueDate
+      dates[dates.length - 1] = shiftDays(inspection.dueDate, -spread);
     }
 
     dates.forEach((date, i) => {

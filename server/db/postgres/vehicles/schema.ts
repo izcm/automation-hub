@@ -21,7 +21,7 @@ export const vehiclesTable = pgTable("vehicles", {
   transmission: text("transmission"),
   seats: integer("seats"),
   registrationStatus: text("registration_status"),
-  euDate: date("eu_date"),
+  dueDate: date("due_date"),
   lastEuApproved: date("last_eu_approved"),
   imageUrl: text("image_url"),
   maintenanceResponsibleId: text("maintenance_responsible_id").references(

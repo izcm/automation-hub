@@ -26,7 +26,7 @@ function numberFromPlate(plateNumber: string): number {
 
 // status is mostly cosmetic here (the dashboard derives its own state from
 // attempts, not this column) but seed it in a way that roughly agrees with
-// how due the euDate is, so the raw data isn't nonsensical on its own.
+// how due the dueDate is, so the raw data isn't nonsensical on its own.
 function statusFor(offset: number, n: number): EuInspectionStatus {
   if (offset <= 7) return "pending";
   return STATUS_CYCLE[n % STATUS_CYCLE.length]!;
@@ -47,7 +47,7 @@ async function seed() {
 
   // one inspection per vehicle, spread across the next 30 days by each
   // vehicle's own plate number, instead of reusing the vehicle's own (much
-  // wider) euDate range.
+  // wider) dueDate range.
   const rows = vehicleRows.map((v) => {
     const n = numberFromPlate(v.plateNumber);
     // a single linear multiplier (e.g. n*7 % 30) is a bijection, but for
@@ -55,12 +55,12 @@ async function seed() {
     // every 7-day bucket ends up with the exact same count. Adding a
     // quadratic term breaks that regularity so the spread looks organic.
     const offset = (n * 7 + n * n * 11) % 31;
-    const euDate = shiftDays(today, offset);
+    const dueDate = shiftDays(today, offset);
 
     return {
       id: generateId(),
       vehicleId: v.id,
-      euDate,
+      dueDate,
       hasBeen: false,
       status: statusFor(offset, n),
     };

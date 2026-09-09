@@ -9,7 +9,7 @@ import type { EuInspectionRow } from "../types";
 export type { EuInspectionRow } from "../types";
 
 const baseQueryFields = {
-  sortField: "euDate",
+  sortField: "dueDate",
   sortDir: "asc",
   include: {
     vehicle: { include: { employee: true } },

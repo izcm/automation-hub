@@ -10,7 +10,7 @@ export type EuInspectionStatus = (typeof euInspectionStatuses)[number];
 export type EuInspection = {
   id: string;
   vehicleId: string;
-  euDate: string;
+  dueDate: string;
   hasBeen: boolean;
   status: EuInspectionStatus;
   createdAt: Date;
