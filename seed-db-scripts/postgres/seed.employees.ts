@@ -13,10 +13,6 @@ const names = [
   "Ida Larsen",
   "Anders Pedersen",
   "Marte Olsen",
-  "Sindre Kristiansen",
-  "Silje Andersen",
-  "Magnus Berg",
-  "Thea Haugen",
 ];
 const usernames = names.map((name) => name.toLowerCase().replace(" ", "."));
 

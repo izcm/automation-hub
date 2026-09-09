@@ -1,4 +1,6 @@
+import { eq } from "drizzle-orm";
 import { db } from "@server/db/postgres/pool";
+import { vehiclesTable } from "@server/db/postgres/vehicles/schema";
 import { euInspectionsTable } from "@server/db/postgres/eu-inspections/schema";
 import { euInspectionAttemptsTable } from "@server/db/postgres/bridge-schemas/eu-inspection-attempts-schema";
 import { generateId } from "@/server/shared/id";
@@ -11,23 +13,34 @@ function shiftDays(date: string, days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-function randomInt(min: number, max: number): number {
-  return min + Math.floor(Math.random() * (max - min + 1));
+// plateNumber is "ZZ 00001" etc — the digits are already a stable, unique
+// number per vehicle. No Math.random(): the same plate always maps to the
+// same attempts, only "today" (and so the dates) moves.
+function numberFromPlate(plateNumber: string): number {
+  return parseInt(plateNumber.replace(/\D/g, ""), 10);
 }
 
 // 0/1/2/3 attempts, weighted toward fewer
-function randomAttemptCount(): number {
-  const r = Math.random();
-  if (r < 0.4) return 0;
-  if (r < 0.7) return 1;
-  if (r < 0.9) return 2;
-  return 3;
-}
+const ATTEMPT_COUNT_CYCLE = [0, 0, 1, 1, 2, 3];
+const FINAL_STATUS_CYCLE: EuInspectionAttemptStatus[] = [
+  "upcoming",
+  "approved",
+  "approved",
+  "rejected",
+];
 
 async function seed() {
   const inspectionRows = await db
-    .select({ id: euInspectionsTable.id, euDate: euInspectionsTable.euDate })
-    .from(euInspectionsTable);
+    .select({
+      id: euInspectionsTable.id,
+      euDate: euInspectionsTable.euDate,
+      plateNumber: vehiclesTable.plateNumber,
+    })
+    .from(euInspectionsTable)
+    .innerJoin(
+      vehiclesTable,
+      eq(euInspectionsTable.vehicleId, vehiclesTable.id),
+    );
   if (inspectionRows.length === 0) {
     throw new Error(
       "No eu inspections found — run `npm run seed:pg:eu-inspections` first.",
@@ -42,11 +55,12 @@ async function seed() {
   }[] = [];
 
   for (const inspection of inspectionRows) {
-    const count = randomAttemptCount();
+    const n = numberFromPlate(inspection.plateNumber);
+    const count = ATTEMPT_COUNT_CYCLE[n % ATTEMPT_COUNT_CYCLE.length]!;
     if (count === 0) continue;
 
     // attempts lead up to euDate, spaced a few days apart, earliest first
-    const gaps = Array.from({ length: count }, () => randomInt(3, 10));
+    const gaps = Array.from({ length: count }, (_, j) => 3 + ((n + j) % 8));
     let offset = gaps.reduce((sum, gap) => sum + gap, 0);
     const dates = gaps.map((gap) => {
       offset -= gap;
@@ -56,9 +70,15 @@ async function seed() {
     // >1 attempt: every earlier attempt is already resolved as "rejected"
     // (a follow-up booking only happens after a rejection) — only the last
     // (or the only, if count === 1) attempt's outcome may still be unknown
-    const r = Math.random();
-    const finalStatus: EuInspectionAttemptStatus =
-      r < 0.35 ? "upcoming" : r < 0.8 ? "approved" : "rejected";
+    const finalStatus = FINAL_STATUS_CYCLE[n % FINAL_STATUS_CYCLE.length]!;
+
+    // a still-"upcoming" re-test isn't pinned to euDate — it can land
+    // before or after it, scattered across the ~30 day window the
+    // dashboard cares about, instead of always landing exactly on euDate.
+    if (finalStatus === "upcoming") {
+      const spread = (n % 31) - 15; // -15..+15 days relative to euDate
+      dates[dates.length - 1] = shiftDays(inspection.euDate, -spread);
+    }
 
     dates.forEach((date, i) => {
       const isLast = i === dates.length - 1;

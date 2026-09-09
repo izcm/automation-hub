@@ -75,12 +75,19 @@ async function seed() {
   }
   const employeeIds = employeeRows.map((e) => e.id);
 
-  // Round-robin the employees across vehicles so each has a responsible person.
+  // weighted, not round-robin — a few employees carry most of the fleet,
+  // the rest carry a handful, so the responsible-employees table has
+  // something real to sort/trim by instead of everyone tied at 2.
+  const RESPONSIBLE_WEIGHTS = [6, 5, 4, 2, 2, 1]; // sums to seedVehicles.length
+  const responsibleByVehicle = RESPONSIBLE_WEIGHTS.flatMap((weight, i) =>
+    Array(weight).fill(i % employeeIds.length),
+  );
+
   const rows = seedVehicles.map((v, i) => ({
     ...v,
     id: generateId(),
     withSvvData: true,
-    maintenanceResponsibleId: employeeIds[i % employeeIds.length],
+    maintenanceResponsibleId: employeeIds[responsibleByVehicle[i]!],
   }));
 
   await db.delete(vehiclesTable); // wipe first so re-running is idempotent
