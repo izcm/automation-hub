@@ -39,14 +39,9 @@ export function OutstandingRejectionsCard({ inspectionRows }: Props) {
   });
 
   return (
-    <div
-      className={cn(
-        "border border-extra-faint rounded p-3",
-        "flex flex-col gap-3",
-      )}
-    >
+    <div className="flex flex-col gap-3 max-w-180">
       <div>
-        <h2 className="text-sm font-medium inline-flex items-center gap-1.5">
+        <h2 className="font-medium inline-flex items-center gap-1.5">
           Outstanding rejections
           <Info size={14} className="text-subtle" />
         </h2>
@@ -55,9 +50,9 @@ export function OutstandingRejectionsCard({ inspectionRows }: Props) {
         </p>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center p-3 gap-3">
         <div className="flex-1">
-          <span className="text-3xl font-semibold text-failure">
+          <span className="text-5xl font-semibold text-failure">
             {rejected.length}
           </span>
           <p className="text-sm font-medium">Across all due dates</p>
@@ -66,9 +61,11 @@ export function OutstandingRejectionsCard({ inspectionRows }: Props) {
           </p>
         </div>
 
+        <div className="vertical-line" />
+
         <div className="flex-1">
-          <span className="inline-flex items-center gap-1.5 text-3xl font-semibold">
-            <Calendar size={18} className="text-subtle" />
+          <span className="inline-flex items-baseline gap-2 text-3xl font-semibold">
+            <Calendar size={20} className="text-subtle" />
             {dueInPeriod.length}
           </span>
           <p className="text-sm font-medium">Due in current 30-day period</p>
@@ -80,7 +77,7 @@ export function OutstandingRejectionsCard({ inspectionRows }: Props) {
 
       <Link
         href="/eu-inspections"
-        className="btn btn-secondary flex justify-between text-sm"
+        className="btn btn-secondary mt-2 bg-transparent max-w-[300px] text-sm"
       >
         View all outstanding rejections
         <ChevronRight size="16" />

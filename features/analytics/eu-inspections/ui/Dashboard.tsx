@@ -150,7 +150,9 @@ export function EuInspectionDashboard({ inspectionRows }: Props) {
       </div>
 
       {/* OUTSTANDING REJECTIONS */}
-      <OutstandingRejectionsCard inspectionRows={inspectionRows} />
+      <div className={cn(panelBorder, "p-2")}>
+        <OutstandingRejectionsCard inspectionRows={inspectionRows} />
+      </div>
     </section>
   );
 }
