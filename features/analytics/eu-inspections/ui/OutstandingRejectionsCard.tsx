@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Calendar, ChevronRight, Info } from "@/components/icons";
+import { cn } from "@/lib/cn";
 import type { EuInspectionRow } from "@/features/eu-inspections";
 import { getInspectionStatus } from "../logic";
 
@@ -27,10 +28,9 @@ export function OutstandingRejectionsCard({ inspectionRows }: Props) {
   const in30Days = new Date(today);
   in30Days.setDate(today.getDate() + 30);
 
-  const rejected = inspectionRows.filter((row) => {
-    const status = getInspectionStatus(row);
-    return status === "rejectedBooked" || status === "rejectedUnbooked";
-  });
+  const rejected = inspectionRows.filter(
+    (row) => getInspectionStatus(row) === "rejectedUnbooked",
+  );
 
   const dueInPeriod = rejected.filter((row) => {
     const dueDate = new Date(row.dueDate);
@@ -51,7 +51,12 @@ export function OutstandingRejectionsCard({ inspectionRows }: Props) {
 
       <div className="flex items-center p-3 gap-3">
         <div className="flex-1">
-          <span className="text-5xl font-semibold text-failure">
+          <span
+            className={cn(
+              "text-5xl font-semibold",
+              rejected.length === 0 ? "text-subtle" : "text-failure",
+            )}
+          >
             {rejected.length}
           </span>
           <p className="text-sm font-medium">Across all due dates</p>
@@ -63,7 +68,12 @@ export function OutstandingRejectionsCard({ inspectionRows }: Props) {
         <div className="vertical-line" />
 
         <div className="flex-1">
-          <span className="inline-flex items-baseline gap-2 text-3xl font-semibold">
+          <span
+            className={cn(
+              "inline-flex items-baseline gap-2 text-3xl font-semibold",
+              dueInPeriod.length === 0 && "text-subtle",
+            )}
+          >
             <Calendar size={20} className="text-subtle" />
             {dueInPeriod.length}
           </span>

@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 
 import { cn } from "@/lib/cn";
 import { ChevronRight } from "@/components/icons";
+
 import { EuInspectionRow } from "@/features/eu-inspections";
 
 import { aggregateBy } from "../../logic/aggregate";
@@ -18,7 +19,6 @@ import {
   ResponsibleEmployeesTable,
   type EmployeeInspectionRow,
 } from "./ResponsibleEmployeesTable";
-import { EuInspectionRow } from "@/features/eu-inspections/ui/EuInspectionRow";
 
 const panelBorder = "border border-extra-faint rounded";
 
@@ -114,12 +114,30 @@ export function EuInspectionDashboard({ items }: Props) {
         ];
       }
 
-      return current.map((filter) => {
-        // include other existing filters
-        if (filter.id !== filterId) return filter;
+      return (
+        current
+          .map((filter) => {
+            // include other existing filters
+            if (filter.id !== filterId) return filter;
 
-        // predicate with predicateId exists ? remove : add
-      });
+            const predicateExists = filter.predicates.some(
+              (p) => p.id === predicateId,
+            );
+
+            // filter id === filterId meaning: this is the filter that has
+            // a predicate that is being removed / added
+            return {
+              id: filter.id,
+              predicates: predicateExists
+                ? // exists – remove the predicate (de-selected)
+                  filter.predicates.filter((p) => p.id !== predicateId)
+                : // doesn't exist – add the predicate (selected)
+                  [...filter.predicates, { id: predicateId, predicate }],
+            };
+          })
+          // remove any filters that have empty predicates
+          .filter((filter) => filter.predicates.length > 0)
+      );
     });
   }
 
@@ -127,6 +145,11 @@ export function EuInspectionDashboard({ items }: Props) {
     () => (filters.length > 0 ? applyFilters(items, filters) : items),
     [filters, items],
   );
+
+  const employeeRows = aggregateByEmployee(filteredItems);
+  const topEmployeeIds = employeeRows
+    .filter((row) => row.id !== "others")
+    .map((row) => row.id);
 
   return (
     <section className="flex flex-col gap-3 raised-outline bg-raised/40 w-full p-3">
@@ -153,18 +176,42 @@ export function EuInspectionDashboard({ items }: Props) {
 
         {/* BARCHART */}
         <div className={cn(panelBorder, "p-2")}>
-          <h2 className="text-sm font-medium my-2">
-            Employee responsible – next 30 days
-          </h2>
+          <div className="flex items-center justify-between my-2">
+            <h2 className="text-sm font-medium">
+              Employee responsible – next 30 days
+            </h2>
+
+            {filters.some((filter) => filter.id === "employee") && (
+              <button
+                type="button"
+                onClick={() =>
+                  setFilters((current) =>
+                    current.filter((filter) => filter.id !== "employee"),
+                  )
+                }
+                className="text-sm text-accent hover:text-accent-strong"
+              >
+                Clear filter
+              </button>
+            )}
+          </div>
 
           <div className={cn(panelBorder, "h-80")}>
             <ResponsibleEmployeesTable
-              rows={aggregateByEmployee(filteredItems)}
+              rows={employeeRows}
               onRowClick={(row) =>
                 addFilter(
                   "employee",
-                  (inspection) =>
-                    inspection.vehicle.maintenanceResponsibleId === row.id,
+                  row.id,
+                  row.id === "others"
+                    ? // "others" isn't a real employee id — it's every
+                      // employee that didn't get its own row above
+                      (inspection) => {
+                        const id = inspection.vehicle.maintenanceResponsibleId;
+                        return id != null && !topEmployeeIds.includes(id);
+                      }
+                    : (inspection) =>
+                        inspection.vehicle.maintenanceResponsibleId === row.id,
                 )
               }
             />
@@ -186,12 +233,12 @@ export function EuInspectionDashboard({ items }: Props) {
           </Link>
         </div>
 
-        <EuInspectionsTable rows={items} />
+        <EuInspectionsTable rows={filteredItems} />
       </div>
 
       {/* OUTSTANDING REJECTIONS */}
       <div className={cn(panelBorder, "p-2")}>
-        <OutstandingRejectionsCard inspectionRows={items} />
+        <OutstandingRejectionsCard inspectionRows={filteredItems} />
       </div>
     </section>
   );
