@@ -3,7 +3,7 @@ import { IS_DEMO } from "@/server/config/app";
 import { EUInspectionView } from "@/features/eu-inspections/ui/EUInspectionView";
 import { getEuInspections } from "@/features/eu-inspections/server-actions/queries";
 
-import { getEmailStorage, getEmployees } from "@/features/server-actions";
+import { getEmailStorage, getEmployees } from "@/features/core/server-actions";
 
 export default async function EuInspectionsPage() {
   // default sort is on eu date + desc
@@ -16,7 +16,7 @@ export default async function EuInspectionsPage() {
     .filter((r) => !r.ok)
     .map((r) => r.error);
 
-  // if demo check if demo user has consented to email being stored
+  // is demo && check if demo user has consented to email being stored
   let demouserEmail;
 
   if (IS_DEMO) {

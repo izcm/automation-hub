@@ -7,7 +7,7 @@ import { ClickPopover } from "@a2zb/react";
 import { EditableEntityRow } from "@/components/organisms/EditableEntityRow";
 import { Eyebrow } from "@/components/atoms";
 
-import { updateMaintenanceResponsible } from "@/features/server-actions";
+import { updateMaintenanceResponsible } from "@/features/core/server-actions";
 import { NotificationList } from "@/features/notifications/ui/NotificationList";
 import { Field } from "@/features/eu-inspections";
 

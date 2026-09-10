@@ -10,7 +10,7 @@ import {
 } from "recharts";
 import type { EuInspectionRow } from "@/features/eu-inspections";
 import { cn } from "@/lib/cn";
-import { STATUS_COLOR, STATUS_LABELS, type Status } from "../logic";
+import { STATUS_COLOR, STATUS_LABELS, type Status } from "../../logic";
 
 // "unexpectedCase" is still a real, counted state (see logic.ts) — it just
 // doesn't get its own bar/legend entry here. Still counted in `buckets`

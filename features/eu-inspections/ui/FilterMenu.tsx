@@ -4,7 +4,7 @@ import { Checkbox } from "@a2zb/react";
 
 import { useLanguage } from "@/lib/contexts/LanguageContext";
 import { EU_INSPECTION_FILTER_LABELS_BY_LANGUAGE } from "@/features/eu-inspections/labels/filters";
-import type { Language } from "@/features/config/labels";
+import type { Language } from "@/features/core/config/labels";
 import { MultiSelectDropdown } from "@/components/molecules";
 
 const EMPLOYEES = ["empl 1", "empl 2", "empl 3"];

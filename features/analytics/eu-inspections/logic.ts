@@ -2,7 +2,7 @@ import type { EuInspectionRow } from "@/features/eu-inspections";
 import { getDaysUntil } from "@a2zb/lib";
 
 import { aggregateBy } from "../logic/aggregate";
-import type { EmployeeInspectionRow } from "./ui/ResponsibleEmployeesTable";
+import type { EmployeeInspectionRow } from "./ui/tables/ResponsibleEmployeesTable";
 
 // status classification/labels/colors moved to features/eu-inspections/status.ts
 // — it's core domain logic, not analytics-specific, and the plain

@@ -15,7 +15,10 @@ import {
   WorkspacePanel,
 } from "@/components/organisms";
 
-import { getListViewLabels, type Language } from "@/features/config/labels";
+import {
+  getListViewLabels,
+  type Language,
+} from "@/features/core/config/labels";
 import {
   type EuInspectionRow,
   EU_INSPECTIONS_LABELS,

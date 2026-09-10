@@ -11,8 +11,8 @@ import { Gallery, defaultClasses } from "@a2zb/react";
 import {
   CORE_UI_LABELS_BY_LANGUAGE,
   type Language,
-} from "@/features/config/labels";
-import { modules, moduleIcons } from "@/features/config/modules";
+} from "@/features/core/config/labels";
+import { modules, moduleIcons } from "@/features/core/config/modules";
 
 import { EuInspectionDashboard } from "@/features/analytics/eu-inspections/ui/Dashboard";
 import type { EuInspectionRow } from "@/features/eu-inspections";

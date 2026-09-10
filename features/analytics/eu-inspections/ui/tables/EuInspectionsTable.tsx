@@ -3,7 +3,7 @@
 import { cn } from "@/lib/cn";
 import type { EuInspectionRow } from "@/features/eu-inspections";
 import { getDaysUntil } from "@a2zb/lib";
-import { getInspectionStatus, STATUS_COLOR, STATUS_LABELS } from "../logic";
+import { getInspectionStatus, STATUS_COLOR, STATUS_LABELS } from "../../logic";
 
 type Props = {
   rows: EuInspectionRow[];

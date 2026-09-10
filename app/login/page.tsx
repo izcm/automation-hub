@@ -8,12 +8,12 @@ import { cn } from "@/lib/cn";
 import { LoginModal, type OIDCProvider } from "@/components/organisms";
 import { MicrosoftIcon } from "@/components/icons";
 
-import { AppModal } from "@/features/ui/AppModal";
+import { AppModal } from "@/features/core/ui/AppModal";
 import {
   loginWithDemoCredentials,
   setEmailStorage,
-} from "@/features/server-actions";
-import { BackdropLayout } from "@/features/ui/BackdropLayout";
+} from "@/features/core/server-actions";
+import { BackdropLayout } from "@/features/core/ui/BackdropLayout";
 
 const SUCCESS_REDIRECT_PATH = "/";
 

@@ -1,14 +1,14 @@
 import { Calendar } from "@/components/icons";
 import type { EuInspectionRow } from "@/features/eu-inspections";
-import { countFieldValues } from "../../logic/count";
+import { countFieldValues } from "../../../logic/count";
 
 import {
   getInspectionStatus,
   STATUS_COLOR,
   STATUS_LABELS,
   type StatusColor,
-} from "../logic";
-import { KPI, type KPIProps } from "../../ui/KPI";
+} from "../../logic";
+import { KPI, type KPIProps } from "../../../ui/KPI";
 
 // zero of a real problem (advisory/caution/critical) is a good outcome —
 // don't let it look alarming. "empty", not "neutral": neutral is itself a

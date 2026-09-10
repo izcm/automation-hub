@@ -11,10 +11,10 @@ import { Home } from "@/components/icons";
 import {
   CORE_UI_LABELS_BY_LANGUAGE,
   type Language,
-} from "@/features/config/labels";
-import { modules, moduleIcons } from "@/features/config/modules";
+} from "@/features/core/config/labels";
+import { modules, moduleIcons } from "@/features/core/config/modules";
 
-import { Navbar, type NavItem } from "../../components/organisms/Navbar";
+import { Navbar, type NavItem } from "@/components/organisms/Navbar";
 
 const LOGOUT_ENDPOINT = "/api/auth/logout";
 

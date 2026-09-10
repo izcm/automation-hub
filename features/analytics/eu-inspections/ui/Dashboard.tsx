@@ -15,11 +15,11 @@ import {
 
 import { applyFilters, Filter } from "../../logic/filter";
 
-import { EuInspectionsKPIs } from "./EuInspectionsKPIs";
-import { EuInspectionsTable } from "./EuInspectionsTable";
-import { InspectionsBarChart } from "./InspectionsBarChart";
-import { OutstandingRejectionsCard } from "./OutstandingRejectionsCard";
-import { ResponsibleEmployeesTable } from "./ResponsibleEmployeesTable";
+import { EuInspectionsKPIs } from "./cards/EuInspectionsKPIs";
+import { EuInspectionsTable } from "./tables/EuInspectionsTable";
+import { InspectionsBarChart } from "./charts/InspectionsBarChart";
+import { OutstandingRejectionsCard } from "./cards/OutstandingRejectionsCard";
+import { ResponsibleEmployeesTable } from "./tables/ResponsibleEmployeesTable";
 import { getDaysUntil } from "@a2zb/lib";
 
 const panelBorder = "border border-extra-faint rounded";

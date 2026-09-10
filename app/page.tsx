@@ -1,4 +1,4 @@
-import { Home } from "@/features/ui/Home";
+import { Home } from "@/features/Home";
 
 import { getEuInspections } from "@/features/eu-inspections/server-actions/queries";
 

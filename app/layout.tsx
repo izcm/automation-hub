@@ -5,8 +5,8 @@ import { Providers } from "./providers";
 import "./globals.css";
 import { ClientToaster } from "./ClientToaster";
 
-import { Sidebar } from "@/features/ui/Sidebar";
-import { GlobalShortcuts } from "@/features/ui/GlobalShortcuts";
+import { Sidebar } from "@/features/core/ui/Sidebar";
+import { GlobalShortcuts } from "@/features/core/ui/GlobalShortcuts";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

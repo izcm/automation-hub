@@ -1,4 +1,4 @@
-import { AppModal } from "@/features/ui/AppModal";
+import { AppModal } from "@/features/core/ui/AppModal";
 
 type Props = {
   isOpen: boolean;
