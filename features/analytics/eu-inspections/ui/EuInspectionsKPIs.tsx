@@ -2,7 +2,7 @@ import { Calendar } from "@/components/icons";
 import type { EuInspectionRow } from "@/features/eu-inspections";
 import { countFieldValues } from "../../logic/count";
 
-import { getInspectionStatus, STATUS_LABELS } from "../logic";
+import { getInspectionStatus, STATUS_COLOR, STATUS_LABELS } from "../logic";
 import { KPI } from "../../ui/KPI";
 
 function formatDateRange(from: Date, to: Date): string {
@@ -45,33 +45,33 @@ export function EuInspectionsKPIs({ rows }: Props) {
         <KPI
           label={STATUS_LABELS.approved}
           value={inspectionStateCounts.approved}
-          color="neutral"
+          color={STATUS_COLOR.approved}
           descr="Latest attempt was approved."
         />
 
         <KPI
           label="Upcoming first workshop"
           value={inspectionStateCounts.upcoming}
-          color="pending"
+          color={STATUS_COLOR.upcoming}
           descr="No earlier attempt, and has an upcoming booking."
         />
         <KPI
           label={STATUS_LABELS.rejectedBooked}
           value={inspectionStateCounts.rejectedBooked}
-          color="advisory"
+          color={STATUS_COLOR.rejectedBooked}
           descr="Rejected, but a new workshop is already booked."
-        />
-        <KPI
-          label={STATUS_LABELS.unresolved}
-          value={inspectionStateCounts.unresolved}
-          color="caution"
-          descr="No attempts, no booking. Just closing due."
         />
         <KPI
           label={STATUS_LABELS.rejectedUnbooked}
           value={inspectionStateCounts.rejectedUnbooked}
-          color="critical"
+          color={STATUS_COLOR.rejectedUnbooked}
           descr="Rejected, and nothing new is booked yet."
+        />
+        <KPI
+          label={STATUS_LABELS.unresolved}
+          value={inspectionStateCounts.unresolved}
+          color={STATUS_COLOR.unresolved}
+          descr="No attempts, no booking. Just closing due."
         />
       </div>
     </>

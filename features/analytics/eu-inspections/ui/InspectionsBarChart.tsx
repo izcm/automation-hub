@@ -11,22 +11,17 @@ import {
 import { aggregateBy } from "../../logic/aggregate";
 import type { EuInspectionRow } from "@/features/eu-inspections";
 import { getDaysUntil } from "@a2zb/lib";
-import { getInspectionStatus, STATUS_LABELS, type Status } from "../logic";
-
-// one bar series per Status, stacked into a single column per time bucket.
-const STATUS_BAR_COLORS: Record<Status, string> = {
-  approved: "var(--color-neutral)",
-  rejectedBooked: "var(--color-advisory)",
-  rejectedUnbooked: "var(--color-critical)",
-  upcoming: "var(--color-pending)",
-  unresolved: "var(--color-caution)",
-  unexpectedCase: "var(--muted)",
-};
+import {
+  getInspectionStatus,
+  STATUS_COLOR,
+  STATUS_LABELS,
+  type Status,
+} from "../logic";
 
 // "unexpectedCase" is still a real, counted state (see logic.ts) — it just
 // doesn't get its own bar/legend entry here. Still counted in `buckets`
 // below, just not rendered.
-const CHART_STATUSES = (Object.keys(STATUS_BAR_COLORS) as Status[]).filter(
+const CHART_STATUSES = (Object.keys(STATUS_COLOR) as Status[]).filter(
   (status) => status !== "unexpectedCase",
 );
 
@@ -64,7 +59,9 @@ function BarChartLegend() {
           >
             <span
               className="size-3 shrink-0 rounded-full"
-              style={{ backgroundColor: STATUS_BAR_COLORS[status] }}
+              style={{
+                backgroundColor: `var(--${STATUS_COLOR[status]})`,
+              }}
             />
             {STATUS_LABELS[status]}
           </button>
@@ -139,7 +136,7 @@ export function InspectionsBarChart({ rows }: { rows: EuInspectionRow[] }) {
             tick={{ fill: "var(--subtle)", fontSize: 12 }}
           />
           <Tooltip
-            cursor={{ fill: "var(--color-accent)", opacity: 0.06 }}
+            cursor={{ fill: "var(--accent)", opacity: 0.06 }}
             content={<ChartTooltip />}
           />
           {CHART_STATUSES.map((status, i, all) => (
@@ -148,7 +145,7 @@ export function InspectionsBarChart({ rows }: { rows: EuInspectionRow[] }) {
               dataKey={status}
               name={STATUS_LABELS[status]}
               stackId="status"
-              fill={STATUS_BAR_COLORS[status]}
+              fill={`var(--${STATUS_COLOR[status]})`}
               radius={i === all.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
             />
           ))}

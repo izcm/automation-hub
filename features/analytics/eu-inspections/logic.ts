@@ -19,6 +19,27 @@ export const STATUS_LABELS: Record<Status, string> = {
   unexpectedCase: "Unexpected case",
 };
 
+// two families, not one ranked scale:
+// - advisory/caution/critical: is this a problem, and how urgently does it
+//   need attention?
+// - neutral/pending: not a problem at all — is there anything to act on
+//   right now? neutral = no, it's done. pending = no, not yet.
+export type StatusColor =
+  | "neutral"
+  | "pending"
+  | "advisory"
+  | "caution"
+  | "critical";
+
+export const STATUS_COLOR: Record<Status, StatusColor> = {
+  approved: "neutral",
+  upcoming: "pending",
+  rejectedBooked: "advisory",
+  unresolved: "caution",
+  rejectedUnbooked: "critical",
+  unexpectedCase: "neutral",
+};
+
 // classifies a single inspection into one bucket, based on its latest
 // attempt (and the one before it, for the rejected-then-rebooked case).
 // "rejected" isn't one state — a rejection with a new workshop already

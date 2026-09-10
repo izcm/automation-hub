@@ -3,22 +3,13 @@
 import { cn } from "@/lib/cn";
 import type { EuInspectionRow } from "@/features/eu-inspections";
 import { getDaysUntil } from "@a2zb/lib";
-import { getInspectionStatus, STATUS_LABELS, type Status } from "../logic";
+import { getInspectionStatus, STATUS_COLOR, STATUS_LABELS } from "../logic";
 
 type Props = {
   rows: EuInspectionRow[];
 };
 
 const MAX_ROWS = 5;
-
-const STATUS_BADGE_CLASSES: Record<Status, string> = {
-  approved: "badge--neutral",
-  rejectedBooked: "badge--advisory",
-  rejectedUnbooked: "badge--critical",
-  upcoming: "badge--pending",
-  unresolved: "badge--caution",
-  unexpectedCase: "badge--neutral",
-};
 
 function formatDate(date: string): string {
   return new Date(date).toLocaleDateString("en-GB", {
@@ -68,7 +59,7 @@ export function EuInspectionsTable({ rows }: Props) {
             >
               <td className="p-2">{row.vehicle.plateNumber}</td>
               <td className="p-2">
-                <span className={cn("badge", STATUS_BADGE_CLASSES[status])}>
+                <span className={cn("badge", `badge--${STATUS_COLOR[status]}`)}>
                   {STATUS_LABELS[status]}
                 </span>
               </td>

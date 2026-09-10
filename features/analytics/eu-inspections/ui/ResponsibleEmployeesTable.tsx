@@ -57,6 +57,7 @@ export function ResponsibleEmployeesTable({ rows, onRowClick }: Props) {
                   <span
                     className={cn(
                       "text-xs rounded-full border px-1.5 py-0.5",
+                      // colors must stay in sync with STATUS_COLOR in ../logic
                       row.rejectedBooked > 0
                         ? "text-advisory border-advisory/40 bg-advisory/10"
                         : "text-critical border-critical/40 bg-critical/10",
@@ -70,6 +71,7 @@ export function ResponsibleEmployeesTable({ rows, onRowClick }: Props) {
             <td
               className={cn(
                 "p-2 tabular-nums",
+                // colors must stay in sync with STATUS_COLOR in ../logic
                 row.unresolved === 0 ? "text-subtle" : "text-caution",
               )}
             >
