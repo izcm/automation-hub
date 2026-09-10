@@ -6,18 +6,22 @@ export type KPIProps = {
   label: string;
   value: ReactNode;
   descr?: string;
-  color?: "success" | "warning" | "failure" | "neutral" | "accent";
+  // two families: advisory/caution/critical rank how bad a real problem is.
+  // neutral/pending are the opposite — not a problem, just "is there
+  // anything to act on right now?" (neutral = no, it's done; pending = no,
+  // not yet). They don't rank against the first group.
+  color?: "neutral" | "pending" | "advisory" | "caution" | "critical";
 };
 
 const kpiColorClasses: Record<NonNullable<KPIProps["color"]>, string> = {
-  success: "border-success/20 bg-success/2 border-l-success/80",
-  warning: "border-warning/20 bg-warning/2 border-l-warning/80",
-  failure: "border-failure/20 bg-failure/2 border-l-failure/80",
-  neutral: "border-extra-faint bg-neutral/2 border-l-subtle/80",
-  accent: "border-accent/20 bg-accent/2 border-l-accent/80",
+  neutral: "border-neutral/20 bg-neutral/2 border-l-neutral/80",
+  pending: "border-pending/20 bg-pending/2 border-l-pending/80",
+  advisory: "border-advisory/20 bg-advisory/2 border-l-advisory/80",
+  caution: "border-caution/20 bg-caution/2 border-l-caution/80",
+  critical: "border-critical/20 bg-critical/2 border-l-critical/80",
 };
 
-export function KPI({ label, value, color = "success", descr }: KPIProps) {
+export function KPI({ label, value, color = "neutral", descr }: KPIProps) {
   return (
     <div
       className={cn(

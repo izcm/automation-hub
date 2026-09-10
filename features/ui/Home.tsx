@@ -112,7 +112,7 @@ export function Home({ inspectionRows }: Deps) {
         </section>
 
         {/* DASHBOARD */}
-        <EuInspectionDashboard inspectionRows={inspectionRows} />
+        <EuInspectionDashboard items={inspectionRows} />
       </main>
     </>
   );

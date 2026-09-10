@@ -2,7 +2,7 @@ type Props = {
   date?: Date | string;
   // no room for a full badge on this component — a tiny corner dot is the
   // only indicator that fits
-  status?: "success" | "warning" | "danger";
+  status?: "success" | "warning" | "danger" | "accent";
 };
 
 const dotColor = {
@@ -10,6 +10,7 @@ const dotColor = {
   success: "bg-success shadow-[0_0_0px_var(--success)]",
   warning: "bg-warning shadow-[0_0_0px_var(--warning)]",
   danger: "bg-failure shadow-[0_0_0px_var(--failure)]",
+  accent: "bg-accent shadow-[0_0_0px_var(--accent)]",
 };
 
 export function DateStamp({ date, status }: Props) {

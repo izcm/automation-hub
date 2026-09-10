@@ -14,17 +14,10 @@ export type EmployeeInspectionRow = {
 
 type Props = {
   rows: EmployeeInspectionRow[];
-  // onRowClick
+  onRowClick?: (row: EmployeeInspectionRow) => void;
 };
 
-function color(wantedScenario: number, total: number) {
-  if (total === 0) return "text-subtle";
-  if (wantedScenario === total) return "text-success";
-  if (wantedScenario === 0) return "text-failure";
-  return "text-warning";
-}
-
-export function ResponsibleEmployeesTable({ rows }: Props) {
+export function ResponsibleEmployeesTable({ rows, onRowClick }: Props) {
   return (
     <table className="h-full w-full text-sm overflow-auto">
       <thead>
@@ -40,24 +33,22 @@ export function ResponsibleEmployeesTable({ rows }: Props) {
         {rows.map((row, i) => (
           <tr
             key={row.id}
+            onClick={() => onRowClick?.(row)}
             className={cn(
-              "border-b border-extra-faint",
+              "hover:bg-fg/5",
+              "border-b border-extra-faint cursor-pointer",
               i === rows.length - 1 && "border-none",
             )}
           >
             <td className="p-2">{row.name}</td>
             <td className="p-2 tabular-nums">{row.due}</td>
-            <td
-              className={cn("p-2 tabular-nums", color(row.approved, row.due))}
-            >
-              {row.approved}/{row.due}
-            </td>
+            <td className="p-2 tabular-nums">{row.approved}</td>
             <td className="p-2">
               <div className="flex items-center gap-3">
                 <span
                   className={cn(
                     "tabular-nums",
-                    row.rejected === 0 ? "text-subtle" : "text-failure",
+                    row.rejected === 0 ? "text-subtle" : "text-critical",
                   )}
                 >
                   {row.rejected}
@@ -67,8 +58,8 @@ export function ResponsibleEmployeesTable({ rows }: Props) {
                     className={cn(
                       "text-xs rounded-full border px-1.5 py-0.5",
                       row.rejectedBooked > 0
-                        ? "text-warning border-warning/40 bg-warning/10"
-                        : "text-failure border-failure/40 bg-failure/10",
+                        ? "text-advisory border-advisory/40 bg-advisory/10"
+                        : "text-critical border-critical/40 bg-critical/10",
                     )}
                   >
                     {row.rejectedBooked} booked
@@ -79,7 +70,7 @@ export function ResponsibleEmployeesTable({ rows }: Props) {
             <td
               className={cn(
                 "p-2 tabular-nums",
-                row.unresolved === 0 ? "text-subtle" : "text-warning",
+                row.unresolved === 0 ? "text-subtle" : "text-caution",
               )}
             >
               {row.unresolved}

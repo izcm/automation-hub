@@ -61,7 +61,7 @@ export function EuInspectionRow({
               date={item.dueDate}
               status={
                 item.status === "approved"
-                  ? "success"
+                  ? "accent"
                   : item.status === "rejected"
                     ? "danger"
                     : undefined
@@ -82,7 +82,6 @@ export function EuInspectionRow({
                   <span
                     className={cn(
                       "text-accent",
-                      days < 30 && "text-warning",
                       "bg-current/8 border border-current/12",
                       "rounded text-center",
                     )}

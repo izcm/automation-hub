@@ -61,7 +61,7 @@ export function NotificationList({ notifications, initialCount }: Props) {
                     notification.status === "failed"
                       ? "danger"
                       : notification.status === "sent"
-                        ? "success"
+                        ? "accent"
                         : "neutral"
                   }
                 >

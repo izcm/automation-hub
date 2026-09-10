@@ -4,7 +4,15 @@ import { cn } from "@/lib/cn";
 
 type BadgeProps = {
   children: React.ReactNode;
-  variant?: "success" | "warning" | "danger" | "neutral" | "accent";
+  variant?:
+    | "success"
+    | "warning"
+    | "danger"
+    | "neutral"
+    | "accent"
+    | "advisory"
+    | "caution"
+    | "critical";
   className?: string;
 };
 
@@ -23,7 +31,15 @@ export function Badge({
 
 type IconBadgeProps = {
   icon: LucideIcon;
-  variant?: "success" | "warning" | "danger" | "neutral" | "accent";
+  variant?:
+    | "success"
+    | "warning"
+    | "danger"
+    | "neutral"
+    | "accent"
+    | "advisory"
+    | "caution"
+    | "critical";
   children?: React.ReactNode;
   className?: string;
 };

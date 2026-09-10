@@ -144,6 +144,26 @@
     background: color-mix(in oklab, var(--accent) 16%, transparent);
   }
 
+  .badge--advisory {
+    color: var(--advisory);
+    background: var(--advisory-weak);
+  }
+
+  .badge--caution {
+    color: var(--caution);
+    background: var(--caution-weak);
+  }
+
+  .badge--critical {
+    color: var(--critical);
+    background: var(--critical-weak);
+  }
+
+  .badge--pending {
+    color: var(--pending);
+    background: var(--pending-weak);
+  }
+
   .text-input {
     --field-bg: light-dark(var(--raised), transparent);
     @apply rounded;

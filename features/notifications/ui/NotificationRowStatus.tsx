@@ -44,7 +44,7 @@ export function NotificationRowStatus({
       <span
         className={cn(
           "truncate",
-          status === "sent" && "text-success/80",
+          status === "sent" && "text-accent",
           mostRecent.status === "failed" && "text-failure",
         )}
       >

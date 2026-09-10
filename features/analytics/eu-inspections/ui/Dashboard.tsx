@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { cn } from "@/lib/cn";
 import { ChevronRight } from "@/components/icons";
@@ -8,7 +8,7 @@ import { EuInspectionRow } from "@/features/eu-inspections";
 import { aggregateBy } from "../../logic/aggregate";
 import { getInspectionStatus } from "../logic";
 
-import { Filter } from "../../logic/filter";
+import { applyFilters, Filter } from "../../logic/filter";
 
 import { EuInspectionsKPIs } from "./EuInspectionsKPIs";
 import { EuInspectionsTable } from "./EuInspectionsTable";
@@ -18,6 +18,7 @@ import {
   ResponsibleEmployeesTable,
   type EmployeeInspectionRow,
 } from "./ResponsibleEmployeesTable";
+import { EuInspectionRow } from "@/features/eu-inspections/ui/EuInspectionRow";
 
 const panelBorder = "border border-extra-faint rounded";
 
@@ -92,22 +93,44 @@ function aggregateByEmployee(rows: EuInspectionRow[]): EmployeeInspectionRow[] {
 }
 
 type Props = {
-  inspectionRows: EuInspectionRow[];
+  items: EuInspectionRow[];
 };
 
-export function EuInspectionDashboard({ inspectionRows }: Props) {
+export function EuInspectionDashboard({ items }: Props) {
   const [filters, setFilters] = useState<Filter<EuInspectionRow>[]>([]);
 
-  const applyFilters = () => console.log(`filters length: ${filters.length}`);
-  applyFilters();
+  function addFilter(
+    filterId: string,
+    predicateId: string,
+    predicate: (item: EuInspectionRow) => boolean,
+  ) {
+    setFilters((current) => {
+      const filterExists = current.some((filter) => filter.id === filterId);
 
-  function addFilter(predicate: (item: EuInspectionRow) => boolean) {
-    setFilters([{ predicate }]);
+      if (!filterExists) {
+        return [
+          ...current,
+          { id: filterId, predicates: [{ id: predicateId, predicate }] },
+        ];
+      }
+
+      return current.map((filter) => {
+        // include other existing filters
+        if (filter.id !== filterId) return filter;
+
+        // predicate with predicateId exists ? remove : add
+      });
+    });
   }
+
+  const filteredItems = useMemo(
+    () => (filters.length > 0 ? applyFilters(items, filters) : items),
+    [filters, items],
+  );
 
   return (
     <section className="flex flex-col gap-3 raised-outline bg-raised/40 w-full p-3">
-      <EuInspectionsKPIs rows={inspectionRows} />
+      <EuInspectionsKPIs rows={filteredItems} />
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 items-center">
         {/* BARCHART */}
@@ -123,7 +146,7 @@ export function EuInspectionDashboard({ inspectionRows }: Props) {
                 xl:flex-row xl:gap-4 lg:gap-3
                 h-64 lg:h-80"
             >
-              <InspectionsBarChart rows={inspectionRows} />
+              <InspectionsBarChart rows={filteredItems} />
             </div>
           </div>
         </div>
@@ -136,7 +159,14 @@ export function EuInspectionDashboard({ inspectionRows }: Props) {
 
           <div className={cn(panelBorder, "h-80")}>
             <ResponsibleEmployeesTable
-              rows={aggregateByEmployee(inspectionRows)}
+              rows={aggregateByEmployee(filteredItems)}
+              onRowClick={(row) =>
+                addFilter(
+                  "employee",
+                  (inspection) =>
+                    inspection.vehicle.maintenanceResponsibleId === row.id,
+                )
+              }
             />
           </div>
         </div>
@@ -156,12 +186,12 @@ export function EuInspectionDashboard({ inspectionRows }: Props) {
           </Link>
         </div>
 
-        <EuInspectionsTable rows={inspectionRows} />
+        <EuInspectionsTable rows={items} />
       </div>
 
       {/* OUTSTANDING REJECTIONS */}
       <div className={cn(panelBorder, "p-2")}>
-        <OutstandingRejectionsCard inspectionRows={inspectionRows} />
+        <OutstandingRejectionsCard inspectionRows={items} />
       </div>
     </section>
   );

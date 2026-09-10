@@ -19,12 +19,12 @@ type Props = {
 
 const statusBadge: Record<
   EuInspectionRow["status"],
-  { variant: "neutral" | "warning" | "success" | "danger"; label: string }
+  { variant: "neutral" | "caution" | "accent" | "critical"; label: string }
 > = {
   unresolved: { variant: "neutral", label: "Unresolved" },
-  pending: { variant: "warning", label: "Pending" },
-  approved: { variant: "success", label: "Approved" },
-  rejected: { variant: "danger", label: "Rejected" },
+  pending: { variant: "caution", label: "Pending" },
+  approved: { variant: "accent", label: "Approved" },
+  rejected: { variant: "critical", label: "Rejected" },
 };
 
 // no attempts yet -> real status is "unresolved" already, nothing to derive.
@@ -40,14 +40,14 @@ function getDisplayStatus(item: EuInspectionRow) {
 const attemptBadge: Record<
   EuInspectionAttempt["status"],
   {
-    variant: "success" | "danger" | "accent";
+    variant: "accent" | "critical";
     label: string;
     icon: typeof Clock;
   }
 > = {
   upcoming: { variant: "accent", label: "Upcoming", icon: Clock },
-  approved: { variant: "success", label: "Approved", icon: Confirm },
-  rejected: { variant: "danger", label: "Rejected", icon: Cancel },
+  approved: { variant: "accent", label: "Approved", icon: Confirm },
+  rejected: { variant: "critical", label: "Rejected", icon: Cancel },
 };
 
 type FieldProps = {
@@ -224,8 +224,6 @@ function EuInspectionSection({ item }: { item: EuInspectionRow }) {
               <span
                 className={cn(
                   "text-accent",
-                  days < 30 && "text-warning",
-                  days < 0 && "text-failure",
                   "bg-current/16",
                   "inline-flex flex-center",
                   "rounded px-2 text-xs font-semibold",

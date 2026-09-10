@@ -15,11 +15,11 @@ import { getInspectionStatus, STATUS_LABELS, type Status } from "../logic";
 
 // one bar series per Status, stacked into a single column per time bucket.
 const STATUS_BAR_COLORS: Record<Status, string> = {
-  approved: "var(--color-success)",
-  rejectedBooked: "var(--color-warning)",
-  rejectedUnbooked: "var(--color-failure)",
-  upcoming: "var(--color-accent)",
-  unresolved: "var(--neutral)",
+  approved: "var(--color-neutral)",
+  rejectedBooked: "var(--color-advisory)",
+  rejectedUnbooked: "var(--color-critical)",
+  upcoming: "var(--color-pending)",
+  unresolved: "var(--color-caution)",
   unexpectedCase: "var(--muted)",
 };
 

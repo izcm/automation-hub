@@ -39,37 +39,38 @@ export function EuInspectionsKPIs({ rows }: Props) {
         <KPI
           label="Due in period"
           value={rows.length}
-          color="accent"
-          descr="EU inspections due in the next 30 days"
-        />{" "}
-        <KPI
-          label="Upcoming first workshop"
-          value={inspectionStateCounts.upcoming}
-          color="accent"
-          descr="No earlier attempt, and has an upcoming booking."
-        />
-        <KPI
-          label={STATUS_LABELS.unresolved}
-          value={inspectionStateCounts.unresolved}
           color="neutral"
-          descr="No attempts, no booking. Just closing due."
+          descr="EU inspections due in the next 30 days"
         />
         <KPI
           label={STATUS_LABELS.approved}
           value={inspectionStateCounts.approved}
-          color="success"
+          color="neutral"
           descr="Latest attempt was approved."
+        />
+
+        <KPI
+          label="Upcoming first workshop"
+          value={inspectionStateCounts.upcoming}
+          color="pending"
+          descr="No earlier attempt, and has an upcoming booking."
         />
         <KPI
           label={STATUS_LABELS.rejectedBooked}
           value={inspectionStateCounts.rejectedBooked}
-          color="warning"
+          color="advisory"
           descr="Rejected, but a new workshop is already booked."
+        />
+        <KPI
+          label={STATUS_LABELS.unresolved}
+          value={inspectionStateCounts.unresolved}
+          color="caution"
+          descr="No attempts, no booking. Just closing due."
         />
         <KPI
           label={STATUS_LABELS.rejectedUnbooked}
           value={inspectionStateCounts.rejectedUnbooked}
-          color="failure"
+          color="critical"
           descr="Rejected, and nothing new is booked yet."
         />
       </div>

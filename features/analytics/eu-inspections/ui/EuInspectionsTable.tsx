@@ -12,11 +12,11 @@ type Props = {
 const MAX_ROWS = 5;
 
 const STATUS_BADGE_CLASSES: Record<Status, string> = {
-  approved: "badge--success",
-  rejectedBooked: "badge--warning",
-  rejectedUnbooked: "badge--danger",
-  upcoming: "badge--accent",
-  unresolved: "badge--neutral",
+  approved: "badge--neutral",
+  rejectedBooked: "badge--advisory",
+  rejectedUnbooked: "badge--critical",
+  upcoming: "badge--pending",
+  unresolved: "badge--caution",
   unexpectedCase: "badge--neutral",
 };
 
@@ -25,14 +25,6 @@ function formatDate(date: string): string {
     day: "numeric",
     month: "short",
   });
-}
-
-// overdue/imminent due dates get flagged the same way the bar chart's time
-// buckets do — red once it's past due, amber once it's within the week.
-function dueDateClasses(daysUntil: number): string {
-  if (daysUntil < 0) return "text-failure";
-  if (daysUntil <= 7) return "text-warning";
-  return "";
 }
 
 // soonest still-upcoming attempt, if any — that's the "next inspection at"
@@ -80,7 +72,7 @@ export function EuInspectionsTable({ rows }: Props) {
                   {STATUS_LABELS[status]}
                 </span>
               </td>
-              <td className={cn("p-2 tabular-nums", dueDateClasses(daysUntil))}>
+              <td className="p-2 tabular-nums">
                 {formatDate(row.dueDate)}
                 {daysUntil < 0 && " (overdue)"}
               </td>
