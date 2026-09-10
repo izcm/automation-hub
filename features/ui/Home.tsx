@@ -50,7 +50,7 @@ export function Home({ inspectionRows }: Deps) {
       <main
         className="
         flex-1 flex-center flex-col gap-4
-        mx-auto max-w-7xl min-h-dvh p-4
+        mx-auto max-w-7xl min-h-dvh p-3
         "
       >
         {/* TITLE */}

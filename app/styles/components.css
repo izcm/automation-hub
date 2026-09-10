@@ -4,6 +4,17 @@
   background: light-dark(var(--raised), var(--ground));
 }
 
+/* recharts' <svg> (or something inside it) picks up the browser's default
+   focus ring on click (e.g. clicking a custom XAxis tick) — not a
+   deliberate a11y outline. Covering svg + wrapper + every descendant,
+   both :focus and :focus-visible, since exactly which element gets it
+   varies by browser. */
+.recharts-wrapper,
+.recharts-wrapper *,
+.recharts-surface {
+  outline: none !important;
+}
+
 @layer components {
   /* Override a2zb's filled btn-secondary with an outlined accent style:
    * orange border + orange text on a transparent ground (the "Filtre" look). */

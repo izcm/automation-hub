@@ -12,30 +12,11 @@ import { Eyebrow } from "@/components/atoms";
 import { cn } from "@/lib/cn";
 import { Vehicle } from "@/types/vehicle";
 import { getDaysUntil } from "@a2zb/lib";
+import { getInspectionStatusBadge } from "@/features/eu-inspections/status";
 
 type Props = {
   item: EuInspectionRow;
 };
-
-const statusBadge: Record<
-  EuInspectionRow["status"],
-  { variant: "neutral" | "caution" | "accent" | "critical"; label: string }
-> = {
-  unresolved: { variant: "neutral", label: "Unresolved" },
-  pending: { variant: "caution", label: "Pending" },
-  approved: { variant: "accent", label: "Approved" },
-  rejected: { variant: "critical", label: "Rejected" },
-};
-
-// no attempts yet -> real status is "unresolved" already, nothing to derive.
-// an upcoming booking overrides the stored status in the display only —
-// the row itself stays "unresolved" until the attempt resolves.
-function getDisplayStatus(item: EuInspectionRow) {
-  if (item.attempts.some((a) => a.status === "upcoming")) {
-    return { variant: "accent" as const, label: "Upcoming" };
-  }
-  return statusBadge[item.status];
-}
 
 const attemptBadge: Record<
   EuInspectionAttempt["status"],
@@ -207,6 +188,7 @@ function SummaryHeader({ vehicle }: { vehicle: Vehicle }) {
 function EuInspectionSection({ item }: { item: EuInspectionRow }) {
   const summary = euInspectionSummary(item);
   const days = getDaysUntil(item.dueDate);
+  const statusBadge = getInspectionStatusBadge(item);
 
   return (
     <div className="flex flex-col gap-2">
@@ -237,11 +219,8 @@ function EuInspectionSection({ item }: { item: EuInspectionRow }) {
           </Field>
 
           <Field label="Status">
-            <Badge
-              variant={getDisplayStatus(item).variant}
-              className="text-[12px]"
-            >
-              {getDisplayStatus(item).label}
+            <Badge variant={statusBadge.color} className="text-[12px]">
+              {statusBadge.label}
             </Badge>
           </Field>
         </dl>

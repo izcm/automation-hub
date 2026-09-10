@@ -14,7 +14,7 @@ import {
 } from "@/features/config/labels";
 import { modules, moduleIcons } from "@/features/config/modules";
 
-import { Navbar, type NavItem } from "./Navbar";
+import { Navbar, type NavItem } from "../../components/organisms/Navbar";
 
 const LOGOUT_ENDPOINT = "/api/auth/logout";
 

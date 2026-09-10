@@ -9,7 +9,7 @@ type Props = {
   rows: EuInspectionRow[];
 };
 
-const MAX_ROWS = 5;
+const MAX_ROWS = 4;
 
 function formatDate(date: string): string {
   return new Date(date).toLocaleDateString("en-GB", {
@@ -33,7 +33,7 @@ export function EuInspectionsTable({ rows }: Props) {
   const remaining = rows.length - visible.length;
 
   return (
-    <table className="h-full w-full text-sm overflow-auto ">
+    <table className="w-full h-full text-sm">
       <thead>
         <tr className="border-b border-extra-faint text-[13px] text-subtle">
           <th className="p-2 font-normal text-start">Vehicle</th>

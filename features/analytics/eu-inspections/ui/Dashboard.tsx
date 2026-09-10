@@ -2,12 +2,16 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { cn } from "@/lib/cn";
-import { ChevronRight } from "@/components/icons";
+import { Calendar, Cancel, ChevronRight } from "@/components/icons";
 
 import { EuInspectionRow } from "@/features/eu-inspections";
 
-import { aggregateBy } from "../../logic/aggregate";
-import { getInspectionStatus } from "../logic";
+import {
+  aggregateByEmployee,
+  aggregateByTimeBucket,
+  getInspectionStatus,
+  getTimeBucket,
+} from "../logic";
 
 import { applyFilters, Filter } from "../../logic/filter";
 
@@ -15,81 +19,15 @@ import { EuInspectionsKPIs } from "./EuInspectionsKPIs";
 import { EuInspectionsTable } from "./EuInspectionsTable";
 import { InspectionsBarChart } from "./InspectionsBarChart";
 import { OutstandingRejectionsCard } from "./OutstandingRejectionsCard";
-import {
-  ResponsibleEmployeesTable,
-  type EmployeeInspectionRow,
-} from "./ResponsibleEmployeesTable";
+import { ResponsibleEmployeesTable } from "./ResponsibleEmployeesTable";
+import { getDaysUntil } from "@a2zb/lib";
 
 const panelBorder = "border border-extra-faint rounded";
 
-// one row per employee responsible for a vehicle, tallying their inspections
-// by state. Inspections with no responsible employee are skipped — nobody
-// to attribute them to in this table. Capped to the top 4 by due count so
-// the table stays a fixed height regardless of fleet size — everyone else
-// folds into a single "Others" row.
-function aggregateByEmployee(rows: EuInspectionRow[]): EmployeeInspectionRow[] {
-  const perEmployee = aggregateBy(
-    rows.filter((item) => item.vehicle.employee),
-
-    // getKey
-    (item) => item.vehicle.employee!.id,
-
-    // create — one counter per Status, so entry[state]++ below always has
-    // somewhere to land (same trick as InspectionsBarChart)
-    (item) => ({
-      id: item.vehicle.employee!.id,
-      name: item.vehicle.employee!.name,
-      due: 0,
-      approved: 0,
-      rejectedBooked: 0,
-      rejectedUnbooked: 0,
-      upcoming: 0,
-      unresolved: 0,
-      unexpectedCase: 0,
-    }),
-
-    // aggregate
-    (entry, item) => {
-      entry.due++;
-      entry[getInspectionStatus(item)]++;
-    },
-  ).map((entry) => ({
-    id: entry.id,
-    name: entry.name,
-    due: entry.due,
-    approved: entry.approved,
-    rejected: entry.rejectedBooked + entry.rejectedUnbooked,
-    rejectedBooked: entry.rejectedBooked,
-    unresolved: entry.unresolved,
-  }));
-
-  const sorted = perEmployee.sort((a, b) => b.due - a.due);
-  const top = sorted.slice(0, 4);
-  const rest = sorted.slice(4);
-
-  if (rest.length === 0) return top;
-
-  const others = rest.reduce<EmployeeInspectionRow>(
-    (acc, row) => ({
-      ...acc,
-      due: acc.due + row.due,
-      approved: acc.approved + row.approved,
-      rejected: acc.rejected + row.rejected,
-      rejectedBooked: acc.rejectedBooked + row.rejectedBooked,
-      unresolved: acc.unresolved + row.unresolved,
-    }),
-    {
-      id: "others",
-      name: `Others (${rest.length})`,
-      due: 0,
-      approved: 0,
-      rejected: 0,
-      rejectedBooked: 0,
-      unresolved: 0,
-    },
-  );
-
-  return [...top, others];
+function formatDateRange(from: Date, to: Date): string {
+  const fmt = (d: Date) =>
+    d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  return `${fmt(from)} – ${fmt(to)}`;
 }
 
 type Props = {
@@ -151,10 +89,55 @@ export function EuInspectionDashboard({ items }: Props) {
     .filter((row) => row.id !== "others")
     .map((row) => row.id);
 
+  const timeBucketRows = aggregateByTimeBucket(filteredItems);
+
+  const today = new Date();
+  const in30Days = new Date(today);
+  in30Days.setDate(today.getDate() + 30);
+
   return (
     <section className="flex flex-col gap-3 raised-outline bg-raised/40 w-full p-3">
-      <EuInspectionsKPIs rows={filteredItems} />
+      {/* HEADER & FILTER CHIPS */}
+      <div className="flex justify-between h-8">
+        <h2 className="font-semibold inline-flex items-center gap-3">
+          EU Inspections dues next 30 days{" "}
+          <span className="text-xs text-subtle tabular-nums inline-flex gap-1">
+            <Calendar size={14} />
+            {formatDateRange(today, in30Days)}
+          </span>
+        </h2>
 
+        <div className="flex items-center gap-2">
+          {filters.map((filter) => (
+            <div
+              key={filter.id}
+              className="flex items-center gap-1.5 rounded-full bg-elevated px-3 py-1 text-xs"
+            >
+              <span className="font-medium">{filter.id}:</span>
+              <span className="text-subtle">
+                {filter.predicates.map((predicate) => predicate.id).join(", ")}
+              </span>
+              <button
+                type="button"
+                onClick={() =>
+                  setFilters((current) =>
+                    current.filter((f) => f.id !== filter.id),
+                  )
+                }
+                className="text-subtle hover:text-fg"
+              >
+                <Cancel size={12} />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3 mt-2">
+        <EuInspectionsKPIs rows={filteredItems} />
+      </div>
+
+      {/* FILTER APPLIERS */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 items-center">
         {/* BARCHART */}
         <div>
@@ -169,7 +152,21 @@ export function EuInspectionDashboard({ items }: Props) {
                 xl:flex-row xl:gap-4 lg:gap-3
                 h-64 lg:h-80"
             >
-              <InspectionsBarChart rows={filteredItems} />
+              <InspectionsBarChart
+                items={timeBucketRows}
+                onXClick={(bucket) =>
+                  addFilter("timeBucket", bucket, (inspection) => {
+                    const id = getTimeBucket(getDaysUntil(inspection.dueDate));
+                    return id === bucket;
+                  })
+                }
+                onLegendClick={(status) =>
+                  addFilter("status", status, (inspection) => {
+                    const id = getInspectionStatus(inspection);
+                    return id === status;
+                  })
+                }
+              />
             </div>
           </div>
         </div>
@@ -219,26 +216,45 @@ export function EuInspectionDashboard({ items }: Props) {
         </div>
       </div>
 
-      {/* EU INSPECTION ROWS */}
-      <div className={cn(panelBorder, "p-2")}>
-        <div className="flex items-center justify-between my-2">
-          <h2 className="text-sm font-medium">EU inspections</h2>
+      {/* REACTS TO FILTERS */}
+      <div className="grid grid-cols-1 xl:grid-cols-8 gap-3">
+        {/* EU INSPECTION ROWS */}
+        <div className={cn(panelBorder, "p-2 xl:order-2 xl:col-span-5")}>
+          <div className="flex items-center justify-between my-2">
+            <h2 className="text-sm font-medium">EU inspections</h2>
+
+            <Link
+              href="/eu-inspections"
+              className="flex items-center gap-1 text-sm text-accent hover:text-accent-strong"
+            >
+              View all
+              <ChevronRight size="14" />
+            </Link>
+          </div>
+
+          <div className="h-64">
+            <EuInspectionsTable rows={filteredItems} />
+          </div>
+        </div>
+
+        {/* OUTSTANDING REJECTIONS */}
+        <div
+          className={cn(
+            panelBorder,
+            "p-2 xl:order-1 xl:col-span-3 xl:h-80 max-w-[500px]",
+            "flex flex-col gap-3 justify-between",
+          )}
+        >
+          <OutstandingRejectionsCard inspectionRows={filteredItems} />
 
           <Link
             href="/eu-inspections"
-            className="flex items-center gap-1 text-sm text-accent hover:text-accent-strong"
+            className="btn btn-secondary mt-2 bg-transparent text-sm"
           >
-            View all
-            <ChevronRight size="14" />
+            View all outstanding rejections
+            <ChevronRight size="16" />
           </Link>
         </div>
-
-        <EuInspectionsTable rows={filteredItems} />
-      </div>
-
-      {/* OUTSTANDING REJECTIONS */}
-      <div className={cn(panelBorder, "p-2")}>
-        <OutstandingRejectionsCard inspectionRows={filteredItems} />
       </div>
     </section>
   );

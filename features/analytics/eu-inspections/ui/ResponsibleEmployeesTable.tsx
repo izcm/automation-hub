@@ -19,7 +19,7 @@ type Props = {
 
 export function ResponsibleEmployeesTable({ rows, onRowClick }: Props) {
   return (
-    <table className="h-full w-full text-sm overflow-auto">
+    <table className="h-full w-full text-sm">
       <thead>
         <tr className="border-b border-extra-faint text-[13px] text-subtle">
           <th className="p-2 font-normal text-start">Employee</th>

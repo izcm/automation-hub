@@ -35,8 +35,7 @@ export function DemoEmailModal({
         <div className="flex flex-col gap-1">
           <p className="text-sm text-subtle max-w-sm">
             We&apos;ll send the notification to{" "}
-            <span className="font-medium text-fg">{alternativeReceiver}</span>
-            .
+            <span className="font-medium text-fg">{alternativeReceiver}</span>.
           </p>
           <p className="text-sm text-subtle max-w-sm">
             If you choose no, we&apos;ll send it to{" "}
@@ -47,8 +46,8 @@ export function DemoEmailModal({
       ) : (
         <div className="flex flex-col gap-1">
           <p className="text-sm text-subtle max-w-sm">
-            If you log in with Microsoft, we can send notifications straight
-            to your own inbox.
+            If you log in with Microsoft Entra, we can send notifications
+            straight to your own inbox.
           </p>
           <p className="text-sm text-subtle max-w-sm">
             For now, we&apos;ll send them to{" "}

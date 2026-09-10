@@ -77,28 +77,9 @@ export function ResourceManagementView<T>({
   const pageCount = Math.ceil(items.length / PAGE_SIZE);
   const pageItems = items.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  // later we may want to add checkbox auto focus
-  // const selectedId = selected ? getId(selected) : undefined;
-
-  // useLayoutEffect(() => {
-  //   if (!selectedId) return;
-
-  //   console.log(selectedId);
-
-  //   const arrowRow = document.querySelector<HTMLElement>(
-  //     `[data-id="${selectedId}"]`,
-  //   );
-
-  //   console.log(arrowRow);
-  //   document
-  //     .querySelector<HTMLElement>(`[data-id="${selectedId}"]`)
-  //     ?.querySelector<HTMLElement>(".selected-focus-within")
-  //     ?.focus();
-  // }, [selectedId]);
-
   return (
     <>
-      <FilterBar
+      {/* <FilterBar
         filterLabel={labels.searchBar.filter}
         textInputProps={{
           submitLabel: labels.searchBar.apply,
@@ -111,7 +92,7 @@ export function ResourceManagementView<T>({
         belowSearchBar={belowSearchBar}
       >
         {filterMenu}
-      </FilterBar>
+      </FilterBar> */}
 
       {batchActions != undefined && (
         <button

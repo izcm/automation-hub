@@ -8,15 +8,9 @@ import {
   Tooltip,
   XAxis,
 } from "recharts";
-import { aggregateBy } from "../../logic/aggregate";
 import type { EuInspectionRow } from "@/features/eu-inspections";
-import { getDaysUntil } from "@a2zb/lib";
-import {
-  getInspectionStatus,
-  STATUS_COLOR,
-  STATUS_LABELS,
-  type Status,
-} from "../logic";
+import { cn } from "@/lib/cn";
+import { STATUS_COLOR, STATUS_LABELS, type Status } from "../logic";
 
 // "unexpectedCase" is still a real, counted state (see logic.ts) — it just
 // doesn't get its own bar/legend entry here. Still counted in `buckets`
@@ -25,45 +19,47 @@ const CHART_STATUSES = (Object.keys(STATUS_COLOR) as Status[]).filter(
   (status) => status !== "unexpectedCase",
 );
 
-type TimeBucket = "1-7 days" | "8-14 days" | "15-21 days" | "22-30 days";
-
-function getTimeBucket(daysUntil: number): TimeBucket {
-  if (daysUntil <= 7) return "1-7 days";
-  if (daysUntil <= 14) return "8-14 days";
-  if (daysUntil <= 21) return "15-21 days";
-  return "22-30 days";
-}
+// one row per time bucket — a count per Status, plus which bucket it is.
+// the specific bucket labels (e.g. "1-7 days") are Dashboard's concern, not
+// this chart's — it just needs something to put on the x-axis.
+type TimeBucketRow = Record<Status, number> & { timeBucket: string };
 
 // custom instead of recharts' <Legend> so each item can become a filter
 // toggle later (click a status to isolate/exclude it from the chart) —
 // not wired up yet, onClick is a no-op placeholder for that.
-function BarChartLegend({ items }: { items: string[] }) {
+function BarChartLegend({
+  values,
+  relevantValues,
+  onClick,
+}: {
+  values: Status[];
+  relevantValues: Status[];
+  onClick: (item: string) => void;
+}) {
   return (
     <ul
       className="
-        flex justify-around gap-2 
+        flex justify-around gap-2
         xl:flex-col xl:shrink-0 xl:justify-start
         "
     >
-      {items.map((item) => (
-        <li key={item} className="flex-auto">
+      {values.map((value) => (
+        <li key={value} className="flex-auto" onClick={() => onClick(value)}>
           <button
             type="button"
             onClick={() => {}}
-            className="
-              flex items-center gap-2 
-              whitespace-nowrap bg-lowered 
-              px-3 py-2 w-full 
-              text-xs text-fg/80
-            "
+            className={cn(
+              "flex items-center gap-2 whitespace-nowrap bg-lowered px-3 py-2 w-full text-xs text-fg/80",
+              !relevantValues.includes(value) && "opacity-40",
+            )}
           >
             <span
               className="size-3 shrink-0 rounded-full"
               style={{
-                backgroundColor: `var(--${STATUS_COLOR[item as Status]})`,
+                backgroundColor: `var(--${STATUS_COLOR[value]})`,
               }}
             />
-            {STATUS_LABELS[item as Status]}
+            {STATUS_LABELS[value]}
           </button>
         </li>
       ))}
@@ -99,35 +95,19 @@ function ChartTooltip({
   );
 }
 
-export function InspectionsBarChart({ rows }: { rows: EuInspectionRow[] }) {
-  const buckets = aggregateBy(
-    rows,
-
-    // getKey – time bucket
-    (row) => getTimeBucket(getDaysUntil(row.dueDate)),
-
-    // create – one counter per Status, so entry[state]++ below always has
-    // somewhere to land
-    (row) => ({
-      timeBucket: getTimeBucket(getDaysUntil(row.dueDate)),
-      approved: 0,
-      rejectedBooked: 0,
-      rejectedUnbooked: 0,
-      upcoming: 0,
-      unresolved: 0,
-      unexpectedCase: 0,
-    }),
-
-    // aggregate
-    (entry, row) => {
-      entry[getInspectionStatus(row)]++;
-    },
-  );
-
+export function InspectionsBarChart({
+  items,
+  onXClick,
+  onLegendClick,
+}: {
+  items: TimeBucketRow[];
+  onXClick: (value: string) => void;
+  onLegendClick: (value: string) => void;
+}) {
   const relevantStatuses = [
     ...new Set(
-      buckets.flatMap((bucket) =>
-        CHART_STATUSES.filter((status) => bucket[status] > 0),
+      items.flatMap((item) =>
+        CHART_STATUSES.filter((status) => item[status] > 0),
       ),
     ),
   ];
@@ -135,13 +115,26 @@ export function InspectionsBarChart({ rows }: { rows: EuInspectionRow[] }) {
   return (
     <>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={buckets} barCategoryGap="30%">
+        <BarChart data={items} barCategoryGap="30%">
           <CartesianGrid vertical={false} stroke="var(--extra-faint)" />
           <XAxis
             dataKey="timeBucket"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "var(--subtle)", fontSize: 12 }}
+            tick={({ x, y, payload }) => (
+              <text
+                x={x}
+                y={y}
+                dy={16}
+                textAnchor="middle"
+                fill="var(--subtle)"
+                fontSize={12}
+                style={{ cursor: "pointer" }}
+                onClick={() => onXClick(payload.value)}
+              >
+                {payload.value}
+              </text>
+            )}
           />
           <Tooltip
             cursor={{ fill: "var(--accent)", opacity: 0.06 }}
@@ -154,13 +147,18 @@ export function InspectionsBarChart({ rows }: { rows: EuInspectionRow[] }) {
               name={STATUS_LABELS[status]}
               stackId="status"
               fill={`var(--${STATUS_COLOR[status]})`}
+              fillOpacity={relevantStatuses.includes(status) ? 1 : 0.5}
               radius={i === all.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
             />
           ))}
         </BarChart>
       </ResponsiveContainer>
 
-      <BarChartLegend items={relevantStatuses} />
+      <BarChartLegend
+        values={CHART_STATUSES}
+        relevantValues={relevantStatuses}
+        onClick={onLegendClick}
+      />
     </>
   );
 }

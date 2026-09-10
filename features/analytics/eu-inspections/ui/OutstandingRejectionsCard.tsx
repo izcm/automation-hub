@@ -38,7 +38,7 @@ export function OutstandingRejectionsCard({ inspectionRows }: Props) {
   });
 
   return (
-    <div className="flex flex-col gap-3 max-w-180">
+    <>
       <div>
         <h2 className="font-medium inline-flex items-center gap-1.5">
           Outstanding rejections
@@ -50,7 +50,7 @@ export function OutstandingRejectionsCard({ inspectionRows }: Props) {
       </div>
 
       <div className="flex items-center p-3 gap-3">
-        <div className="flex-1">
+        <div className="flex-1 flex flex-col gap-1">
           <span
             className={cn(
               "text-5xl font-semibold",
@@ -67,7 +67,7 @@ export function OutstandingRejectionsCard({ inspectionRows }: Props) {
 
         <div className="vertical-line" />
 
-        <div className="flex-1">
+        <div className="flex-1 flex flex-col gap-1">
           <span
             className={cn(
               "inline-flex items-baseline gap-2 text-3xl font-semibold",
@@ -83,14 +83,6 @@ export function OutstandingRejectionsCard({ inspectionRows }: Props) {
           </p>
         </div>
       </div>
-
-      <Link
-        href="/eu-inspections"
-        className="btn btn-secondary mt-2 bg-transparent max-w-[300px] text-sm"
-      >
-        View all outstanding rejections
-        <ChevronRight size="16" />
-      </Link>
-    </div>
+    </>
   );
 }

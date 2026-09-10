@@ -12,7 +12,8 @@ type BadgeProps = {
     | "accent"
     | "advisory"
     | "caution"
-    | "critical";
+    | "critical"
+    | "pending";
   className?: string;
 };
 
@@ -39,7 +40,8 @@ type IconBadgeProps = {
     | "accent"
     | "advisory"
     | "caution"
-    | "critical";
+    | "critical"
+    | "pending";
   children?: React.ReactNode;
   className?: string;
 };
