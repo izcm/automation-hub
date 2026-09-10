@@ -1,7 +1,5 @@
-import Link from "next/link";
-
-import { Calendar, ChevronRight, Info } from "@/components/icons";
 import { cn } from "@/lib/cn";
+import { Calendar, Info } from "@/components/icons";
 import type { EuInspectionRow } from "@/features/eu-inspections";
 import { getInspectionStatus } from "../../logic";
 

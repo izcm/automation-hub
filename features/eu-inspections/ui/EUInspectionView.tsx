@@ -50,11 +50,15 @@ function normalizeSearchPlateNumber(input: string): string {
 }
 
 type Props = {
-  euInspections: EuInspectionRow[];
-  alternativeReceiver?: string;
+  allInspections: EuInspectionRow[];
+  filteredInspections?: EuInspectionRow[];
   employees: Employee[];
-  isDemo: boolean;
+
   errors?: string[];
+
+  // demo related
+  isDemo: boolean;
+  alternativeReceiver?: string;
 };
 
 export function buildQuery({
@@ -74,7 +78,8 @@ export function buildQuery({
 }
 
 export function EUInspectionView({
-  euInspections: initialEuInspections, // may or may not implement pagination here later
+  allInspections, // may or may not implement pagination here later
+  filteredInspections,
   alternativeReceiver, // static
   employees, // static
   isDemo, // static
@@ -95,7 +100,13 @@ export function EUInspectionView({
       normalizeSearchPlateNumber,
     );
 
-  const [euInspections, setEuInspections] = useState(initialEuInspections);
+  // const initialInspections = filteredInspections
+  //   ? filteredInspections
+  //   : allInspections;
+
+  const initialInspections = filteredInspections ?? allInspections;
+
+  const [euInspections, setEuInspections] = useState(initialInspections);
 
   const language = useLanguage() as Language;
   const LABELS = EU_INSPECTIONS_LABELS[language];
@@ -180,32 +191,32 @@ export function EUInspectionView({
 
   // --- search / filters ---
 
-  function handleSearch(search: string) {
-    if (!search) return;
+  // function handleSearch(search: string) {
+  //   if (!search) return;
 
-    const plateNumber = parsePlateNumber(search);
-    if (!plateNumber) return;
+  //   const plateNumber = parsePlateNumber(search);
+  //   if (!plateNumber) return;
 
-    setSearchInput(plateNumber);
+  //   setSearchInput(plateNumber);
 
-    const query = new URLSearchParams();
-    query.set("filters[vehicle][plateNumber]", plateNumber);
+  //   const query = new URLSearchParams();
+  //   query.set("filters[vehicle][plateNumber]", plateNumber);
 
-    query.set("include[vehicle][include][employee]", "true");
-    query.set("include[notifications]", "true");
+  //   query.set("include[vehicle][include][employee]", "true");
+  //   query.set("include[notifications]", "true");
 
-    // sort
-    query.set("sortField", "dueDate");
-    query.set("sortDir", "asc");
+  //   // sort
+  //   query.set("sortField", "dueDate");
+  //   query.set("sortDir", "asc");
 
-    getPage<EuInspectionRow>({
-      baseURL: "/api",
-      params: "eu-inspections",
-      query,
-    }).then((res) => {
-      if (res.ok) setEuInspections(res.data.items);
-    });
-  }
+  //   getPage<EuInspectionRow>({
+  //     baseURL: "/api",
+  //     params: "eu-inspections",
+  //     query,
+  //   }).then((res) => {
+  //     if (res.ok) setEuInspections(res.data.items);
+  //   });
+  // }
 
   const searchbarRef = useRef<HTMLInputElement>(null);
 
@@ -243,7 +254,7 @@ export function EUInspectionView({
             labels={RESOURCE_MANAGEMENT_VIEW_LABELS}
             textInputProps={{
               value: searchInput,
-              onSubmit: handleSearch,
+              // onSubmit: handleSearch,
               htmlInputProps: {
                 autoFocus: true,
                 placeholder: LABELS.searchPlaceholder,
