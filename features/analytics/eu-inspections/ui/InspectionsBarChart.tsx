@@ -37,7 +37,7 @@ function getTimeBucket(daysUntil: number): TimeBucket {
 // custom instead of recharts' <Legend> so each item can become a filter
 // toggle later (click a status to isolate/exclude it from the chart) —
 // not wired up yet, onClick is a no-op placeholder for that.
-function BarChartLegend() {
+function BarChartLegend({ items }: { items: string[] }) {
   return (
     <ul
       className="
@@ -45,8 +45,8 @@ function BarChartLegend() {
         xl:flex-col xl:shrink-0 xl:justify-start
         "
     >
-      {CHART_STATUSES.map((status) => (
-        <li key={status} className="flex-auto">
+      {items.map((item) => (
+        <li key={item} className="flex-auto">
           <button
             type="button"
             onClick={() => {}}
@@ -60,10 +60,10 @@ function BarChartLegend() {
             <span
               className="size-3 shrink-0 rounded-full"
               style={{
-                backgroundColor: `var(--${STATUS_COLOR[status]})`,
+                backgroundColor: `var(--${STATUS_COLOR[item as Status]})`,
               }}
             />
-            {STATUS_LABELS[status]}
+            {STATUS_LABELS[item as Status]}
           </button>
         </li>
       ))}
@@ -124,6 +124,14 @@ export function InspectionsBarChart({ rows }: { rows: EuInspectionRow[] }) {
     },
   );
 
+  const relevantStatuses = [
+    ...new Set(
+      buckets.flatMap((bucket) =>
+        CHART_STATUSES.filter((status) => bucket[status] > 0),
+      ),
+    ),
+  ];
+
   return (
     <>
       <ResponsiveContainer width="100%" height="100%">
@@ -139,7 +147,7 @@ export function InspectionsBarChart({ rows }: { rows: EuInspectionRow[] }) {
             cursor={{ fill: "var(--accent)", opacity: 0.06 }}
             content={<ChartTooltip />}
           />
-          {CHART_STATUSES.map((status, i, all) => (
+          {relevantStatuses.map((status, i, all) => (
             <Bar
               key={status}
               dataKey={status}
@@ -152,7 +160,7 @@ export function InspectionsBarChart({ rows }: { rows: EuInspectionRow[] }) {
         </BarChart>
       </ResponsiveContainer>
 
-      <BarChartLegend />
+      <BarChartLegend items={relevantStatuses} />
     </>
   );
 }
