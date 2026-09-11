@@ -2,7 +2,7 @@ type Props = {
   date?: Date | string;
   // no room for a full badge on this component — a tiny corner dot is the
   // only indicator that fits
-  status?: "neutral" | "pending" | "advisory" | "caution" | "critical";
+  status?: "pending" | "advisory" | "caution" | "critical";
 };
 
 const dotColor = {
