@@ -10,7 +10,7 @@ type Props = {
 
 export function PanelHeader({ heading, subtitle, action }: Props) {
   return (
-    <div className="flex items-center justify-between px-1">
+    <div className="flex items-center justify-between px-1 h-12">
       <div>
         <h2 className="font-medium">{heading}</h2>
         {subtitle && (

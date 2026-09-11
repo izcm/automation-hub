@@ -19,11 +19,6 @@
     "clean": "rm -rf .next node_modules"
   },
   "dependencies": {
-    "@a2zb/lib": "file:../../izblocks/shared-packages/lib",
-    "@a2zb/node": "file:../../izblocks/shared-packages/node",
-    "@a2zb/react": "file:../../izblocks/shared-packages/react",
-    "@a2zb/styles": "file:../../izblocks/shared-packages/styles",
-    "@a2zb/types": "file:../../izblocks/shared-packages/types",
     "@tanstack/react-query": "^5.101.4",
     "clsx": "^2.1.1",
     "drizzle-orm": "^1.0.0-rc.4",
@@ -39,7 +34,13 @@
     "server-only": "^0.0.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.6.0",
-    "zod": "^4.4.3"
+    "zod": "^4.4.3",
+    "@a2zb/lib": "file:../../izblocks/shared-packages/lib",
+    "@a2zb/node": "file:../../izblocks/shared-packages/node",
+    "@a2zb/react": "file:../../izblocks/shared-packages/react",
+    "@a2zb/next": "file:../../izblocks/shared-packages/next",
+    "@a2zb/styles": "file:../../izblocks/shared-packages/styles",
+    "@a2zb/types": "file:../../izblocks/shared-packages/types"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

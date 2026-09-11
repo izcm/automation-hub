@@ -15,6 +15,7 @@ export {
   SlidersHorizontal as Filter,
   Send as Notify,
   ArrowLeft as Back,
+  ArrowRight as GoTo,
   ChevronDown,
   ChevronLeft as Prev,
   ChevronRight as Next,

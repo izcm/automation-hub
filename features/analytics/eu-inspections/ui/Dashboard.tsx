@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { IconLink } from "@a2zb/next";
 import { getDaysUntil } from "@a2zb/lib";
 
 import { cn } from "@/lib/cn";
-import { Calendar, ChevronRight } from "@/components/icons";
+import { Calendar, ChevronRight, GoTo } from "@/components/icons";
 import { FilterChips, PanelHeader } from "@/components/molecules";
 
 import { EuInspectionRow } from "@/features/eu-inspections";
@@ -109,8 +110,10 @@ export function EuInspectionDashboard({ items }: Props) {
     [filters, items],
   );
 
-  const employeeRows = aggregateByEmployee(filteredItems);
-  const topEmployeeIds = employeeRows
+  const allEmployeeRows = aggregateByEmployee(items);
+  const filteredEmployeeRows = aggregateByEmployee(filteredItems);
+
+  const topEmployeeIds = filteredEmployeeRows
     .filter((row) => row.id !== "others")
     .map((row) => row.id);
 
@@ -147,6 +150,14 @@ export function EuInspectionDashboard({ items }: Props) {
             setFilters((current) => current.filter((f) => f.id !== id))
           }
         />
+
+        <IconLink
+          className="btn btn-secondary"
+          href={workspaceHref()}
+          icon={<GoTo size={14} />}
+        >
+          Drill to workspace
+        </IconLink>
       </div>
 
       <div className="grid grid-cols-3 gap-3">
@@ -191,8 +202,8 @@ export function EuInspectionDashboard({ items }: Props) {
         {/* RESPONSIBLE EMPLOYEES */}
         <div className={cn(panel, "p-2")}>
           <PanelHeader
-            heading="Employee responsible – next 30 days"
-            subtitle="EU inspections due, grouped by responsible employee."
+            heading="Employee responsible"
+            subtitle="Inspections grouped by the responsible employee."
             action={
               filters.some((filter) => filter.id === "responsible") && (
                 <button
@@ -212,20 +223,31 @@ export function EuInspectionDashboard({ items }: Props) {
 
           <div className={"h-80"}>
             <ResponsibleEmployeesTable
-              rows={employeeRows}
-              onRowClick={(row) =>
+              selectedIds={
+                filteredEmployeeRows !== undefined &&
+                filteredEmployeeRows.length > 0
+                  ? [filteredEmployeeRows[0]!.id]
+                  : []
+              }
+              rows={allEmployeeRows}
+              filteredRows={filteredEmployeeRows}
+              onRowClick={(id) =>
                 addFilter(
                   "responsible",
-                  row.id,
-                  row.id === "others"
+                  id,
+                  id === "others"
                     ? // "others" isn't a real employee id — it's every
                       // employee that didn't get its own row above
                       (inspection) => {
-                        const id = inspection.vehicle.maintenanceResponsibleId;
-                        return id != null && !topEmployeeIds.includes(id);
+                        const responsibleId =
+                          inspection.vehicle.maintenanceResponsibleId;
+                        return (
+                          responsibleId != null &&
+                          !topEmployeeIds.includes(responsibleId)
+                        );
                       }
                     : (inspection) =>
-                        inspection.vehicle.maintenanceResponsibleId === row.id,
+                        inspection.vehicle.maintenanceResponsibleId === id,
                 )
               }
             />
@@ -236,18 +258,18 @@ export function EuInspectionDashboard({ items }: Props) {
       {/* REACTS TO FILTERS */}
       <div className="grid grid-cols-1 xl:grid-cols-8 gap-3">
         {/* EU INSPECTION ROWS */}
-        <div className={cn(panel, "p-2 xl:order-2 xl:col-span-5")}>
+        <div className={cn(panel, "xl:order-2 xl:col-span-5")}>
           <PanelHeader
             heading="EU inspections"
             subtitle="List of inspection records matching time bucket and filters."
             action={
-              <Link
+              <IconLink
+                className="text-[13px] text-accent hover:text-accent-strong p-1"
                 href={workspaceHref()}
-                className="inline-flex items-center gap-1 text-sm my-1 text-accent hover:text-accent-strong"
+                icon={<GoTo size={14} />}
               >
-                View all
-                <ChevronRight size="14" />
-              </Link>
+                Drill to workspace
+              </IconLink>
             }
           />
 

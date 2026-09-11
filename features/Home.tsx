@@ -1,11 +1,9 @@
 "use client";
 
 import { ReactNode, useState } from "react";
-import Link from "next/link";
 
 import { useLanguage } from "@/lib/contexts/LanguageContext";
 
-import { ChevronRight } from "@/components/icons";
 import { Gallery, defaultClasses } from "@a2zb/react";
 
 import {
@@ -92,20 +90,6 @@ export function Home({ inspectionRows }: Deps) {
                     {moduleInfo[item].description}
                   </span>
                 </div>
-
-                {item !== "eu-inspections" ? (
-                  <span className="badge badge-cop-neutral w-fit">
-                    Coming soon
-                  </span>
-                ) : (
-                  <Link
-                    href={item}
-                    className="btn btn-secondary flex justify-between text-sm"
-                  >
-                    <span className="min-w-0 truncate">Go to workspace</span>
-                    <ChevronRight size="16" />
-                  </Link>
-                )}
               </>
             )}
           />
