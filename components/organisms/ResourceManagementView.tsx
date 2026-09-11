@@ -46,9 +46,7 @@ type Props<T> = {
   // responsive visibility for the checkbox — caller controls this since it
   // may depend on state we don't know about (e.g. a workspace panel being open)
   checkboxClassName?: string;
-  textInputProps: ComponentProps<typeof FilterBar>["textInputProps"];
-  filterMenu?: ReactNode;
-  belowSearchBar?: ReactNode;
+  filterClips?: ReactNode;
 };
 
 export function ResourceManagementView<T>({
@@ -59,13 +57,12 @@ export function ResourceManagementView<T>({
   labels,
   itemClassName,
   checkboxClassName,
-  textInputProps,
-  filterMenu,
-  belowSearchBar,
 }: Props<T>) {
   const [selected, setSelected] = useState<T | undefined>(undefined);
   const [batchSelected, setBatchSelected] = useState<string[]>([]);
+
   const [batchSelectMobile, setBatchSelectMobile] = useState(false);
+
   const [page, setPage] = useState(1);
 
   function toggleBatchSelectMobile() {
@@ -79,21 +76,6 @@ export function ResourceManagementView<T>({
 
   return (
     <>
-      {/* <FilterBar
-        filterLabel={labels.searchBar.filter}
-        textInputProps={{
-          submitLabel: labels.searchBar.apply,
-          htmlInputProps: {
-            placeholder: labels.searchBar.placeholder,
-            className: "text-subtle",
-          },
-          ...textInputProps,
-        }}
-        belowSearchBar={belowSearchBar}
-      >
-        {filterMenu}
-      </FilterBar> */}
-
       {batchActions != undefined && (
         <button
           type="button"

@@ -8,8 +8,8 @@ import type { EmployeeInspectionRow } from "./ui/tables/ResponsibleEmployeesTabl
 // — it's core domain logic, not analytics-specific, and the plain
 // eu-inspections views (list, sidepanel) need it too. Re-exported here so
 // existing imports from "../logic" in this feature keep working.
-export * from "@/features/eu-inspections/status";
-import { getInspectionStatus } from "@/features/eu-inspections/status";
+export * from "@/features/eu-inspections/logic/status";
+import { getInspectionStatus } from "@/features/eu-inspections/logic/status";
 
 // one row per employee responsible for a vehicle, tallying their inspections
 // by state. Inspections with no responsible employee are skipped — nobody

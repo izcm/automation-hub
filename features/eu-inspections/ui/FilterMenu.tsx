@@ -5,9 +5,6 @@ import { Checkbox } from "@a2zb/react";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
 import { EU_INSPECTION_FILTER_LABELS_BY_LANGUAGE } from "@/features/eu-inspections/labels/filters";
 import type { Language } from "@/features/core/config/labels";
-import { MultiSelectDropdown } from "@/components/molecules";
-
-const EMPLOYEES = ["empl 1", "empl 2", "empl 3"];
 
 function VerticalDivider() {
   return (
@@ -58,13 +55,6 @@ export function FilterMenu({ filters, toggleFilter, resetFilters }: Props) {
                 {FILTER_UI_LABELS.responsible.others}
               </label>
             </div>
-
-            {/* <MultiSelectDropdown
-              options={EMPLOYEES}
-              selected={filters["responsible"] ?? []}
-              onToggle={(employee) => toggleFilter("responsible", employee)}
-              placeholder="Search employees"
-            /> */}
           </div>
         </div>
 

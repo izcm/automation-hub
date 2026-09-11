@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { getDaysUntil } from "@a2zb/lib";
+
 import { cn } from "@/lib/cn";
-import { Calendar, Cancel, ChevronRight } from "@/components/icons";
+import { Calendar, ChevronRight } from "@/components/icons";
+import { FilterChips } from "@/components/molecules";
 
 import { EuInspectionRow } from "@/features/eu-inspections";
 
@@ -13,14 +16,15 @@ import {
   getTimeBucket,
 } from "../logic";
 
-import { applyFilters, Filter } from "../../logic/filter";
+import { applyFilters, Filter } from "@/features/filtering/filter";
 
 import { EuInspectionsKPIs } from "./cards/EuInspectionsKPIs";
-import { EuInspectionsTable } from "./tables/EuInspectionsTable";
 import { InspectionsBarChart } from "./charts/InspectionsBarChart";
-import { OutstandingRejectionsCard } from "./cards/OutstandingRejectionsCard";
+
+import { EuInspectionsTable } from "./tables/EuInspectionsTable";
 import { ResponsibleEmployeesTable } from "./tables/ResponsibleEmployeesTable";
-import { getDaysUntil } from "@a2zb/lib";
+
+import { OutstandingRejectionsCard } from "./cards/OutstandingRejectionsCard";
 
 const panelBorder = "border border-extra-faint rounded";
 
@@ -34,8 +38,29 @@ type Props = {
   items: EuInspectionRow[];
 };
 
+function toQueryParams(filters: Record<string, string | string[]>) {
+  const params = new URLSearchParams();
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      value.forEach((v) => params.append(key, v));
+    } else {
+      params.set(key, value);
+    }
+  });
+
+  return params;
+}
+
 export function EuInspectionDashboard({ items }: Props) {
   const [filters, setFilters] = useState<Filter<EuInspectionRow>[]>([]);
+  const filterObj = Object.fromEntries(
+    filters.map((filter) => [filter.id, filter.predicates.map((p) => p.id)]),
+  );
+
+  toQueryParams(filterObj);
+
+  // const filterRecord = filterKeys.
 
   function addFilter(
     filterId: string,
@@ -95,6 +120,11 @@ export function EuInspectionDashboard({ items }: Props) {
   const in30Days = new Date(today);
   in30Days.setDate(today.getDate() + 30);
 
+  const workspaceHref = (extra: Record<string, string | string[]> = {}) => {
+    const params = toQueryParams({ ...filterObj, ...extra });
+    return `eu-inspections?${params}`;
+  };
+
   return (
     <section className="flex flex-col gap-3 raised-outline bg-raised/40 w-full p-3">
       {/* HEADER & FILTER CHIPS */}
@@ -107,30 +137,16 @@ export function EuInspectionDashboard({ items }: Props) {
           </span>
         </h2>
 
-        <div className="flex items-center gap-2">
-          {filters.map((filter) => (
-            <div
-              key={filter.id}
-              className="flex items-center gap-1.5 rounded-full bg-elevated px-3 py-1 text-xs"
-            >
-              <span className="font-medium">{filter.id}:</span>
-              <span className="text-subtle">
-                {filter.predicates.map((predicate) => predicate.id).join(", ")}
-              </span>
-              <button
-                type="button"
-                onClick={() =>
-                  setFilters((current) =>
-                    current.filter((f) => f.id !== filter.id),
-                  )
-                }
-                className="text-subtle hover:text-fg"
-              >
-                <Cancel size={12} />
-              </button>
-            </div>
-          ))}
-        </div>
+        <FilterChips
+          filters={filters.map((filter) => ({
+            id: filter.id,
+            label: filter.id,
+            values: filter.predicates.map((predicate) => predicate.id),
+          }))}
+          onRemove={(id) =>
+            setFilters((current) => current.filter((f) => f.id !== id))
+          }
+        />
       </div>
 
       <div className="grid grid-cols-3 gap-3 mt-2">
@@ -171,19 +187,19 @@ export function EuInspectionDashboard({ items }: Props) {
           </div>
         </div>
 
-        {/* BARCHART */}
+        {/* RESPONSIBLE EMPLOYEES */}
         <div className={cn(panelBorder, "p-2")}>
           <div className="flex items-center justify-between my-2">
             <h2 className="text-sm font-medium">
               Employee responsible – next 30 days
             </h2>
 
-            {filters.some((filter) => filter.id === "employee") && (
+            {filters.some((filter) => filter.id === "responsible") && (
               <button
                 type="button"
                 onClick={() =>
                   setFilters((current) =>
-                    current.filter((filter) => filter.id !== "employee"),
+                    current.filter((filter) => filter.id !== "responsible"),
                   )
                 }
                 className="text-sm text-accent hover:text-accent-strong"
@@ -198,7 +214,7 @@ export function EuInspectionDashboard({ items }: Props) {
               rows={employeeRows}
               onRowClick={(row) =>
                 addFilter(
-                  "employee",
+                  "responsible",
                   row.id,
                   row.id === "others"
                     ? // "others" isn't a real employee id — it's every
@@ -224,7 +240,7 @@ export function EuInspectionDashboard({ items }: Props) {
             <h2 className="text-sm font-medium">EU inspections</h2>
 
             <Link
-              href="/eu-inspections"
+              href={workspaceHref()}
               className="flex items-center gap-1 text-sm text-accent hover:text-accent-strong"
             >
               View all
@@ -248,7 +264,7 @@ export function EuInspectionDashboard({ items }: Props) {
           <OutstandingRejectionsCard inspectionRows={filteredItems} />
 
           <Link
-            href="/eu-inspections"
+            href={workspaceHref({ status: "rejectedUnbooked" })}
             className="btn btn-secondary mt-2 bg-transparent text-sm"
           >
             View all outstanding rejections

@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { ClickPopover, useRegexValidatedInput } from "@a2zb/react";
 
 import { confirmWith, rejectWith, warningWith } from "@/lib/toast";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
+
+import { Employee } from "@/types";
 
 import { Notify, Confirm, Cancel, ChevronDown } from "@components/icons";
 import {
@@ -22,23 +24,21 @@ import {
 import {
   type EuInspectionRow,
   EU_INSPECTIONS_LABELS,
-  FilterMenu,
 } from "@/features/eu-inspections";
 
-import { Employee } from "@/types";
-import { getPage } from "@/lib/page-get";
+import { applyFilters } from "@/features/filtering/filter";
 
 import { EuInspectionRow as EuInspectionRowCard } from "./EuInspectionRow";
 import { SidePanel } from "./SidePanel";
 import { useDemoInboxChoice } from "../demo-behaviour/use-demo-inbox-choice";
 import { useNotifications } from "../hooks/use-notifications";
 
-import { useSearchFilters } from "../../filtering/use-search-filters";
-import { toSearchParams } from "../../filtering/param-mapper";
 import {
   sendEuInspectionNotifications,
   markEuInspectionsStatus,
 } from "../server-actions/mutate";
+import { buildFilters } from "../logic/filters";
+import { FilterChips } from "@/components/molecules";
 
 // lenient: 2 letters + 4-5 digits, space optional/anywhere — normalize strips
 // all whitespace and re-inserts the single space the API expects
@@ -51,7 +51,7 @@ function normalizeSearchPlateNumber(input: string): string {
 
 type Props = {
   allInspections: EuInspectionRow[];
-  filteredInspections?: EuInspectionRow[];
+  rawFilters?: Record<string, string | string[]>;
   employees: Employee[];
 
   errors?: string[];
@@ -61,52 +61,30 @@ type Props = {
   alternativeReceiver?: string;
 };
 
-export function buildQuery({
-  cursor,
-  includes = [],
-  ...searchOptions
-}: {
-  cursor?: string | null;
-  includes?: string[];
-} & Parameters<typeof toSearchParams>[0]): URLSearchParams {
-  const params = toSearchParams(searchOptions);
-
-  if (cursor) params.set("cursor", cursor);
-  if (includes.length) params.set("include", includes.join(","));
-
-  return params;
-}
-
 export function EUInspectionView({
   allInspections, // may or may not implement pagination here later
-  filteredInspections,
+  rawFilters, // since dataset is small we filter on client instead of pagination
   alternativeReceiver, // static
   employees, // static
   isDemo, // static
 }: Props) {
-  const {
-    filters,
-    //handleSearch: tmpNotInUse,
-    resetFilters,
-    //searchInput: tmpNotInUseSecond,
-    toggleFilter,
-  } = useSearchFilters();
-
+  // const []
   const [searchInput, setSearchInput] = useState<string>("");
-
+  const [filters, setFilters] = useState(
+    rawFilters ? buildFilters(rawFilters) : undefined,
+  );
   const { hasError: hasSearchError, parse: parsePlateNumber } =
     useRegexValidatedInput(
       SEARCH_PLATE_NUMBER_PATTERN,
       normalizeSearchPlateNumber,
     );
 
-  // const initialInspections = filteredInspections
-  //   ? filteredInspections
-  //   : allInspections;
+  const [inspections, setInspections] = useState(allInspections);
 
-  const initialInspections = filteredInspections ?? allInspections;
-
-  const [euInspections, setEuInspections] = useState(initialInspections);
+  const visibleInspections = useMemo(() => {
+    if (!filters) return inspections;
+    return applyFilters(inspections, filters);
+  }, [inspections, filters]);
 
   const language = useLanguage() as Language;
   const LABELS = EU_INSPECTIONS_LABELS[language];
@@ -148,7 +126,7 @@ export function EUInspectionView({
     const result = await markEuInspectionsStatus(euInspectionIds, status);
     if (!result.ok) return;
 
-    setEuInspections((prev) =>
+    setInspections((prev) =>
       prev.map((item) =>
         euInspectionIds.includes(item.id) ? { ...item, status } : item,
       ),
@@ -159,7 +137,7 @@ export function EUInspectionView({
 
   const { statusBySubjectId, addSent } = useNotifications(
     (v: EuInspectionRow) => v.id,
-    setEuInspections,
+    setInspections,
     ({ success, failed }) => {
       if (failed === 0) {
         resolvedToastIdRef.current = confirmWith(
@@ -189,35 +167,6 @@ export function EUInspectionView({
     };
   }, []);
 
-  // --- search / filters ---
-
-  // function handleSearch(search: string) {
-  //   if (!search) return;
-
-  //   const plateNumber = parsePlateNumber(search);
-  //   if (!plateNumber) return;
-
-  //   setSearchInput(plateNumber);
-
-  //   const query = new URLSearchParams();
-  //   query.set("filters[vehicle][plateNumber]", plateNumber);
-
-  //   query.set("include[vehicle][include][employee]", "true");
-  //   query.set("include[notifications]", "true");
-
-  //   // sort
-  //   query.set("sortField", "dueDate");
-  //   query.set("sortDir", "asc");
-
-  //   getPage<EuInspectionRow>({
-  //     baseURL: "/api",
-  //     params: "eu-inspections",
-  //     query,
-  //   }).then((res) => {
-  //     if (res.ok) setEuInspections(res.data.items);
-  //   });
-  // }
-
   const searchbarRef = useRef<HTMLInputElement>(null);
 
   // --- workspace ---
@@ -227,7 +176,7 @@ export function EUInspectionView({
   const activeItem: EuInspectionRow | undefined =
     activeId === undefined
       ? undefined
-      : euInspections.find((item) => item.id === activeId);
+      : inspections.find((item) => item.id === activeId);
 
   // --- etc. ui effects ---
 
@@ -248,34 +197,33 @@ export function EUInspectionView({
             {LABELS.heading}
           </h1>
 
+          {filters && (
+            <FilterChips
+              filters={filters.map((filter) => ({
+                id: filter.id,
+                label: filter.id,
+                values: filter.predicates.map((predicate) => predicate.id),
+              }))}
+              onRemove={(id) =>
+                setFilters((current) => current?.filter((f) => f.id !== id))
+              }
+            />
+          )}
+
           <ResourceManagementView
-            items={euInspections}
+            items={visibleInspections}
             getId={(v) => v.id}
             labels={RESOURCE_MANAGEMENT_VIEW_LABELS}
-            textInputProps={{
-              value: searchInput,
-              // onSubmit: handleSearch,
-              htmlInputProps: {
-                autoFocus: true,
-                placeholder: LABELS.searchPlaceholder,
-              },
-              className: "focus-within:!border-accent/60 rounded-lg",
-            }}
-            belowSearchBar={
-              hasSearchError && (
-                <span className="text-warning text-sm text-center">
-                  {LABELS.invalidPlateNumber}
-                </span>
-              )
-            }
+            // textInputProps={{
+            //   value: searchInput,
+            //   // onSubmit: handleSearch,
+            //   htmlInputProps: {
+            //     autoFocus: true,
+            //     placeholder: LABELS.searchPlaceholder,
+            //   },
+            //   className: "focus-within:!border-accent/60 rounded-lg",
+            // }}
             checkboxClassName={activeId === undefined ? "sm:grid" : "lg:grid"}
-            filterMenu={
-              <FilterMenu
-                filters={filters}
-                toggleFilter={toggleFilter}
-                resetFilters={resetFilters}
-              />
-            }
             batchActions={(batchSelected) => [
               {
                 label: (count) => LABELS.notify(count),
@@ -347,7 +295,7 @@ export function EUInspectionView({
               activeItem={activeItem}
               employees={employees}
               statusBySubjectId={statusBySubjectId}
-              setEuInspections={setEuInspections}
+              setEuInspections={setInspections}
               sendNotification={sendNotification}
               markStatus={markStatus}
             />

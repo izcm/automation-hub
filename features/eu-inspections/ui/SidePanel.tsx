@@ -129,7 +129,10 @@ export function SidePanel({
       <div className="flex gap-2 mt-auto">
         <button
           onClick={() => sendNotification([activeItem.id])}
-          className="btn btn-secondary flex-1 inline-flex items-center justify-center gap-2 min-w-0"
+          className="
+           flex-1 inline-flex items-center justify-center gap-2
+           min-w-0 mt-auto h-10 
+           btn btn-secondary"
           disabled={
             !activeItem.vehicle.employee ||
             statusBySubjectId.get(activeItem.id) === "queued"
@@ -140,33 +143,6 @@ export function SidePanel({
             Notify {activeItem.vehicle.employee?.name}
           </span>
         </button>
-
-        <ClickPopover
-          align="right"
-          trigger={
-            <button className="btn btn-secondary inline-flex items-center gap-1">
-              Mark as
-              <ChevronDown size={14} />
-            </button>
-          }
-        >
-          <div className="flex flex-col gap-1">
-            <button
-              className="btn btn-menu gap-2"
-              onClick={() => markStatus([activeItem.id], "approved")}
-            >
-              <Confirm size={14} />
-              Approved
-            </button>
-            <button
-              className="btn btn-menu gap-2"
-              onClick={() => markStatus([activeItem.id], "rejected")}
-            >
-              <Cancel size={14} />
-              Rejected
-            </button>
-          </div>
-        </ClickPopover>
       </div>
     </aside>
   );

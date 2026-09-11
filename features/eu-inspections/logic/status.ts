@@ -1,4 +1,4 @@
-import type { EuInspectionRow } from "./types";
+import type { EuInspectionRow } from "../types";
 
 export type Status =
   | "approved"

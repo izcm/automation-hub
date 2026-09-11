@@ -12,7 +12,7 @@ import { Eyebrow } from "@/components/atoms";
 import { cn } from "@/lib/cn";
 import { Vehicle } from "@/types/vehicle";
 import { getDaysUntil } from "@a2zb/lib";
-import { getInspectionStatusBadge } from "@/features/eu-inspections/status";
+import { getInspectionStatusBadge } from "@/features/eu-inspections/logic/status";
 
 type Props = {
   item: EuInspectionRow;
