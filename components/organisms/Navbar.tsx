@@ -69,9 +69,13 @@ export function Navbar({
         </Link>
       ))}
 
-      <ThemeToggle labels={themeLabels} className={cn(navbarBtn, "mt-auto")} />
+      {/* <ThemeToggle labels={themeLabels} className={cn(navbarBtn, "mt-auto")} /> */}
 
-      <button aria-label={logoutLabel} className={navbarBtn} onClick={onLogout}>
+      <button
+        aria-label={logoutLabel}
+        className={cn(navbarBtn, "mt-auto")}
+        onClick={onLogout}
+      >
         <span aria-hidden>
           <LogOut size={20} strokeWidth={1} />
         </span>

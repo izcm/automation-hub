@@ -2,15 +2,16 @@ type Props = {
   date?: Date | string;
   // no room for a full badge on this component — a tiny corner dot is the
   // only indicator that fits
-  status?: "success" | "warning" | "danger" | "accent";
+  status?: "neutral" | "pending" | "advisory" | "caution" | "critical";
 };
 
 const dotColor = {
   // no shadow rn just leaving it maybe relevant later
-  success: "bg-success shadow-[0_0_0px_var(--success)]",
-  warning: "bg-warning shadow-[0_0_0px_var(--warning)]",
-  danger: "bg-failure shadow-[0_0_0px_var(--failure)]",
-  accent: "bg-accent shadow-[0_0_0px_var(--accent)]",
+  // neutral: "bg-neutral shadow-[0_0_4px_var(--neutral)]",
+  pending: "bg-pending shadow-[0_0_3px_var(--pending)]",
+  advisory: "bg-advisory shadow-[0_0_3px_var(--advisory)]",
+  caution: "bg-caution shadow-[0_0_3px_var(--caution)]",
+  critical: "bg-critical shadow-[0_0_3px_var(--critical)]",
 };
 
 export function DateStamp({ date, status }: Props) {
@@ -31,7 +32,7 @@ export function DateStamp({ date, status }: Props) {
     <div className="relative flex h-16 w-16 flex-col items-center justify-center rounded border border-extra-faint bg-ground/60">
       {status && (
         <span
-          className={`absolute top-1.5 left-1.5 h-1.5 w-1.5 rounded-full ${dotColor[status]}`}
+          className={`absolute top-[3] left-[3] h-1.5 w-1.5 rounded-full ${dotColor[status]}`}
         />
       )}
       <span className="text-[10px] font-semibold uppercase tracking-wider text-accent">
