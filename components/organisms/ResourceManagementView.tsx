@@ -1,11 +1,11 @@
 "use client";
 
-import { ComponentProps, ReactNode, useState } from "react";
+import { ReactNode, useState } from "react";
 import { Checkbox, Gallery } from "@a2zb/react";
 
 import { cn } from "@/lib/cn";
 import { Pagination } from "@/components/molecules";
-import { BatchAction, BatchSelect, FilterBar } from "@/components/organisms";
+import { BatchAction, BatchSelect } from "@/components/organisms";
 
 const PAGE_SIZE = 25;
 

@@ -37,16 +37,6 @@ export function OutstandingRejectionsCard({ inspectionRows }: Props) {
 
   return (
     <>
-      <div>
-        <h2 className="font-medium inline-flex items-center gap-1.5">
-          Outstanding rejections
-          <Info size={14} className="text-subtle" />
-        </h2>
-        <p className="text-xs text-subtle">
-          Rejected inspections with no new workshop booked.
-        </p>
-      </div>
-
       <div className="flex items-center p-3 gap-3">
         <div className="flex-1 flex flex-col gap-1">
           <span
@@ -75,7 +65,7 @@ export function OutstandingRejectionsCard({ inspectionRows }: Props) {
             <Calendar size={20} className="text-subtle" />
             {dueInPeriod.length}
           </span>
-          <p className="text-sm font-medium">Due in current 30-day period</p>
+          <p className="text-sm font-medium">Due in selected time bucket.</p>
           <p className="text-xs text-subtle">
             ({formatDateRange(today, in30Days)})
           </p>

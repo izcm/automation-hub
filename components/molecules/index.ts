@@ -7,3 +7,4 @@ export { MultiSelectDropdown, SelectDropdown } from "./DropDown";
 export type { SingleProps as SelectDropdownProps } from "./DropDown";
 export { Pagination } from "./Pagination";
 export { MediaLabel } from "./MediaLabel";
+export { PanelHeader } from "./PanelHeader";

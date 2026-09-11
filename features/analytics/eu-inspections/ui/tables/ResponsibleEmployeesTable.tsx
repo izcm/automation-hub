@@ -17,16 +17,18 @@ type Props = {
   onRowClick?: (row: EmployeeInspectionRow) => void;
 };
 
+const th = "font-normal text-start";
+
 export function ResponsibleEmployeesTable({ rows, onRowClick }: Props) {
   return (
-    <table className="h-full w-full text-sm">
+    <table className="h-full w-full text-sm [&_th]:p-2 [&_td]:p-2">
       <thead>
         <tr className="border-b border-extra-faint text-[13px] text-subtle">
-          <th className="p-2 font-normal text-start">Employee</th>
-          <th className="p-2 font-normal text-start">Due</th>
-          <th className="p-2 font-normal text-start">Approved</th>
-          <th className="p-2 font-normal text-start">Rejected</th>
-          <th className="p-2 font-normal text-start">Unresolved</th>
+          <th className={th}>Employee</th>
+          <th className={th}>Due</th>
+          <th className={th}>Approved</th>
+          <th className={th}>Rejected</th>
+          <th className={th}>Unresolved</th>
         </tr>
       </thead>
       <tbody>
@@ -40,10 +42,10 @@ export function ResponsibleEmployeesTable({ rows, onRowClick }: Props) {
               i === rows.length - 1 && "border-none",
             )}
           >
-            <td className="p-2">{row.name}</td>
-            <td className="p-2 tabular-nums">{row.due}</td>
-            <td className="p-2 tabular-nums">{row.approved}</td>
-            <td className="p-2">
+            <td>{row.name}</td>
+            <td className="tabular-nums">{row.due}</td>
+            <td className="tabular-nums">{row.approved}</td>
+            <td>
               <div className="flex items-center gap-3">
                 <span
                   className={cn(
@@ -70,7 +72,7 @@ export function ResponsibleEmployeesTable({ rows, onRowClick }: Props) {
             </td>
             <td
               className={cn(
-                "p-2 tabular-nums",
+                "tabular-nums",
                 // colors must stay in sync with STATUS_COLOR in ../logic
                 row.unresolved === 0 ? "text-subtle" : "text-caution",
               )}

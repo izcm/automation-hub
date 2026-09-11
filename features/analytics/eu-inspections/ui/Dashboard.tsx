@@ -5,7 +5,7 @@ import { getDaysUntil } from "@a2zb/lib";
 
 import { cn } from "@/lib/cn";
 import { Calendar, ChevronRight } from "@/components/icons";
-import { FilterChips } from "@/components/molecules";
+import { FilterChips, PanelHeader } from "@/components/molecules";
 
 import { EuInspectionRow } from "@/features/eu-inspections";
 
@@ -26,7 +26,7 @@ import { ResponsibleEmployeesTable } from "./tables/ResponsibleEmployeesTable";
 
 import { OutstandingRejectionsCard } from "./cards/OutstandingRejectionsCard";
 
-const panelBorder = "border border-extra-faint rounded";
+const panel = "flex flex-col gap-2 border border-extra-faint rounded p-2";
 
 function formatDateRange(from: Date, to: Date): string {
   const fmt = (d: Date) =>
@@ -149,7 +149,7 @@ export function EuInspectionDashboard({ items }: Props) {
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mt-2">
+      <div className="grid grid-cols-3 gap-3">
         <EuInspectionsKPIs rows={filteredItems} />
       </div>
 
@@ -157,10 +157,11 @@ export function EuInspectionDashboard({ items }: Props) {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 items-center">
         {/* BARCHART */}
         <div>
-          <div className={cn(panelBorder, "p-2")}>
-            <h2 className="text-sm text-subtle font-medium my-2">
-              EU inspections — next 3 months
-            </h2>
+          <div className={panel}>
+            <PanelHeader
+              heading="Upcoming inspections bye due date (next 30 days)"
+              subtitle="Total inspections due in the next 30 days, split by status."
+            />
 
             <div
               className="
@@ -188,28 +189,28 @@ export function EuInspectionDashboard({ items }: Props) {
         </div>
 
         {/* RESPONSIBLE EMPLOYEES */}
-        <div className={cn(panelBorder, "p-2")}>
-          <div className="flex items-center justify-between my-2">
-            <h2 className="text-sm font-medium">
-              Employee responsible – next 30 days
-            </h2>
+        <div className={cn(panel, "p-2")}>
+          <PanelHeader
+            heading="Employee responsible – next 30 days"
+            subtitle="EU inspections due, grouped by responsible employee."
+            action={
+              filters.some((filter) => filter.id === "responsible") && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFilters((current) =>
+                      current.filter((filter) => filter.id !== "responsible"),
+                    )
+                  }
+                  className="text-sm text-accent hover:text-accent-strong"
+                >
+                  Clear filter
+                </button>
+              )
+            }
+          />
 
-            {filters.some((filter) => filter.id === "responsible") && (
-              <button
-                type="button"
-                onClick={() =>
-                  setFilters((current) =>
-                    current.filter((filter) => filter.id !== "responsible"),
-                  )
-                }
-                className="text-sm text-accent hover:text-accent-strong"
-              >
-                Clear filter
-              </button>
-            )}
-          </div>
-
-          <div className={cn(panelBorder, "h-80")}>
+          <div className={"h-80"}>
             <ResponsibleEmployeesTable
               rows={employeeRows}
               onRowClick={(row) =>
@@ -235,18 +236,20 @@ export function EuInspectionDashboard({ items }: Props) {
       {/* REACTS TO FILTERS */}
       <div className="grid grid-cols-1 xl:grid-cols-8 gap-3">
         {/* EU INSPECTION ROWS */}
-        <div className={cn(panelBorder, "p-2 xl:order-2 xl:col-span-5")}>
-          <div className="flex items-center justify-between my-2">
-            <h2 className="text-sm font-medium">EU inspections</h2>
-
-            <Link
-              href={workspaceHref()}
-              className="flex items-center gap-1 text-sm text-accent hover:text-accent-strong"
-            >
-              View all
-              <ChevronRight size="14" />
-            </Link>
-          </div>
+        <div className={cn(panel, "p-2 xl:order-2 xl:col-span-5")}>
+          <PanelHeader
+            heading="EU inspections"
+            subtitle="List of inspection records matching time bucket and filters."
+            action={
+              <Link
+                href={workspaceHref()}
+                className="inline-flex items-center gap-1 text-sm my-1 text-accent hover:text-accent-strong"
+              >
+                View all
+                <ChevronRight size="14" />
+              </Link>
+            }
+          />
 
           <div className="h-64">
             <EuInspectionsTable rows={filteredItems} />
@@ -256,11 +259,16 @@ export function EuInspectionDashboard({ items }: Props) {
         {/* OUTSTANDING REJECTIONS */}
         <div
           className={cn(
-            panelBorder,
-            "p-2 xl:order-1 xl:col-span-3 xl:h-80 max-w-[500px]",
-            "flex flex-col gap-3 justify-between",
+            panel,
+            "xl:order-1 xl:col-span-3 xl:h-80 max-w-[500px]",
+            "flex flex-col justify-between",
           )}
         >
+          <PanelHeader
+            heading="Outstanding rejections"
+            subtitle="Rejected inspections with no new workshop booked."
+          />
+
           <OutstandingRejectionsCard inspectionRows={filteredItems} />
 
           <Link

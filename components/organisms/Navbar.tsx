@@ -4,7 +4,7 @@ import Link from "next/link";
 import { cn } from "@/lib/cn";
 
 import { LogOut } from "@/components/icons";
-import { ThemeToggle, type ThemeToggleLabels } from "@/components/organisms";
+import { ThemeToggleLabels } from "@/components/organisms";
 
 const navbarBtn =
   "rounded p-2 hover:bg-accent/10 btn text-subtle hover:text-accent-strong";
