@@ -24,6 +24,12 @@ type TableProps<T> = {
 // <th key="due" className={cn(th, "w-20")}>Due</th>
 export const th = "font-normal text-start";
 
+// plain <th> per label, no className — for callers that don't need
+// per-column width/styling control and just want the labels rendered.
+export function defaultHeaders(labels: string[]): ReactNode[] {
+  return labels.map((label) => <th key={label}>{label}</th>);
+}
+
 export function Table<T>({
   rows,
   headers,

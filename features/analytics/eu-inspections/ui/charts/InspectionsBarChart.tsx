@@ -7,34 +7,35 @@ import {
   ResponsiveContainer,
   Tooltip,
   XAxis,
+  type DataKey,
 } from "recharts";
 import type { EuInspectionRow } from "@/features/eu-inspections";
 import { cn } from "@/lib/cn";
 import { STATUS_COLOR, STATUS_LABELS, type Status } from "../../logic";
-
-// "unexpectedCase" is still a real, counted state (see logic.ts) — it just
-// doesn't get its own bar/legend entry here. Still counted in `buckets`
-// below, just not rendered.
-const CHART_STATUSES = (Object.keys(STATUS_COLOR) as Status[]).filter(
-  (status) => status !== "unexpectedCase",
-);
 
 // one row per time bucket — a count per Status, plus which bucket it is.
 // the specific bucket labels (e.g. "1-7 days") are Dashboard's concern, not
 // this chart's — it just needs something to put on the x-axis.
 type TimeBucketRow = Record<Status, number> & { timeBucket: string };
 
+type Series<T> = {
+  key: Extract<DataKey<T, number>, string>;
+  label: string;
+  color: string;
+  sort: number;
+};
+
 // custom instead of recharts' <Legend> so each item can become a filter
 // toggle later (click a status to isolate/exclude it from the chart) —
 // not wired up yet, onClick is a no-op placeholder for that.
-function BarChartLegend({
-  values,
-  relevantValues,
+function BarChartLegend<T>({
+  series,
+  relevantKeys,
   onClick,
 }: {
-  values: Status[];
-  relevantValues: Status[];
-  onClick: (item: string) => void;
+  series: Series<T>[];
+  relevantKeys: string[];
+  onClick?: (item: string) => void;
 }) {
   return (
     <ul
@@ -43,23 +44,27 @@ function BarChartLegend({
         xl:flex-col xl:shrink-0 xl:justify-start
         "
     >
-      {values.map((value) => (
-        <li key={value} className="flex-auto" onClick={() => onClick(value)}>
+      {series.map((serie) => (
+        <li
+          key={serie.key}
+          className="flex-auto"
+          onClick={() => onClick?.(serie.key)}
+        >
           <button
             type="button"
             onClick={() => {}}
             className={cn(
               "flex items-center gap-2 whitespace-nowrap bg-lowered px-3 py-2 w-full text-xs text-fg/80",
-              !relevantValues.includes(value) && "opacity-40",
+              !relevantKeys.includes(serie.key) && "opacity-40",
             )}
           >
             <span
               className="size-3 shrink-0 rounded-full"
               style={{
-                backgroundColor: `var(--${STATUS_COLOR[value]})`,
+                backgroundColor: `var(--${serie.color})`,
               }}
             />
-            {STATUS_LABELS[value]}
+            {serie.label}
           </button>
         </li>
       ))}
@@ -95,27 +100,42 @@ function ChartTooltip({
   );
 }
 
-export function InspectionsBarChart({
-  items,
+export function InspectionsBarChart<T>({
+  rows,
+  filteredRows,
+  series, // series
+  selectedCategories = [],
+  selectedSeriesKeys = [],
   onXClick,
   onLegendClick,
 }: {
-  items: TimeBucketRow[];
-  onXClick: (value: string) => void;
-  onLegendClick: (value: string) => void;
+  rows: T[];
+  filteredRows: T[];
+  series: Series<T>[];
+  onXClick?: (value: string) => void;
+  onLegendClick?: (value: string) => void;
+  selectedCategories?: (keyof typeof STATUS_LABELS)[];
+  selectedSeriesKeys?: Series<T>["key"][];
 }) {
-  const relevantStatuses = [
-    ...new Set(
-      items.flatMap((item) =>
-        CHART_STATUSES.filter((status) => item[status] > 0),
-      ),
-    ),
-  ];
+  // all legends are relevant unless there is a selection and it is NOT included in that selection
+  // no selection -> all are relevant, even if there are 0 filtered items with cette status
+  // const relevantLegends = CHART_STATUSES.filter((status) =>
+  //   (selectedCategories.length > 0 ? selectedCategories : allLegends).includes(
+  //     status,
+  //   ),
+  // );
 
+  const relevantSeries = series.filter((serie) =>
+    selectedSeriesKeys.length > 0
+      ? selectedSeriesKeys.includes(serie.key)
+      : true,
+  );
+
+  console.log(relevantSeries);
   return (
     <>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={items} barCategoryGap="30%">
+        <BarChart data={rows} barCategoryGap="30%">
           <CartesianGrid vertical={false} stroke="var(--extra-faint)" />
           <XAxis
             dataKey="timeBucket"
@@ -127,10 +147,14 @@ export function InspectionsBarChart({
                 y={y}
                 dy={16}
                 textAnchor="middle"
-                fill="var(--subtle)"
+                fill={
+                  relevantSeries.includes(payload.value)
+                    ? "var(--subtle)"
+                    : "var(--accent)"
+                }
                 fontSize={12}
                 style={{ cursor: "pointer" }}
-                onClick={() => onXClick(payload.value)}
+                onClick={() => onXClick?.(payload.value)}
               >
                 {payload.value}
               </text>
@@ -140,14 +164,13 @@ export function InspectionsBarChart({
             cursor={{ fill: "var(--accent)", opacity: 0.06 }}
             content={<ChartTooltip />}
           />
-          {relevantStatuses.map((status, i, all) => (
+          {relevantSeries.map((serie, i, all) => (
             <Bar
-              key={status}
-              dataKey={status}
-              name={STATUS_LABELS[status]}
+              key={serie.key}
+              dataKey={serie.key}
+              name={serie.label}
               stackId="status"
-              fill={`var(--${STATUS_COLOR[status]})`}
-              fillOpacity={relevantStatuses.includes(status) ? 1 : 0.5}
+              fill={`var(--${serie.color})`}
               radius={i === all.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
             />
           ))}
@@ -155,8 +178,8 @@ export function InspectionsBarChart({
       </ResponsiveContainer>
 
       <BarChartLegend
-        values={CHART_STATUSES}
-        relevantValues={relevantStatuses}
+        series={series}
+        relevantKeys={Object.keys(relevantSeries)}
         onClick={onLegendClick}
       />
     </>

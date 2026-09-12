@@ -15,6 +15,10 @@ import {
   aggregateByTimeBucket,
   getInspectionStatus,
   getTimeBucket,
+  STATUS_COLOR,
+  STATUS_INFO,
+  STATUS_LABELS,
+  type Status,
 } from "../logic";
 
 import { applyFilters, Filter } from "@/features/filtering/filter";
@@ -27,7 +31,11 @@ import { ResponsibleEmployeesTable } from "./tables/ResponsibleEmployeesTable";
 
 import { OutstandingRejectionsCard } from "./cards/OutstandingRejectionsCard";
 
-const panel = "flex flex-col gap-2 border border-extra-faint rounded p-2";
+const panel = "flex flex-col gap-1 border border-extra-faint rounded p-2";
+
+(Object.keys(STATUS_COLOR) as Status[]).filter(
+  (status) => status !== "unexpectedCase",
+);
 
 function formatDateRange(from: Date, to: Date): string {
   const fmt = (d: Date) =>
@@ -105,10 +113,16 @@ export function EuInspectionDashboard({ items }: Props) {
     });
   }
 
+  // apply filters on every dimension
+  // use this result in elements that do not apply filters themselves:
+  // eg. EuInspectionTable
   const filteredItems = useMemo(
     () => (filters.length > 0 ? applyFilters(items, filters) : items),
     [filters, items],
   );
+
+  // for filter appliers, here: the page's bar chart and employee responsible table
+  // create a dataset
 
   // ALL employees — keeps the employee list stable
   const allEmployeeRows = aggregateByEmployee(items);
@@ -126,7 +140,16 @@ export function EuInspectionDashboard({ items }: Props) {
     .filter((row) => row.id !== "others")
     .map((row) => row.id);
 
+  // time bucket and bar chart stuff
   const timeBucketRows = aggregateByTimeBucket(filteredItems);
+
+  const allTimeBucketEntries = aggregateByTimeBucket(items);
+  const filteredTimeBucketRows = aggregateByTimeBucket(
+    applyFilters(
+      items,
+      filters.filter((filter) => filter.id !== "timeBucket"),
+    ),
+  );
 
   const today = new Date();
   const in30Days = new Date(today);
@@ -179,8 +202,8 @@ export function EuInspectionDashboard({ items }: Props) {
         <div>
           <div className={panel}>
             <PanelHeader
-              heading="Upcoming inspections bye due date (next 30 days)"
-              subtitle="Total inspections due in the next 30 days, split by status."
+              heading="Upcoming inspections bye due date"
+              subtitle="Total inspections due split by status."
             />
 
             <div
@@ -190,7 +213,21 @@ export function EuInspectionDashboard({ items }: Props) {
                 h-64 lg:h-80"
             >
               <InspectionsBarChart
-                items={timeBucketRows}
+                rows={allTimeBucketEntries}
+                filteredRows={filteredTimeBucketRows}
+                series={(Object.keys(STATUS_INFO) as Status[])
+                  .filter((status) => status !== "unexpectedCase")
+                  .map((key) => ({
+                    key,
+                    label: STATUS_LABELS[key],
+                    color: STATUS_COLOR[key],
+                    sort: 0,
+                  }))}
+                selectedSeriesKeys={
+                  (filters
+                    .find((filter) => filter.id === "status")
+                    ?.predicates.map((p) => p.id) ?? []) as Status[]
+                }
                 onXClick={(bucket) =>
                   addFilter("timeBucket", bucket, (inspection) => {
                     const id = getTimeBucket(getDaysUntil(inspection.dueDate));
@@ -272,11 +309,11 @@ export function EuInspectionDashboard({ items }: Props) {
             subtitle="List of inspection records matching time bucket and filters."
             action={
               <IconLink
-                className="text-[13px] text-accent hover:text-accent-strong p-1"
+                className="text-sm text-accent hover:text-accent-strong"
                 href={workspaceHref()}
                 icon={<GoTo size={14} />}
               >
-                Drill to workspace
+                View details
               </IconLink>
             }
           />

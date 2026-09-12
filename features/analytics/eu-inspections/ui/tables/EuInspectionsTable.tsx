@@ -33,14 +33,21 @@ export function EuInspectionsTable({ rows }: Props) {
   const remaining = rows.length - visible.length;
 
   return (
-    <table className="w-full text-sm [&_td]:h-10">
+    <table
+      className="
+        w-full table-fixed [&_td]:px-2 [&_th]:px-2 [&_td]:truncate text-sm
+        text-sm [&_th]:h-10 [&_td]:h-10
+    "
+    >
       <thead>
         <tr className="border-b border-extra-faint text-[13px] text-subtle">
-          <th className="p-2 font-normal text-start">Vehicle</th>
-          <th className="p-2 font-normal text-start">Status</th>
-          <th className="p-2 font-normal text-start">Due date</th>
-          <th className="p-2 font-normal text-start">Next inspection at</th>
-          <th className="p-2 font-normal text-start">Responsible</th>
+          <th className="font-normal text-start w-2/12">Vehicle</th>
+          <th className="font-normal text-start w-3/12">Status</th>
+          <th className="font-normal text-start w-2/12">Due date</th>
+          <th className="font-normal text-start w-2/12 truncate">
+            New attempt at
+          </th>
+          <th className="font-normal text-start w-3/12">Responsible</th>
         </tr>
       </thead>
       <tbody>
@@ -57,20 +64,26 @@ export function EuInspectionsTable({ rows }: Props) {
                 remaining === 0 && i === visible.length - 1 && "border-none",
               )}
             >
-              <td className="p-2 tabular-nums">{row.vehicle.plateNumber}</td>
-              <td className="p-2">
-                <span className={cn("badge", `badge--${STATUS_COLOR[status]}`)}>
+              <td className="tabular-nums">{row.vehicle.plateNumber}</td>
+              <td className="min-w-0 truncate">
+                <span
+                  className={cn(
+                    "badge",
+                    `badge--${STATUS_COLOR[status]}`,
+                    "truncate",
+                  )}
+                >
                   {STATUS_LABELS[status]}
                 </span>
               </td>
-              <td className="p-2 tabular-nums">
+              <td className="tabular-nums">
                 {formatDate(row.dueDate)}
                 {daysUntil < 0 && " (overdue)"}
               </td>
-              <td className="p-2 tabular-nums">
+              <td className="tabular-nums">
                 {nextInspectionAt ? formatDate(nextInspectionAt) : "N/A"}
               </td>
-              <td className="p-2">{row.vehicle.employee?.name ?? "—"}</td>
+              <td className="">{row.vehicle.employee?.name ?? "—"}</td>
             </tr>
           );
         })}

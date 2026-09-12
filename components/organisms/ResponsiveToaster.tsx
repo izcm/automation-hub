@@ -30,13 +30,13 @@ export function ResponsiveToaster() {
       closeButton
       // richColors
       // hotkey={["KeyK"]}
-      // toastOptions={{
-      //   classNames: {
-      //     toast: "rounded-xl shadow-[var(--panel-shadow)]",
-      //     title: "text-sm font-semibold",
-      //     description: "text-xs opacity-70",
-      //   },
-      // }}
+      toastOptions={{
+        classNames: {
+          toast: "rounded-xl shadow-[var(--panel-shadow)]",
+          title: "text-sm font-semibold",
+          description: "text-sm opacity-70",
+        },
+      }}
     />
   );
 }
