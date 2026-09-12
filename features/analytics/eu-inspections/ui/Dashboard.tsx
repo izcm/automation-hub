@@ -24,7 +24,7 @@ import {
 import { applyFilters, Filter } from "@/features/filtering/filter";
 
 import { EuInspectionsKPIs } from "./cards/EuInspectionsKPIs";
-import { InspectionsBarChart } from "./charts/InspectionsBarChart";
+import { InteractiveBarChart } from "../../ui/InteractiveBarChart";
 
 import { EuInspectionsTable } from "./tables/EuInspectionsTable";
 import { ResponsibleEmployeesTable } from "./tables/ResponsibleEmployeesTable";
@@ -141,8 +141,6 @@ export function EuInspectionDashboard({ items }: Props) {
     .map((row) => row.id);
 
   // time bucket and bar chart stuff
-  const timeBucketRows = aggregateByTimeBucket(filteredItems);
-
   const allTimeBucketEntries = aggregateByTimeBucket(items);
   const filteredTimeBucketRows = aggregateByTimeBucket(
     applyFilters(
@@ -150,6 +148,12 @@ export function EuInspectionDashboard({ items }: Props) {
       filters.filter((filter) => filter.id !== "timeBucket"),
     ),
   );
+
+  // selected catrgories = selected time buckets ->
+  // read from filters
+  const selectedTimeBuckets = filters
+    .filter((filter) => filter.id === "timeBucket")
+    .flatMap((filter) => filter.predicates.map((p) => p.id));
 
   const today = new Date();
   const in30Days = new Date(today);
@@ -212,9 +216,10 @@ export function EuInspectionDashboard({ items }: Props) {
                 xl:flex-row xl:gap-4 lg:gap-3
                 h-64 lg:h-80"
             >
-              <InspectionsBarChart
+              <InteractiveBarChart
                 rows={allTimeBucketEntries}
                 filteredRows={filteredTimeBucketRows}
+                dataKey="timeBucket"
                 series={(Object.keys(STATUS_INFO) as Status[])
                   .filter((status) => status !== "unexpectedCase")
                   .map((key) => ({
@@ -228,6 +233,7 @@ export function EuInspectionDashboard({ items }: Props) {
                     .find((filter) => filter.id === "status")
                     ?.predicates.map((p) => p.id) ?? []) as Status[]
                 }
+                selectedCategories={selectedTimeBuckets}
                 onXClick={(bucket) =>
                   addFilter("timeBucket", bucket, (inspection) => {
                     const id = getTimeBucket(getDaysUntil(inspection.dueDate));

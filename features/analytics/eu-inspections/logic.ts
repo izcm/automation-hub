@@ -11,6 +11,12 @@ import type { EmployeeInspectionRow } from "./ui/tables/ResponsibleEmployeesTabl
 export * from "@/features/eu-inspections/logic/status";
 import { getInspectionStatus } from "@/features/eu-inspections/logic/status";
 
+// getTimeBucket/TimeBucket moved to lib/time-bucket.ts — it's a pure
+// number-in/string-out function with no eu-inspections domain coupling.
+// Re-exported here so existing imports from "../logic" keep working.
+export * from "@/lib/time-bucket";
+import { getTimeBucket } from "@/lib/time-bucket";
+
 // one row per employee responsible for a vehicle, tallying their inspections
 // by state. Inspections with no responsible employee are skipped — nobody
 // to attribute them to in this table. Capped to the top 4 by due count so
@@ -81,15 +87,6 @@ export function aggregateByEmployee(
   );
 
   return [...top, others];
-}
-
-export type TimeBucket = "1-7 days" | "8-14 days" | "15-21 days" | "22-30 days";
-
-export function getTimeBucket(daysUntil: number): TimeBucket {
-  if (daysUntil <= 7) return "1-7 days";
-  if (daysUntil <= 14) return "8-14 days";
-  if (daysUntil <= 21) return "15-21 days";
-  return "22-30 days";
 }
 
 export function aggregateByTimeBucket(rows: EuInspectionRow[]) {

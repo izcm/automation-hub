@@ -4,19 +4,14 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Rectangle,
   ResponsiveContainer,
   Tooltip,
   XAxis,
+  YAxis,
   type DataKey,
 } from "recharts";
-import type { EuInspectionRow } from "@/features/eu-inspections";
 import { cn } from "@/lib/cn";
-import { STATUS_COLOR, STATUS_LABELS, type Status } from "../../logic";
-
-// one row per time bucket — a count per Status, plus which bucket it is.
-// the specific bucket labels (e.g. "1-7 days") are Dashboard's concern, not
-// this chart's — it just needs something to put on the x-axis.
-type TimeBucketRow = Record<Status, number> & { timeBucket: string };
 
 type Series<T> = {
   key: Extract<DataKey<T, number>, string>;
@@ -100,10 +95,11 @@ function ChartTooltip({
   );
 }
 
-export function InspectionsBarChart<T>({
+export function InteractiveBarChart<T>({
   rows,
   filteredRows,
-  series, // series
+  series,
+  dataKey,
   selectedCategories = [],
   selectedSeriesKeys = [],
   onXClick,
@@ -112,33 +108,41 @@ export function InspectionsBarChart<T>({
   rows: T[];
   filteredRows: T[];
   series: Series<T>[];
+  dataKey: Extract<DataKey<T>, string>;
+  selectedCategories?: string[];
+  selectedSeriesKeys?: Series<T>["key"][];
   onXClick?: (value: string) => void;
   onLegendClick?: (value: string) => void;
-  selectedCategories?: (keyof typeof STATUS_LABELS)[];
-  selectedSeriesKeys?: Series<T>["key"][];
 }) {
-  // all legends are relevant unless there is a selection and it is NOT included in that selection
+  // all series are relevant unless there is a selection and it is NOT included in that selection
   // no selection -> all are relevant, even if there are 0 filtered items with cette status
-  // const relevantLegends = CHART_STATUSES.filter((status) =>
-  //   (selectedCategories.length > 0 ? selectedCategories : allLegends).includes(
-  //     status,
-  //   ),
-  // );
-
   const relevantSeries = series.filter((serie) =>
     selectedSeriesKeys.length > 0
       ? selectedSeriesKeys.includes(serie.key)
       : true,
   );
 
+  const zeroedCounts = Object.fromEntries(series.map((s) => [s.key, 0]));
+
+  const chartData = rows.map((row) => {
+    const key = dataKey as keyof T;
+    const filtered = filteredRows.find((fr) => fr[key] === row[key]);
+    return filtered ?? { ...row, ...zeroedCounts };
+  });
+
+  // x axis selection -> same relevance criteria as series: no selection
+  // means everything is relevant, otherwise only the selected buckets are
+  const isCategoryRelevant = (value: string) =>
+    selectedCategories.length === 0 || selectedCategories.includes(value);
+
   console.log(relevantSeries);
   return (
     <>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={rows} barCategoryGap="30%">
+        <BarChart data={chartData} barCategoryGap="30%">
           <CartesianGrid vertical={false} stroke="var(--extra-faint)" />
           <XAxis
-            dataKey="timeBucket"
+            dataKey={dataKey}
             axisLine={false}
             tickLine={false}
             tick={({ x, y, payload }) => (
@@ -148,9 +152,9 @@ export function InspectionsBarChart<T>({
                 dy={16}
                 textAnchor="middle"
                 fill={
-                  relevantSeries.includes(payload.value)
+                  isCategoryRelevant(payload.value)
                     ? "var(--subtle)"
-                    : "var(--accent)"
+                    : "var(--faint)"
                 }
                 fontSize={12}
                 style={{ cursor: "pointer" }}
@@ -159,6 +163,12 @@ export function InspectionsBarChart<T>({
                 {payload.value}
               </text>
             )}
+          />
+          <YAxis
+            axisLine={false}
+            tickLine={false}
+            allowDecimals={false}
+            tick={{ fill: "var(--subtle)", fontSize: 12 }}
           />
           <Tooltip
             cursor={{ fill: "var(--accent)", opacity: 0.06 }}
@@ -169,9 +179,21 @@ export function InspectionsBarChart<T>({
               key={serie.key}
               dataKey={serie.key}
               name={serie.label}
-              stackId="status"
+              stackId="stack"
               fill={`var(--${serie.color})`}
               radius={i === all.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+              shape={(props) => {
+                const value = props.payload[dataKey] as string;
+                return (
+                  <Rectangle
+                    {...props}
+                    fillOpacity={isCategoryRelevant(value) ? 1 : 0.0}
+                    stroke={isCategoryRelevant(value) ? "none" : "var(--muted)"}
+                    strokeOpacity={0.2}
+                    strokeDasharray={8}
+                  />
+                );
+              }}
             />
           ))}
         </BarChart>
@@ -179,7 +201,7 @@ export function InspectionsBarChart<T>({
 
       <BarChartLegend
         series={series}
-        relevantKeys={Object.keys(relevantSeries)}
+        relevantKeys={relevantSeries.map((serie) => serie.key)}
         onClick={onLegendClick}
       />
     </>
