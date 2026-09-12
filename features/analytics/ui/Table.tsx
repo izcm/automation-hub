@@ -10,12 +10,19 @@ type TableRow<T> = {
   stats: T | undefined;
 };
 
+// column relevance — separate from row selection (selectedIds). Empty/omitted
+// means everything is relevant; otherwise a key (or any of several keys) is
+// relevant only if it's in this list. Purely a helper handed to getCells —
+// Table doesn't know what the keys mean or how to render "not relevant".
+type IsRelevant = (keys: string | string[]) => boolean;
+
 type TableProps<T> = {
   rows: TableRow<T>[];
   headers: ReactNode[]; // passing headers as react node so we easier can set width on columns
   selectedIds: string[];
+  relevantColumns?: string[];
   createEmpty: () => T;
-  getCells: (stats: T) => ReactNode[];
+  getCells: (stats: T, isRelevant: IsRelevant) => ReactNode[];
   onRowClick?: (row: TableRow<T>) => void;
   className?: string;
 };
@@ -35,12 +42,19 @@ export function Table<T>({
   headers,
   getCells,
   selectedIds,
+  relevantColumns,
   createEmpty,
   onRowClick,
   className,
 }: TableProps<T>) {
   const hasSelection = selectedIds.length > 0;
 
+  const isRelevant: IsRelevant = (keys) =>
+    !relevantColumns ||
+    relevantColumns.length === 0 ||
+    (Array.isArray(keys) ? keys : [keys]).some((key) =>
+      relevantColumns.includes(key),
+    );
   return (
     <table className={cn("text-sm [&_th]:h-12 [&_td]:h-12", className)}>
       <thead>
@@ -61,7 +75,7 @@ export function Table<T>({
           const stats = active ? (row.stats ?? createEmpty()) : undefined;
 
           const cells = stats
-            ? getCells(stats)
+            ? getCells(stats, isRelevant)
             : // asssumes first header is the row label
               headers.slice(1).map((_, i) => (
                 <span key={i} className="text-subtle">

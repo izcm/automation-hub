@@ -155,6 +155,10 @@ export function EuInspectionDashboard({ items }: Props) {
     .filter((filter) => filter.id === "timeBucket")
     .flatMap((filter) => filter.predicates.map((p) => p.id));
 
+  const selectedStatuses = filters
+    .filter((filter) => filter.id === "status")
+    .flatMap((filter) => filter.predicates.map((p) => p.id));
+
   const today = new Date();
   const in30Days = new Date(today);
   in30Days.setDate(today.getDate() + 30);
@@ -282,6 +286,7 @@ export function EuInspectionDashboard({ items }: Props) {
               }
               rows={allEmployeeRows}
               filteredRows={filteredEmployeeRows}
+              relevantColumns={selectedStatuses}
               onRowClick={(id) =>
                 addFilter(
                   "responsible",
