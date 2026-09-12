@@ -1,87 +1,83 @@
-import { Calendar } from "@/components/icons";
-import type { EuInspectionRow } from "@/features/eu-inspections";
-import { countFieldValues } from "../../../logic/count";
+import type { EuInspectionRow } from "../../types";
 
+import { countFieldValues } from "../../../logic/count";
 import {
   getInspectionStatus,
   STATUS_COLOR,
   STATUS_LABELS,
-  type StatusColor,
+  type Status,
 } from "../../logic";
-import { KPI, type KPIProps } from "../../../ui/KPI";
-
-// zero of a real problem (advisory/caution/critical) is a good outcome —
-// don't let it look alarming. "empty", not "neutral": neutral is itself a
-// real category's color (Approved's), so reusing it here would make a
-// zero-count tile look like it belongs to that category instead of just
-// having nothing to report.
-function zeroSafeColor(
-  count: number | undefined,
-  color: StatusColor,
-): NonNullable<KPIProps["color"]> {
-  return (count ?? 0) === 0 ? "empty" : color;
-}
+import { KPI, zeroSafeColor, type KPIProps } from "../../../ui/KPI";
+import { SmartKPIs } from "../../../ui/SmartKPIs";
 
 type Props = {
   rows: EuInspectionRow[];
+  selectedStatuses: string[];
 };
 
-export function EuInspectionsKPIs({ rows }: Props) {
+// the tiles that share a shape: status-driven count, color falls back to
+// "empty" at zero. "Due in period" and "Approved" don't fit this (one
+// isn't status-based, the other never zero-safes), so they stay explicit.
+const KPIS: { key: Status; label?: string; descr: string }[] = [
+  {
+    key: "approved",
+    descr: "EU inspections due in the next 30 days",
+  },
+  {
+    key: "upcoming",
+    label: "Upcoming first workshop",
+    descr: "No earlier attempt, and has an upcoming booking.",
+  },
+  {
+    key: "rejectedBooked",
+    descr: "Rejected, but a new workshop is already booked.",
+  },
+  {
+    key: "rejectedUnbooked",
+    descr: "Rejected, and nothing new is booked yet.",
+  },
+  {
+    key: "unresolved",
+    descr: "No attempts, no booking. Just closing due.",
+  },
+];
+
+// turns the ZERO_SAFE_KPIS registry into the (KPIProps & {key})[] shape
+// SmarterKPIs wants, resolving each entry's value/color against live counts.
+function toKpiProps(
+  counts: ReturnType<typeof countFieldValues<{ state: string }, "state">>,
+): (KPIProps & { key: string })[] {
+  return KPIS.map(({ key: status, label, descr }) => ({
+    key: status,
+    title: label ?? STATUS_LABELS[status],
+    value: counts[status],
+    color: zeroSafeColor(counts[status], STATUS_COLOR[status]),
+    descr,
+  }));
+}
+
+export function EuInspectionsKPIs({ rows, selectedStatuses }: Props) {
   const inspectionStateCounts = countFieldValues(
     rows.map((item) => ({ state: getInspectionStatus(item) })),
     "state",
   );
 
+  const relevantStatuses =
+    selectedStatuses.length > 0 ? [...selectedStatuses, "due"] : [];
+
   return (
     <>
+      {}
       <KPI
-        label="Due in period"
+        title="Due in period"
         value={rows.length}
         color="neutral"
         descr="EU inspections due in the next 30 days"
       />
-      <KPI
-        label={STATUS_LABELS.approved}
-        value={inspectionStateCounts.approved}
-        color={STATUS_COLOR.approved}
-        descr="Latest attempt was approved."
-      />
 
-      <KPI
-        label="Upcoming first workshop"
-        value={inspectionStateCounts.upcoming}
-        color={zeroSafeColor(
-          inspectionStateCounts.upcoming,
-          STATUS_COLOR.upcoming,
-        )}
-        descr="No earlier attempt, and has an upcoming booking."
-      />
-      <KPI
-        label={STATUS_LABELS.rejectedBooked}
-        value={inspectionStateCounts.rejectedBooked}
-        color={zeroSafeColor(
-          inspectionStateCounts.rejectedBooked,
-          STATUS_COLOR.rejectedBooked,
-        )}
-        descr="Rejected, but a new workshop is already booked."
-      />
-      <KPI
-        label={STATUS_LABELS.rejectedUnbooked}
-        value={inspectionStateCounts.rejectedUnbooked}
-        color={zeroSafeColor(
-          inspectionStateCounts.rejectedUnbooked,
-          STATUS_COLOR.rejectedUnbooked,
-        )}
-        descr="Rejected, and nothing new is booked yet."
-      />
-      <KPI
-        label={STATUS_LABELS.unresolved}
-        value={inspectionStateCounts.unresolved}
-        color={zeroSafeColor(
-          inspectionStateCounts.unresolved,
-          STATUS_COLOR.unresolved,
-        )}
-        descr="No attempts, no booking. Just closing due."
+      <SmartKPIs
+        kpis={toKpiProps(inspectionStateCounts)}
+        relevantKeys={relevantStatuses}
       />
     </>
   );

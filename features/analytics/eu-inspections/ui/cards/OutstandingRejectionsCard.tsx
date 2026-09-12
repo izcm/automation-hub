@@ -1,27 +1,16 @@
 import { cn } from "@/lib/cn";
 import { Calendar, Info } from "@/components/icons";
-import type { EuInspectionRow } from "@/features/eu-inspections";
+import type { EuInspectionRow } from "../../types";
 import { getInspectionStatus } from "../../logic";
 
 type Props = {
   inspectionRows: EuInspectionRow[];
+  relevant: boolean;
 };
 
-function formatDateRange(from: Date, to: Date): string {
-  const fmt = (d: Date) =>
-    d.toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  return `${fmt(from)} – ${fmt(to)}`;
-}
-
-// note: inspectionRows isn't actually filtered by due date yet — both
-// counts below are computed from the same "next 30 days" set the rest of
-// this dashboard gets. This is UI-only for now: once the dashboard has an
-// unfiltered, all-time feed, "across all due dates" should read from that.
-export function OutstandingRejectionsCard({ inspectionRows }: Props) {
+// relevant -> the data actually means something
+// !relevant -> showing data is confusing because of filters set
+export function OutstandingRejectionsCard({ inspectionRows, relevant }: Props) {
   const today = new Date();
   const in30Days = new Date(today);
   in30Days.setDate(today.getDate() + 30);
@@ -42,10 +31,12 @@ export function OutstandingRejectionsCard({ inspectionRows }: Props) {
           <span
             className={cn(
               "text-5xl font-semibold",
-              rejected.length === 0 ? "text-subtle" : "text-failure",
+              rejected.length === 0 || !relevant
+                ? "text-subtle"
+                : "text-failure",
             )}
           >
-            {rejected.length}
+            {relevant ? rejected.length : "–"}
           </span>
           <p className="text-sm font-medium">Across all due dates</p>
           <p className="text-xs text-subtle">
@@ -62,8 +53,14 @@ export function OutstandingRejectionsCard({ inspectionRows }: Props) {
               dueInPeriod.length === 0 && "text-subtle",
             )}
           >
-            <Calendar size={20} className="text-subtle" />
-            {dueInPeriod.length}
+            {relevant ? (
+              <>
+                <Calendar size={20} className="text-subtle" />
+                {dueInPeriod.length}
+              </>
+            ) : (
+              "–"
+            )}
           </span>
           <p className="text-sm font-medium">Within dashboard selection</p>
           <p className="text-xs text-subtle"></p>

@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/cn";
-import type { EuInspectionRow } from "@/features/eu-inspections";
+import type { EuInspectionRow } from "../../types";
 import { getDaysUntil } from "@a2zb/lib";
 import { getInspectionStatus, STATUS_COLOR, STATUS_LABELS } from "../../logic";
 

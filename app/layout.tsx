@@ -42,7 +42,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Providers>
           <>
             <GlobalShortcuts />
-            <Sidebar />
+            {/* <Sidebar /> */}
             <main
               id="main-content"
               tabIndex={-1}

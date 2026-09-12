@@ -8,7 +8,7 @@ import { cn } from "@/lib/cn";
 import { Calendar, ChevronRight, GoTo } from "@/components/icons";
 import { FilterChips, PanelHeader } from "@/components/molecules";
 
-import { EuInspectionRow } from "@/features/eu-inspections";
+import { EuInspectionRow } from "../types";
 
 import {
   aggregateByEmployee,
@@ -201,7 +201,10 @@ export function EuInspectionDashboard({ items }: Props) {
       </div>
 
       <div className="grid grid-cols-3 gap-3">
-        <EuInspectionsKPIs rows={filteredItems} />
+        <EuInspectionsKPIs
+          rows={filteredItems}
+          selectedStatuses={selectedStatuses}
+        />
       </div>
 
       {/* FILTER APPLIERS */}
@@ -260,21 +263,6 @@ export function EuInspectionDashboard({ items }: Props) {
           <PanelHeader
             heading="Employee responsible"
             subtitle="Inspections grouped by the responsible employee."
-            action={
-              filters.some((filter) => filter.id === "responsible") && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setFilters((current) =>
-                      current.filter((filter) => filter.id !== "responsible"),
-                    )
-                  }
-                  className="text-sm text-accent hover:text-accent-strong"
-                >
-                  Clear filter
-                </button>
-              )
-            }
           />
 
           <div className={"h-80"}>
@@ -347,7 +335,13 @@ export function EuInspectionDashboard({ items }: Props) {
             subtitle="Rejected inspections with no new workshop booked."
           />
 
-          <OutstandingRejectionsCard inspectionRows={filteredItems} />
+          <OutstandingRejectionsCard
+            inspectionRows={filteredItems}
+            relevant={
+              selectedStatuses.length === 0 ||
+              selectedStatuses.includes("rejectedUnbooked")
+            }
+          />
 
           <Link
             href={workspaceHref({ status: "rejectedUnbooked" })}

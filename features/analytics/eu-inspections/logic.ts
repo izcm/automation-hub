@@ -1,4 +1,4 @@
-import type { EuInspectionRow } from "@/features/eu-inspections";
+import type { EuInspectionRow } from "./types";
 import { getDaysUntil } from "@a2zb/lib";
 
 import { aggregateBy } from "../logic/aggregate";

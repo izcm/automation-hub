@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 export type KPIProps = {
-  label: string;
+  title: ReactNode;
   // undefined here usually means "zero matches" (e.g. countFieldValues
   // only sets keys that occurred at least once) — <span>{undefined}</span>
   // renders blank, not "0", so it falls back to `fallback` instead.
@@ -20,8 +20,20 @@ export type KPIProps = {
   // never for "neutral" — neutral is itself a real category's color (e.g.
   // Approved), and reusing it for "zero of something else" makes that
   // something else look like it IS the neutral category, which it isn't.
-  color?: "neutral" | "pending" | "advisory" | "caution" | "critical" | "empty";
+  color: "neutral" | "pending" | "advisory" | "caution" | "critical" | "empty";
 };
+
+// zero of a real problem (advisory/caution/critical) is a good outcome —
+// don't let it look alarming. "empty", not "neutral": neutral is itself a
+// real category's color (Approved's), so reusing it here would make a
+// zero-count tile look like it belongs to that category instead of just
+// having nothing to report.
+export function zeroSafeColor(
+  count: number | undefined,
+  color: KPIProps["color"],
+): NonNullable<KPIProps["color"]> {
+  return (count ?? 0) === 0 ? "empty" : color;
+}
 
 const kpiColorClasses: Record<NonNullable<KPIProps["color"]>, string> = {
   neutral: "border-neutral/20 bg-neutral/2 border-l-neutral/80",
@@ -33,9 +45,9 @@ const kpiColorClasses: Record<NonNullable<KPIProps["color"]>, string> = {
 };
 
 export function KPI({
-  label,
+  title: label,
   value,
-  fallback = 0,
+  fallback = "0", // should be – when irrelevant, 0 when relevant
   color = "empty",
   descr,
 }: KPIProps) {
