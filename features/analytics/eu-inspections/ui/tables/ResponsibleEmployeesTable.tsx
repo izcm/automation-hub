@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn";
-import { Table } from "@/features/analytics/ui/Table";
+import { Table, th } from "@/features/analytics/ui/Table";
 
 export type EmployeeInspectionRow = {
   id: string;
@@ -32,15 +32,38 @@ export function ResponsibleEmployeesTable({
 
   return (
     <Table
-      headers={["Employee", "Due", "Approved", "Rejected", "Unresolved"]}
+      headers={[
+        <th key="employee" className={`${th} w-1/3`}>
+          Employee
+        </th>,
+        <th key="due" className={th}>
+          Due
+        </th>,
+        <th key="approved" className={`${th} truncate`}>
+          Approved
+        </th>,
+        <th key="rejected" className={`${th} w-1/4`}>
+          Rejected
+        </th>,
+        <th key="unresolved" className={`${th} truncate`}>
+          Unresolved
+        </th>,
+      ]}
       rows={displayRows}
+      createEmpty={() => ({
+        due: 0,
+        rejected: 0,
+        approved: 0,
+        rejectedBooked: 0,
+        unresolved: 0,
+      })}
       selectedIds={selectedIds}
       getCells={(stats) => [
         <span key="due" className="tabular-nums">
           {stats.due}
         </span>,
 
-        <span key="approved" className="tabular-nums">
+        <span key="approved" className="tabular-nums text-subtle">
           {stats.approved}
         </span>,
 
@@ -79,7 +102,7 @@ export function ResponsibleEmployeesTable({
         </span>,
       ]}
       onRowClick={(row) => onRowClick?.(row.id)}
-      className={"w-full [&_td]:px-2 [&_th]:px-2"}
+      className={"w-full table-fixed [&_td]:px-2 [&_th]:px-2 [&_td]:truncate"}
     />
   );
 }

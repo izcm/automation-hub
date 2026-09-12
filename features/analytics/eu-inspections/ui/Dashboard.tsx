@@ -110,8 +110,17 @@ export function EuInspectionDashboard({ items }: Props) {
     [filters, items],
   );
 
+  // ALL employees — keeps the employee list stable
   const allEmployeeRows = aggregateByEmployee(items);
-  const filteredEmployeeRows = aggregateByEmployee(filteredItems);
+
+  // filter employees without "responsible" filter
+  // (its own dimension)
+  const filteredEmployeeRows = aggregateByEmployee(
+    applyFilters(
+      items,
+      filters.filter((filter) => filter.id !== "responsible"),
+    ),
+  );
 
   const topEmployeeIds = filteredEmployeeRows
     .filter((row) => row.id !== "others")
@@ -224,10 +233,9 @@ export function EuInspectionDashboard({ items }: Props) {
           <div className={"h-80"}>
             <ResponsibleEmployeesTable
               selectedIds={
-                filteredEmployeeRows !== undefined &&
-                filteredEmployeeRows.length > 0
-                  ? [filteredEmployeeRows[0]!.id]
-                  : []
+                filters
+                  .find((filter) => filter.id === "responsible")
+                  ?.predicates.map((p) => p.id) ?? []
               }
               rows={allEmployeeRows}
               filteredRows={filteredEmployeeRows}

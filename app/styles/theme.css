@@ -16,6 +16,36 @@
      no, not yet — scheduled for later. These don't rank against family 1. */
   --color-neutral: var(--neutral);
   --color-pending: var(--pending);
+
+  /* weak = same base color, --weak-opacity applied (theme-tuned, see below) */
+  --success-weak: color-mix(
+    in oklab,
+    var(--success) var(--weak-opacity),
+    transparent
+  );
+  --warning-weak: color-mix(
+    in oklab,
+    var(--warning) var(--weak-opacity),
+    transparent
+  );
+  --failure-weak: color-mix(
+    in oklab,
+    var(--failure) var(--weak-opacity),
+    transparent
+  );
+  --neutral-weak: color-mix(
+    in oklab,
+    var(--neutral) var(--weak-opacity),
+    transparent
+  );
+  --advisory-weak: var(--success-weak);
+  --caution-weak: var(--warning-weak);
+  --critical-weak: var(--failure-weak);
+  --pending-weak: color-mix(
+    in oklab,
+    var(--pending) var(--weak-opacity),
+    transparent
+  );
 }
 
 :root[data-theme="dark"] {
@@ -69,19 +99,17 @@
   --failure: #e0435f;
   --neutral: #5f7290;
 
+  --weak-opacity: 12%;
+
   /* family 1 — attention levels, same colors as success/warning/failure above */
   --advisory: var(--success);
-  --advisory-weak: color-mix(in oklab, var(--success) 12%, transparent);
   --caution: var(--warning);
-  --caution-weak: color-mix(in oklab, var(--warning) 12%, transparent);
   --critical: var(--failure);
-  --critical-weak: color-mix(in oklab, var(--failure) 12%, transparent);
 
   /* family 2 — not-actionable info. "neutral" already defined above (gray).
      "pending" reuses accent-neutral — a blue distinct from --accent itself,
      since accent is this app's general-purpose chrome color, not a status. */
   --pending: var(--accent-neutral);
-  --pending-weak: color-mix(in oklab, var(--accent-neutral) 12%, transparent);
 
   --panel-shadow:
     0 1px 2px rgba(15, 21, 28, 0.04), 0 8px 24px rgba(15, 21, 28, 0.06);
@@ -115,33 +143,25 @@
   --accent-neutral: #7fb0ff;
   --accent-neutral-weak: rgba(127, 176, 255, 0.5);
 
+  --weak-opacity: 18%;
+
   /* status */
   --success: #4cff9a;
-  --success-weak: rgba(76, 255, 154, 0.18);
-
   --warning: #ffc12f;
-  --warning-weak: rgba(255, 193, 47, 0.18);
-
   --failure: #ff5470;
-  --failure-weak: rgba(255, 84, 112, 0.18);
 
   /* family 1 — attention levels, same colors as success/warning/failure above */
   --advisory: var(--success);
-  --advisory-weak: var(--success-weak);
   --caution: var(--warning);
-  --caution-weak: var(--warning-weak);
   --critical: var(--failure);
-  --critical-weak: var(--failure-weak);
 
   /* family 2 — not-actionable info. "neutral" = done/resolved (gray).
      "pending" = not yet — scheduled for later; reuses accent-neutral, a
      blue distinct from --accent itself, since accent is this app's
      general-purpose chrome color, not a status. */
   --neutral: #91a7b8;
-  --neutral-weak: rgba(145, 167, 184, 0.2);
 
   --pending: var(--accent-neutral);
-  --pending-weak: var(--accent-neutral-weak);
 
   --panel-shadow:
     0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(91, 157, 255, 0.06);

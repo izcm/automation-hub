@@ -65,10 +65,8 @@ export function OutstandingRejectionsCard({ inspectionRows }: Props) {
             <Calendar size={20} className="text-subtle" />
             {dueInPeriod.length}
           </span>
-          <p className="text-sm font-medium">Due in selected time bucket.</p>
-          <p className="text-xs text-subtle">
-            ({formatDateRange(today, in30Days)})
-          </p>
+          <p className="text-sm font-medium">Within dashboard selection</p>
+          <p className="text-xs text-subtle"></p>
         </div>
       </div>
     </>

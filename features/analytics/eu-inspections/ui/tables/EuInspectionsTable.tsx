@@ -33,7 +33,7 @@ export function EuInspectionsTable({ rows }: Props) {
   const remaining = rows.length - visible.length;
 
   return (
-    <table className="w-full h-full text-sm">
+    <table className="w-full text-sm [&_td]:h-10">
       <thead>
         <tr className="border-b border-extra-faint text-[13px] text-subtle">
           <th className="p-2 font-normal text-start">Vehicle</th>
@@ -57,7 +57,7 @@ export function EuInspectionsTable({ rows }: Props) {
                 remaining === 0 && i === visible.length - 1 && "border-none",
               )}
             >
-              <td className="p-2">{row.vehicle.plateNumber}</td>
+              <td className="p-2 tabular-nums">{row.vehicle.plateNumber}</td>
               <td className="p-2">
                 <span className={cn("badge", `badge--${STATUS_COLOR[status]}`)}>
                   {STATUS_LABELS[status]}
