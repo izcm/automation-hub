@@ -8,6 +8,8 @@ import { cn } from "@/lib/cn";
 import { Calendar, ChevronRight, GoTo } from "@/components/icons";
 import { FilterChips, PanelHeader } from "@/components/molecules";
 
+import { applyFilters, Filter } from "@/features/filtering/filter";
+
 import { EuInspectionRow } from "../types";
 
 import {
@@ -20,8 +22,6 @@ import {
   STATUS_LABELS,
   type Status,
 } from "../logic";
-
-import { applyFilters, Filter } from "@/features/filtering/filter";
 
 import { EuInspectionsKPIs } from "./cards/EuInspectionsKPIs";
 import { InteractiveBarChart } from "../../ui/InteractiveBarChart";
@@ -142,6 +142,7 @@ export function EuInspectionDashboard({ items }: Props) {
 
   // time bucket and bar chart stuff
   const allTimeBucketEntries = aggregateByTimeBucket(items);
+
   const filteredTimeBucketRows = aggregateByTimeBucket(
     applyFilters(
       items,
@@ -160,8 +161,8 @@ export function EuInspectionDashboard({ items }: Props) {
     .flatMap((filter) => filter.predicates.map((p) => p.id));
 
   const today = new Date();
-  const in30Days = new Date(today);
-  in30Days.setDate(today.getDate() + 30);
+  const in8Weeks = new Date(today);
+  in8Weeks.setDate(today.getDate() + 56);
 
   const workspaceHref = (extra: Record<string, string | string[]> = {}) => {
     const params = toQueryParams({ ...filterObj, ...extra });
@@ -173,10 +174,10 @@ export function EuInspectionDashboard({ items }: Props) {
       {/* HEADER & FILTER CHIPS */}
       <div className="flex justify-between h-8">
         <h2 className="font-semibold inline-flex items-center gap-3">
-          EU Inspections dues next 30 days{" "}
+          EU Inspections dues next 8 weeks{" "}
           <span className="text-xs text-subtle tabular-nums inline-flex gap-1">
             <Calendar size={14} />
-            {formatDateRange(today, in30Days)}
+            {formatDateRange(today, in8Weeks)}
           </span>
         </h2>
 
@@ -208,53 +209,52 @@ export function EuInspectionDashboard({ items }: Props) {
       </div>
 
       {/* FILTER APPLIERS */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 items-center">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-center">
         {/* BARCHART */}
-        <div>
-          <div className={panel}>
-            <PanelHeader
-              heading="Upcoming inspections bye due date"
-              subtitle="Total inspections due split by status."
-            />
 
-            <div
-              className="
+        <div className={panel}>
+          <PanelHeader
+            heading="Inspection timeline"
+            subtitle="Inspections grouped by due date and status."
+          />
+
+          <div
+            className="
                 flex flex-col
-                xl:flex-row xl:gap-4 lg:gap-3
+                lg:flex-row lg:gap-4 lg:gap-3
                 h-64 lg:h-80"
-            >
-              <InteractiveBarChart
-                rows={allTimeBucketEntries}
-                filteredRows={filteredTimeBucketRows}
-                dataKey="timeBucket"
-                series={(Object.keys(STATUS_INFO) as Status[])
-                  .filter((status) => status !== "unexpectedCase")
-                  .map((key) => ({
-                    key,
-                    label: STATUS_LABELS[key],
-                    color: STATUS_COLOR[key],
-                    sort: 0,
-                  }))}
-                selectedSeriesKeys={
-                  (filters
-                    .find((filter) => filter.id === "status")
-                    ?.predicates.map((p) => p.id) ?? []) as Status[]
-                }
-                selectedCategories={selectedTimeBuckets}
-                onXClick={(bucket) =>
-                  addFilter("timeBucket", bucket, (inspection) => {
-                    const id = getTimeBucket(getDaysUntil(inspection.dueDate));
-                    return id === bucket;
-                  })
-                }
-                onLegendClick={(status) =>
-                  addFilter("status", status, (inspection) => {
-                    const id = getInspectionStatus(inspection);
-                    return id === status;
-                  })
-                }
-              />
-            </div>
+          >
+            <InteractiveBarChart
+              rows={allTimeBucketEntries}
+              filteredRows={filteredTimeBucketRows}
+              dataKey="timeBucket"
+              series={(Object.keys(STATUS_INFO) as Status[])
+                .filter((status) => status !== "unexpectedCase")
+                .map((key) => ({
+                  key,
+                  label: STATUS_LABELS[key],
+                  color: STATUS_COLOR[key],
+                  sort: STATUS_INFO[key].sort,
+                }))}
+              selectedSeriesKeys={
+                (filters
+                  .find((filter) => filter.id === "status")
+                  ?.predicates.map((p) => p.id) ?? []) as Status[]
+              }
+              selectedCategories={selectedTimeBuckets}
+              onXClick={(bucket) =>
+                addFilter("timeBucket", bucket, (inspection) => {
+                  const id = getTimeBucket(getDaysUntil(inspection.dueDate));
+                  return id === bucket;
+                })
+              }
+              onLegendClick={(status) =>
+                addFilter("status", status, (inspection) => {
+                  const id = getInspectionStatus(inspection);
+                  return id === status;
+                })
+              }
+            />
           </div>
         </div>
 
@@ -300,25 +300,31 @@ export function EuInspectionDashboard({ items }: Props) {
       </div>
 
       {/* REACTS TO FILTERS */}
-      <div className="grid grid-cols-1 xl:grid-cols-8 gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-8 gap-3">
         {/* EU INSPECTION ROWS */}
-        <div className={cn(panel, "xl:order-2 xl:col-span-5")}>
+        <div className={cn(panel, "lg:order-2 lg:col-span-5")}>
           <PanelHeader
-            heading="EU inspections"
-            subtitle="List of inspection records matching time bucket and filters."
+            heading="Inspection records"
+            subtitle="Records matching dashboard filters, ordered by due date."
             action={
               <IconLink
                 className="text-sm text-accent hover:text-accent-strong"
                 href={workspaceHref()}
                 icon={<GoTo size={14} />}
               >
-                View details
+                View in workspace
               </IconLink>
             }
           />
 
           <div className="h-64">
-            <EuInspectionsTable rows={filteredItems} />
+            <EuInspectionsTable
+              rows={filteredItems.slice(0, 4)}
+              remaining={
+                filteredItems.length - filteredItems.slice(0, 4).length
+              }
+              workspaceHref={workspaceHref()}
+            />
           </div>
         </div>
 
@@ -326,7 +332,7 @@ export function EuInspectionDashboard({ items }: Props) {
         <div
           className={cn(
             panel,
-            "xl:order-1 xl:col-span-3 xl:h-80 max-w-[500px]",
+            "lg:order-1 lg:col-span-3 max-w-[500px]",
             "flex flex-col justify-between",
           )}
         >

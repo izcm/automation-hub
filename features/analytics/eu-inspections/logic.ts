@@ -15,7 +15,7 @@ import { getInspectionStatus } from "@/features/eu-inspections/logic/status";
 // number-in/string-out function with no eu-inspections domain coupling.
 // Re-exported here so existing imports from "../logic" keep working.
 export * from "@/lib/time-bucket";
-import { getTimeBucket } from "@/lib/time-bucket";
+import { getTimeBucket, timeBuckets } from "@/lib/time-bucket";
 
 // one row per employee responsible for a vehicle, tallying their inspections
 // by state. Inspections with no responsible employee are skipped — nobody
@@ -40,7 +40,7 @@ export function aggregateByEmployee(
       approved: 0,
       rejectedBooked: 0,
       rejectedUnbooked: 0,
-      upcoming: 0,
+      firstAttempt: 0,
       unresolved: 0,
       unexpectedCase: 0,
     }),
@@ -58,6 +58,7 @@ export function aggregateByEmployee(
     rejected: entry.rejectedBooked + entry.rejectedUnbooked,
     rejectedBooked: entry.rejectedBooked,
     unresolved: entry.unresolved,
+    firstAttempt: entry.firstAttempt,
   }));
 
   const sorted = perEmployee.sort((a, b) => b.due - a.due);
@@ -74,6 +75,7 @@ export function aggregateByEmployee(
       rejected: acc.rejected + row.rejected,
       rejectedBooked: acc.rejectedBooked + row.rejectedBooked,
       unresolved: acc.unresolved + row.unresolved,
+      firstAttempt: acc.firstAttempt + row.firstAttempt,
     }),
     {
       id: "others",
@@ -83,14 +85,27 @@ export function aggregateByEmployee(
       rejected: 0,
       rejectedBooked: 0,
       unresolved: 0,
+      firstAttempt: 0,
     },
   );
 
   return [...top, others];
 }
 
+function emptyTimeBucketEntry(timeBucket: (typeof timeBuckets)[number]) {
+  return {
+    timeBucket,
+    approved: 0,
+    rejectedBooked: 0,
+    rejectedUnbooked: 0,
+    firstAttempt: 0,
+    unresolved: 0,
+    unexpectedCase: 0,
+  };
+}
+
 export function aggregateByTimeBucket(rows: EuInspectionRow[]) {
-  return aggregateBy(
+  const aggregated = aggregateBy(
     rows,
 
     // getKey – time bucket
@@ -98,19 +113,19 @@ export function aggregateByTimeBucket(rows: EuInspectionRow[]) {
 
     // create – one counter per Status, so entry[state]++ below always has
     // somewhere to land
-    (row) => ({
-      timeBucket: getTimeBucket(getDaysUntil(row.dueDate)),
-      approved: 0,
-      rejectedBooked: 0,
-      rejectedUnbooked: 0,
-      upcoming: 0,
-      unresolved: 0,
-      unexpectedCase: 0,
-    }),
+    (row) => emptyTimeBucketEntry(getTimeBucket(getDaysUntil(row.dueDate))),
 
     // aggregate
     (entry, row) => {
       entry[getInspectionStatus(row)]++;
     },
+  );
+
+  // aggregateBy only creates an entry for a bucket that actually occurs —
+  // fill in the rest as zero so every bucket always shows on the x-axis.
+  return timeBuckets.map(
+    (timeBucket) =>
+      aggregated.find((entry) => entry.timeBucket === timeBucket) ??
+      emptyTimeBucketEntry(timeBucket),
   );
 }

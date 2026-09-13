@@ -36,7 +36,7 @@ function BarChartLegend<T>({
     <ul
       className="
         flex justify-around gap-2
-        xl:flex-col xl:shrink-0 xl:justify-start
+        lg:flex-col lg:shrink-0 lg:justify-start lg:h-56
         "
     >
       {series.map((serie) => (
@@ -135,7 +135,6 @@ export function InteractiveBarChart<T>({
   const isCategoryRelevant = (value: string) =>
     selectedCategories.length === 0 || selectedCategories.includes(value);
 
-  console.log(relevantSeries);
   return (
     <>
       <ResponsiveContainer width="100%" height="100%">

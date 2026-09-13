@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import { type ReactElement, type ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 
@@ -18,7 +18,10 @@ type IsRelevant = (keys: string | string[]) => boolean;
 
 type TableProps<T> = {
   rows: TableRow<T>[];
-  headers: ReactNode[]; // passing headers as react node so we easier can set width on columns
+  // real <th> elements, not plain nodes — lets a caller set width/className
+  // per column, and lets Table itself reuse that className on the matching
+  // <td> (see headerClassNames below), without inspecting an opaque node.
+  headers: ReactElement<{ className?: string }>[];
   selectedIds: string[];
   relevantColumns?: string[];
   createEmpty: () => T;
@@ -37,6 +40,8 @@ export function defaultHeaders(labels: string[]): ReactNode[] {
   return labels.map((label) => <th key={label}>{label}</th>);
 }
 
+// remember: to hide cells pass (here third)
+// classname: "[&_tr>*:nth-child(3)]:hidden md:[&_tr>*:nth-child(3)]:table-cell"
 export function Table<T>({
   rows,
   headers,

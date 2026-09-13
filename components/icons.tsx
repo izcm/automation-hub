@@ -8,6 +8,7 @@ export {
   Sun as LightTheme,
   Moon as DarkTheme,
   Check as Confirm,
+  ClockAlert as Overdue,
   X as Cancel,
   X as Failure,
   Check as Success,

@@ -45,7 +45,7 @@ const kpiColorClasses: Record<NonNullable<KPIProps["color"]>, string> = {
 };
 
 export function KPI({
-  title: label,
+  title,
   value,
   fallback = "0", // should be – when irrelevant, 0 when relevant
   color = "empty",
@@ -58,7 +58,7 @@ export function KPI({
         kpiColorClasses[color],
       )}
     >
-      <span className="text-xs font-medium text-fg/80 truncate">{label}</span>
+      <div className="text-sm text-fg/80">{title}</div>
       <div className="flex flex-col gap-2">
         <span className="text-3xl font-semibold">{value ?? fallback}</span>
       </div>

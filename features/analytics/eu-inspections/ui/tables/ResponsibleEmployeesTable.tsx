@@ -7,6 +7,7 @@ export type EmployeeInspectionRow = {
   id: string;
   name: string;
   due: number;
+  firstAttempt: number;
   approved: number;
   rejected: number;
   rejectedBooked: number;
@@ -41,13 +42,16 @@ export function ResponsibleEmployeesTable({
         <th key="employee" className={`${th} w-1/3`}>
           Employee
         </th>,
-        <th key="due" className={th}>
-          Due
+        // <th key="due" className={th}>
+        //   Due
+        // </th>,
+        // <th key="approved" className={`${th} truncate`}>
+        //   Approved
+        // </th>,
+        <th key="firstAttempt" className={`${th} truncate`}>
+          First attempt
         </th>,
-        <th key="approved" className={`${th} truncate`}>
-          Approved
-        </th>,
-        <th key="rejected" className={`${th} w-1/4`}>
+        <th key="rejected" className={`${th}`}>
           Rejected
         </th>,
         <th key="unresolved" className={`${th} truncate`}>
@@ -61,6 +65,7 @@ export function ResponsibleEmployeesTable({
         approved: 0,
         rejectedBooked: 0,
         unresolved: 0,
+        firstAttempt: 0,
       })}
       selectedIds={selectedIds}
       getCells={(stats, isRelevant) => {
@@ -68,12 +73,22 @@ export function ResponsibleEmployeesTable({
           isRelevant(keys) ? content : <span className="text-subtle">–</span>;
 
         return [
-          <span key="due" className="tabular-nums">
-            {stats.due}
-          </span>,
+          // <span key="due" className="tabular-nums">
+          //   {stats.due}
+          // </span>,
 
-          <span key="approved" className="tabular-nums text-subtle">
-            {cell("approved", stats.approved)}
+          // <span key="approved" className="tabular-nums text-subtle">
+          //   {cell("approved", stats.approved)}
+          // </span>,
+
+          <span
+            key="firstAttempt"
+            className={cn(
+              "tabular-nums",
+              stats.firstAttempt === 0 ? "text-subtle" : "text-pending",
+            )}
+          >
+            {cell("firstAttempt", stats.firstAttempt)}
           </span>,
 
           <div key="rejected" className="flex items-center gap-3">

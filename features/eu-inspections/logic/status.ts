@@ -4,7 +4,7 @@ export type Status =
   | "approved"
   | "rejectedBooked"
   | "rejectedUnbooked"
-  | "upcoming"
+  | "firstAttempt"
   | "unresolved"
   | "unexpectedCase";
 
@@ -21,21 +21,32 @@ export type StatusColor =
   | "critical";
 
 // one shared registry instead of two parallel Records that have to be kept
-// in sync by hand — add a Status, add one entry here, done.
+// in sync by hand — add a Status, add one entry here, done. `sort` is the
+// single source of truth for display order everywhere a list of statuses
+// is shown (tables, bar chart, KPI tiles) — order them by this, not by
+// object key order, which isn't guaranteed to stay stable.
 export const STATUS_INFO: Record<
   Status,
-  { label: string; color: StatusColor }
+  { label: string; color: StatusColor; sort: number }
 > = {
-  approved: { label: "Approved", color: "neutral" },
-  rejectedBooked: { label: "Rejected (with booking)", color: "advisory" },
-  rejectedUnbooked: { label: "Rejected (no booking)", color: "critical" },
-  upcoming: { label: "Upcoming", color: "pending" },
-  unresolved: { label: "Unresolved", color: "caution" },
-  unexpectedCase: { label: "Unexpected case", color: "neutral" },
+  approved: { label: "Approved", color: "neutral", sort: 0 },
+  firstAttempt: { label: "First attempt", color: "pending", sort: 1 },
+  rejectedBooked: {
+    label: "Rejected (with booking)",
+    color: "advisory",
+    sort: 2,
+  },
+  rejectedUnbooked: {
+    label: "Rejected (no booking)",
+    color: "critical",
+    sort: 3,
+  },
+  unresolved: { label: "Unresolved", color: "caution", sort: 4 },
+  unexpectedCase: { label: "Unexpected case", color: "neutral", sort: 5 },
 };
 
-// thin derived views over STATUS_INFO, for callers that only need one half
-// (most existing call sites want just the label or just the color).
+// thin derived views over STATUS_INFO, for callers that only need one part
+// (most existing call sites want just the label, color, or sort order).
 export const STATUS_LABELS: Record<Status, string> = Object.fromEntries(
   Object.entries(STATUS_INFO).map(([status, info]) => [status, info.label]),
 ) as Record<Status, string>;
@@ -43,6 +54,10 @@ export const STATUS_LABELS: Record<Status, string> = Object.fromEntries(
 export const STATUS_COLOR: Record<Status, StatusColor> = Object.fromEntries(
   Object.entries(STATUS_INFO).map(([status, info]) => [status, info.color]),
 ) as Record<Status, StatusColor>;
+
+export const STATUS_SORT: Record<Status, number> = Object.fromEntries(
+  Object.entries(STATUS_INFO).map(([status, info]) => [status, info.sort]),
+) as Record<Status, number>;
 
 // classifies a single inspection into one bucket, based on its latest
 // attempt (and the one before it, for the rejected-then-rebooked case).
@@ -73,14 +88,14 @@ export function getInspectionStatus(inspection: EuInspectionRow): Status {
   }
 
   if (latest.status === "upcoming" && !previous) {
-    return "upcoming";
+    return "firstAttempt";
   }
 
   if (latest.status === "upcoming" && previous?.status === "approved") {
     return "unexpectedCase";
   }
 
-  return "upcoming";
+  return "firstAttempt";
 }
 
 // bundles the three things every badge/tile needs (the raw status, its
