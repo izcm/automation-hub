@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useLayoutEffect, useMemo } from "react";
 
 import { IconLink } from "@a2zb/next";
 import { getDaysUntil } from "@a2zb/lib";
@@ -34,6 +34,8 @@ import { EuInspectionsTable } from "./tables/EuInspectionsTable";
 import { ResponsibleEmployeesTable } from "./tables/ResponsibleEmployeesTable";
 
 import { OutstandingRejectionsCard } from "./cards/OutstandingRejectionsCard";
+import { useSearchParams } from "next/navigation";
+import { buildFilters } from "@/features/eu-inspections/logic/filters";
 
 const panel = "flex flex-col gap-1 border border-extra-faint rounded p-2";
 
@@ -88,8 +90,26 @@ function buildFilterObj(
   );
 }
 
+// todo: get generic stuff from here
+// eg. parsing params and applying filters before render
+// useLayoutEffect, reading URL, window.replaceState etc.
+// can likely be abstracted into reusable hook.
+// just one thing: what to do with filterObj?
+// do we have a nicer solution?
 export function EuInspectionDashboard({ items }: Props) {
   const { filters, setFilters, addFilter } = useFilters<EuInspectionRow>();
+
+  // read params once at mount and set filters accordingly
+  useLayoutEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const rawFilters: Record<string, string | string[]> = {};
+
+    for (const key of params.keys()) {
+      rawFilters[key] = params.getAll(key);
+    }
+
+    setFilters(buildFilters(rawFilters));
+  }, [setFilters]);
 
   // apply filters on every dimension
   // use this result in elements that do not apply filters themselves:
@@ -153,10 +173,17 @@ export function EuInspectionDashboard({ items }: Props) {
   const in8Weeks = new Date(today);
   in8Weeks.setDate(today.getDate() + 56);
 
+  const query = toQueryParams(filterObj).toString();
+
   const workspaceHref = (extra: Record<string, string | string[]> = {}) => {
     const params = toQueryParams({ ...filterObj, ...extra });
     return `eu-inspections?${params}`;
   };
+
+  useEffect(() => {
+    if (!query) return;
+    window.history.replaceState(null, "", `?${query}`);
+  }, [query]);
 
   return (
     <section className="flex flex-col gap-3 raised-outline bg-raised/40 w-full p-3">

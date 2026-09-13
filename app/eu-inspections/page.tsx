@@ -1,14 +1,9 @@
 import { IS_DEMO } from "@/server/config/app";
 
 import { EUInspectionView } from "@/features/eu-inspections/ui/EUInspectionView";
-import {
-  EuInspectionRow,
-  getEuInspections,
-} from "@/features/eu-inspections/server-actions/queries";
+import { getEuInspections } from "@/features/eu-inspections/server-actions/queries";
 
 import { getEmailStorage, getEmployees } from "@/features/core/server-actions";
-import { applyFilters, Filter } from "@/features/filtering/predicate";
-import { getInspectionStatus } from "@/features/eu-inspections/logic/status";
 
 export default async function EuInspectionsPage({
   searchParams,
@@ -24,28 +19,6 @@ export default async function EuInspectionsPage({
       )
       .map(([key, value]) => [key, Array.isArray(value) ? value : [value]]),
   );
-
-  // different keys  → AND
-  // same key values → OR
-  function buildFilters(filters: Record<string, string | string[]>) {
-    return Object.entries(filters).map(([k, v1]) => {
-      return {
-        id: k,
-        predicates: Array.isArray(v1)
-          ? v1.map((v2) => ({
-              id: v2,
-              predicate: (inspection) => getInspectionStatus(inspection) === v2,
-            }))
-          : [
-              {
-                id: v1,
-                predicate: (inspection) =>
-                  getInspectionStatus(inspection) === v1,
-              },
-            ],
-      };
-    }) satisfies Filter<EuInspectionRow>[];
-  }
 
   // default sort is on eu date + desc
   const inspectionsResult = await getEuInspections();
