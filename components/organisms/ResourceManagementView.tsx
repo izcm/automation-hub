@@ -87,12 +87,21 @@ export function ResourceManagementView<T>({
   const pageCount = Math.ceil(items.length / PAGE_SIZE);
   const pageItems = items.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  const checkboxClassName =
-    activeId !== undefined ? "hidden xl:grid" : "sm:grid";
+  const checkboxClassName = activeId !== undefined ? "hidden" : "sm:grid";
 
   function handleSelect(item: T) {
     setSelected(item);
     if (activeId) setActiveId(getId(item));
+  }
+
+  const hasMaxBatchSelect = batchSelected.length === items.length;
+
+  function toggleMaxBatch() {
+    if (hasMaxBatchSelect) {
+      setBatchSelected([]);
+    } else {
+      setBatchSelected(items.map((item) => getId(item)));
+    }
   }
 
   return (
@@ -100,12 +109,28 @@ export function ResourceManagementView<T>({
       <div
         className="
             flex flex-col gap-3 min-h-0
-            h-full max-w-3xl mx-auto
+            h-full max-w-3xl mx-auto mt-1
             "
       >
-        <h1 className="font-medium text-fg/80 text-center py-1">
-          {labels.title}
-        </h1>
+        <div className={cn("relative flex items-center")}>
+          <h1 className="flex-1 font-medium text-fg/80 text-center py-1 self">
+            {labels.title}
+          </h1>
+          <div
+            className={cn(
+              "absolute right-0 items-center flex gap-3 cursor-pointer px-2 tracking-wide",
+              activeId && "hidden",
+            )}
+            onClick={toggleMaxBatch}
+          >
+            <Checkbox checked={hasMaxBatchSelect} readOnly />
+            <span className="text-fg/90 inline-flex gap-2 text-sm">
+              Select all
+              <span className="text-subtle">({items.length})</span>
+            </span>
+          </div>
+        </div>
+
         {batchActions != undefined && (
           <button
             type="button"

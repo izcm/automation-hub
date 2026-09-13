@@ -55,7 +55,7 @@ export function EuInspectionRow({
         "@min-[512px]:grid-cols-[36%_auto_minmax(0,1fr)]",
 
         // conditional styling
-        picked && "border border-accent", // picked = when member of batch select
+        picked && "border border-accent/60", // picked = when member of batch select
         activeId === item.id && // active = the item open in workspace
           "border-l-5 border-l-accent-strong/80 bg-elevated-alt/60",
       )}
