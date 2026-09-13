@@ -7,7 +7,11 @@ import { OpenWorkspaceOverlay, Plus } from "@components/icons";
 import { DateStamp, MediaLabel } from "@/components/molecules";
 import { NotificationRowStatus } from "@/features/notifications/ui/NotificationRowStatus";
 
-import { getInspectionStatus, STATUS_COLOR } from "../logic/status";
+import {
+  getInspectionStatus,
+  STATUS_COLOR,
+  StatusColor,
+} from "../logic/status";
 
 import type {
   EuInspectionRow,
@@ -62,9 +66,12 @@ export function EuInspectionRow({
             <DateStamp
               date={item.dueDate}
               status={
-                getInspectionStatus(item) === "approved"
+                STATUS_COLOR[getInspectionStatus(item)] === "neutral"
                   ? undefined
-                  : STATUS_COLOR[getInspectionStatus(item)]
+                  : (STATUS_COLOR[getInspectionStatus(item)] as Exclude<
+                      StatusColor,
+                      "neutral"
+                    >)
               }
             />
           }

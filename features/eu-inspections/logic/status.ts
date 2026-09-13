@@ -43,7 +43,7 @@ export const STATUS_INFO: Record<
   },
   unresolved: { label: "Unresolved", color: "caution", sort: 4 },
   unexpectedCase: { label: "Unexpected case", color: "neutral", sort: 5 },
-};
+} as const;
 
 // thin derived views over STATUS_INFO, for callers that only need one part
 // (most existing call sites want just the label, color, or sort order).

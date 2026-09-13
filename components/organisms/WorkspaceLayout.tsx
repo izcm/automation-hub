@@ -38,7 +38,7 @@ export function WorkspaceLayout({ open, children }: Props) {
       <div className="min-h-0 min-w-0 flex-1 px-2 mt-2">{main}</div>
 
       <div
-        aria-hidden={!open}
+        inert={!open}
         className={cn(
           "transition-[width] duration-600 ease-[cubic-bezier(0.16,1,0.3,1)]",
           "motion-reduce:transition-none",

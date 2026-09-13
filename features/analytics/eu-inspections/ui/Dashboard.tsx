@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { IconLink } from "@a2zb/next";
 import { getDaysUntil } from "@a2zb/lib";
@@ -8,7 +8,7 @@ import { cn } from "@/lib/cn";
 import { Calendar, ChevronRight, GoTo } from "@/components/icons";
 import { FilterChips, PanelHeader } from "@/components/molecules";
 
-import { applyFilters, Filter } from "@/features/filtering/filter";
+import { applyFilters, useFilters } from "@/features/filtering/predicate";
 
 import { EuInspectionRow } from "../types";
 
@@ -62,56 +62,12 @@ function toQueryParams(filters: Record<string, string | string[]>) {
 }
 
 export function EuInspectionDashboard({ items }: Props) {
-  const [filters, setFilters] = useState<Filter<EuInspectionRow>[]>([]);
+  const { filters, setFilters, addFilter } = useFilters<EuInspectionRow>();
   const filterObj = Object.fromEntries(
     filters.map((filter) => [filter.id, filter.predicates.map((p) => p.id)]),
   );
 
   toQueryParams(filterObj);
-
-  // const filterRecord = filterKeys.
-
-  function addFilter(
-    filterId: string,
-    predicateId: string,
-    predicate: (item: EuInspectionRow) => boolean,
-  ) {
-    setFilters((current) => {
-      const filterExists = current.some((filter) => filter.id === filterId);
-
-      if (!filterExists) {
-        return [
-          ...current,
-          { id: filterId, predicates: [{ id: predicateId, predicate }] },
-        ];
-      }
-
-      return (
-        current
-          .map((filter) => {
-            // include other existing filters
-            if (filter.id !== filterId) return filter;
-
-            const predicateExists = filter.predicates.some(
-              (p) => p.id === predicateId,
-            );
-
-            // filter id === filterId meaning: this is the filter that has
-            // a predicate that is being removed / added
-            return {
-              id: filter.id,
-              predicates: predicateExists
-                ? // exists – remove the predicate (de-selected)
-                  filter.predicates.filter((p) => p.id !== predicateId)
-                : // doesn't exist – add the predicate (selected)
-                  [...filter.predicates, { id: predicateId, predicate }],
-            };
-          })
-          // remove any filters that have empty predicates
-          .filter((filter) => filter.predicates.length > 0)
-      );
-    });
-  }
 
   // apply filters on every dimension
   // use this result in elements that do not apply filters themselves:
@@ -127,6 +83,11 @@ export function EuInspectionDashboard({ items }: Props) {
   // ALL employees — keeps the employee list stable
   const allEmployeeRows = aggregateByEmployee(items);
 
+  // the top employee ids are settled once
+  const topEmployeeIds = allEmployeeRows
+    .filter((row) => row.id !== "others")
+    .map((row) => row.id);
+
   // filter employees without "responsible" filter
   // (its own dimension)
   const filteredEmployeeRows = aggregateByEmployee(
@@ -134,15 +95,11 @@ export function EuInspectionDashboard({ items }: Props) {
       items,
       filters.filter((filter) => filter.id !== "responsible"),
     ),
+    topEmployeeIds,
   );
-
-  const topEmployeeIds = filteredEmployeeRows
-    .filter((row) => row.id !== "others")
-    .map((row) => row.id);
 
   // time bucket and bar chart stuff
   const allTimeBucketEntries = aggregateByTimeBucket(items);
-
   const filteredTimeBucketRows = aggregateByTimeBucket(
     applyFilters(
       items,
@@ -308,7 +265,7 @@ export function EuInspectionDashboard({ items }: Props) {
             subtitle="Records matching dashboard filters, ordered by due date."
             action={
               <IconLink
-                className="text-sm text-accent hover:text-accent-strong"
+                className="text-sm text-accent hover:text-accent-strong h-4"
                 href={workspaceHref()}
                 icon={<GoTo size={14} />}
               >

@@ -24,6 +24,12 @@ import { getTimeBucket, timeBuckets } from "@/lib/time-bucket";
 // folds into a single "Others" row.
 export function aggregateByEmployee(
   rows: EuInspectionRow[],
+  // when given, every id not in this list gets folded into "others" instead
+  // of being ranked by due count. Needed because Dashboard aggregates two
+  // different datasets (all rows vs. filtered rows) but wants both results
+  // to agree on the same top N employees — ranking each dataset
+  // independently would let them drift out of sync.
+  topIds?: string[],
 ): EmployeeInspectionRow[] {
   const perEmployee = aggregateBy(
     rows.filter((item) => item.vehicle.employee),
@@ -61,9 +67,20 @@ export function aggregateByEmployee(
     firstAttempt: entry.firstAttempt,
   }));
 
-  const sorted = perEmployee.sort((a, b) => b.due - a.due);
-  const top = sorted.slice(0, 4);
-  const rest = sorted.slice(4);
+  let top: EmployeeInspectionRow[];
+  let rest: EmployeeInspectionRow[];
+
+  if (topIds) {
+    // if topIds is given, make sure these remain as `top`
+    top = topIds
+      .map((id) => perEmployee.find((row) => row.id === id))
+      .filter((row): row is EmployeeInspectionRow => row != null);
+    rest = perEmployee.filter((row) => !topIds.includes(row.id));
+  } else {
+    const sorted = perEmployee.sort((a, b) => b.due - a.due);
+    top = sorted.slice(0, 4);
+    rest = sorted.slice(4);
+  }
 
   if (rest.length === 0) return top;
 

@@ -1,7 +1,7 @@
 import {
   buildFilters as buildFiltersGeneric,
   type PredicateBuilders,
-} from "@/features/filtering/filter";
+} from "@/features/filtering/predicate";
 
 import { EuInspectionRow } from "../types";
 import { getInspectionStatus } from "./status";

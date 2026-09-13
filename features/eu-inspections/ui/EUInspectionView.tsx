@@ -26,7 +26,7 @@ import {
   EU_INSPECTIONS_LABELS,
 } from "@/features/eu-inspections";
 
-import { applyFilters } from "@/features/filtering/filter";
+import { applyFilters } from "@/features/filtering/predicate";
 
 import { EuInspectionRow as EuInspectionRowCard } from "./EuInspectionRow";
 import { SidePanel } from "./SidePanel";

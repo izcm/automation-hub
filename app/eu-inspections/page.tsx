@@ -7,7 +7,7 @@ import {
 } from "@/features/eu-inspections/server-actions/queries";
 
 import { getEmailStorage, getEmployees } from "@/features/core/server-actions";
-import { applyFilters, Filter } from "@/features/filtering/filter";
+import { applyFilters, Filter } from "@/features/filtering/predicate";
 import { getInspectionStatus } from "@/features/eu-inspections/logic/status";
 
 export default async function EuInspectionsPage({
