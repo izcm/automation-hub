@@ -40,6 +40,7 @@ export {
   Bell as Notification,
   Info,
   Clock,
+  Menu,
 } from "lucide-react";
 
 // custom, non-lucide icons

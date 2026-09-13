@@ -14,7 +14,8 @@ import {
 } from "@/features/core/config/labels";
 import { modules, moduleIcons } from "@/features/core/config/modules";
 
-import { Navbar, type NavItem } from "@/components/organisms/Navbar";
+import { Navbar, type NavItem } from "@/components/organisms/nav/Navbar";
+import { MobileNav } from "@/components/organisms/nav/MobileNav";
 
 const LOGOUT_ENDPOINT = "/api/auth/logout";
 
@@ -56,12 +57,21 @@ export function Sidebar() {
   }
 
   return (
-    <Navbar
-      items={items}
-      skipToContentLabel={LABELS.skipToContent}
-      themeLabels={LABELS.theme}
-      logoutLabel={LABELS.header.logOut}
-      onLogout={handleLogout}
-    />
+    <>
+      <MobileNav
+        items={items}
+        logoutLabel={LABELS.header.logOut}
+        onLogout={handleLogout}
+      />
+      <div className="hidden lg:block">
+        <Navbar
+          items={items}
+          skipToContentLabel={LABELS.skipToContent}
+          themeLabels={LABELS.theme}
+          logoutLabel={LABELS.header.logOut}
+          onLogout={handleLogout}
+        />
+      </div>
+    </>
   );
 }
