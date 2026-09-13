@@ -8,7 +8,11 @@ import { cn } from "@/lib/cn";
 import { Calendar, ChevronRight, GoTo } from "@/components/icons";
 import { FilterChips, PanelHeader } from "@/components/molecules";
 
-import { applyFilters, useFilters } from "@/features/filtering/predicate";
+import {
+  applyFilters,
+  useFilters,
+  type Filter,
+} from "@/features/filtering/predicate";
 
 import { EuInspectionRow } from "../types";
 
@@ -61,13 +65,31 @@ function toQueryParams(filters: Record<string, string | string[]>) {
   return params;
 }
 
+// "others" isn't a real employee id — it's every employee outside the top
+// N, so it needs expanding into the actual list of ids before it can be
+// used as a URL/query filter value.
+function buildFilterObj(
+  filters: Filter<EuInspectionRow>[],
+  otherIds: string[],
+): Record<string, string[]> {
+  return Object.fromEntries(
+    filters.map((filter) => {
+      if (filter.id === "responsible") {
+        return [
+          filter.id,
+          filter.predicates.flatMap((p) =>
+            p.id === "others" ? otherIds : p.id,
+          ),
+        ];
+      }
+
+      return [filter.id, filter.predicates.map((p) => p.id)];
+    }),
+  );
+}
+
 export function EuInspectionDashboard({ items }: Props) {
   const { filters, setFilters, addFilter } = useFilters<EuInspectionRow>();
-  const filterObj = Object.fromEntries(
-    filters.map((filter) => [filter.id, filter.predicates.map((p) => p.id)]),
-  );
-
-  toQueryParams(filterObj);
 
   // apply filters on every dimension
   // use this result in elements that do not apply filters themselves:
@@ -97,6 +119,16 @@ export function EuInspectionDashboard({ items }: Props) {
     ),
     topEmployeeIds,
   );
+
+  const otherIds = [
+    ...new Set(
+      items
+        .map((item) => item.vehicle.maintenanceResponsibleId)
+        .filter((id): id is string => id != null),
+    ),
+  ].filter((id) => !topEmployeeIds.includes(id));
+
+  const filterObj = buildFilterObj(filters, otherIds);
 
   // time bucket and bar chart stuff
   const allTimeBucketEntries = aggregateByTimeBucket(items);

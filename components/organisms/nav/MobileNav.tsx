@@ -18,10 +18,10 @@ export function MobileNav({ items, logoutLabel, onLogout }: Props) {
   const [active, setActive] = useState(false);
 
   return (
-    <div className="relative lg:hidden z-999">
+    <div className="relative z-999">
       <div
         className={cn(
-          active ? "opacity-100" : "opacity-40",
+          active ? "opacity-100" : "opacity-60",
           "absolute bottom-6 left-6 flex flex-col gap-3 transition-opacity",
         )}
       >

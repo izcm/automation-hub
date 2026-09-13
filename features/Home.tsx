@@ -53,7 +53,9 @@ export function Home({ inspectionRows }: Deps) {
       >
         {/* TITLE */}
         <div className="flex flex-col gap-2 text-sm text-center mt-6">
-          <h1 className="text-5xl font-bold">{LABELS.appTitle}</h1>
+          <h1 className="text-5xl font-bold tracking-wide">
+            {LABELS.appTitle}
+          </h1>
           <span className="text-subtle">Your automation hotspot.</span>
         </div>
 

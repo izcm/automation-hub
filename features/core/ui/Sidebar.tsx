@@ -58,12 +58,15 @@ export function Sidebar() {
 
   return (
     <>
-      <MobileNav
-        items={items}
-        logoutLabel={LABELS.header.logOut}
-        onLogout={handleLogout}
-      />
-      <div className="hidden lg:block">
+      <div className="xl:hidden flex">
+        <MobileNav
+          items={items}
+          logoutLabel={LABELS.header.logOut}
+          onLogout={handleLogout}
+        />
+      </div>
+
+      <div className="hidden xl:block">
         <Navbar
           items={items}
           skipToContentLabel={LABELS.skipToContent}

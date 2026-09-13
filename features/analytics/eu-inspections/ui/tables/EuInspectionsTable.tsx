@@ -49,7 +49,7 @@ export function EuInspectionsTable({ rows, remaining, workspaceHref }: Props) {
             <th className="font-normal text-start w-3/12">Status</th>
             <th className="font-normal text-start w-2/12">Due date</th>
             <th className="font-normal text-start w-2/12 truncate">
-              New attempt at
+              Next attempt at
             </th>
             <th className="font-normal text-start w-3/12">Responsible</th>
           </tr>

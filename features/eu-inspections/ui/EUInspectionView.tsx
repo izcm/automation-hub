@@ -223,7 +223,7 @@ export function EUInspectionView({
             //   },
             //   className: "focus-within:!border-accent/60 rounded-lg",
             // }}
-            checkboxClassName={activeId === undefined ? "sm:grid" : "lg:grid"}
+            checkboxClassName={activeId !== undefined ? "hidden" : "sm:grid"}
             batchActions={(batchSelected) => [
               {
                 label: (count) => LABELS.notify(count),
