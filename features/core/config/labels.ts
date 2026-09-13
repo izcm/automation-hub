@@ -138,10 +138,12 @@ export const CORE_UI_LABELS_BY_LANGUAGE = { en, no } satisfies Record<
 export function getListViewLabels(
   language: Language,
   searchPlaceholder: string,
+  title: string,
 ): ResourceManagementLabels {
   const l = CORE_UI_LABELS_BY_LANGUAGE[language];
 
   return {
+    title,
     searchBar: {
       placeholder: searchPlaceholder,
       apply: l.toolbar.apply,

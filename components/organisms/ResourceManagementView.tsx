@@ -5,11 +5,17 @@ import { Checkbox, Gallery } from "@a2zb/react";
 
 import { cn } from "@/lib/cn";
 import { Pagination } from "@/components/molecules";
-import { BatchAction, BatchSelect } from "@/components/organisms";
+import {
+  BatchAction,
+  BatchSelect,
+  WorkspaceLayout,
+  WorkspacePanel,
+} from "@/components/organisms";
 
 const PAGE_SIZE = 25;
 
 export type ResourceManagementLabels = {
+  title: string;
   searchBar: {
     placeholder: string;
     apply: string;
@@ -32,21 +38,22 @@ type Props<T> = {
   // actions that user can do with batch selection, eg. notify
   batchActions?: (batchSelected: string[]) => BatchAction[];
   // parent renders the row's own content; we own the checkbox wrapper and
-  // hand it `picked` plus whether small-screen batch-select mode is active
+  // hand it `picked`, whether small-screen batch-select mode is active,
+  // the id of the item whose workspace panel is open (for "am I the active
+  // row" styling), and openInWorkspace — call it to open our workspace
+  // panel for this item
   listItem: (
     item: T,
     picked: boolean,
-    selectedCount: number,
-    toggle: (id: string) => void,
     batchSelectMobile: boolean,
+    activeId: string | undefined,
+    openInWorkspace: () => void,
   ) => ReactNode;
   labels: ResourceManagementLabels;
   // extra classes for the row wrapper Gallery/BatchSelect render around each item
   itemClassName?: (isSelected: boolean) => string;
-  // responsive visibility for the checkbox — caller controls this since it
-  // may depend on state we don't know about (e.g. a workspace panel being open)
-  checkboxClassName?: string;
   filterClips?: ReactNode;
+  detailsPanel: (item: T) => ReactNode;
 };
 
 export function ResourceManagementView<T>({
@@ -56,8 +63,9 @@ export function ResourceManagementView<T>({
   listItem,
   labels,
   itemClassName,
-  checkboxClassName,
+  detailsPanel,
 }: Props<T>) {
+  // also drives the workspace panel: selected !== undefined -> panel is open
   const [selected, setSelected] = useState<T | undefined>(undefined);
   const [batchSelected, setBatchSelected] = useState<string[]>([]);
 
@@ -71,43 +79,52 @@ export function ResourceManagementView<T>({
     if (!next) setBatchSelected([]);
   }
 
+  // which item's workspace panel is open — separate from `selected` above,
+  // which is Gallery's own click/keyboard-nav focus and fires on ANY click
+  // in the row (checkbox included), not just the "open in workspace" button
+  const [activeId, setActiveId] = useState<string | undefined>();
+
   const pageCount = Math.ceil(items.length / PAGE_SIZE);
   const pageItems = items.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  return (
-    <>
-      {batchActions != undefined && (
-        <button
-          type="button"
-          className="btn btn-secondary sm:hidden"
-          onClick={toggleBatchSelectMobile}
-        >
-          {batchSelectMobile
-            ? labels.batching.disableMobile
-            : labels.batching.enableMobile}
-        </button>
-      )}
+  const checkboxClassName =
+    activeId !== undefined ? "hidden xl:grid" : "sm:grid";
 
-      <div className="flex flex-col h-full overflow-y-scroll scrollbar-hide">
-        {batchActions == undefined ? (
-          <Gallery
-            items={pageItems}
-            getId={getId}
-            selected={selected}
-            onSelect={setSelected}
-            itemClassName={({ isSelected }) =>
-              cn("group", itemClassName?.(isSelected))
-            }
-            galleryItem={(item) => listItem(item, false, 0, () => {}, false)}
-            className={{ arrowList: "gap-1.5" }}
-          />
-        ) : (
+  function handleSelect(item: T) {
+    setSelected(item);
+    if (activeId) setActiveId(getId(item));
+  }
+
+  return (
+    <WorkspaceLayout open={activeId !== undefined}>
+      <div
+        className="
+            flex flex-col gap-3 min-h-0
+            h-full max-w-3xl mx-auto
+            "
+      >
+        <h1 className="font-medium text-fg/80 text-center py-1">
+          {labels.title}
+        </h1>
+        {batchActions != undefined && (
+          <button
+            type="button"
+            className="btn btn-secondary sm:hidden"
+            onClick={toggleBatchSelectMobile}
+          >
+            {batchSelectMobile
+              ? labels.batching.disableMobile
+              : labels.batching.enableMobile}
+          </button>
+        )}
+
+        <div className="flex flex-col h-full overflow-y-scroll scrollbar-hide">
           <div className="flex flex-col gap-2">
             <BatchSelect
               items={pageItems}
               getId={getId}
               selected={selected}
-              onSelect={setSelected}
+              onSelect={handleSelect}
               batchSelected={batchSelected}
               setBatchSelected={setBatchSelected}
               labels={labels.batching}
@@ -131,12 +148,8 @@ export function ResourceManagementView<T>({
                       if (batchSelectMobile) toggle(getId(item));
                     }}
                   >
-                    {listItem(
-                      item,
-                      picked,
-                      selectedCount,
-                      toggle,
-                      batchSelectMobile,
+                    {listItem(item, picked, batchSelectMobile, activeId, () =>
+                      setActiveId(getId(item)),
                     )}
                   </div>
                 </div>
@@ -144,19 +157,22 @@ export function ResourceManagementView<T>({
               className={itemClassName}
             />
           </div>
-        )}
 
-        <div className="mt-auto">
-          <Pagination
-            page={page}
-            pageCount={pageCount}
-            total={items.length}
-            pageSize={PAGE_SIZE}
-            onChange={setPage}
-            label={labels.pagination.showing}
-          />
+          <div className="mt-auto">
+            <Pagination
+              page={page}
+              pageCount={pageCount}
+              total={items.length}
+              pageSize={PAGE_SIZE}
+              onChange={setPage}
+              label={labels.pagination.showing}
+            />
+          </div>
         </div>
       </div>
-    </>
+      <WorkspacePanel onClose={() => setActiveId(undefined)}>
+        {selected && detailsPanel(selected)}
+      </WorkspacePanel>
+    </WorkspaceLayout>
   );
 }
