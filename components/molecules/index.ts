@@ -6,4 +6,5 @@ export type { FilterChip } from "./FilterChips";
 export { SelectDropdown } from "./DropDown";
 export { Pagination } from "./Pagination";
 export { MediaLabel } from "./MediaLabel";
+export { InitialsBadge } from "./InitialsBadge";
 export { PanelHeader } from "./PanelHeader";

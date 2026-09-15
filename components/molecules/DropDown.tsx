@@ -88,8 +88,8 @@ export function SelectDropdown<T = string>({
           // </div>
           // )}
           className={{
-            arrowList: "flex flex-col gap-0.5 max-h-[180px]",
-            arrowRow: "inset-focus p-0.5",
+            arrowList: "flex flex-col gap-0.5 max-h-[240px]",
+            arrowRow: "inset-focus",
           }}
         />
       </Popover>

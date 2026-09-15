@@ -3,14 +3,14 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { ClickPopover, useRegexValidatedInput } from "@a2zb/react";
+import { useRegexValidatedInput } from "@a2zb/react";
 
 import { confirmWith, rejectWith, warningWith } from "@/lib/toast";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
 
 import { Employee } from "@/types";
 
-import { Notify, Confirm, Cancel, ChevronDown } from "@components/icons";
+import { Notify, User } from "@components/icons";
 import { ResourceManagementView } from "@/components/organisms";
 
 import {
@@ -26,6 +26,7 @@ import { applyFilters } from "@/features/filtering/predicate";
 
 import { EuInspectionRow as EuInspectionRowCard } from "./EuInspectionRow";
 import { SidePanel } from "./SidePanel";
+import { ChangeResponsibleModal } from "./ChangeResponsibleModal";
 import { useDemoInboxChoice } from "../demo-behaviour/use-demo-inbox-choice";
 import { useNotifications } from "../hooks/use-notifications";
 
@@ -164,6 +165,11 @@ export function EUInspectionView({
     };
   }, []);
 
+  const [assignTargetIds, setAssignTargetIds] = useState<string[] | null>(
+    null,
+  );
+  const clearAssignSelectionRef = useRef<() => void>(() => {});
+
   const searchbarRef = useRef<HTMLInputElement>(null);
 
   // --- etc. ui effects ---
@@ -210,40 +216,12 @@ export function EUInspectionView({
             },
           },
           {
-            render: (euInspectionIds, clearSelection) => (
-              <ClickPopover
-                align="right"
-                trigger={
-                  <button className="btn btn-primary flex-center gap-2 text-sm">
-                    Mark as
-                    <ChevronDown size={14} />
-                  </button>
-                }
-              >
-                <div className="flex flex-col gap-1">
-                  <button
-                    className="btn btn-menu gap-2"
-                    onClick={async () => {
-                      await markStatus(euInspectionIds, "approved");
-                      clearSelection();
-                    }}
-                  >
-                    <Confirm size={14} />
-                    Approved
-                  </button>
-                  <button
-                    className="btn btn-menu gap-2"
-                    onClick={async () => {
-                      await markStatus(euInspectionIds, "rejected");
-                      clearSelection();
-                    }}
-                  >
-                    <Cancel size={14} />
-                    Rejected
-                  </button>
-                </div>
-              </ClickPopover>
-            ),
+            label: LABELS.assignTo,
+            icon: <User size={14} />,
+            onClick: (euInspectionIds, clearSelection) => {
+              setAssignTargetIds(euInspectionIds);
+              clearAssignSelectionRef.current = clearSelection;
+            },
           },
         ]}
         listItem={(
@@ -273,6 +251,17 @@ export function EUInspectionView({
             markStatus={markStatus}
           />
         )}
+      />
+
+      <ChangeResponsibleModal
+        isOpen={assignTargetIds !== null}
+        onClose={() => setAssignTargetIds(null)}
+        euInspectionIds={assignTargetIds ?? []}
+        employees={employees}
+        setEuInspections={setInspections}
+        onLoadingChange={(loading) => {
+          if (!loading) clearAssignSelectionRef.current();
+        }}
       />
 
       {demoInboxModal}

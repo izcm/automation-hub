@@ -102,7 +102,10 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form action={setEmailStorage} className="flex justify-end gap-2 h-8">
+          <form
+            action={setEmailStorage}
+            className="flex justify-end gap-2 h-8 mt-6"
+          >
             <button name="storeEmail" value="false" className="btn btn-neutral">
               Don’t store
             </button>

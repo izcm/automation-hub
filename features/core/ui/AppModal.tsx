@@ -56,7 +56,7 @@ export function AppModal({
         {children}
 
         {actions && (
-          <div className="flex justify-end gap-2 h-8">
+          <div className="flex justify-end gap-2 h-10 mt-6">
             {actions.map(
               (
                 { label, onClick, variant = "neutral", className, ...btnProps },
