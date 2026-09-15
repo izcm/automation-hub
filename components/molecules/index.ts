@@ -3,7 +3,7 @@ export { CopyableId } from "./CopyableId";
 export { DateStamp } from "./DateStamp";
 export { FilterChips } from "./FilterChips";
 export type { FilterChip } from "./FilterChips";
-export { SelectDropdown } from "./DropDown";
+export { FocusDropdown as SelectDropdown } from "./FocusDropdown";
 export { Pagination } from "./Pagination";
 export { MediaLabel } from "./MediaLabel";
 export { InitialsBadge } from "./InitialsBadge";

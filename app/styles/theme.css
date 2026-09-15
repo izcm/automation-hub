@@ -120,7 +120,8 @@
   color-scheme: dark;
 
   /* surfaces */
-  --ground: #060f17;
+  /* --ground: #060f17; */
+  --ground: #030a11;
   --raised: #0a1724;
   --lowered: #09131c;
   --elevated: #0c1926;

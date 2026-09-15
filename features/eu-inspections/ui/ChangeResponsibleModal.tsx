@@ -129,12 +129,12 @@ export function ChangeResponsibleModal({
               </div>
             );
           }}
-          dropdownProps={{ open: openDropdown, onOpenChange: setOpenDropdown }}
+          popoverProps={{ open: openDropdown, onOpenChange: setOpenDropdown }}
           textInputProps={{
             htmlInputProps: {
-              onFocus: () => {
-                setOpenDropdown(true);
-              },
+              // onFocus: () => {
+              //   setOpenDropdown(true);
+              // },
               autoFocus: true,
               id: "modal-focus-element",
             },

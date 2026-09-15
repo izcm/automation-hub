@@ -59,6 +59,15 @@ export const STATUS_SORT: Record<Status, number> = Object.fromEntries(
   Object.entries(STATUS_INFO).map(([status, info]) => [status, info.sort]),
 ) as Record<Status, number>;
 
+// array form STATUS_INFO for callers that need to list / iterate every status
+// eg. for dropdowns rather thhan lookup one by key as STATUS_INFO
+export const STATUS_OPTIONS = Object.entries(STATUS_INFO).map(
+  ([status, info]) => ({
+    status,
+    ...info,
+  }),
+);
+
 // classifies a single inspection into one bucket, based on its latest
 // attempt (and the one before it, for the rejected-then-rebooked case).
 // "rejected" isn't one state — a rejection with a new workshop already

@@ -1,6 +1,15 @@
+import { useState } from "react";
+
+import { capitalize } from "@a2zb/lib";
+
 import { Cancel, ChevronDown } from "@/components/icons";
 import { cn } from "@/lib/cn";
-import { capitalize } from "@a2zb/lib";
+import { FocusDropdown } from "./FocusDropdown";
+import {
+  STATUS_INFO,
+  STATUS_OPTIONS,
+} from "@/features/eu-inspections/logic/status";
+import { Dropdown } from "./Dropdown";
 
 // one chip per active filter — deliberately generic (id/label/values), not
 // tied to any feature's own filter representation (predicate functions,
@@ -11,6 +20,11 @@ export type FilterChip = {
   values: string[];
 };
 
+export type Option = {
+  label: string;
+  sort: number;
+};
+
 type Props = {
   filters: FilterChip[];
   onRemove: (id: string) => void;
@@ -18,6 +32,8 @@ type Props = {
 };
 
 export function FilterChips({ filters, onRemove, className }: Props) {
+  const [openDropdown, setOpenDropdown] = useState(false);
+
   if (filters.length === 0) return null;
 
   return (
@@ -32,9 +48,39 @@ export function FilterChips({ filters, onRemove, className }: Props) {
         >
           <span className="font-medium">{capitalize(filter.label)}:</span>
 
-          <div className="flex items-center gap-3 bg-elevated rounded-full px-3 h-10">
+          <div
+            className={cn(
+              "flex items-center gap-3",
+              "bg-elevated rounded-full px-3 h-10",
+              "border border-faint",
+              openDropdown && "border-accent",
+            )}
+          >
             {/* <span className="text-subtle">{filter.values.join(", ")}</span> */}
-            <div className="flex items-center gap-3 pl-2">
+
+            <Dropdown
+              options={STATUS_OPTIONS}
+              getLabel={(option) => option.label}
+              galleryItem={(option) => <div>{option.label}</div>}
+              onCommit={() => alert("hi")}
+              open={openDropdown}
+              onOpenChange={() => "hi"}
+              trigger={
+                <button
+                  type="button"
+                  onClick={() => setOpenDropdown(!openDropdown)}
+                  className={cn(
+                    "flex items-center gap-3",
+                    "ml-2 cursor-pointer hover:text-accent h-10",
+                  )}
+                >
+                  <span>{filter.values.length} selected</span>
+                  <ChevronDown size={16} />
+                </button>
+              }
+              // popoverProps={}
+            />
+            {/* <div className="flex items-center gap-3 ml-2">
               <span>{filter.values.length} selected</span>
               <button
                 type="button"
@@ -52,7 +98,7 @@ export function FilterChips({ filters, onRemove, className }: Props) {
               className="text-subtle hover:text-fg"
             >
               <Cancel size={16} />
-            </button>
+            </button> */}
           </div>
         </div>
       ))}

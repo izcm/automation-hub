@@ -127,7 +127,7 @@ export function EuInspectionRow({
       <IconBtn
         className={cn(
           // narrow container
-          "py-3 px-2 hover:text-accent justify-self-end",
+          "h-10 px-2 hover:text-accent justify-self-end",
           "col-span-full w-full rounded-t-none mr-auto",
           "bg-[light-dark(var(--elevated-alt),var(--lowered))]",
 

@@ -1,5 +1,12 @@
-import { ComponentProps, ReactNode, useEffect, useRef, useState } from "react";
-import { Checkbox, Gallery, TextInput } from "@a2zb/react";
+import {
+  ComponentProps,
+  ReactNode,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { Gallery, TextInput } from "@a2zb/react";
 import { cn } from "@/lib/cn";
 
 type BaseProps<T> = {
@@ -12,19 +19,19 @@ type BaseProps<T> = {
   galleryItem: (option: T, handleCommit: (option: T) => void) => ReactNode;
   onCommit: (option: T) => void;
 
-  dropdownProps: Partial<Omit<PopoverProps, "trigger" | "children">>;
+  popoverProps: Partial<Omit<PopoverProps, "trigger" | "children">>;
 };
 
 // Shared shell: search input doubles as the dropdown's trigger, filtering
 // `options` as you type. Selection UI/behavior is left to `renderLabel`/`onCommit`.
-export function SelectDropdown<T = string>({
+export function FocusDropdown<T = string>({
   options,
   getLabel = (option) => String(option),
   getKey = getLabel,
   galleryItem,
   onCommit,
   textInputProps,
-  dropdownProps: popoverProps,
+  popoverProps,
 }: BaseProps<T>) {
   const [internalOpen, setInternalOpen] = useState(false);
 
@@ -72,6 +79,9 @@ export function SelectDropdown<T = string>({
             htmlInputProps={{
               ref: inputRef,
               onChange: (e) => setSearch(e.currentTarget.value),
+
+              onFocus: () => onOpenChange(true),
+
               className: "text-fg",
               ...htmlInputProps,
             }}
@@ -99,42 +109,55 @@ export function SelectDropdown<T = string>({
 type PopoverProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  trigger: ReactNode;
-  children: ReactNode;
+  trigger: React.ReactNode;
+  children: React.ReactNode;
   align?: "left" | "right";
+  /** Overrides the dropdown's default anchored positioning (e.g. to center it as a wide sheet). */
   contentClassName?: string;
+  /** Controlled open state — omit to let Popover manage it internally. */
 };
 
 export function Popover({
-  open,
-  onOpenChange,
   trigger,
   children,
   align = "right",
   contentClassName,
+  open,
+  onOpenChange,
 }: PopoverProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // default to opening below; flip above only if it would overflow the
+  // viewport and there's actually more room up there. Runs before paint
+  // (useLayoutEffect) so there's no visible flash of the wrong placement.
+  const [placement, setPlacement] = useState<"top" | "bottom">("bottom");
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    const el = contentRef.current;
+    if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+    const overflowsBottom = rect.bottom > window.innerHeight;
+    const moreRoomAbove = rect.top > window.innerHeight - rect.bottom;
+
+    setPlacement(overflowsBottom && moreRoomAbove ? "top" : "bottom");
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
-
-    function handleMouseDown(e: MouseEvent) {
-      if (!ref.current?.contains(e.target as Node)) {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node))
         onOpenChange(false);
-      }
     }
-
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        onOpenChange(false);
-      }
+      if (e.key === "Escape") onOpenChange(false);
     }
-
-    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("mousedown", handleClick);
     document.addEventListener("keydown", handleKeyDown);
-
     return () => {
-      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("mousedown", handleClick);
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [open, onOpenChange]);
@@ -145,8 +168,10 @@ export function Popover({
 
       {open && (
         <div
+          ref={contentRef}
           className={cn(
-            "absolute top-full z-50 mt-1 whitespace-nowrap border border-line bg-raised",
+            "absolute z-50 whitespace-nowrap bg-raised border border-line",
+            placement === "top" ? "bottom-full mb-1" : "top-full mt-1",
             align === "right" ? "right-0" : "left-0",
             contentClassName,
           )}

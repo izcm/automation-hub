@@ -41,7 +41,7 @@ export function Navbar({
       className="
       group h-dvh shrink-0 max-w-16
       flex flex-col items-center gap-3
-      p-2 border-r border-faint bg-lowered
+      p-2 border-r border-faint bg-elevated/40
       [&_svg]:size-6 [&_svg]:[stroke-width:2]"
     >
       {/* <a
