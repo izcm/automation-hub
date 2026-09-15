@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, SetStateAction, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 import { confirmWith, rejectWith, warningWith } from "@/lib/toast";
 import { cn } from "@/lib/cn";
@@ -36,8 +36,6 @@ export function ChangeResponsibleModal({
 }: Props) {
   const [dropdownChoice, setDropdownChoice] = useState<Employee | undefined>();
   const [openDropdown, setOpenDropdown] = useState(false);
-
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const assign = async () => {
     if (!dropdownChoice) return;
@@ -110,12 +108,6 @@ export function ChangeResponsibleModal({
           getLabel={(emp) => emp.name}
           getKey={(emp) => emp.id}
           onCommit={(emp) => {
-            // refocus before closing — otherwise the focused <li> unmounts
-            // while still focused, the browser sends focus to <body>
-            // (outside the modal's focus trap), and focus-trap "corrects"
-            // it back onto this input with a select() that highlights all
-            // its text.
-            inputRef.current?.focus();
             setDropdownChoice(emp);
             setOpenDropdown(false);
           }}
@@ -140,7 +132,6 @@ export function ChangeResponsibleModal({
           dropdownProps={{ open: openDropdown, onOpenChange: setOpenDropdown }}
           textInputProps={{
             htmlInputProps: {
-              ref: inputRef,
               onFocus: () => {
                 setOpenDropdown(true);
               },

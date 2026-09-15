@@ -38,12 +38,19 @@ export function SelectDropdown<T = string>({
 
   const { htmlInputProps, ...restTextInputProps } = textInputProps;
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const applicable = () =>
     options.filter((option) =>
       getLabel(option).toLowerCase().includes(search.toLowerCase()),
     );
 
   const handleCommit = (option: T) => {
+    // keep focus on the input across a commit — otherwise the item you just
+    // picked (often the thing with focus, eg. via keyboard nav) disappears
+    // when onCommit closes the list, and the browser is left to pick
+    // wherever focus goes next.
+    inputRef.current?.focus();
     onCommit(option);
     setSearch(getLabel(option));
   };
@@ -63,6 +70,7 @@ export function SelectDropdown<T = string>({
             {...restTextInputProps}
             value={search}
             htmlInputProps={{
+              ref: inputRef,
               onChange: (e) => setSearch(e.currentTarget.value),
               className: "text-fg",
               ...htmlInputProps,
