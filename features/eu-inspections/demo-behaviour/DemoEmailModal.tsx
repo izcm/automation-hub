@@ -16,19 +16,32 @@ export function DemoEmailModal({
   return (
     <AppModal
       isOpen={isOpen}
+      hideCancelBtn
       onClose={onSkip}
       title={alternativeReceiver ? "Receive to your inbox?" : "Just a reminder"}
       actions={
         alternativeReceiver
           ? [
-              { label: "No thanks", onClick: onSkip },
               {
                 label: "Send to my inbox",
-                variant: "primary",
+                variant: "neutral",
                 onClick: onSendToInbox,
               },
+              {
+                label: "No thanks",
+                variant: "primary",
+                onClick: onSkip,
+                id: "modal-focus-element",
+              },
             ]
-          : [{ label: "Got it", variant: "primary", onClick: onSkip }]
+          : [
+              {
+                label: "Got it",
+                variant: "primary",
+                onClick: onSkip,
+                id: "modal-focus-element",
+              },
+            ]
       }
     >
       {alternativeReceiver ? (

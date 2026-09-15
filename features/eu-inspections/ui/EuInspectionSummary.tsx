@@ -64,7 +64,7 @@ function MetaRow({ label, value, last }: MetaRowProps) {
   return (
     <div
       className={cn(
-        "grid grid-cols-[120px_1fr] items-center min-h-9 p-2 [&>*]:truncate",
+        "grid grid-cols-[120px_1fr] items-center min-h-9 p-2",
         !last && "border-b border-extra-faint",
       )}
     >

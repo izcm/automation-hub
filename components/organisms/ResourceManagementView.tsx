@@ -94,6 +94,13 @@ export function ResourceManagementView<T>({
     if (activeId) setActiveId(getId(item));
   }
 
+  // re-derived from `items` every render (not just `selected` itself) so
+  // the panel picks up live updates — see: it used to stop updating once
+  // `selected` held a stale object reference instead of a fresh lookup
+  const activeItem = selected
+    ? (items.find((item) => getId(item) === getId(selected)) ?? selected)
+    : undefined;
+
   const hasMaxBatchSelect = batchSelected.length === items.length;
 
   function toggleMaxBatch() {
@@ -118,8 +125,9 @@ export function ResourceManagementView<T>({
           </h1>
           <div
             className={cn(
-              "absolute right-0 items-center flex gap-3 cursor-pointer px-2 tracking-wide",
-              activeId && "hidden",
+              "absolute right-0 items-center flex gap-3 cursor-pointer px-2 tracking-wide hidden",
+              !activeId && "sm:flex",
+              batchSelectMobile && "flex",
             )}
             onClick={toggleMaxBatch}
           >
@@ -196,7 +204,7 @@ export function ResourceManagementView<T>({
         </div>
       </div>
       <WorkspacePanel onClose={() => setActiveId(undefined)}>
-        {selected && detailsPanel(selected)}
+        {activeItem && detailsPanel(activeItem)}
       </WorkspacePanel>
     </WorkspaceLayout>
   );

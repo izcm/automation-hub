@@ -9,25 +9,29 @@ type BaseProps<T> = {
   getKey?: (option: T) => string;
   textInputProps: ComponentProps<typeof TextInput>;
   // Display only — no handlers. Click and Enter both commit via `onCommit`.
-  renderLabel: (option: T) => ReactNode;
+  galleryItem: (option: T, handleCommit: (option: T) => void) => ReactNode;
   onCommit: (option: T) => void;
-  // Single-select closes the popover on commit; multi-select keeps it open.
-  closeOnCommit?: boolean;
+
+  dropdownProps: Partial<Omit<PopoverProps, "trigger" | "children">>;
 };
 
 // Shared shell: search input doubles as the dropdown's trigger, filtering
 // `options` as you type. Selection UI/behavior is left to `renderLabel`/`onCommit`.
-function SelectDropdownBase<T = string>({
+export function SelectDropdown<T = string>({
   options,
   getLabel = (option) => String(option),
   getKey = getLabel,
-  textInputProps,
-  renderLabel,
+  galleryItem,
   onCommit,
-  closeOnCommit = true,
+  textInputProps,
+  dropdownProps: popoverProps,
 }: BaseProps<T>) {
+  const [internalOpen, setInternalOpen] = useState(false);
+
+  const open = popoverProps.open ?? internalOpen;
+  const onOpenChange = popoverProps.onOpenChange ?? setInternalOpen;
+
   const [search, setSearch] = useState("");
-  const [open, setOpen] = useState(false);
 
   // track which item is selected in dropdown
   const [highlighted, setHighlighted] = useState<T | undefined>(undefined);
@@ -41,32 +45,27 @@ function SelectDropdownBase<T = string>({
 
   const handleCommit = (option: T) => {
     onCommit(option);
-    if (closeOnCommit) setOpen(false);
+    setSearch(getLabel(option));
   };
 
   return (
     <div>
       <Popover
         open={open}
-        onOpenChange={setOpen}
+        onOpenChange={onOpenChange}
         contentClassName="w-full rounded shadow-lg"
         trigger={
-          <div
-            className="w-full"
-            onClick={(e) => e.stopPropagation()}
-            onFocus={() => setOpen(true)}
-          >
-            <TextInput
-              {...restTextInputProps}
-              value={search}
-              htmlInputProps={{
-                onChange: (e) => setSearch(e.currentTarget.value),
-                className: "text-subtle text-sm",
-                ...htmlInputProps,
-              }}
-              className="h-8 w-full"
-            />
-          </div>
+          <TextInput
+            {...restTextInputProps}
+            value={search}
+            htmlInputProps={{
+              onChange: (e) => setSearch(e.currentTarget.value),
+              className: "text-fg py-3",
+              ...htmlInputProps,
+            }}
+            className="h-10 w-full"
+            {...popoverProps}
+          />
         }
       >
         <Gallery
@@ -75,78 +74,26 @@ function SelectDropdownBase<T = string>({
           selected={highlighted}
           onSelect={setHighlighted}
           onEnter={handleCommit}
-          galleryItem={(option) => (
-            <div
-              onClick={() => handleCommit(option)}
-              className="px-2 py-1.5 text-start text-sm text-fg hover:text-accent cursor-pointer"
-            >
-              {renderLabel(option)}
-            </div>
-          )}
-          className={{ arrowList: "flex flex-col gap-0.5 max-h-[150px]" }}
+          galleryItem={(option) => galleryItem(option, handleCommit)}
+          // (option) => (
+          // <div
+          //   onClick={() => handleCommit(option)}
+          //   className={cn(
+          //     "flex items-center h-10 px-2",
+          //     "text-start text-base text-fg",
+          //     "cursor-pointer hover:text-accent",
+          //   )}
+          // >
+          //   {renderLabel(option)}
+          // </div>
+          // )}
+          className={{
+            arrowList: "flex flex-col gap-0.5 max-h-[180px]",
+            arrowRow: "inset-focus p-0.5",
+          }}
         />
       </Popover>
     </div>
-  );
-}
-
-type MultiProps = {
-  options: string[];
-  selected: string[];
-  onToggle: (value: string) => void;
-  textInputProps: ComponentProps<typeof TextInput>;
-};
-
-export function MultiSelectDropdown({
-  options,
-  selected,
-  onToggle,
-  textInputProps,
-}: MultiProps) {
-  return (
-    <SelectDropdownBase
-      options={options}
-      textInputProps={textInputProps}
-      renderLabel={(option) => (
-        <span className="flex items-center gap-2">
-          <Checkbox checked={selected.includes(option)} readOnly />
-          {option}
-        </span>
-      )}
-      onCommit={onToggle}
-      closeOnCommit={false}
-    />
-  );
-}
-
-export type SingleProps<T> = {
-  options: T[];
-  selected: T | undefined;
-  onSelect: (value: T) => void;
-  // Defaults to String(option) — pass both when T isn't a plain string
-  // (e.g. { id, name } objects), so selection is compared by id, not label.
-  getLabel?: (option: T) => string;
-  getKey?: (option: T) => string;
-  textInputProps?: ComponentProps<typeof TextInput>;
-};
-
-export function SelectDropdown<T = string>({
-  options,
-  selected,
-  onSelect,
-  getLabel = (option) => String(option),
-  getKey = getLabel,
-  textInputProps = {},
-}: SingleProps<T>) {
-  return (
-    <SelectDropdownBase
-      options={options}
-      getLabel={getLabel}
-      getKey={getKey}
-      textInputProps={textInputProps}
-      renderLabel={getLabel}
-      onCommit={onSelect}
-    />
   );
 }
 

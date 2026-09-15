@@ -110,6 +110,7 @@ export default function LoginPage() {
               name="storeEmail"
               value="true"
               className="btn btn-secondary"
+              id="modal-focus-element"
             >
               Store email
             </button>

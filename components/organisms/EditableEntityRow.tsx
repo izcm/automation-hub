@@ -8,17 +8,6 @@ import {
 import { Cancel, Confirm, Edit } from "@components/icons";
 import { Spinner } from "@a2zb/react";
 
-type EditableEntityRowDeps<T> = {
-  id: string;
-  label: string;
-  icon: ReactNode;
-  // `onSelect` is owned internally: picking an option commits immediately
-  // and closes edit mode, so the parent only hears about it via `onConfirm`.
-  select: Omit<SelectDropdownProps<T>, "onSelect">;
-  isLoading?: boolean;
-  onConfirm: (value: T) => void;
-};
-
 function DisplayEntity({
   id,
   label,
@@ -43,61 +32,92 @@ function DisplayEntity({
   );
 }
 
+type DropdownEditorProps<T> = {
+  // `onSelect` is owned internally: picking an option commits immediately
+  // and closes edit mode, so the parent only hears about it via `onConfirm`.
+  select: Omit<SelectDropdownProps<T>, "onSelect">;
+  onConfirm: (value: T) => void;
+};
+
+export function DropdownEditor<T>({
+  select,
+  onConfirm,
+}: DropdownEditorProps<T>) {
+  const [value] = useState("");
+
+  return (
+    <>
+      <SelectDropdown
+        {...select}
+        onSelect={(value) => {
+          onConfirm(value);
+        }}
+        textInputProps={{
+          value,
+          ...select.textInputProps,
+          htmlInputProps: {
+            autoFocus: true,
+            ...select.textInputProps?.htmlInputProps,
+            id: "modal-focus-element",
+          },
+        }}
+      />
+    </>
+  );
+}
+
+type EditableEntityRowDeps<T> = {
+  id: string;
+  label: string;
+  icon: ReactNode;
+  isLoading?: boolean;
+  inline?: boolean; // pass if you want editor to render inline -> swaps with DisplayEntityCard, if not -> leave DisplayEntityCard and render the editor separately
+
+  renderEditor: (props: { isOpen: boolean; onClose: () => void }) => ReactNode;
+};
+
 export function EditableEntityRow<T>({
   id,
   label,
   icon,
-  select,
   isLoading,
-  onConfirm,
+  inline: isEditorInline,
+  renderEditor,
 }: EditableEntityRowDeps<T>) {
   const [isUpdating, setIsUpdating] = useState(false);
-  const [value, setValue] = useState("");
 
   return (
-    <div className="flex justify-between items-center gap-1 p-1">
-      <div className="flex-1 flex items-center gap-3">
-        {isUpdating ? (
-          <>
-            <SelectDropdown
-              {...select}
-              onSelect={(value) => {
-                onConfirm(value);
-                setIsUpdating(false);
-              }}
-              textInputProps={{
-                value,
-                ...select.textInputProps,
-                htmlInputProps: {
-                  autoFocus: true,
-                  ...select.textInputProps?.htmlInputProps,
-                },
-              }}
-            />
-            {/* <button
-              disabled={!value}
-              className="ml-auto text-accent hover:text-accent-strong"
-            >
-              <Confirm size={20} />
-            </button> */}
-          </>
+    <>
+      <div className="flex justify-between items-center gap-1 p-1 h-12">
+        <div className="flex-1 flex items-center gap-3">
+          {isEditorInline && isUpdating ? (
+            renderEditor({
+              isOpen: isUpdating,
+              onClose: () => setIsUpdating(false),
+            })
+          ) : (
+            <DisplayEntity id={id} label={label} icon={icon} />
+          )}
+        </div>
+
+        {isLoading ? (
+          <span className="p-1 inline-flex text-accent">
+            <Spinner size={20} />
+          </span>
         ) : (
-          <DisplayEntity id={id} label={label} icon={icon} />
+          <button
+            onClick={() => setIsUpdating(!isUpdating)}
+            className="p-1 rounded text-accent hover:text-accent-strong"
+          >
+            {isUpdating ? <Cancel size={20} /> : <Edit size={20} />}
+          </button>
         )}
       </div>
-
-      {isLoading ? (
-        <span className="p-1 inline-flex text-accent">
-          <Spinner size={20} />
-        </span>
-      ) : (
-        <button
-          onClick={() => setIsUpdating(!isUpdating)}
-          className="p-1 rounded text-accent hover:text-accent-strong"
-        >
-          {isUpdating ? <Cancel size={20} /> : <Edit size={20} />}
-        </button>
-      )}
-    </div>
+      {!isEditorInline &&
+        renderEditor({
+          isOpen: isUpdating,
+          onClose: () => setIsUpdating(false),
+        })}
+    </>
   );
 }

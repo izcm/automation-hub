@@ -20,7 +20,7 @@
    * orange border + orange text on a transparent ground (the "Filtre" look). */
   /* Match every button's corner radius to the text input's rounded */
   .btn {
-    @apply rounded;
+    @apply rounded py-2;
   }
 
   /* Solid, strong primary: orange fill + black text */

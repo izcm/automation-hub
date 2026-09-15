@@ -46,7 +46,7 @@ export function EuInspectionRow({
         // base styling
         "flex-1 grid",
         "items-center gap-4",
-        "rounded border border-extra-faint bg-raised",
+        "rounded border border-extra-faint bg-raised min-w-[400px]",
 
         // narrow container
         "grid-cols-[auto_minmax(0,1fr)]",
@@ -108,7 +108,7 @@ export function EuInspectionRow({
       </div>
 
       {/* CHILDREN */}
-      <div className="@min-[360]:flex gap-3 min-w-0 hidden ">
+      <div className="flex gap-3 min-w-0">
         <div className="vertical-line" />
 
         <div

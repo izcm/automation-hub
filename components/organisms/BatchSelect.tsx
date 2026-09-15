@@ -111,9 +111,11 @@ export function BatchSelect<T>({
         getId={getId}
         selected={selected}
         onSelect={onSelect}
-        className={{ arrowList: "flex flex-col gap-1.5" }}
+        className={{
+          arrowList: "flex flex-col gap-2 p-1",
+        }}
         itemClassName={({ isSelected }) =>
-          cn("group rounded", className?.(isSelected))
+          cn("rounded", className?.(isSelected))
         }
         galleryItem={(item) => {
           const picked = batchSelected.includes(getId(item));

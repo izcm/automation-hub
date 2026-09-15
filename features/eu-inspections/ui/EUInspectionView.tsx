@@ -195,15 +195,6 @@ export function EUInspectionView({
         items={visibleInspections}
         getId={(v) => v.id}
         labels={RESOURCE_MANAGEMENT_VIEW_LABELS}
-        // textInputProps={{
-        //   value: searchInput,
-        //   // onSubmit: handleSearch,
-        //   htmlInputProps: {
-        //     autoFocus: true,
-        //     placeholder: LABELS.searchPlaceholder,
-        //   },
-        //   className: "focus-within:!border-accent/60 rounded-lg",
-        // }}
         batchActions={(batchSelected) => [
           {
             label: (count) => LABELS.notify(count),

@@ -88,7 +88,7 @@ export function NotificationList({ notifications, initialCount }: Props) {
         <button
           type="button"
           onClick={() => setExpanded(!expanded)}
-          className="w-full p-2 text-center text-xs text-accent hover:text-accent-strong"
+          className="focus-inset w-full p-2 text-center text-xs text-accent hover:text-accent-strong"
         >
           {expanded ? "See less" : `See all (${remaining} more)`}
         </button>
