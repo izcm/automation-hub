@@ -15,7 +15,7 @@ import {
 import { modules, moduleIcons } from "@/features/core/config/modules";
 
 import { Navbar, type NavItem } from "@/components/organisms/nav/Navbar";
-import { MobileNav } from "@/components/organisms/nav/MobileNav";
+import { FloatingNav } from "@/components/organisms/nav/FloatingNav";
 
 const LOGOUT_ENDPOINT = "/api/auth/logout";
 
@@ -59,7 +59,7 @@ export function Sidebar() {
   return (
     <>
       <div className="xl:hidden flex">
-        <MobileNav
+        <FloatingNav
           items={items}
           logoutLabel={LABELS.header.logOut}
           onLogout={handleLogout}

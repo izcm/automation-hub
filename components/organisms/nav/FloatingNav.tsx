@@ -14,7 +14,7 @@ type Props = {
 };
 
 // Mobile/tablet navbar — expands into a floating list of nav items
-export function MobileNav({ items, logoutLabel, onLogout }: Props) {
+export function FloatingNav({ items, logoutLabel, onLogout }: Props) {
   const [active, setActive] = useState(false);
 
   return (
