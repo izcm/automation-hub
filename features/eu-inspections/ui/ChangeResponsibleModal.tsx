@@ -37,9 +37,7 @@ export function ChangeResponsibleModal({
   const [dropdownChoice, setDropdownChoice] = useState<Employee | undefined>();
   const [openDropdown, setOpenDropdown] = useState(false);
 
-  // set right before closing the dropdown on commit, so the text input's
-  // resulting refocus doesn't immediately reopen it
-  const suppressReopenRef = useRef(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const assign = async () => {
     if (!dropdownChoice) return;
@@ -112,8 +110,13 @@ export function ChangeResponsibleModal({
           getLabel={(emp) => emp.name}
           getKey={(emp) => emp.id}
           onCommit={(emp) => {
+            // refocus before closing — otherwise the focused <li> unmounts
+            // while still focused, the browser sends focus to <body>
+            // (outside the modal's focus trap), and focus-trap "corrects"
+            // it back onto this input with a select() that highlights all
+            // its text.
+            inputRef.current?.focus();
             setDropdownChoice(emp);
-            suppressReopenRef.current = true;
             setOpenDropdown(false);
           }}
           galleryItem={(emp, handleCommit) => {
@@ -128,7 +131,7 @@ export function ChangeResponsibleModal({
                   label={emp.name}
                   className={cn(
                     isCurrentResponsible && "opacity-60 [&>span]:text-muted",
-                    "hover:bg-accent/8 min-h-12 cursor-pointer p-2",
+                    "hover:bg-accent/8 cursor-pointer h-14 px-2",
                   )}
                 />
               </div>
@@ -137,11 +140,8 @@ export function ChangeResponsibleModal({
           dropdownProps={{ open: openDropdown, onOpenChange: setOpenDropdown }}
           textInputProps={{
             htmlInputProps: {
+              ref: inputRef,
               onFocus: () => {
-                if (suppressReopenRef.current) {
-                  suppressReopenRef.current = false;
-                  return;
-                }
                 setOpenDropdown(true);
               },
               autoFocus: true,

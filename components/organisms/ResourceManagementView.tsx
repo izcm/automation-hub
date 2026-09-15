@@ -52,7 +52,7 @@ type Props<T> = {
   labels: ResourceManagementLabels;
   // extra classes for the row wrapper Gallery/BatchSelect render around each item
   itemClassName?: (isSelected: boolean) => string;
-  filterClips?: ReactNode;
+  filterChips?: ReactNode;
   detailsPanel: (item: T) => ReactNode;
 };
 
@@ -63,6 +63,7 @@ export function ResourceManagementView<T>({
   listItem,
   labels,
   itemClassName,
+  filterChips,
   detailsPanel,
 }: Props<T>) {
   // also drives the workspace panel: selected !== undefined -> panel is open
@@ -138,6 +139,8 @@ export function ResourceManagementView<T>({
             </span>
           </div>
         </div>
+
+        {filterChips}
 
         {batchActions != undefined && (
           <button

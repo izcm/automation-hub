@@ -8,7 +8,7 @@ import { cn } from "@/lib/cn";
 // apply 85% width when viewport is MAX tailwind `sm`
 // apply 70% width when viewport is MAX tailwind `md`
 const PANE_WIDTH =
-  "w-[min(480px,45vw)] max-lg:w-[max(480px,50vw)] max-sm:w-[85vw] max-md:w-[70vw]";
+  "w-[min(480px,45vw)] max-lg:w-[max(480px,50vw)] max-sm:w-[85vw] max-md:w-[75vw]";
 
 // feel free to use these, generic rows
 export const workspaceRows = cn(
@@ -43,8 +43,8 @@ export function WorkspaceLayout({ open, children }: Props) {
           "transition-[width] duration-600 ease-[cubic-bezier(0.16,1,0.3,1)]",
           "motion-reduce:transition-none",
           open ? PANE_WIDTH : "w-0",
-          // below md: float on top of the main pane instead of squeezing it
-          "max-md:fixed max-md:inset-y-0 max-md:right-0 max-md:z-20",
+          // below 900px: float on top of the main pane instead of squeezing it
+          "max-[900px]:fixed max-[900px]:inset-y-0 max-[900px]:right-0 max-[900px]:z-20",
         )}
       >
         {/* fixed inner width so the panel content never reflows mid-animation;

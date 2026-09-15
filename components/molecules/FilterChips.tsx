@@ -24,9 +24,11 @@ export function FilterChips({ filters, onRemove, className }: Props) {
       {filters.map((filter) => (
         <div
           key={filter.id}
-          className="flex items-center gap-1.5 rounded-full bg-elevated px-3 py-1 text-xs"
+          className="flex items-center gap-1.5 rounded-full px-3 py-1 text-sm"
         >
           <span className="font-medium">{filter.label}:</span>
+          <div className="bg-elevated"></div>
+
           <span className="text-subtle">{filter.values.join(", ")}</span>
           <button
             type="button"

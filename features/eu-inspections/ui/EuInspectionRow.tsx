@@ -46,7 +46,7 @@ export function EuInspectionRow({
         // base styling
         "flex-1 grid",
         "items-center gap-4",
-        "rounded border border-extra-faint bg-raised min-w-[400px]",
+        "rounded border border-extra-faint bg-raised",
 
         // narrow container
         "grid-cols-[auto_minmax(0,1fr)]",

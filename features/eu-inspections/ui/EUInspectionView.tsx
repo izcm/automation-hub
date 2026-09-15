@@ -165,9 +165,7 @@ export function EUInspectionView({
     };
   }, []);
 
-  const [assignTargetIds, setAssignTargetIds] = useState<string[] | null>(
-    null,
-  );
+  const [assignTargetIds, setAssignTargetIds] = useState<string[] | null>(null);
   const clearAssignSelectionRef = useRef<() => void>(() => {});
 
   const searchbarRef = useRef<HTMLInputElement>(null);
@@ -180,27 +178,24 @@ export function EUInspectionView({
 
   return (
     <>
-      {/* <h1 className="font-medium text-fg/80 text-center py-1">
-        {LABELS.heading}
-      </h1>
-
-      {filters && (
-        <FilterChips
-          filters={filters.map((filter) => ({
-            id: filter.id,
-            label: filter.id,
-            values: filter.predicates.map((predicate) => predicate.id),
-          }))}
-          onRemove={(id) =>
-            setFilters((current) => current?.filter((f) => f.id !== id))
-          }
-        />
-      )} */}
-
       <ResourceManagementView
         items={visibleInspections}
         getId={(v) => v.id}
         labels={RESOURCE_MANAGEMENT_VIEW_LABELS}
+        filterChips={
+          filters ? (
+            <FilterChips
+              filters={filters.map((filter) => ({
+                id: filter.id,
+                label: filter.id,
+                values: filter.predicates.map((predicate) => predicate.id),
+              }))}
+              onRemove={(id) =>
+                setFilters((current) => current?.filter((f) => f.id !== id))
+              }
+            />
+          ) : undefined
+        }
         batchActions={(batchSelected) => [
           {
             label: (count) => LABELS.notify(count),

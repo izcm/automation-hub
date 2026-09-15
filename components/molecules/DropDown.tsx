@@ -49,22 +49,25 @@ export function SelectDropdown<T = string>({
   };
 
   return (
-    <div>
+    <>
       <Popover
         open={open}
         onOpenChange={onOpenChange}
-        contentClassName="w-full rounded shadow-lg"
+        align={popoverProps.align}
+        contentClassName={cn(
+          "w-full rounded shadow-lg",
+          popoverProps.contentClassName,
+        )}
         trigger={
           <TextInput
             {...restTextInputProps}
             value={search}
             htmlInputProps={{
               onChange: (e) => setSearch(e.currentTarget.value),
-              className: "text-fg py-3",
+              className: "text-fg",
               ...htmlInputProps,
             }}
-            className="h-10 w-full"
-            {...popoverProps}
+            className={cn("h-10 w-full", restTextInputProps.className)}
           />
         }
       >
@@ -75,25 +78,13 @@ export function SelectDropdown<T = string>({
           onSelect={setHighlighted}
           onEnter={handleCommit}
           galleryItem={(option) => galleryItem(option, handleCommit)}
-          // (option) => (
-          // <div
-          //   onClick={() => handleCommit(option)}
-          //   className={cn(
-          //     "flex items-center h-10 px-2",
-          //     "text-start text-base text-fg",
-          //     "cursor-pointer hover:text-accent",
-          //   )}
-          // >
-          //   {renderLabel(option)}
-          // </div>
-          // )}
           className={{
             arrowList: "flex flex-col gap-0.5 max-h-[240px]",
             arrowRow: "inset-focus",
           }}
         />
       </Popover>
-    </div>
+    </>
   );
 }
 
