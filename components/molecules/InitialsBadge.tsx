@@ -16,7 +16,9 @@ export function InitialsBadge({ label, className }: Props) {
   return (
     <div className={cn("flex items-center gap-3", className)}>
       <div className="flex items-center justify-center w-10 h-10 text-sm rounded-full bg-ground/40 border border-line/16">
-        <span className="text-base">{initials.toUpperCase()}</span>
+        <span className="text-base tracking-wide">
+          {initials.toUpperCase()}
+        </span>
       </div>
 
       <span className="text-fg">{label}</span>

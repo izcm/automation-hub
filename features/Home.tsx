@@ -66,7 +66,7 @@ export function Home({ inspectionRows }: Deps) {
           <div className="horizontal-line" />
         </div>
 
-        <section className="w-full ">
+        <section className="w-full">
           <Gallery
             items={[...modules]}
             getId={(item) => item}

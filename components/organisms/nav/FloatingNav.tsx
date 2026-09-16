@@ -27,7 +27,7 @@ export function FloatingNav({ items, logoutLabel, onLogout }: Props) {
       >
         <div
           className={cn(
-            "raised-outline flex flex-col items-start gap-1 p-2 shadow-lg",
+            "raised-outline bg-raised-gradient flex flex-col items-start gap-1 p-2 shadow-lg",
             "[&>*]:px-3 [&>*]:py-2.5",
             !active && "hidden",
           )}

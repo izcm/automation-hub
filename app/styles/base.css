@@ -17,7 +17,7 @@
 
 body {
   margin: 0;
-  background: var(--ground);
+  /* background: var(--ground); */
   color: var(--fg);
   font-family: var(--font-sans);
   /* guarantees ≥24px at the top; margins collapse (max, not sum), so it never

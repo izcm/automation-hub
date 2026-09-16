@@ -1,106 +1,103 @@
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 
-import { capitalize } from "@a2zb/lib";
+import { Checkbox } from "@a2zb/react";
 
-import { Cancel, ChevronDown } from "@/components/icons";
+import { ChevronDown } from "@/components/icons";
 import { cn } from "@/lib/cn";
-import { FocusDropdown } from "./FocusDropdown";
-import {
-  STATUS_INFO,
-  STATUS_OPTIONS,
-} from "@/features/eu-inspections/logic/status";
+import { STATUS_OPTIONS } from "@/features/eu-inspections/logic/status";
 import { Dropdown } from "./Dropdown";
 
 // one chip per active filter — deliberately generic (id/label/values), not
 // tied to any feature's own filter representation (predicate functions,
 // URL params, etc). Callers map their own shape into this before rendering.
-export type FilterChip = {
+export type FilterChipProps = {
   id: string;
-  label: string;
+  label: ReactNode;
   values: string[];
 };
 
-export type Option = {
-  label: string;
-  sort: number;
-};
-
 type Props = {
-  filters: FilterChip[];
+  filters: FilterChipProps[];
   onRemove: (id: string) => void;
   className?: string;
 };
 
-export function FilterChips({ filters, onRemove, className }: Props) {
+export function FilterChip({ id, label, values }: FilterChipProps) {
   const [openDropdown, setOpenDropdown] = useState(false);
+  const [selectedMulti, setSelectedMulti] = useState<string[]>([]);
 
+  const toggle = (status: string) =>
+    setSelectedMulti((prev) =>
+      prev.includes(status)
+        ? prev.filter((s) => s !== status)
+        : [...prev, status],
+    );
+
+  return (
+    <div className="flex items-center gap-1.5 rounded-full text-sm">
+      <span className="font-medium">{label}:</span>
+
+      <div
+        className={cn(
+          "flex items-center gap-3",
+          "bg-elevated rounded-full px-3 h-10",
+          "border border-faint",
+          openDropdown && "border-accent",
+        )}
+      >
+        <Dropdown
+          options={STATUS_OPTIONS}
+          getLabel={(option) => option.label}
+          getKey={(option) => option.status}
+          searchable
+          textInputProps={{
+            htmlInputProps: { placeholder: "Search status..." },
+          }}
+          onCommit={() => {}}
+          open={openDropdown}
+          onOpenChange={setOpenDropdown}
+          trigger={
+            <button
+              type="button"
+              onClick={() => setOpenDropdown(!openDropdown)}
+              className="flex items-center gap-3 ml-2 cursor-pointer hover:text-accent h-10"
+            >
+              <span>{values.length} selected</span>
+              <ChevronDown size={16} />
+            </button>
+          }
+          galleryItem={(option) => {
+            const checked = selectedMulti.includes(option.status);
+            return (
+              <label className="flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer hover:bg-lowered">
+                <Checkbox
+                  checked={checked}
+                  onChange={() => toggle(option.status)}
+                />
+                <span
+                  className="size-2 rounded-full"
+                  style={{ backgroundColor: `var(--${option.color})` }}
+                />
+                <span>{option.label}</span>
+              </label>
+            );
+          }}
+          popoverProps={{
+            align: "left",
+            contentClassName: "p-2 min-w-[200px] bg-raised-gradient",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+export function FilterChips({ filters, onRemove, className }: Props) {
   if (filters.length === 0) return null;
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
       {filters.map((filter) => (
-        <div
-          key={filter.id}
-          className="
-            flex items-center gap-1.5 
-            rounded-full text-sm
-            "
-        >
-          <span className="font-medium">{capitalize(filter.label)}:</span>
-
-          <div
-            className={cn(
-              "flex items-center gap-3",
-              "bg-elevated rounded-full px-3 h-10",
-              "border border-faint",
-              openDropdown && "border-accent",
-            )}
-          >
-            {/* <span className="text-subtle">{filter.values.join(", ")}</span> */}
-
-            <Dropdown
-              options={STATUS_OPTIONS}
-              getLabel={(option) => option.label}
-              galleryItem={(option) => <div>{option.label}</div>}
-              onCommit={() => alert("hi")}
-              open={openDropdown}
-              onOpenChange={() => "hi"}
-              trigger={
-                <button
-                  type="button"
-                  onClick={() => setOpenDropdown(!openDropdown)}
-                  className={cn(
-                    "flex items-center gap-3",
-                    "ml-2 cursor-pointer hover:text-accent h-10",
-                  )}
-                >
-                  <span>{filter.values.length} selected</span>
-                  <ChevronDown size={16} />
-                </button>
-              }
-              // popoverProps={}
-            />
-            {/* <div className="flex items-center gap-3 ml-2">
-              <span>{filter.values.length} selected</span>
-              <button
-                type="button"
-                onClick={() => onRemove(filter.id)}
-                className="text-subtle hover:text-fg"
-              >
-                <ChevronDown size={16} />
-              </button>
-            </div>
-
-            <div className="vertical-line h-1/2 bg-muted/40 self-center ml-auto" />
-            <button
-              type="button"
-              onClick={() => onRemove(filter.id)}
-              className="text-subtle hover:text-fg"
-            >
-              <Cancel size={16} />
-            </button> */}
-          </div>
-        </div>
+        <FilterChip key={filter.id} {...filter} />
       ))}
     </div>
   );

@@ -49,10 +49,19 @@ export function Dropdown<T = string>({
 
   // const inputRef = useRef<HTMLInputElement>(null);
 
-  const applicable = () =>
-    options.filter((option) =>
-      getLabel(option).toLowerCase().includes(search.toLowerCase()),
+  // match if the query starts any word in the label — "e" matches "erik"
+  // and "issi engel" (second word starts with e), but not "irek"
+  const applicable = () => {
+    const query = search.toLowerCase();
+    if (!query) return options;
+
+    return options.filter((option) =>
+      getLabel(option)
+        .toLowerCase()
+        .split(/\s+/)
+        .some((word) => word.startsWith(query)),
     );
+  };
 
   const handleCommit = (option: T) => {
     // keep focus on the input across a commit — otherwise the item you just

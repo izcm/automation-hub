@@ -30,7 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="h-dvh overflow-hidden flex">
+      <body className="h-dvh overflow-hidden flex bg-ground bg-ground-gradient">
         {/* Set the theme before first paint: saved choice, else OS preference.
             Landing dark-preferring users on "dark" also opts them out of
             the browser's force-dark inversion (color-scheme: dark). */}

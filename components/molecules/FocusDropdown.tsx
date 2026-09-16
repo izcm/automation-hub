@@ -47,10 +47,19 @@ export function FocusDropdown<T = string>({
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const applicable = () =>
-    options.filter((option) =>
-      getLabel(option).toLowerCase().includes(search.toLowerCase()),
+  // match if the query starts any word in the label — "e" matches "erik"
+  // and "issi engel" (second word starts with e), but not "irek"
+  const applicable = () => {
+    const query = search.toLowerCase();
+    if (!query) return options;
+
+    return options.filter((option) =>
+      getLabel(option)
+        .toLowerCase()
+        .split(/\s+/)
+        .some((word) => word.startsWith(query)),
     );
+  };
 
   const handleCommit = (option: T) => {
     // keep focus on the input across a commit — otherwise the item you just
@@ -120,7 +129,7 @@ type PopoverProps = {
 export function Popover({
   trigger,
   children,
-  align = "right",
+  align = "left",
   contentClassName,
   open,
   onOpenChange,
@@ -173,6 +182,7 @@ export function Popover({
             "absolute z-50 whitespace-nowrap bg-raised border border-line",
             placement === "top" ? "bottom-full mb-1" : "top-full mt-1",
             align === "right" ? "right-0" : "left-0",
+            // align === "right" ? "-right-3" : "-left-3",
             contentClassName,
           )}
         >

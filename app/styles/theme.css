@@ -17,6 +17,42 @@
   --color-neutral: var(--neutral);
   --color-pending: var(--pending);
 
+  /* subtle self-shaded gradients — KPI tiles, bar chart bars */
+  --gradient-critical: linear-gradient(
+    160deg,
+    var(--critical) 0%,
+    color-mix(in oklab, var(--critical) 85%, black) 100%
+  );
+  --gradient-caution: linear-gradient(
+    160deg,
+    var(--caution) 0%,
+    color-mix(in oklab, var(--caution) 85%, black) 100%
+  );
+  --gradient-advisory: linear-gradient(
+    160deg,
+    var(--advisory) 0%,
+    color-mix(in oklab, var(--advisory) 85%, black) 100%
+  );
+  --gradient-pending: linear-gradient(
+    160deg,
+    var(--pending) 0%,
+    color-mix(in oklab, var(--pending) 85%, black) 100%
+  );
+  --gradient-neutral: linear-gradient(
+    160deg,
+    var(--neutral) 0%,
+    color-mix(in oklab, var(--neutral) 85%, black) 100%
+  );
+
+  --background-image-ground-gradient: var(--ground-gradient);
+  --background-image-raised-gradient: var(--raised-gradient);
+  --background-image-elevated-gradient: var(--elevated-gradient);
+  --background-image-gradient-critical: var(--gradient-critical);
+  --background-image-gradient-caution: var(--gradient-caution);
+  --background-image-gradient-advisory: var(--gradient-advisory);
+  --background-image-gradient-pending: var(--gradient-pending);
+  --background-image-gradient-neutral: var(--gradient-neutral);
+
   /* weak = same base color, --weak-opacity applied (theme-tuned, see below) */
   --success-weak: color-mix(
     in oklab,
@@ -78,6 +114,22 @@
   --elevated: #f0f3f7;
   --elevated-alt: #fafbfc;
 
+  --ground-gradient: radial-gradient(
+    1200px 600px at 50% -10%,
+    color-mix(in oklab, var(--accent) 4%, transparent),
+    transparent
+  );
+  --raised-gradient: linear-gradient(
+    160deg,
+    var(--raised) 0%,
+    var(--elevated) 100%
+  );
+  --elevated-gradient: linear-gradient(
+    160deg,
+    var(--elevated-alt) 0%,
+    var(--elevated) 100%
+  );
+
   /* ink */
   --fg: rgba(15, 21, 28, 0.92);
   --subtle: rgba(15, 21, 28, 0.62);
@@ -121,11 +173,27 @@
 
   /* surfaces */
   /* --ground: #060f17; */
-  --ground: #030a11;
-  --raised: #0a1724;
-  --lowered: #09131c;
-  --elevated: #0c1926;
-  --elevated-alt: #0e1b2a;
+  --ground: #030815;
+  --raised: #0a1328;
+  --lowered: #091020;
+  --elevated: #0c152a;
+  --elevated-alt: #0e172e;
+
+  --ground-gradient: radial-gradient(
+    1200px 600px at 50% -10%,
+    color-mix(in oklab, var(--accent) 5%, transparent),
+    transparent
+  );
+  --raised-gradient: linear-gradient(
+    160deg,
+    var(--raised) 0%,
+    var(--elevated) 100%
+  );
+  --elevated-gradient: linear-gradient(
+    160deg,
+    var(--elevated-alt) 0%,
+    var(--elevated) 100%
+  );
 
   /* text / borders */
   --fg: rgba(238, 242, 245, 0.94);
