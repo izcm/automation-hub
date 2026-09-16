@@ -12,6 +12,12 @@ import { getDaysUntil } from "@a2zb/lib";
 // (e.g. "employee") to support another drill-down filter — buildFilters
 // itself never needs to change.
 
+const EU_INSPECTION_FILTER_IDS = [
+  "status",
+  "responsible",
+  "timeBucket",
+] as const;
+
 const EU_INSPECTION_PREDICATE_BUILDERS: PredicateBuilders<EuInspectionRow> = {
   status: (value) => (inspection) => getInspectionStatus(inspection) === value,
   responsible: (value) => (inspection) =>

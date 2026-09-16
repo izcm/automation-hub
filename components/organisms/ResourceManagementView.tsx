@@ -15,7 +15,7 @@ import {
 const PAGE_SIZE = 25;
 
 export type ResourceManagementLabels = {
-  title: string;
+  title: ReactNode;
   searchBar: {
     placeholder: string;
     apply: string;
@@ -117,11 +117,11 @@ export function ResourceManagementView<T>({
       <div
         className="
             flex flex-col gap-3 min-h-0
-            h-full max-w-3xl mx-auto mt-1
+            h-full max-w-3xl mx-auto
             "
       >
         <div className={cn("relative flex items-center")}>
-          <h1 className="flex-1 text-center font-medium text-fg/90">
+          <h1 className="flex-1 text-center font-medium text-fg/90 mt-1">
             {labels.title}
           </h1>
           <div
@@ -134,7 +134,7 @@ export function ResourceManagementView<T>({
           >
             <Checkbox checked={hasMaxBatchSelect} readOnly />
             <span className="text-fg/90 inline-flex gap-2 text-sm">
-              Select all
+              Select all rows
               <span className="text-subtle">({items.length})</span>
             </span>
           </div>
@@ -155,7 +155,7 @@ export function ResourceManagementView<T>({
         )}
 
         <div className="flex flex-col h-full overflow-y-scroll scrollbar-hide">
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 mb-3">
             <BatchSelect
               items={pageItems}
               getId={getId}
@@ -194,7 +194,7 @@ export function ResourceManagementView<T>({
             />
           </div>
 
-          <div className="mt-auto">
+          <div className="mt-auto py-1">
             <Pagination
               page={page}
               pageCount={pageCount}

@@ -35,9 +35,12 @@ import {
   markEuInspectionsStatus,
 } from "../server-actions/mutate";
 import { buildFilters } from "../logic/filters";
-import { FilterChip } from "@/components/molecules";
+import { FilterChip, InitialsBadge } from "@/components/molecules";
 import { capitalize } from "@a2zb/lib";
 import { STATUS_COLOR, STATUS_LABELS, type Status } from "../logic/status";
+import { FilterGroup } from "@/components/molecules/FilterGroup";
+import { FilterGroupList } from "./FilterGroupList";
+import { cn } from "@/lib/cn";
 
 // lenient: 2 letters + 4-5 digits, space optional/anywhere — normalize strips
 // all whitespace and re-inserts the single space the API expects
@@ -196,9 +199,10 @@ export function EUInspectionView({
   }, []);
 
   // temporary -> move this to the feature's filter registry
-  function filterLabel(filterId: string, predicateId: string) {
-    if (filterId === "status") {
-      return (
+  const filterRegistry = {
+    status: {
+      searchable: false,
+      renderLabel: (predicateId: string) => (
         <div className="flex items-baseline gap-2">
           <div
             className="rounded-full size-2.5"
@@ -208,11 +212,20 @@ export function EUInspectionView({
           />
           {capitalize(STATUS_LABELS[predicateId as Status])}
         </div>
-      );
-    }
+      ),
+    },
+    responsible: {
+      searchable: true,
+      renderLabel: (predicateId: string) => (
+        <InitialsBadge label={predicateId} />
+      ),
+    },
+    timeBucket: {
+      searchable: false,
+      renderLabel: (predicateId: string) => capitalize(predicateId),
+    },
+  };
 
-    return "todo";
-  }
   return (
     <>
       <ResourceManagementView
@@ -220,32 +233,40 @@ export function EUInspectionView({
         getId={(v) => v.id}
         labels={RESOURCE_MANAGEMENT_VIEW_LABELS}
         filterChips={
-          <div className="flex flex-col gap-4">
-            <button
-              className="
-              self-start btn btn-secondary 
-              bg-raised/40 hover:bg-accent/5
-              py-1.5 text-sm rounded-xl"
-            >
-              <Plus size={16} />
-              Add filter
-            </button>
-            {filters?.map((filter) => (
-              // call wrapper component FilterChipList
-              <FilterChip
-                key={filter.id}
-                {...filter}
-                label={filter.id}
-                values={filter.predicates.map((p) => ({
-                  id: p.id,
-                  label: filterLabel(filter.id, p.id),
-                }))}
-                onRemove={(predicateId) =>
-                  removeFilterPredicate(filter.id, predicateId)
-                }
-              />
-            ))}
-          </div>
+          filters && (
+            <FilterGroupList
+              filterGroups={filters}
+              filterRegistry={filterRegistry}
+              onRemove={removeFilterPredicate}
+            />
+          )
+
+          // <div className="flex gap-4">
+          //   {/* <button
+          //     className="
+          //     self-start btn btn-secondary
+          //     bg-raised/40 hover:bg-accent/5
+          //     py-1.5 text-sm rounded-xl"
+          //   >
+          //     <Plus size={16} />
+          //     Add filter
+          //   </button> */}
+          //   {filters?.map((filter) => (
+          //     // call wrapper component FilterChipList
+          //     <FilterChip
+          //       key={filter.id}
+          //       {...filter}
+          //       label={filter.id}
+          //       values={filter.predicates.map((p) => ({
+          //         id: p.id,
+          //         label: filterLabel(filter.id, p.id),
+          //       }))}
+          //       onRemove={(predicateId) =>
+          //         removeFilterPredicate(filter.id, predicateId)
+          //       }
+          //     />
+          //   ))}
+          // </div>
         }
         batchActions={(batchSelected) => [
           {

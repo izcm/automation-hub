@@ -90,7 +90,7 @@ export function Dropdown<T = string>({
         onOpenChange={onOpenChange}
         align={popoverProps?.align}
         contentClassName={cn(
-          "w-full rounded shadow-panel",
+          "w-max rounded shadow-panel",
           popoverProps?.contentClassName,
         )}
         trigger={trigger}

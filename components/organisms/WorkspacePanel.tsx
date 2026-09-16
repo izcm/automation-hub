@@ -22,9 +22,11 @@ export function WorkspacePanel({ onClose, children, contentClassName }: Props) {
         type="button"
         onClick={onClose}
         aria-label="Close"
-        className="absolute right-4 top-4 z-10 flex-center h-8 w-8 rounded text-muted transition-colors hover:bg-raised"
+        className="group absolute right-2 top-2 z-10 flex-center h-12 w-12 text-muted focus-visible:!shadow-none"
       >
-        <Cancel size={16} />
+        <span className="flex-center size-8 rounded transition-colors group-hover:bg-raised group-focus-visible:ring-2 group-focus-visible:ring-accent">
+          <Cancel size={16} />
+        </span>
       </button>
 
       <div className={cn("h-full overflow-y-auto", contentClassName)}>

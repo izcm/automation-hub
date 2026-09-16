@@ -9,11 +9,11 @@ import { Checkbox, IconBtn } from "@a2zb/react";
 export type FilterChipProps = {
   id: string;
   label: string;
-  values: FilterGroup[];
+  values: FilterGroupValue[];
   onRemove: (id: string) => void;
 };
 
-type FilterGroup = {
+type FilterGroupValue = {
   id: string;
   label: ReactNode;
 };
@@ -68,7 +68,10 @@ export function FilterGroup({ label, values, onRemove }: FilterChipProps) {
               onClick={() => setOpenDropdown(!openDropdown)}
             >
               <span>{values.length} selected</span>
-              <ChevronDown size={16} />
+              <ChevronDown
+                size={16}
+                className={cn(openDropdown && "rotate-180")}
+              />
             </button>
 
             <div className="w-px bg-accent/20 h-1/2 self-center" />
@@ -100,7 +103,7 @@ export function FilterGroup({ label, values, onRemove }: FilterChipProps) {
         popoverProps={{
           align: "left",
           contentClassName:
-            "w-full p-2 bg-elevated-gradient rounded-lg border-extra-faint",
+            "p-2 bg-elevated-gradient rounded-lg border-extra-faint",
         }}
       />
     </div>
