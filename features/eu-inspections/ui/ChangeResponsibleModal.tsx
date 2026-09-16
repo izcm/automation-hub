@@ -4,7 +4,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 
 import { confirmWith, rejectWith, warningWith } from "@/lib/toast";
 import { cn } from "@/lib/cn";
-import { SelectDropdown, InitialsBadge } from "@/components/molecules";
+import { FocusDropdown, InitialsBadge } from "@/components/molecules";
 import { AppModal } from "@/features/core/ui/AppModal";
 
 import { updateMaintenanceResponsible } from "@/features/core/server-actions";
@@ -103,7 +103,7 @@ export function ChangeResponsibleModal({
     >
       <div className="flex flex-col gap-1">
         <span className="text-subtle text-sm">Employee</span>
-        <SelectDropdown
+        <FocusDropdown
           options={employees}
           getLabel={(emp) => emp.name}
           getKey={(emp) => emp.id}

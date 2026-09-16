@@ -10,7 +10,7 @@ import { useLanguage } from "@/lib/contexts/LanguageContext";
 
 import { Employee } from "@/types";
 
-import { Notify, User } from "@components/icons";
+import { Notify, Plus, User } from "@components/icons";
 import { ResourceManagementView } from "@/components/organisms";
 
 import {
@@ -22,7 +22,7 @@ import {
   EU_INSPECTIONS_LABELS,
 } from "@/features/eu-inspections";
 
-import { applyFilters } from "@/features/filtering/predicate";
+import { applyFilters, Filter } from "@/features/filtering/predicate";
 
 import { EuInspectionRow as EuInspectionRowCard } from "./EuInspectionRow";
 import { SidePanel } from "./SidePanel";
@@ -35,7 +35,9 @@ import {
   markEuInspectionsStatus,
 } from "../server-actions/mutate";
 import { buildFilters } from "../logic/filters";
-import { FilterChips } from "@/components/molecules";
+import { FilterChip } from "@/components/molecules";
+import { capitalize } from "@a2zb/lib";
+import { STATUS_COLOR, STATUS_LABELS, type Status } from "../logic/status";
 
 // lenient: 2 letters + 4-5 digits, space optional/anywhere — normalize strips
 // all whitespace and re-inserts the single space the API expects
@@ -67,7 +69,7 @@ export function EUInspectionView({
 }: Props) {
   // const []
   const [searchInput, setSearchInput] = useState<string>("");
-  const [filters, setFilters] = useState(
+  const [filters, setFilters] = useState<Filter<EuInspectionRow>[] | undefined>(
     rawFilters ? buildFilters(rawFilters) : undefined,
   );
   const { hasError: hasSearchError, parse: parsePlateNumber } =
@@ -75,6 +77,23 @@ export function EUInspectionView({
       SEARCH_PLATE_NUMBER_PATTERN,
       normalizeSearchPlateNumber,
     );
+
+  function removeFilterPredicate(filterId: string, predicateId: string) {
+    setFilters((prevFilters) =>
+      prevFilters
+        ?.map((filter) =>
+          filter.id === filterId
+            ? {
+                ...filter,
+                predicates: filter.predicates.filter(
+                  (p) => p.id !== predicateId,
+                ),
+              }
+            : filter,
+        )
+        .filter((filter) => filter.predicates.length > 0),
+    );
+  }
 
   const [inspections, setInspections] = useState(allInspections);
 
@@ -176,6 +195,24 @@ export function EUInspectionView({
     searchbarRef.current?.focus();
   }, []);
 
+  // temporary -> move this to the feature's filter registry
+  function filterLabel(filterId: string, predicateId: string) {
+    if (filterId === "status") {
+      return (
+        <div className="flex items-baseline gap-2">
+          <div
+            className="rounded-full size-2.5"
+            style={{
+              backgroundColor: `var(--${STATUS_COLOR[predicateId as Status]})`,
+            }}
+          />
+          {capitalize(STATUS_LABELS[predicateId as Status])}
+        </div>
+      );
+    }
+
+    return "todo";
+  }
   return (
     <>
       <ResourceManagementView
@@ -183,18 +220,32 @@ export function EUInspectionView({
         getId={(v) => v.id}
         labels={RESOURCE_MANAGEMENT_VIEW_LABELS}
         filterChips={
-          filters ? (
-            <FilterChips
-              filters={filters.map((filter) => ({
-                id: filter.id,
-                label: filter.id,
-                values: filter.predicates.map((predicate) => predicate.id),
-              }))}
-              onRemove={(id) =>
-                setFilters((current) => current?.filter((f) => f.id !== id))
-              }
-            />
-          ) : undefined
+          <div className="flex flex-col gap-4">
+            <button
+              className="
+              self-start btn btn-secondary 
+              bg-raised/40 hover:bg-accent/5
+              py-1.5 text-sm rounded-xl"
+            >
+              <Plus size={16} />
+              Add filter
+            </button>
+            {filters?.map((filter) => (
+              // call wrapper component FilterChipList
+              <FilterChip
+                key={filter.id}
+                {...filter}
+                label={filter.id}
+                values={filter.predicates.map((p) => ({
+                  id: p.id,
+                  label: filterLabel(filter.id, p.id),
+                }))}
+                onRemove={(predicateId) =>
+                  removeFilterPredicate(filter.id, predicateId)
+                }
+              />
+            ))}
+          </div>
         }
         batchActions={(batchSelected) => [
           {

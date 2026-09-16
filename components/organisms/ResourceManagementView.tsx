@@ -121,7 +121,7 @@ export function ResourceManagementView<T>({
             "
       >
         <div className={cn("relative flex items-center")}>
-          <h1 className="flex-1 font-medium text-fg/80 text-center py-1 self">
+          <h1 className="flex-1 text-center font-medium text-fg/90">
             {labels.title}
           </h1>
           <div

@@ -2,7 +2,7 @@ import { ReactNode, useState } from "react";
 
 import {
   CopyableId,
-  SelectDropdown,
+  FocusDropdown,
   type SelectDropdownProps,
 } from "@/components/molecules";
 import { Cancel, Confirm, Edit } from "@components/icons";
@@ -47,7 +47,7 @@ export function DropdownEditor<T>({
 
   return (
     <>
-      <SelectDropdown
+      <FocusDropdown
         {...select}
         onSelect={(value) => {
           onConfirm(value);

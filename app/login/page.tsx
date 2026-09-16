@@ -37,7 +37,7 @@ export default function LoginPage() {
   ];
 
   const sharedClasses =
-    "border border-line rounded bg-elevated [&:button]:base-element [&:input]:base-element";
+    "border border-line rounded bg-lowered [&:button]:base-element [&:input]:base-element";
 
   return (
     <>

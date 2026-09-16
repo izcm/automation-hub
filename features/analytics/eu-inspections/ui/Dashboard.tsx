@@ -6,7 +6,7 @@ import { getDaysUntil } from "@a2zb/lib";
 
 import { cn } from "@/lib/cn";
 import { Calendar, ChevronRight, GoTo } from "@/components/icons";
-import { FilterChips, PanelHeader } from "@/components/molecules";
+import { PanelHeader } from "@/components/molecules";
 
 import {
   applyFilters,
@@ -197,7 +197,7 @@ export function EuInspectionDashboard({ items }: Props) {
           </span>
         </h2>
 
-        <FilterChips
+        {/* <FilterChips
           filters={filters.map((filter) => ({
             id: filter.id,
             label: filter.id,
@@ -206,7 +206,7 @@ export function EuInspectionDashboard({ items }: Props) {
           onRemove={(id) =>
             setFilters((current) => current.filter((f) => f.id !== id))
           }
-        />
+        /> */}
 
         <IconLink
           className="btn btn-secondary"
@@ -367,7 +367,11 @@ export function EuInspectionDashboard({ items }: Props) {
 
           <Link
             href={workspaceHref({ status: "rejectedUnbooked" })}
-            className="btn btn-secondary mt-2 bg-transparent text-sm"
+            className="
+              btn btn-secondary bg-transparent 
+              hover:text-accent-strong hover:border-accent-strong 
+              mt-2 text-sm
+              "
           >
             View all outstanding rejections
             <ChevronRight size="16" />

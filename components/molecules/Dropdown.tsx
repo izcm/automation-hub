@@ -15,6 +15,12 @@ type Props<T> = {
 
   searchable?: boolean;
 
+  // extra chrome around the search input + list — a title/count row above,
+  // a "clear all"/"done" row below. `close` lets footer actions (eg. Done)
+  // close the popover without the caller needing its own open/close wiring.
+  header?: ReactNode;
+  footer?: (close: () => void) => ReactNode;
+
   galleryItem: (option: T, handleCommit: (option: T) => void) => ReactNode;
 
   onCommit: (option: T) => void;
@@ -34,7 +40,9 @@ export function Dropdown<T = string>({
   getLabel = (option) => String(option),
   getKey = getLabel,
   trigger,
-  searchable,
+  searchable = false,
+  header,
+  footer,
   galleryItem,
   onCommit,
   open,
@@ -53,7 +61,7 @@ export function Dropdown<T = string>({
   // and "issi engel" (second word starts with e), but not "irek"
   const applicable = () => {
     const query = search.toLowerCase();
-    if (!query) return options;
+    if (!query || !searchable) return options;
 
     return options.filter((option) =>
       getLabel(option)
@@ -82,11 +90,13 @@ export function Dropdown<T = string>({
         onOpenChange={onOpenChange}
         align={popoverProps?.align}
         contentClassName={cn(
-          "w-full rounded shadow-lg",
+          "w-full rounded shadow-panel",
           popoverProps?.contentClassName,
         )}
         trigger={trigger}
       >
+        {header}
+
         {searchable && (
           <TextInput
             {...restTextInputProps}
@@ -116,6 +126,8 @@ export function Dropdown<T = string>({
             arrowRow: "inset-focus",
           }}
         />
+
+        {footer?.(() => onOpenChange(false))}
       </Popover>
     </>
   );

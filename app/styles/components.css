@@ -47,15 +47,15 @@
 
   /* BTN SECONDARY STYLES */
   .btn-secondary {
-    color: color-mix(in oklab, var(--fg) 40%, var(--subtle));
-    border-color: color-mix(in oklab, var(--accent) 24%, var(--line));
-    background: light-dark(var(--raised), var(--ground));
+    color: color-mix(in oklab, var(--fg) 40%, var(--accent));
+    border-color: color-mix(in oklab, var(--accent) 40%, var(--line));
+    background: light-dark(var(--raised), var(--raised));
     box-shadow: none;
   }
 
   .btn-secondary:hover {
     color: var(--accent-strong);
-    background: color-mix(in oklab, var(--accent) 8%, var(--raised));
+    background: color-mix(in oklab, var(--accent) 8%, transparent);
     box-shadow: none;
   }
 
