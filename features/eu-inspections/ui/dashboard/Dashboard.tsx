@@ -47,6 +47,7 @@ function formatDateRange(from: Date, to: Date): string {
 type Props = {
   items: EuInspectionRow[];
   filters: Filter<EuInspectionRow>[];
+  displayFilters: Filter<EuInspectionRow>[];
   setFilters: (
     updater: (current: Filter<EuInspectionRow>[]) => Filter<EuInspectionRow>[],
   ) => void;
@@ -64,6 +65,7 @@ type Props = {
 export function EuInspectionDashboard({
   items,
   filters,
+  displayFilters,
   setFilters,
   addFilter,
   onViewList,
@@ -160,10 +162,10 @@ export function EuInspectionDashboard({
       />
 
       {/* FILTER APPLIERS */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-center">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 items-center">
         {/* BARCHART */}
 
-        <div className={panel}>
+        <div className={`${panel} lg:col-span-3`}>
           <PanelHeader
             heading="Inspection timeline"
             subtitle="Inspections grouped by due date and status."
@@ -193,7 +195,7 @@ export function EuInspectionDashboard({
                   ?.predicates.map((p) => p.id) ?? []) as Status[]
               }
               selectedCategories={selectedTimeBuckets}
-              onXClick={(bucket) =>
+              onCategoryClick={(bucket) =>
                 addFilter("timeBucket", bucket, (inspection) => {
                   const id = getTimeBucket(getDaysUntil(inspection.dueDate));
                   return id === bucket;
@@ -210,7 +212,7 @@ export function EuInspectionDashboard({
         </div>
 
         {/* ASSIGNMENTS */}
-        <div className={cn(panel, "p-2")}>
+        <div className={cn(panel, "lg:col-span-2")}>
           <PanelHeader
             heading="Assignments"
             subtitle="Inspections grouped by assignment."

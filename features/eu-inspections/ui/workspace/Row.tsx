@@ -3,7 +3,7 @@ import { getDaysUntil } from "@a2zb/lib";
 
 import { cn } from "@lib/cn";
 
-import { OpenWorkspaceOverlay, Plus } from "@components/icons";
+import { CircleCheck, OpenWorkspaceOverlay, Plus } from "@components/icons";
 import { DateStamp, MediaLabel } from "@/components/molecules";
 import { NotificationRowStatus } from "@/features/notifications/ui/NotificationRowStatus";
 
@@ -40,6 +40,8 @@ export function Row({
   LABELS,
   mode = "inspection",
 }: Props) {
+  const status = getInspectionStatus(item);
+
   return (
     <div
       className={cn(
@@ -66,12 +68,9 @@ export function Row({
             <DateStamp
               date={item.dueDate}
               status={
-                STATUS_COLOR[getInspectionStatus(item)] === "neutral"
+                STATUS_COLOR[status] === "neutral"
                   ? undefined
-                  : (STATUS_COLOR[getInspectionStatus(item)] as Exclude<
-                      StatusColor,
-                      "neutral"
-                    >)
+                  : (STATUS_COLOR[status] as Exclude<StatusColor, "neutral">)
               }
             />
           }
@@ -116,11 +115,18 @@ export function Row({
             flex flex-col justify-center text-sm min-w-0
             "
         >
-          <NotificationRowStatus
-            status={statusBySubjectId.get(item.id)}
-            mostRecent={item.notifications[0]}
-            sendingTitle={LABELS.sendingNotification}
-          />
+          {status === "approved" ? (
+            <span className="inline-flex items-center gap-3 text-safe">
+              <CircleCheck />
+              Approved
+            </span>
+          ) : (
+            <NotificationRowStatus
+              status={statusBySubjectId.get(item.id)}
+              mostRecent={item.notifications[0]}
+              sendingTitle={LABELS.sendingNotification}
+            />
+          )}
         </div>
       </div>
 

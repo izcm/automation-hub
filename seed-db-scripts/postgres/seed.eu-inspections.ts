@@ -17,6 +17,15 @@ const STATUS_CYCLE: EuInspectionStatus[] = [
   "approved",
 ];
 
+// further out, weight the cycle toward "unresolved" (nothing booked yet is
+// more likely the further off the due date is).
+const STATUS_CYCLE_LATE: EuInspectionStatus[] = [
+  "unresolved",
+  "unresolved",
+  "pending",
+  "approved",
+];
+
 // plateNumber is "ZZ 00001" etc — the digits are already a stable, unique
 // number per vehicle. No Math.random(), no row-order dependency: the same
 // plate always maps to the same offset/status, only "today" moves.
@@ -29,6 +38,7 @@ function numberFromPlate(plateNumber: string): number {
 // how due the dueDate is, so the raw data isn't nonsensical on its own.
 function statusFor(offset: number, n: number): EuInspectionStatus {
   if (offset <= 7) return "pending";
+  if (offset >= 45) return STATUS_CYCLE_LATE[n % STATUS_CYCLE_LATE.length]!;
   return STATUS_CYCLE[n % STATUS_CYCLE.length]!;
 }
 
@@ -45,16 +55,44 @@ async function seed() {
 
   const today = new Date().toISOString().slice(0, 10);
 
-  // one inspection per vehicle, spread across the next 30 days by each
+  const SPAN_DAYS = 91;
+
+  // one pile in the middle of the window; days right next to it stay close
+  // behind, tapering down to baseline further out — a distance-based
+  // falloff from the pile's center instead of hardcoded bands.
+  const PILE_CENTER = 53; // middle of the ~46-60 day pile
+  const PILE_PEAK = 3; // relative weight at the center vs baseline (1)
+  const DAYS_FROM_CENTER_TO_BASELINE = 40; // distance at which weight reaches baseline
+
+  function weightAt(day: number): number {
+    const distance = Math.abs(day - PILE_CENTER);
+    return Math.max(
+      1,
+      PILE_PEAK - (distance / DAYS_FROM_CENTER_TO_BASELINE) * (PILE_PEAK - 1),
+    );
+  }
+
+  const cumulativeWeight: number[] = [];
+  for (let day = 0; day < SPAN_DAYS; day++) {
+    cumulativeWeight.push((cumulativeWeight.at(-1) ?? 0) + weightAt(day));
+  }
+  const totalWeight = cumulativeWeight.at(-1)!;
+
+  // places a plate's rank (0-based, evenly spread over `total` vehicles)
+  // onto a day offset via the pile's weighted distribution (inverse CDF).
+  function chooseBaseDay(position: number): number {
+    const target = ((position + 0.5) / vehicleRows.length) * totalWeight;
+    return cumulativeWeight.findIndex((cum) => cum >= target);
+  }
+
+  // one inspection per vehicle, spread across the next 90 days by each
   // vehicle's own plate number, instead of reusing the vehicle's own (much
   // wider) dueDate range.
   const rows = vehicleRows.map((v) => {
     const n = numberFromPlate(v.plateNumber);
-    // a single linear multiplier (e.g. n*7 % 30) is a bijection, but for
-    // consecutive plate numbers it still marches evenly through 0-30 —
-    // every 7-day bucket ends up with the exact same count. Adding a
-    // quadratic term breaks that regularity so the spread looks organic.
-    const offset = (n * 7 + n * n * 11) % 31;
+    const slot = chooseBaseDay(n - 1);
+    const jitter = (n % 5) - 2; // -2..2 days
+    const offset = Math.min(SPAN_DAYS - 1, Math.max(0, slot + jitter));
     const dueDate = shiftDays(today, offset);
 
     return {

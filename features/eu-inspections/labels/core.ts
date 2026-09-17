@@ -14,6 +14,11 @@ const en = {
   sendingNotification: "Sending notification…",
   notificationSent: "Notified",
   notificationFailed: "Couldn't notify",
+  confirmNotifyApprovedTitle: "Some selected inspections are already approved",
+  confirmNotifyApprovedBody:
+    "Do you want to notify those too, or only the ones that aren't approved yet?",
+  confirmNotifySkipApproved: "Skip approved",
+  confirmNotifySendAll: "Notify all selected",
 };
 
 const no: typeof en = {
@@ -29,6 +34,11 @@ const no: typeof en = {
   sendingNotification: "Sender varsel…",
   notificationSent: "Varslet",
   notificationFailed: "Kunne ikke varsle",
+  confirmNotifyApprovedTitle: "Noen av de valgte kontrollene er allerede godkjent",
+  confirmNotifyApprovedBody:
+    "Vil du varsle disse også, eller kun de som ikke er godkjent ennå?",
+  confirmNotifySkipApproved: "Hopp over godkjente",
+  confirmNotifySendAll: "Varsle alle valgte",
 };
 
 export const EU_INSPECTIONS_LABELS = { en, no } satisfies Record<

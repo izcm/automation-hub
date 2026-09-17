@@ -63,6 +63,36 @@ const seedVehicles = [
   vehicle(18, "Volvo", "FH 460"),
   vehicle(19, "MAN", "TGX 26.440"),
   vehicle(20, "DAF", "XF 450"),
+  vehicle(21, "Scania", "R 450"),
+  vehicle(22, "Volvo", "FH 460", { color: "Blå" }),
+  vehicle(23, "Mercedes-Benz", "Actros 1845"),
+  vehicle(24, "MAN", "TGX 26.440", { bodyType: "Skap" }),
+  vehicle(25, "DAF", "XF 450"),
+  vehicle(26, "Iveco", "S-Way 490"),
+  vehicle(27, "Scania", "R 450", { registrationStatus: "Avskiltet" }),
+  vehicle(28, "Volvo", "FH 460"),
+  vehicle(29, "MAN", "TGX 26.440"),
+  vehicle(30, "DAF", "XF 450"),
+  vehicle(31, "Scania", "R 450"),
+  vehicle(32, "Volvo", "FH 460", { color: "Blå" }),
+  vehicle(33, "Mercedes-Benz", "Actros 1845"),
+  vehicle(34, "MAN", "TGX 26.440", { bodyType: "Skap" }),
+  vehicle(35, "DAF", "XF 450"),
+  vehicle(36, "Iveco", "S-Way 490"),
+  vehicle(37, "Scania", "R 450", { registrationStatus: "Avskiltet" }),
+  vehicle(38, "Volvo", "FH 460"),
+  vehicle(39, "MAN", "TGX 26.440"),
+  vehicle(40, "DAF", "XF 450"),
+  vehicle(41, "Scania", "R 450"),
+  vehicle(42, "Volvo", "FH 460", { color: "Blå" }),
+  vehicle(43, "Mercedes-Benz", "Actros 1845"),
+  vehicle(44, "MAN", "TGX 26.440", { bodyType: "Skap" }),
+  vehicle(45, "DAF", "XF 450"),
+  vehicle(46, "Iveco", "S-Way 490"),
+  vehicle(47, "Scania", "R 450", { registrationStatus: "Avskiltet" }),
+  vehicle(48, "Volvo", "FH 460"),
+  vehicle(49, "MAN", "TGX 26.440"),
+  vehicle(50, "DAF", "XF 450"),
 ];
 
 async function seed() {
@@ -91,7 +121,7 @@ async function seed() {
   // weighted, not round-robin — a few employees carry most of the fleet,
   // the rest carry a handful, so the responsible-employees table has
   // something real to sort/trim by instead of everyone tied at 2.
-  const RESPONSIBLE_WEIGHTS = [6, 5, 4, 2, 2, 1]; // sums to seedVehicles.length
+  const RESPONSIBLE_WEIGHTS = [10, 8, 7, 6, 5, 5, 4, 3, 2]; // sums to seedVehicles.length
   const responsibleByVehicle = RESPONSIBLE_WEIGHTS.flatMap((weight, i) =>
     Array(weight).fill(i % employeeIds.length),
   );

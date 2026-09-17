@@ -14,6 +14,7 @@ import { Summary } from "./Summary";
 import { ChangeResponsibleModal } from "../ChangeResponsibleModal";
 
 import type { EuInspectionRow } from "../../types";
+import { getInspectionStatus } from "../../logic/status";
 
 type Props = {
   activeItem: EuInspectionRow;
@@ -51,7 +52,9 @@ export function SidePanel({
               <EditableEntityRow
                 id={activeItem.vehicle.employee.id}
                 label={activeItem.vehicle.employee.name}
-                icon={<InitialsBadge label={activeItem.vehicle.employee.name} />}
+                icon={
+                  <InitialsBadge label={activeItem.vehicle.employee.name} />
+                }
                 renderEditor={({ isOpen, onClose }) => (
                   <ChangeResponsibleModal
                     isOpen={isOpen}
@@ -109,7 +112,8 @@ export function SidePanel({
            btn btn-secondary"
           disabled={
             !activeItem.vehicle.employee ||
-            statusBySubjectId.get(activeItem.id) === "queued"
+            statusBySubjectId.get(activeItem.id) === "queued" ||
+            getInspectionStatus(activeItem) === "approved"
           }
         >
           <Notify size={14} />

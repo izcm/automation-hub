@@ -118,7 +118,7 @@ export function EuInspectionsKPIs({ rows, selectedStatuses }: Props) {
     selectedStatuses.length > 0 ? [...selectedStatuses, "due"] : [];
 
   return (
-    <div className="grid grid-cols-5 gap-3">
+    <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
       <KPI
         title={
           <KPITitle info="Example: a vehicle's EU inspection is due in 40 days — counted here regardless of status.">

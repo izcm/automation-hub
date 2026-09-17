@@ -25,11 +25,14 @@ import {
 
 import { applyFilters, type Filter } from "@/features/filtering/predicate";
 
+import { AppModal } from "@/features/core/ui/AppModal";
+
 import { Row } from "./Row";
 import { SidePanel } from "./SidePanel";
 import { ChangeResponsibleModal } from "../ChangeResponsibleModal";
 import { useDemoInboxChoice } from "../../demo-behaviour/use-demo-inbox-choice";
 import { useNotifications } from "../../hooks/use-notifications";
+import { getInspectionStatus } from "../../logic/status";
 
 import {
   sendEuInspectionNotifications,
@@ -177,6 +180,27 @@ export function ListView({
   const [assignTargetIds, setAssignTargetIds] = useState<string[] | null>(null);
   const clearAssignSelectionRef = useRef<() => void>(() => {});
 
+  const [pendingNotifyIds, setPendingNotifyIds] = useState<string[] | null>(
+    null,
+  );
+  const clearNotifySelectionRef = useRef<() => void>(() => {});
+
+  async function resolvePendingNotify(mode: "skipApproved" | "notifyAll") {
+    if (!pendingNotifyIds) return;
+    setPendingNotifyIds(null);
+
+    const ids =
+      mode === "notifyAll"
+        ? pendingNotifyIds
+        : pendingNotifyIds.filter((id) => {
+            const item = inspections.find((i) => i.id === id);
+            return item ? getInspectionStatus(item) !== "approved" : true;
+          });
+
+    if (ids.length > 0) await sendNotification(ids);
+    clearNotifySelectionRef.current();
+  }
+
   const searchbarRef = useRef<HTMLInputElement>(null);
 
   // --- etc. ui effects ---
@@ -234,6 +258,17 @@ export function ListView({
               (id) => statusBySubjectId.get(id) === "queued",
             ),
             onClick: async (euInspectionIds, clearSelection) => {
+              const hasApproved = euInspectionIds.some((id) => {
+                const item = inspections.find((i) => i.id === id);
+                return item ? getInspectionStatus(item) === "approved" : false;
+              });
+
+              if (hasApproved) {
+                setPendingNotifyIds(euInspectionIds);
+                clearNotifySelectionRef.current = clearSelection;
+                return;
+              }
+
               await sendNotification(euInspectionIds);
               clearSelection();
             },
@@ -286,6 +321,30 @@ export function ListView({
           if (!loading) clearAssignSelectionRef.current();
         }}
       />
+
+      <AppModal
+        isOpen={pendingNotifyIds !== null}
+        onClose={() => setPendingNotifyIds(null)}
+        title={LABELS.confirmNotifyApprovedTitle}
+        className="min-w-sm"
+        actions={[
+          {
+            label: LABELS.confirmNotifySendAll,
+            variant: "neutral",
+            onClick: () => resolvePendingNotify("notifyAll"),
+          },
+          {
+            label: LABELS.confirmNotifySkipApproved,
+            variant: "primary",
+            id: "modal-focus-element",
+            onClick: () => resolvePendingNotify("skipApproved"),
+          },
+        ]}
+      >
+        <p className="text-sm text-subtle">
+          {LABELS.confirmNotifyApprovedBody}
+        </p>
+      </AppModal>
 
       {demoInboxModal}
     </>
