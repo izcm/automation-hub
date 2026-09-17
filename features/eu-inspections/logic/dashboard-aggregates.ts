@@ -1,20 +1,10 @@
-import type { EuInspectionRow } from "./types";
+import type { EuInspectionRow } from "../types";
 import { getDaysUntil } from "@a2zb/lib";
 
-import { aggregateBy } from "../logic/aggregate";
-import type { EmployeeInspectionRow } from "./ui/tables/ResponsibleEmployeesTable";
+import { aggregateBy } from "@/lib/analytics/aggregate";
+import type { EmployeeInspectionRow } from "../ui/dashboard/tables/ResponsibleEmployeesTable";
 
-// status classification/labels/colors moved to features/eu-inspections/status.ts
-// — it's core domain logic, not analytics-specific, and the plain
-// eu-inspections views (list, sidepanel) need it too. Re-exported here so
-// existing imports from "../logic" in this feature keep working.
-export * from "@/features/eu-inspections/logic/status";
-import { getInspectionStatus } from "@/features/eu-inspections/logic/status";
-
-// getTimeBucket/TimeBucket moved to lib/time-bucket.ts — it's a pure
-// number-in/string-out function with no eu-inspections domain coupling.
-// Re-exported here so existing imports from "../logic" keep working.
-export * from "@/lib/time-bucket";
+import { getInspectionStatus } from "./status";
 import { getTimeBucket, timeBuckets } from "@/lib/time-bucket";
 
 // one row per employee responsible for a vehicle, tallying their inspections

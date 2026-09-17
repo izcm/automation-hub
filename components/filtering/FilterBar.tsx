@@ -1,7 +1,6 @@
-import { FilterChip, InitialsBadge } from "@/components/molecules";
+import { FilterGroup as FilterChip } from "./FilterGroup";
 import { Filter } from "@/features/filtering/predicate";
 
-import { EuInspectionRow } from "../types";
 import { Funnel, Plus } from "lucide-react";
 import { ReactNode } from "react";
 
@@ -20,24 +19,19 @@ export type ResourceFilterRegistry = Record<
 
 // filterGroups: filters that have some predicate
 // filterIds: all filters that are applicable to the resource
-type Props = {
-  filterGroups: Filter<EuInspectionRow>[];
+type Props<T> = {
+  filterGroups: Filter<T>[];
   filterRegistry: ResourceFilterRegistry;
   onRemove: (filterId: string, predicateId: string) => void;
   onAdd: (filterId: string, predicateId: string) => void;
 };
 
-export function FilterBar({
+export function FilterBar<T>({
   filterGroups,
   filterRegistry,
   onRemove,
   onAdd,
-}: Props) {
-  const allFilterIds = Object.keys(filterRegistry);
-  const activeFilterIds = allFilterIds.filter((fid) =>
-    filterGroups.map((fg) => fg.id).includes(fid),
-  );
-
+}: Props<T>) {
   return (
     <>
       {filterGroups.map((filter) => (

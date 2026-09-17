@@ -1,9 +1,9 @@
 import { ReactNode } from "react";
 
 import { Inspection, Info } from "@/components/icons";
-import type { EuInspectionRow } from "../../types";
+import type { EuInspectionRow } from "../../../types";
 
-import { countFieldValues } from "../../../logic/count";
+import { countFieldValues } from "@/lib/analytics/count";
 import {
   getInspectionStatus,
   STATUS_COLOR,
@@ -11,9 +11,9 @@ import {
   STATUS_INFO,
   STATUS_LABELS,
   type Status,
-} from "../../logic";
-import { KPI, zeroSafeColor, type KPIProps } from "../../../ui/KPI";
-import { SmartKPIs } from "../../../ui/SmartKPIs";
+} from "../../../logic/status";
+import { KPI, zeroSafeColor, type KPIProps } from "@/components/analytics/KPI";
+import { SmartKPIs } from "@/components/analytics/SmartKPIs";
 
 type Props = {
   rows: EuInspectionRow[];

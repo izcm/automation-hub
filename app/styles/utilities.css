@@ -23,7 +23,7 @@
 
 /* darker raised panel, extra-faint outline — side-panel section cards */
 @utility raised-outline-panel {
-  @apply rounded bg-elevated-alt border border-extra-faint;
+  @apply rounded-lg bg-elevated-gradient border border-extra-faint;
 }
 
 /* focus ring drawn inward instead of outward — for elements whose focus ring

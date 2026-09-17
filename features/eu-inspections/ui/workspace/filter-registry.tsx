@@ -11,8 +11,8 @@ import {
   STATUS_LABELS,
   STATUS_OPTIONS,
   type Status,
-} from "../logic/status";
-import { ResourceFilterRegistry } from "./FilterBar";
+} from "../../logic/status";
+import { ResourceFilterRegistry } from "@/components/filtering";
 
 export function buildFilterRegistry(
   employees: Employee[],

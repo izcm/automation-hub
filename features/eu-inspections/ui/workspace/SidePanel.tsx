@@ -10,10 +10,10 @@ import { Field } from "@/features/eu-inspections";
 
 import type { Employee, NotificationStatus } from "@/types";
 
-import { EuInspectionSummary } from "./EuInspectionSummary";
-import { ChangeResponsibleModal } from "./ChangeResponsibleModal";
+import { Summary } from "./Summary";
+import { ChangeResponsibleModal } from "../ChangeResponsibleModal";
 
-import type { EuInspectionRow } from "../types";
+import type { EuInspectionRow } from "../../types";
 
 type Props = {
   activeItem: EuInspectionRow;
@@ -40,7 +40,7 @@ export function SidePanel({
     <aside className="h-dvh flex flex-col gap-3 p-4">
       <div className="flex-1 flex flex-col gap-3 overflow-y-scroll scrollbar-hide">
         <section className="flex flex-col gap-2">
-          <EuInspectionSummary item={activeItem} />
+          <Summary item={activeItem} />
         </section>
 
         <section className="flex flex-col gap-2">

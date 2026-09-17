@@ -1,6 +1,6 @@
 import { IS_DEMO } from "@/server/config/app";
 
-import { EuInspectionsWorkspace } from "@/features/eu-inspections/ui/EuInspectionsWorkspace";
+import { Workspace } from "@/features/eu-inspections/ui/workspace/Workspace";
 import { getEuInspections } from "@/features/eu-inspections/server-actions/queries";
 
 import {
@@ -48,7 +48,7 @@ export default async function EuInspectionsPage({
   }
 
   return (
-    <EuInspectionsWorkspace
+    <Workspace
       allInspections={inspectionsResult.ok ? inspectionsResult.data : []}
       rawFilters={rawFilters}
       initialView={initialView}

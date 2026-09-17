@@ -7,14 +7,14 @@ import { Checkbox } from "@a2zb/react";
 import { cn } from "@/lib/cn";
 import { Cancel, ChevronDown } from "@/components/icons";
 
-import { Dropdown } from "./Dropdown";
+import { Dropdown } from "@/components/molecules/Dropdown";
 
-export type FilterChipProps = {
+export type FilterGroupProps = {
   id: string;
   label: string;
   // every value that can be picked, not just the selected ones — selection
   // state comes from `isChecked`, not from what's in this list
-  values: FilterGroupValue[];
+  values: FilterGroupItem[];
   isChecked: (id: string) => boolean;
   // toggling one value on/off in the dropdown list
   onCheckedChange: (id: string, checked: boolean) => void;
@@ -25,7 +25,7 @@ export type FilterChipProps = {
   getLabel?: (id: string) => string;
 };
 
-type FilterGroupValue = {
+type FilterGroupItem = {
   id: string;
   content: ReactNode;
 };
@@ -37,7 +37,7 @@ export function FilterGroup({
   onCheckedChange,
   onRemove,
   getLabel,
-}: FilterChipProps) {
+}: FilterGroupProps) {
   const capitalizedFilterLabel = capitalize(label);
 
   const checkedCount = values.filter((v) => isChecked(v.id)).length;

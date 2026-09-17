@@ -1,8 +1,6 @@
 export { Badge, IconBadge } from "./Badge";
 export { CopyableId } from "./CopyableId";
 export { DateStamp } from "./DateStamp";
-export { FilterGroup as FilterChip } from "./FilterGroup";
-export type { FilterChipProps } from "./FilterGroup";
 export { FocusDropdown } from "./FocusDropdown";
 export { Pagination } from "./Pagination";
 export { MediaLabel } from "./MediaLabel";

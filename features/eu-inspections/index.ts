@@ -1,10 +1,9 @@
 export * from "./types";
 
 export * from "./labels/core";
-export * from "./labels/filters";
 
 export * from "./hooks/use-notify-eu-inspections";
 
-export * from "./ui/EUInspectionView";
-export * from "./ui/EuInspectionsWorkspace";
-export * from "./ui/EuInspectionSummary";
+export * from "./ui/workspace/ListView";
+export * from "./ui/workspace/Workspace";
+export * from "./ui/workspace/Summary";

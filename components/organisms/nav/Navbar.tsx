@@ -7,7 +7,7 @@ import { LogOut } from "@/components/icons";
 import { ThemeToggleLabels } from "@/components/organisms";
 
 const navbarBtn =
-  "rounded p-2 hover:bg-accent/10 btn text-subtle hover:text-accent-strong";
+  "rounded-lg p-2 hover:bg-accent/10 btn text-subtle hover:text-accent-strong cursor-pointer";
 
 export type NavItem = {
   id: string;
@@ -30,8 +30,8 @@ type Props = {
 // resolve language, current path, and click handlers, and pass the result in.
 export function Navbar({
   items,
-  skipToContentLabel,
-  themeLabels,
+  // skipToContentLabel,
+  // themeLabels,
   logoutLabel,
   onLogout,
 }: Props) {
@@ -41,7 +41,7 @@ export function Navbar({
       className="
       group h-dvh shrink-0 max-w-16
       flex flex-col items-center gap-3
-      p-2 border-r border-faint bg-elevated/40
+      p-2 border-r border-extra-faint bg-elevated/40
       [&_svg]:size-6 [&_svg]:[stroke-width:2]"
     >
       {/* <a
@@ -60,8 +60,7 @@ export function Navbar({
           aria-current={item.active ? "page" : undefined}
           className={cn(
             navbarBtn,
-            item.active &&
-              "bg-lowered [&_svg]:text-accent bg-current/8 pointer-events-none",
+            item.active && "bg-accent/10 text-accent pointer-events-none",
             item.disabled && "opacity-40 pointer-events-none",
           )}
         >
@@ -73,7 +72,10 @@ export function Navbar({
 
       <button
         aria-label={logoutLabel}
-        className={cn(navbarBtn, "mt-auto")}
+        className={cn(
+          navbarBtn,
+          "mt-auto hover:bg-failure/10 hover:text-failure",
+        )}
         onClick={onLogout}
       >
         <span aria-hidden>

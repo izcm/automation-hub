@@ -1,8 +1,8 @@
 import { ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
-import { Table, th } from "@/features/analytics/ui/Table";
-import type { AssignmentInspectionRow } from "../../logic";
+import { Table, th } from "@/components/analytics/Table";
+import type { AssignmentInspectionRow } from "../../../logic/dashboard-aggregates";
 
 type Props = {
   rows: AssignmentInspectionRow[];

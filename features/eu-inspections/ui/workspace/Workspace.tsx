@@ -8,14 +8,14 @@ import {
   type Filter,
 } from "@/features/filtering/predicate";
 
-import type { EuInspectionRow } from "../types";
+import type { EuInspectionRow } from "../../types";
 import { Employee, Assignment } from "@/types";
 
-import { aggregateByEmployee } from "@/features/analytics/eu-inspections/logic";
-import { EuInspectionDashboard } from "@/features/analytics/eu-inspections/ui/Dashboard";
-import { EUInspectionView } from "./EUInspectionView";
+import { aggregateByEmployee } from "../../logic/dashboard-aggregates";
+import { EuInspectionDashboard } from "../dashboard/Dashboard";
+import { ListView } from "./ListView";
 
-import { buildFilters } from "../logic/filters";
+import { buildFilters } from "../../logic/filters";
 
 type View = "dashboard" | "list";
 
@@ -62,7 +62,7 @@ type Props = {
 // one filter state — switching between them is just a local state flip,
 // not a navigation, so neither view has to re-parse the other's filters
 // from the URL.
-export function EuInspectionsWorkspace({
+export function Workspace({
   allInspections,
   rawFilters,
   employees,
@@ -110,7 +110,7 @@ export function EuInspectionsWorkspace({
   if (view === "list") {
     return (
       <div key="list" className="view-in">
-        <EUInspectionView
+        <ListView
           allInspections={allInspections}
           employees={employees}
           assignments={assignments}

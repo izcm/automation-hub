@@ -25,18 +25,18 @@ import {
 
 import { applyFilters, type Filter } from "@/features/filtering/predicate";
 
-import { EuInspectionRow as EuInspectionRowCard } from "./EuInspectionRow";
+import { Row } from "./Row";
 import { SidePanel } from "./SidePanel";
-import { ChangeResponsibleModal } from "./ChangeResponsibleModal";
-import { useDemoInboxChoice } from "../demo-behaviour/use-demo-inbox-choice";
-import { useNotifications } from "../hooks/use-notifications";
+import { ChangeResponsibleModal } from "../ChangeResponsibleModal";
+import { useDemoInboxChoice } from "../../demo-behaviour/use-demo-inbox-choice";
+import { useNotifications } from "../../hooks/use-notifications";
 
 import {
   sendEuInspectionNotifications,
   markEuInspectionsStatus,
-} from "../server-actions/mutate";
-import { EU_INSPECTION_PREDICATE_BUILDERS } from "../logic/filters";
-import { FilterBar } from "./FilterBar";
+} from "../../server-actions/mutate";
+import { EU_INSPECTION_PREDICATE_BUILDERS } from "../../logic/filters";
+import { FilterBar } from "@/components/filtering";
 import { buildFilterRegistry } from "./filter-registry";
 
 // lenient: 2 letters + 4-5 digits, space optional/anywhere — normalize strips
@@ -59,7 +59,7 @@ type Props = {
   isDemo: boolean;
   alternativeReceiver?: string;
 
-  // filters/view live one level up (EuInspectionsWorkspace) so this and the
+  // filters/view live one level up (Workspace) so this and the
   // dashboard share one filter state instead of each parsing its own copy
   // from the URL.
   filters: Filter<EuInspectionRow>[];
@@ -72,7 +72,7 @@ type Props = {
   onViewDashboard: () => void;
 };
 
-export function EUInspectionView({
+export function ListView({
   allInspections, // may or may not implement pagination here later
   alternativeReceiver, // static
   employees, // static
@@ -254,7 +254,7 @@ export function EUInspectionView({
           activeId,
           openInWorkspace,
         ) => (
-          <EuInspectionRowCard
+          <Row
             item={item}
             picked={picked}
             activeId={activeId}

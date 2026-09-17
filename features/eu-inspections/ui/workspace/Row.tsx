@@ -11,7 +11,7 @@ import {
   getInspectionStatus,
   STATUS_COLOR,
   StatusColor,
-} from "../logic/status";
+} from "../../logic/status";
 
 import type {
   EuInspectionRow,
@@ -31,7 +31,7 @@ type Props = {
 
 // Important read! : https://tailwindcss.com/docs/responsive-design
 // also: https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Containment/Container_queries
-export function EuInspectionRow({
+export function Row({
   item,
   picked,
   activeId,

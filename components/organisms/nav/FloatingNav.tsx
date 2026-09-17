@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Gallery } from "@a2zb/react";
 
 import { cn } from "@/lib/cn";
+import { useClickOutside } from "@/lib/hooks/use-click-outside";
 import { Cancel, LogOut, Menu } from "@/components/icons";
 import type { NavItem } from "./Navbar";
 
@@ -26,6 +27,7 @@ export function FloatingNav({ items, logoutLabel, onLogout }: Props) {
   const [focused, setFocused] = useState<NavItem | undefined>(
     items.find((item) => item.active) ?? items[0],
   );
+  const ref = useRef<HTMLDivElement>(null);
 
   function go(item: NavItem) {
     if (item.disabled) return;
@@ -33,9 +35,14 @@ export function FloatingNav({ items, logoutLabel, onLogout }: Props) {
     router.push(item.href);
   }
 
+  useClickOutside(ref, () => setActive(false), active);
+
   return (
     <div className="relative z-999">
-      <div className="absolute bottom-6 left-6 flex flex-col items-start gap-3">
+      <div
+        ref={ref}
+        className="absolute bottom-6 left-6 flex flex-col items-start gap-3"
+      >
         {active && (
           <div
             className="
@@ -50,7 +57,10 @@ export function FloatingNav({ items, logoutLabel, onLogout }: Props) {
               onSelect={setFocused}
               onEnter={go}
               direction="vertical"
-              className={{ arrowList: "flex flex-col gap-1" }}
+              className={{
+                arrowList: "flex flex-col gap-1",
+                arrowRow: "focus-inset",
+              }}
               itemClassName={() => "rounded-lg outline-none"}
               galleryItem={(item) => (
                 <div
@@ -58,9 +68,7 @@ export function FloatingNav({ items, logoutLabel, onLogout }: Props) {
                   className={cn(
                     "flex h-11 w-full items-center gap-3 whitespace-nowrap px-3 text-sm",
                     "rounded-lg transition-colors",
-                    item.active
-                      ? "bg-accent/10 text-accent"
-                      : "hover:bg-fg/5",
+                    item.active ? "bg-accent/10 text-accent" : "hover:bg-fg/5",
                     item.disabled &&
                       "pointer-events-none cursor-default opacity-40",
                   )}

@@ -8,21 +8,23 @@ import { PanelHeader } from "@/components/molecules";
 
 import { applyFilters, type Filter } from "@/features/filtering/predicate";
 
-import { EuInspectionRow } from "../types";
+import { EuInspectionRow } from "../../types";
 
 import {
   aggregateByAssignment,
   aggregateByTimeBucket,
+} from "../../logic/dashboard-aggregates";
+import {
   getInspectionStatus,
-  getTimeBucket,
   STATUS_COLOR,
   STATUS_INFO,
   STATUS_LABELS,
   type Status,
-} from "../logic";
+} from "../../logic/status";
+import { getTimeBucket } from "@/lib/time-bucket";
 
 import { EuInspectionsKPIs } from "./cards/EuInspectionsKPIs";
-import { InteractiveBarChart } from "../../ui/InteractiveBarChart";
+import { InteractiveBarChart } from "@/components/analytics/InteractiveBarChart";
 
 import { EuInspectionsTable } from "./tables/EuInspectionsTable";
 import { AssignmentsTable } from "./tables/AssignmentsTable";
@@ -53,7 +55,7 @@ type Props = {
     predicateId: string,
     predicate: (item: EuInspectionRow) => boolean,
   ) => void;
-  // filters/view live one level up (EuInspectionsWorkspace) so dashboard and
+  // filters/view live one level up (Workspace) so dashboard and
   // workspace list share one filter state instead of each parsing its own
   // copy from the URL — this just flips which one is shown.
   onViewList: () => void;

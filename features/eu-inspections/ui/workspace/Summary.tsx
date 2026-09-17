@@ -11,6 +11,7 @@ import { Eyebrow } from "@/components/atoms";
 
 import { cn } from "@/lib/cn";
 import { Vehicle } from "@/types/vehicle";
+import type { Assignment } from "@/types";
 import { getDaysUntil } from "@a2zb/lib";
 import { getInspectionStatusBadge } from "@/features/eu-inspections/logic/status";
 
@@ -92,17 +93,18 @@ const vehicleSummary = (vehicle: Vehicle): MetaRowProps[] => {
       label: "Make / Model",
       value: [vehicle.make, vehicle.model].filter(Boolean).join(" ") || "—",
     },
-    { label: "Registration status", value: vehicle.registrationStatus ?? "—" },
     {
       label: "First registered",
       value: vehicle.firstRegistered ? vehicle.firstRegistered : "—",
     },
-    { label: "VIN", value: vehicle.vin ?? "—" },
     { label: "Vehicle type", value: vehicle.vehicleType ?? "—" },
-    { label: "Fuel type", value: vehicle.fuelType ?? "—" },
-    { label: "Transmission", value: vehicle.transmission ?? "—" },
-    // { label: "Vehicle type (body)", value: vehicle.bodyType ?? "—" },
-    // { label: "Seats", value: vehicle.seats ?? "—" },
+    // thinned down to make room for the assignments section — registration
+    // status/VIN/fuel type/transmission are still on the Vehicle Admin
+    // module, just not repeated here.
+    // { label: "Registration status", value: vehicle.registrationStatus ?? "—" },
+    // { label: "VIN", value: vehicle.vin ?? "—" },
+    // { label: "Fuel type", value: vehicle.fuelType ?? "—" },
+    // { label: "Transmission", value: vehicle.transmission ?? "—" },
   ];
 };
 
@@ -155,6 +157,55 @@ function AttemptRows({ attempts }: { attempts: EuInspectionAttempt[] }) {
                 <IconBadge icon={icon} variant={variant}>
                   {label}
                 </IconBadge>
+                {isLastVisible && (hasMore || expanded) && (
+                  <button
+                    type="button"
+                    onClick={() => setExpanded(!expanded)}
+                    className="shrink-0 text-xs text-accent hover:text-accent-strong"
+                  >
+                    {expanded ? "See less" : `See ${remaining} more`}
+                  </button>
+                )}
+              </div>
+            }
+            last={isLastVisible}
+          />
+        );
+      })}
+    </dl>
+  );
+}
+
+// one MetaRow per assignment, simple key:value (ordinal -> name), "see
+// all" toggle past 3 — same interaction as AttemptRows/NotificationList.
+function AssignmentRows({ assignments }: { assignments: Assignment[] }) {
+  const [expanded, setExpanded] = useState(false);
+
+  if (assignments.length === 0) {
+    return (
+      <dl className="text-[13px] text-subtle">
+        <MetaRow label="—" value="No assignments" last />
+      </dl>
+    );
+  }
+
+  const initialCount = 3;
+  const remaining = assignments.length - initialCount;
+  const hasMore = remaining > 0;
+  const visible = expanded ? assignments : assignments.slice(0, initialCount);
+
+  return (
+    <dl className="text-[13px] text-subtle">
+      {visible.map((assignment, i) => {
+        const isLastVisible = i === visible.length - 1;
+
+        return (
+          <MetaRow
+            key={assignment.id}
+            label={`Assignment ${i + 1}`}
+            value={
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-fg">{assignment.name}</span>
                 {isLastVisible && (hasMore || expanded) && (
                   <button
                     type="button"
@@ -257,7 +308,7 @@ function VehicleDetailsCard({ vehicle }: { vehicle: Vehicle }) {
   );
 }
 
-export function EuInspectionSummary({ item }: Props) {
+export function Summary({ item }: Props) {
   const { vehicle } = item;
 
   return (
@@ -270,6 +321,14 @@ export function EuInspectionSummary({ item }: Props) {
         <Eyebrow>Vehicle</Eyebrow>
 
         <VehicleDetailsCard vehicle={vehicle} />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Eyebrow>Assignments</Eyebrow>
+
+        <div className="raised-outline-panel">
+          <AssignmentRows assignments={vehicle.assignments ?? []} />
+        </div>
       </div>
     </>
   );

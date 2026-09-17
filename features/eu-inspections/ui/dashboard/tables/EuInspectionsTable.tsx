@@ -5,8 +5,12 @@ import { getDaysUntil } from "@a2zb/lib";
 
 import { cn } from "@/lib/cn";
 import { GoTo, Overdue } from "@/components/icons";
-import type { EuInspectionRow } from "../../types";
-import { getInspectionStatus, STATUS_COLOR, STATUS_LABELS } from "../../logic";
+import type { EuInspectionRow } from "../../../types";
+import {
+  getInspectionStatus,
+  STATUS_COLOR,
+  STATUS_LABELS,
+} from "../../../logic/status";
 
 type Props = {
   rows: EuInspectionRow[];

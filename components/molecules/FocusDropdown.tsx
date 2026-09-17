@@ -1,13 +1,13 @@
 import {
   ComponentProps,
   ReactNode,
-  useEffect,
   useLayoutEffect,
   useRef,
   useState,
 } from "react";
 import { Gallery, TextInput } from "@a2zb/react";
 import { cn } from "@/lib/cn";
+import { useClickOutside } from "@/lib/hooks/use-click-outside";
 
 type BaseProps<T> = {
   options: T[];
@@ -154,22 +154,7 @@ export function Popover({
     setPlacement(overflowsBottom && moreRoomAbove ? "top" : "bottom");
   }, [open]);
 
-  useEffect(() => {
-    if (!open) return;
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node))
-        onOpenChange(false);
-    }
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") onOpenChange(false);
-    }
-    document.addEventListener("mousedown", handleClick);
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("mousedown", handleClick);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [open, onOpenChange]);
+  useClickOutside(ref, () => onOpenChange(false), open);
 
   return (
     <div ref={ref} className="relative">

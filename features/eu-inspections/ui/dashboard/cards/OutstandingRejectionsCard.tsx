@@ -1,7 +1,7 @@
 import { cn } from "@/lib/cn";
 import { Calendar } from "@/components/icons";
-import type { EuInspectionRow } from "../../types";
-import { getInspectionStatus } from "../../logic";
+import type { EuInspectionRow } from "../../../types";
+import { getInspectionStatus } from "../../../logic/status";
 
 type Props = {
   inspectionRows: EuInspectionRow[];

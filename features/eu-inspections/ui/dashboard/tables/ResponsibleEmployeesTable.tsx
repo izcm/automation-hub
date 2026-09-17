@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
-import { Table, th } from "@/features/analytics/ui/Table";
+import { Table, th } from "@/components/analytics/Table";
 
 export type EmployeeInspectionRow = {
   id: string;
