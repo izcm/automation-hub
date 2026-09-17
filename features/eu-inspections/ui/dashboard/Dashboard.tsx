@@ -82,12 +82,18 @@ export function EuInspectionDashboard({
   // ALL assignments — keeps the row set stable
   const allAssignmentRows = aggregateByAssignment(items);
 
+  // the top assignment ids are settled once
+  const topAssignmentIds = allAssignmentRows
+    .filter((row) => row.id !== "others")
+    .map((row) => row.id);
+
   // filter without the "assignment" dimension itself (its own dimension)
   const filteredAssignmentRows = aggregateByAssignment(
     applyFilters(
       items,
       filters.filter((filter) => filter.id !== "assignment"),
     ),
+    topAssignmentIds,
   );
 
   // time bucket and bar chart stuff
@@ -224,10 +230,18 @@ export function EuInspectionDashboard({
                 addFilter(
                   "assignment",
                   id,
-                  (inspection) =>
-                    inspection.vehicle.assignments?.some(
-                      (assignment) => assignment.id === id,
-                    ) ?? false,
+                  id === "others"
+                    ? // "others" isn't a real assignment id — it's every
+                      // assignment that didn't get its own row above
+                      (inspection) =>
+                        inspection.vehicle.assignments?.some(
+                          (assignment) =>
+                            !topAssignmentIds.includes(assignment.id),
+                        ) ?? false
+                    : (inspection) =>
+                        inspection.vehicle.assignments?.some(
+                          (assignment) => assignment.id === id,
+                        ) ?? false,
                 )
               }
             />

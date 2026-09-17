@@ -111,10 +111,13 @@ export type AssignmentInspectionRow = {
 // this isn't a partition of the fleet, it's "how much is on this
 // assignment's plate". Inspections whose vehicle has no assignment at all
 // are skipped, same reasoning as aggregateByEmployee skipping no-employee.
-// No top-N/"others" folding here — the assignment list is small and curated,
-// unlike the open-ended employee list.
+// Same top-4/"others" folding as aggregateByEmployee too, for the same
+// reason — keeps the table a fixed height regardless of how many
+// assignments exist.
 export function aggregateByAssignment(
   rows: EuInspectionRow[],
+  // see aggregateByEmployee's topIds param — same reasoning.
+  topIds?: string[],
 ): AssignmentInspectionRow[] {
   const byAssignment = new Map<
     string,
@@ -140,7 +143,7 @@ export function aggregateByAssignment(
     }
   }
 
-  return [...byAssignment.values()].map((entry) => ({
+  const perAssignment = [...byAssignment.values()].map((entry) => ({
     id: entry.id,
     name: entry.name,
     total: entry.total,
@@ -149,6 +152,44 @@ export function aggregateByAssignment(
     firstAttempt: entry.firstAttempt,
     unresolved: entry.unresolved,
   }));
+
+  let top: AssignmentInspectionRow[];
+  let rest: AssignmentInspectionRow[];
+
+  if (topIds) {
+    top = topIds
+      .map((id) => perAssignment.find((row) => row.id === id))
+      .filter((row): row is AssignmentInspectionRow => row != null);
+    rest = perAssignment.filter((row) => !topIds.includes(row.id));
+  } else {
+    const sorted = perAssignment.sort((a, b) => b.total - a.total);
+    top = sorted.slice(0, 4);
+    rest = sorted.slice(4);
+  }
+
+  if (rest.length === 0) return top;
+
+  const others = rest.reduce<AssignmentInspectionRow>(
+    (acc, row) => ({
+      ...acc,
+      total: acc.total + row.total,
+      approved: acc.approved + row.approved,
+      rejected: acc.rejected + row.rejected,
+      firstAttempt: acc.firstAttempt + row.firstAttempt,
+      unresolved: acc.unresolved + row.unresolved,
+    }),
+    {
+      id: "others",
+      name: `Others (${rest.length})`,
+      total: 0,
+      approved: 0,
+      rejected: 0,
+      firstAttempt: 0,
+      unresolved: 0,
+    },
+  );
+
+  return [...top, others];
 }
 
 function emptyTimeBucketEntry(timeBucket: (typeof timeBuckets)[number]) {
