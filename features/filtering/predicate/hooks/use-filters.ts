@@ -4,8 +4,8 @@ import type { Filter } from "../types";
 
 // filter state + the toggle logic for it, generic over the item type — one
 // hook per page that needs filterable data (see EuInspectionDashboard).
-export function useFilters<T>() {
-  const [filters, setFilters] = useState<Filter<T>[]>([]);
+export function useFilters<T>(initialFilters: Filter<T>[] = []) {
+  const [filters, setFilters] = useState<Filter<T>[]>(initialFilters);
 
   // toggles one (filterId, predicateId) pair on/off. Different filterIds
   // AND together; same filterId with different predicateIds OR together
@@ -52,11 +52,32 @@ export function useFilters<T>() {
     });
   }
 
-  function removeFilter(filterId: string) {
-    setFilters((current) =>
-      current.filter((filter) => filter.id !== filterId),
+  function removeFilterPredicate(filterId: string, predicateId: string) {
+    setFilters((prevFilters) =>
+      prevFilters
+        ?.map((filter) =>
+          filter.id === filterId
+            ? {
+                ...filter,
+                predicates: filter.predicates.filter(
+                  (p) => p.id !== predicateId,
+                ),
+              }
+            : filter,
+        )
+        .filter((filter) => filter.predicates.length > 0),
     );
   }
 
-  return { filters, setFilters, addFilter, removeFilter };
+  function removeFilter(filterId: string) {
+    setFilters((current) => current.filter((filter) => filter.id !== filterId));
+  }
+
+  return {
+    filters,
+    setFilters,
+    addFilter,
+    removeFilter,
+    removeFilterPredicate,
+  };
 }

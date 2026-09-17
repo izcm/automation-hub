@@ -44,6 +44,35 @@
     color-mix(in oklab, var(--neutral) 85%, black) 100%
   );
 
+  /* weak = same direction, faded from the existing -weak tint (cut down
+     further — this is a background tint, not a badge) to transparent
+     instead of self-shaded black */
+  --gradient-critical-weak: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--critical-weak) 25%, transparent) 0%,
+    transparent 100%
+  );
+  --gradient-caution-weak: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--caution-weak) 25%, transparent) 0%,
+    transparent 100%
+  );
+  --gradient-advisory-weak: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--advisory-weak) 25%, transparent) 0%,
+    transparent 100%
+  );
+  --gradient-pending-weak: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--pending-weak) 25%, transparent) 0%,
+    transparent 100%
+  );
+  --gradient-neutral-weak: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--neutral-weak) 25%, transparent) 0%,
+    transparent 100%
+  );
+
   --background-image-ground-gradient: var(--ground-gradient);
   --background-image-raised-gradient: var(--raised-gradient);
   --background-image-elevated-gradient: var(--elevated-gradient);
@@ -52,6 +81,11 @@
   --background-image-gradient-advisory: var(--gradient-advisory);
   --background-image-gradient-pending: var(--gradient-pending);
   --background-image-gradient-neutral: var(--gradient-neutral);
+  --background-image-gradient-critical-weak: var(--gradient-critical-weak);
+  --background-image-gradient-caution-weak: var(--gradient-caution-weak);
+  --background-image-gradient-advisory-weak: var(--gradient-advisory-weak);
+  --background-image-gradient-pending-weak: var(--gradient-pending-weak);
+  --background-image-gradient-neutral-weak: var(--gradient-neutral-weak);
 
   /* weak = same base color, --weak-opacity applied (theme-tuned, see below) */
   --success-weak: color-mix(

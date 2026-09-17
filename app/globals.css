@@ -3,6 +3,7 @@
 @import "./styles/base.css";
 @import "./styles/utilities.css";
 @import "./styles/components.css";
+@import "./styles/animations.css";
 
 /* Tailwind ignores node_modules by default — scan a2zb's components so the
  * utility classes they use inline (TabNavItem, Tabs, Gallery, …) get generated. */

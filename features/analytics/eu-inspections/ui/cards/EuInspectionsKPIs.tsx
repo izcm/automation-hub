@@ -1,12 +1,13 @@
 import { ReactNode } from "react";
 
-import { Info } from "@/components/icons";
+import { Inspection, Info } from "@/components/icons";
 import type { EuInspectionRow } from "../../types";
 
 import { countFieldValues } from "../../../logic/count";
 import {
   getInspectionStatus,
   STATUS_COLOR,
+  STATUS_ICON,
   STATUS_INFO,
   STATUS_LABELS,
   type Status,
@@ -107,6 +108,7 @@ function toKpiProps(
     title: <KPITitle info={info}>{label ?? STATUS_LABELS[status]}</KPITitle>,
     value: counts[status],
     color: zeroSafeColor(counts[status], STATUS_COLOR[status]),
+    icon: STATUS_ICON[status],
     descr,
   }));
 }
@@ -130,6 +132,7 @@ export function EuInspectionsKPIs({ rows, selectedStatuses }: Props) {
         }
         value={rows.length}
         color="neutral"
+        icon={Inspection}
         descr="EU inspections due the next 8 weeks."
       />
 

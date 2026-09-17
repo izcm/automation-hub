@@ -5,12 +5,15 @@ import { toast } from "sonner";
 
 import { useRegexValidatedInput } from "@a2zb/react";
 
+import { cn } from "@/lib/cn";
 import { confirmWith, rejectWith, warningWith } from "@/lib/toast";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
 
 import { Employee } from "@/types";
 
-import { Notify, Plus, User } from "@components/icons";
+import Link from "next/link";
+
+import { Dashboard, Notify, User } from "@components/icons";
 import { ResourceManagementView } from "@/components/organisms";
 
 import {
@@ -22,7 +25,11 @@ import {
   EU_INSPECTIONS_LABELS,
 } from "@/features/eu-inspections";
 
-import { applyFilters, Filter } from "@/features/filtering/predicate";
+import {
+  applyFilters,
+  toQueryParams,
+  useFilters,
+} from "@/features/filtering/predicate";
 
 import { EuInspectionRow as EuInspectionRowCard } from "./EuInspectionRow";
 import { SidePanel } from "./SidePanel";
@@ -34,13 +41,12 @@ import {
   sendEuInspectionNotifications,
   markEuInspectionsStatus,
 } from "../server-actions/mutate";
-import { buildFilters } from "../logic/filters";
-import { FilterChip, InitialsBadge } from "@/components/molecules";
-import { capitalize } from "@a2zb/lib";
-import { STATUS_COLOR, STATUS_LABELS, type Status } from "../logic/status";
-import { FilterGroup } from "@/components/molecules/FilterGroup";
-import { FilterGroupList } from "./FilterGroupList";
-import { cn } from "@/lib/cn";
+import {
+  buildFilters,
+  EU_INSPECTION_PREDICATE_BUILDERS,
+} from "../logic/filters";
+import { FilterBar } from "./FilterBar";
+import { buildFilterRegistry } from "./filter-registry";
 
 // lenient: 2 letters + 4-5 digits, space optional/anywhere — normalize strips
 // all whitespace and re-inserts the single space the API expects
@@ -71,32 +77,24 @@ export function EUInspectionView({
   isDemo, // static
 }: Props) {
   // const []
-  const [searchInput, setSearchInput] = useState<string>("");
-  const [filters, setFilters] = useState<Filter<EuInspectionRow>[] | undefined>(
+  // const [searchInput, setSearchInput] = useState<string>("");
+  const { filters, addFilter, removeFilterPredicate } = useFilters(
     rawFilters ? buildFilters(rawFilters) : undefined,
   );
-  const { hasError: hasSearchError, parse: parsePlateNumber } =
-    useRegexValidatedInput(
-      SEARCH_PLATE_NUMBER_PATTERN,
-      normalizeSearchPlateNumber,
-    );
 
-  function removeFilterPredicate(filterId: string, predicateId: string) {
-    setFilters((prevFilters) =>
-      prevFilters
-        ?.map((filter) =>
-          filter.id === filterId
-            ? {
-                ...filter,
-                predicates: filter.predicates.filter(
-                  (p) => p.id !== predicateId,
-                ),
-              }
-            : filter,
-        )
-        .filter((filter) => filter.predicates.length > 0),
-    );
-  }
+  // keep the URL in sync with the current filters, same as the dashboard
+  const filterObj: Record<string, string[]> = Object.fromEntries(
+    (filters ?? []).map((filter) => [
+      filter.id,
+      filter.predicates.map((p) => p.id),
+    ]),
+  );
+  const filterQuery = toQueryParams(filterObj).toString();
+
+  useEffect(() => {
+    if (!filterQuery) return;
+    window.history.replaceState(null, "", `?${filterQuery}`);
+  }, [filterQuery]);
 
   const [inspections, setInspections] = useState(allInspections);
 
@@ -198,33 +196,7 @@ export function EUInspectionView({
     searchbarRef.current?.focus();
   }, []);
 
-  // temporary -> move this to the feature's filter registry
-  const filterRegistry = {
-    status: {
-      searchable: false,
-      renderLabel: (predicateId: string) => (
-        <div className="flex items-baseline gap-2">
-          <div
-            className="rounded-full size-2.5"
-            style={{
-              backgroundColor: `var(--${STATUS_COLOR[predicateId as Status]})`,
-            }}
-          />
-          {capitalize(STATUS_LABELS[predicateId as Status])}
-        </div>
-      ),
-    },
-    responsible: {
-      searchable: true,
-      renderLabel: (predicateId: string) => (
-        <InitialsBadge label={predicateId} />
-      ),
-    },
-    timeBucket: {
-      searchable: false,
-      renderLabel: (predicateId: string) => capitalize(predicateId),
-    },
-  };
+  const filterRegistry = buildFilterRegistry(employees);
 
   return (
     <>
@@ -234,39 +206,36 @@ export function EUInspectionView({
         labels={RESOURCE_MANAGEMENT_VIEW_LABELS}
         filterChips={
           filters && (
-            <FilterGroupList
-              filterGroups={filters}
-              filterRegistry={filterRegistry}
-              onRemove={removeFilterPredicate}
-            />
-          )
+            <div className="flex flex-wrap gap-3">
+              <FilterBar
+                filterGroups={filters}
+                filterRegistry={filterRegistry}
+                onRemove={removeFilterPredicate}
+                onAdd={(filterId, predicateId) =>
+                  addFilter(
+                    filterId,
+                    predicateId,
+                    EU_INSPECTION_PREDICATE_BUILDERS[filterId]!(predicateId),
+                  )
+                }
+              />
 
-          // <div className="flex gap-4">
-          //   {/* <button
-          //     className="
-          //     self-start btn btn-secondary
-          //     bg-raised/40 hover:bg-accent/5
-          //     py-1.5 text-sm rounded-xl"
-          //   >
-          //     <Plus size={16} />
-          //     Add filter
-          //   </button> */}
-          //   {filters?.map((filter) => (
-          //     // call wrapper component FilterChipList
-          //     <FilterChip
-          //       key={filter.id}
-          //       {...filter}
-          //       label={filter.id}
-          //       values={filter.predicates.map((p) => ({
-          //         id: p.id,
-          //         label: filterLabel(filter.id, p.id),
-          //       }))}
-          //       onRemove={(predicateId) =>
-          //         removeFilterPredicate(filter.id, predicateId)
-          //       }
-          //     />
-          //   ))}
-          // </div>
+              <Link
+                href={filterQuery ? `/?${filterQuery}` : "/"}
+                aria-disabled={!filterQuery}
+                className={cn(
+                  "btn btn-secondary rounded-xl",
+                  "border border-accent/20 text-accent transition-colors",
+                  filterQuery
+                    ? "hover:text-accent-strong"
+                    : "opacity-40 pointer-events-none",
+                )}
+                title="View in dashboard"
+              >
+                <Dashboard size={20} />
+              </Link>
+            </div>
+          )
         }
         batchActions={(batchSelected) => [
           {

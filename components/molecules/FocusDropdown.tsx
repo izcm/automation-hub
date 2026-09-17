@@ -179,7 +179,7 @@ export function Popover({
         <div
           ref={contentRef}
           className={cn(
-            "absolute z-50 whitespace-nowrap bg-raised border border-line",
+            "absolute z-50 whitespace-nowrap bg-raised border border-line popover-in",
             placement === "top" ? "bottom-full mb-1" : "top-full mt-1",
             align === "right" ? "right-0" : "left-0",
             // align === "right" ? "-right-3" : "-left-3",

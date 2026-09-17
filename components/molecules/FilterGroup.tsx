@@ -1,77 +1,93 @@
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
+import { Search } from "lucide-react";
 
-import { Cancel, ChevronDown } from "@/components/icons";
-import { cn } from "@/lib/cn";
 import { capitalize } from "@a2zb/lib";
+import { Checkbox } from "@a2zb/react";
+
+import { cn } from "@/lib/cn";
+import { Cancel, ChevronDown } from "@/components/icons";
+
 import { Dropdown } from "./Dropdown";
-import { Checkbox, IconBtn } from "@a2zb/react";
 
 export type FilterChipProps = {
   id: string;
   label: string;
+  // every value that can be picked, not just the selected ones — selection
+  // state comes from `isChecked`, not from what's in this list
   values: FilterGroupValue[];
-  onRemove: (id: string) => void;
+  isChecked: (id: string) => boolean;
+  // toggling one value on/off in the dropdown list
+  onCheckedChange: (id: string, checked: boolean) => void;
+  // clearing the whole chip (the "x" on the trigger) — no id, removes everything
+  onRemove: () => void;
+  // plain text to search against, given a value's id — omit for filters
+  // that shouldn't be searchable at all (searchable = this being defined)
+  getLabel?: (id: string) => string;
 };
 
 type FilterGroupValue = {
   id: string;
-  label: ReactNode;
+  content: ReactNode;
 };
 
-const filterChipClassName =
-  "bg-raised border border-faint/60 text-fg/80 cursor-pointer transition-colors hover:bg-lowered hover:text-fg";
-
-export function FilterGroup({ label, values, onRemove }: FilterChipProps) {
-  const [openDropdown, setOpenDropdown] = useState(false);
-
+export function FilterGroup({
+  label,
+  values,
+  isChecked,
+  onCheckedChange,
+  onRemove,
+  getLabel,
+}: FilterChipProps) {
   const capitalizedFilterLabel = capitalize(label);
+
+  const checkedCount = values.filter((v) => isChecked(v.id)).length;
+  const searchable = getLabel !== undefined;
+
+  // checked items first, so they group together above a divider
+  const sortedValues = [...values].sort(
+    (a, b) => Number(isChecked(b.id)) - Number(isChecked(a.id)),
+  );
+
+  // the one option id that sits right where checked gives way to
+  // unchecked — draw the divider directly before it
+  const dividerBeforeId = sortedValues.find(
+    (value, i) =>
+      !isChecked(value.id) && i > 0 && isChecked(sortedValues[i - 1]!.id),
+  )?.id;
 
   return (
     <div className="flex items-center gap-1.5 rounded-full text-sm">
       <span className="font-medium mr-1.5">{capitalizedFilterLabel}:</span>
-
-      {/* {values.map(({ id, label }) => (
-        <button
-          key={id}
-          onClick={() => onRemove(id)}
-          className={cn(
-            "flex items-center gap-3 rounded-full px-3 h-9",
-            "raised-outline-hover",
-            filterChipClassName,
-          )}
-        >
-          {label}
-          <Cancel size={16} />
-        </button>
-      ))} */}
       <Dropdown
-        options={values}
-        getLabel={(option) => option.id}
-        textInputProps={{
-          htmlInputProps: { placeholder: "Search status..." },
-        }}
+        options={sortedValues}
+        getLabel={(option) => getLabel?.(option.id) ?? option.id}
         onCommit={() => {}}
-        open={openDropdown}
-        onOpenChange={setOpenDropdown}
-        header={<span className="font-medium">{capitalizedFilterLabel}</span>}
-        trigger={
-          <div
-            className={cn(
-              "flex items-center justify-center gap-3 rounded-full px-4 h-10",
-              filterChipClassName,
-              "text-fg/90 hover:border-accent",
-            )}
-          >
+        header={
+          <div className="flex items-center w-full p-1">
+            <span className="font-medium text-sm">
+              {capitalizedFilterLabel}
+            </span>
+            <span className="font-medium ml-auto text-xs text-subtle">
+              {checkedCount} selected
+            </span>
+          </div>
+        }
+        footer={() => (
+          <div className="flex flex-col">
+            <div className="horizontal-line" />
+          </div>
+        )}
+        trigger={(open, onOpenChange) => (
+          <div className="chip justify-center text-fg/90 hover:border-accent">
             <button
               className="flex items-center gap-6 flex-1 h-full"
               type="button"
-              onClick={() => setOpenDropdown(!openDropdown)}
+              onClick={() => onOpenChange(!open)}
             >
-              <span>{values.length} selected</span>
-              <ChevronDown
-                size={16}
-                className={cn(openDropdown && "rotate-180")}
-              />
+              <span>
+                {values.filter((v) => isChecked(v.id)).length} selected
+              </span>
+              <ChevronDown size={16} className={cn(open && "rotate-180")} />
             </button>
 
             <div className="w-px bg-accent/20 h-1/2 self-center" />
@@ -80,43 +96,45 @@ export function FilterGroup({ label, values, onRemove }: FilterChipProps) {
               className="hover:text-accent-strong h-full grid place-items-center"
               onClick={(e) => {
                 e.stopPropagation();
-                // add onRemoveGroup to remove all filters OR just remove all filters and have parent be responsible for removing ghroup idk whats better
-                // onRemove();
+                onRemove();
               }}
             >
               <Cancel size={18} />
             </button>
           </div>
-        }
+        )}
         galleryItem={(option) => {
-          const checked = true;
+          const checked = isChecked(option.id);
           return (
-            <label className="flex items-center gap-2 px-2 h-10 rounded cursor-pointer hover:bg-lowered">
-              <Checkbox
-                checked={checked}
-                onChange={() => onRemove(option.id)}
-              />
-              {option.label}
-            </label>
+            <>
+              {option.id === dividerBeforeId && (
+                <div className="horizontal-line my-1" />
+              )}
+              <label className="flex items-center gap-3 h-10 rounded cursor-pointer hover:bg-lowered">
+                <Checkbox
+                  checked={checked}
+                  onChange={() => onCheckedChange(option.id, !checked)}
+                />
+                {option.content}
+              </label>
+            </>
           );
         }}
+        textInputProps={{
+          htmlInputProps: {
+            autoFocus: true,
+            placeholder: "Search status...",
+          },
+          startIcon: <Search size={16} />,
+          className: "h-9 rounded-xl bg-accent/4 my-1 mx-auto",
+        }}
+        searchable={searchable}
         popoverProps={{
           align: "left",
           contentClassName:
-            "p-2 bg-elevated-gradient rounded-lg border-extra-faint",
+            "flex flex-col gap-1 py-2 px-4 bg-elevated-gradient rounded-lg border-extra-faint min-w-[300px]",
         }}
       />
     </div>
   );
 }
-// export function FilterChips({ filters, onRemove, className }: Props) {
-//   if (filters.length === 0) return null;
-
-//   return (
-//     <div className={cn("flex items-center gap-2", className)}>
-//       {filters.map((filter) => (
-//         <FilterChip key={filter.id} {...filter} />
-//       ))}
-//     </div>
-//   );
-// }

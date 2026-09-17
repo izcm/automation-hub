@@ -1,8 +1,9 @@
 import { Dispatch, SetStateAction, useState } from "react";
 
-import { User, Notify } from "@components/icons";
+import { Notify } from "@components/icons";
 import { EditableEntityRow } from "@/components/organisms/EditableEntityRow";
 import { Eyebrow } from "@/components/atoms";
+import { InitialsBadge } from "@/components/molecules";
 
 import { NotificationList } from "@/features/notifications/ui/NotificationList";
 import { Field } from "@/features/eu-inspections";
@@ -50,7 +51,7 @@ export function SidePanel({
               <EditableEntityRow
                 id={activeItem.vehicle.employee.id}
                 label={activeItem.vehicle.employee.name}
-                icon={<User size={20} strokeWidth={1} />}
+                icon={<InitialsBadge label={activeItem.vehicle.employee.name} />}
                 renderEditor={({ isOpen, onClose }) => (
                   <ChangeResponsibleModal
                     isOpen={isOpen}

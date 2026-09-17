@@ -1,3 +1,13 @@
+import {
+  Calendar,
+  CircleAlert,
+  CircleCheck,
+  Clock,
+  Info,
+  TriangleAlert,
+  type LucideIcon,
+} from "@/components/icons";
+
 import type { EuInspectionRow } from "../types";
 
 export type Status =
@@ -27,22 +37,39 @@ export type StatusColor =
 // object key order, which isn't guaranteed to stay stable.
 export const STATUS_INFO: Record<
   Status,
-  { label: string; color: StatusColor; sort: number }
+  { label: string; color: StatusColor; sort: number; icon: LucideIcon }
 > = {
-  approved: { label: "Approved", color: "neutral", sort: 0 },
-  firstAttempt: { label: "First attempt", color: "pending", sort: 1 },
+  approved: { label: "Approved", color: "neutral", sort: 0, icon: CircleCheck },
+  firstAttempt: {
+    label: "First attempt",
+    color: "pending",
+    sort: 1,
+    icon: Clock,
+  },
   rejectedBooked: {
     label: "Rejected (with booking)",
     color: "advisory",
     sort: 2,
+    icon: Calendar,
   },
   rejectedUnbooked: {
     label: "Rejected (no booking)",
     color: "critical",
     sort: 3,
+    icon: CircleAlert,
   },
-  unresolved: { label: "Unresolved", color: "caution", sort: 4 },
-  unexpectedCase: { label: "Unexpected case", color: "neutral", sort: 5 },
+  unresolved: {
+    label: "Unresolved",
+    color: "caution",
+    sort: 4,
+    icon: TriangleAlert,
+  },
+  unexpectedCase: {
+    label: "Unexpected case",
+    color: "neutral",
+    sort: 5,
+    icon: Info,
+  },
 } as const;
 
 // thin derived views over STATUS_INFO, for callers that only need one part
@@ -58,6 +85,10 @@ export const STATUS_COLOR: Record<Status, StatusColor> = Object.fromEntries(
 export const STATUS_SORT: Record<Status, number> = Object.fromEntries(
   Object.entries(STATUS_INFO).map(([status, info]) => [status, info.sort]),
 ) as Record<Status, number>;
+
+export const STATUS_ICON: Record<Status, LucideIcon> = Object.fromEntries(
+  Object.entries(STATUS_INFO).map(([status, info]) => [status, info.icon]),
+) as Record<Status, LucideIcon>;
 
 // array form STATUS_INFO for callers that need to list / iterate every status
 // eg. for dropdowns rather thhan lookup one by key as STATUS_INFO

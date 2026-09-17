@@ -31,3 +31,12 @@
 @utility focus-inset {
   @apply focus-visible:!ring-1 focus-visible:!ring-accent focus-visible:!ring-inset;
 }
+
+/* chip-shaped surface — works on a <button> or a plain <div>, so composite
+   chips (a div wrapping more than one interactive element) can look the
+   same as a single-button chip without needing a shared component */
+@utility chip {
+  @apply flex items-center gap-3 rounded-full px-4 h-10
+    bg-raised border border-faint/60 text-fg/80
+    transition-colors hover:bg-lowered hover:text-fg;
+}

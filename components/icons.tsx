@@ -41,7 +41,13 @@ export {
   Info,
   Clock,
   Menu,
+  LayoutDashboard as Dashboard,
+  CircleCheck,
+  CircleAlert,
+  TriangleAlert,
 } from "lucide-react";
+
+export type { LucideIcon } from "lucide-react";
 
 // custom, non-lucide icons
 export function MicrosoftIcon({ className }: { className?: string }) {

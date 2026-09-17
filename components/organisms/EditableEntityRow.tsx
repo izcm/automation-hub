@@ -1,10 +1,6 @@
 import { ReactNode, useState } from "react";
 
-import {
-  CopyableId,
-  FocusDropdown,
-  type SelectDropdownProps,
-} from "@/components/molecules";
+import { CopyableId } from "@/components/molecules";
 import { Cancel, Confirm, Edit } from "@components/icons";
 import { Spinner } from "@a2zb/react";
 
@@ -19,9 +15,7 @@ function DisplayEntity({
 }) {
   return (
     <>
-      <div className="bg-black/12 rounded-full border border-extra-faint p-2">
-        {icon}
-      </div>
+      {icon}
       <div className="flex flex-col">
         <span>{label}</span>
         <div className="text-xs">
@@ -32,41 +26,7 @@ function DisplayEntity({
   );
 }
 
-type DropdownEditorProps<T> = {
-  // `onSelect` is owned internally: picking an option commits immediately
-  // and closes edit mode, so the parent only hears about it via `onConfirm`.
-  select: Omit<SelectDropdownProps<T>, "onSelect">;
-  onConfirm: (value: T) => void;
-};
-
-export function DropdownEditor<T>({
-  select,
-  onConfirm,
-}: DropdownEditorProps<T>) {
-  const [value] = useState("");
-
-  return (
-    <>
-      <FocusDropdown
-        {...select}
-        onSelect={(value) => {
-          onConfirm(value);
-        }}
-        textInputProps={{
-          value,
-          ...select.textInputProps,
-          htmlInputProps: {
-            autoFocus: true,
-            ...select.textInputProps?.htmlInputProps,
-            id: "modal-focus-element",
-          },
-        }}
-      />
-    </>
-  );
-}
-
-type EditableEntityRowDeps<T> = {
+type EditableEntityRowDeps = {
   id: string;
   label: string;
   icon: ReactNode;
@@ -76,14 +36,14 @@ type EditableEntityRowDeps<T> = {
   renderEditor: (props: { isOpen: boolean; onClose: () => void }) => ReactNode;
 };
 
-export function EditableEntityRow<T>({
+export function EditableEntityRow({
   id,
   label,
   icon,
   isLoading,
   inline: isEditorInline,
   renderEditor,
-}: EditableEntityRowDeps<T>) {
+}: EditableEntityRowDeps) {
   const [isUpdating, setIsUpdating] = useState(false);
 
   return (

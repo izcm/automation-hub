@@ -11,7 +11,7 @@ type Props<T> = {
   getLabel?: (option: T) => string;
   getKey?: (option: T) => string;
 
-  trigger: ReactNode;
+  trigger: (open: boolean, onOpenChange: (open: boolean) => void) => ReactNode;
 
   searchable?: boolean;
 
@@ -25,14 +25,16 @@ type Props<T> = {
 
   onCommit: (option: T) => void;
 
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  // omit both to let Dropdown manage its own open state internally
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 
   popoverProps?: Pick<
     ComponentProps<typeof Popover>,
     "align" | "contentClassName"
   >;
   textInputProps?: ComponentProps<typeof TextInput>;
+  galleryClassName?: ComponentProps<typeof Gallery>["className"];
 };
 
 export function Dropdown<T = string>({
@@ -45,11 +47,16 @@ export function Dropdown<T = string>({
   footer,
   galleryItem,
   onCommit,
-  open,
-  onOpenChange,
+  open: openProp,
+  onOpenChange: onOpenChangeProp,
   popoverProps,
   textInputProps,
+  galleryClassName,
 }: Props<T>) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = openProp ?? internalOpen;
+  const onOpenChange = onOpenChangeProp ?? setInternalOpen;
+
   const [search, setSearch] = useState("");
 
   // track which item is selected in dropdown
@@ -93,7 +100,7 @@ export function Dropdown<T = string>({
           "w-max rounded shadow-panel",
           popoverProps?.contentClassName,
         )}
-        trigger={trigger}
+        trigger={trigger(open, onOpenChange)}
       >
         {header}
 
@@ -122,8 +129,8 @@ export function Dropdown<T = string>({
           onEnter={handleCommit}
           galleryItem={(option) => galleryItem(option, handleCommit)}
           className={{
-            arrowList: "flex flex-col gap-0.5 max-h-[240px]",
-            arrowRow: "inset-focus",
+            arrowList: cn("flex flex-col gap-0.5", galleryClassName?.arrowList),
+            arrowRow: cn("inset-focus rounded", galleryClassName?.arrowRow),
           }}
         />
 

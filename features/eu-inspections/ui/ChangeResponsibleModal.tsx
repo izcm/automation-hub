@@ -117,15 +117,14 @@ export function ChangeResponsibleModal({
               <div
                 role="button"
                 onClick={() => handleCommit(emp)}
-                className={cn(isCurrentResponsible && "pointer-events-none")}
+                className={cn(
+                  "flex items-center gap-3 h-14 px-2 hover:bg-accent/8 cursor-pointer",
+                  isCurrentResponsible &&
+                    "pointer-events-none opacity-60 text-muted",
+                )}
               >
-                <InitialsBadge
-                  label={emp.name}
-                  className={cn(
-                    isCurrentResponsible && "opacity-60 [&>span]:text-muted",
-                    "hover:bg-accent/8 cursor-pointer h-14 px-2",
-                  )}
-                />
+                <InitialsBadge label={emp.name} size="md" />
+                <span>{emp.name}</span>
               </div>
             );
           }}

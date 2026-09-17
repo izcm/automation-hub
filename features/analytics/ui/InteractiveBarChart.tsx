@@ -138,7 +138,15 @@ export function InteractiveBarChart<T>({
   return (
     <>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={chartData} barCategoryGap="30%">
+        <BarChart
+          data={chartData}
+          barCategoryGap="30%"
+          onClick={(state) => {
+            if (state?.activeLabel !== undefined)
+              onXClick?.(String(state.activeLabel));
+          }}
+          style={{ cursor: "pointer" }}
+        >
           <CartesianGrid vertical={false} stroke="var(--extra-faint)" />
           <XAxis
             dataKey={dataKey}

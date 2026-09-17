@@ -1,9 +1,11 @@
 import { ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
+import type { LucideIcon } from "@/components/icons";
 
 export type KPIProps = {
   title: ReactNode;
+  icon?: LucideIcon;
   // undefined here usually means "zero matches" (e.g. countFieldValues
   // only sets keys that occurred at least once) — <span>{undefined}</span>
   // renders blank, not "0", so it falls back to `fallback` instead.
@@ -35,13 +37,34 @@ export function zeroSafeColor(
   return (count ?? 0) === 0 ? "empty" : color;
 }
 
-const kpiColorClasses: Record<NonNullable<KPIProps["color"]>, string> = {
-  neutral: "border-neutral/20 bg-neutral/2 border-l-neutral/80",
-  pending: "border-pending/20 bg-pending/2 border-l-pending/80",
-  advisory: "border-advisory/20 bg-advisory/2 border-l-advisory/80",
-  caution: "border-caution/20 bg-caution/2 border-l-caution/80",
-  critical: "border-critical/20 bg-critical/2 border-l-critical/80",
-  empty: "border-extra-faint border-l-extra-faint",
+const kpiColorClasses: Record<
+  NonNullable<KPIProps["color"]>,
+  { card: string; badge: string }
+> = {
+  neutral: {
+    card: "border-neutral/40 bg-gradient-neutral-weak border-l-neutral/80",
+    badge: "bg-neutral/15 text-neutral",
+  },
+  pending: {
+    card: "border-pending/40 bg-gradient-pending-weak border-l-pending/80",
+    badge: "bg-pending/15 text-pending",
+  },
+  advisory: {
+    card: "border-advisory/40 bg-gradient-advisory-weak border-l-advisory/80",
+    badge: "bg-advisory/15 text-advisory",
+  },
+  caution: {
+    card: "border-caution/40 bg-gradient-caution-weak border-l-caution/80",
+    badge: "bg-caution/15 text-caution",
+  },
+  critical: {
+    card: "border-critical/40 bg-gradient-critical-weak border-l-critical/80",
+    badge: "bg-critical/15 text-critical",
+  },
+  empty: {
+    card: "border-extra-faint border-l-extra-faint",
+    badge: "bg-extra-faint text-muted",
+  },
 };
 
 export function KPI({
@@ -50,19 +73,30 @@ export function KPI({
   fallback = "0", // should be – when irrelevant, 0 when relevant
   color = "empty",
   descr,
+  icon: Icon,
 }: KPIProps) {
   return (
     <div
       className={cn(
-        "flex flex-col p-3 gap-2 border rounded border-l-2",
-        kpiColorClasses[color],
+        "flex gap-3 p-3 border rounded border-l-2",
+        kpiColorClasses[color].card,
       )}
     >
-      <div className="text-sm text-fg/80">{title}</div>
+      {Icon && (
+        <div
+          className={cn(
+            "flex items-center justify-center size-10 rounded-lg shrink-0",
+            kpiColorClasses[color].badge,
+          )}
+        >
+          <Icon size={20} />
+        </div>
+      )}
       <div className="flex flex-col gap-2">
+        <div className="text-sm text-fg/80">{title}</div>
         <span className="text-3xl font-semibold">{value ?? fallback}</span>
+        <p className="text-xs text-subtle">{descr}</p>
       </div>
-      <p className="text-xs text-subtle">{descr}</p>
     </div>
   );
 }

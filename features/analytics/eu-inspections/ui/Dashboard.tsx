@@ -10,6 +10,7 @@ import { PanelHeader } from "@/components/molecules";
 
 import {
   applyFilters,
+  toQueryParams,
   useFilters,
   type Filter,
 } from "@/features/filtering/predicate";
@@ -34,7 +35,6 @@ import { EuInspectionsTable } from "./tables/EuInspectionsTable";
 import { ResponsibleEmployeesTable } from "./tables/ResponsibleEmployeesTable";
 
 import { OutstandingRejectionsCard } from "./cards/OutstandingRejectionsCard";
-import { useSearchParams } from "next/navigation";
 import { buildFilters } from "@/features/eu-inspections/logic/filters";
 
 const panel = "flex flex-col gap-1 border border-extra-faint rounded p-2";
@@ -52,20 +52,6 @@ function formatDateRange(from: Date, to: Date): string {
 type Props = {
   items: EuInspectionRow[];
 };
-
-function toQueryParams(filters: Record<string, string | string[]>) {
-  const params = new URLSearchParams();
-
-  Object.entries(filters).forEach(([key, value]) => {
-    if (Array.isArray(value)) {
-      value.forEach((v) => params.append(key, v));
-    } else {
-      params.set(key, value);
-    }
-  });
-
-  return params;
-}
 
 // "others" isn't a real employee id — it's every employee outside the top
 // N, so it needs expanding into the actual list of ids before it can be
