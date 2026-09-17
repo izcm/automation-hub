@@ -62,6 +62,7 @@ export function FilterGroup({
         options={sortedValues}
         getLabel={(option) => getLabel?.(option.id) ?? option.id}
         onCommit={() => {}}
+        syncSearchOnCommit={false}
         header={
           <div className="flex items-center w-full p-1">
             <span className="font-medium text-sm">
@@ -72,9 +73,23 @@ export function FilterGroup({
             </span>
           </div>
         }
-        footer={() => (
-          <div className="flex flex-col">
+        footer={(close) => (
+          <div className="flex flex-col gap-3 py-1">
             <div className="horizontal-line" />
+            <div className="flex justify-between">
+              <button onClick={onRemove} className="text-accent">
+                Clear all
+              </button>
+
+              <div className="flex gap-3 items-center">
+                <span className="font-medium ml-auto text-xs text-subtle">
+                  {checkedCount} selected
+                </span>
+                <button onClick={close} className="btn btn-primary">
+                  Done
+                </button>
+              </div>
+            </div>
           </div>
         )}
         trigger={(open, onOpenChange) => (

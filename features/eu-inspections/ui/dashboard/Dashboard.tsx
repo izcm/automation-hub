@@ -283,7 +283,7 @@ export function EuInspectionDashboard({
         </div>
 
         {/* OUTSTANDING REJECTIONS */}
-        <div
+        {/* <div
           className={cn(
             panel,
             "lg:order-1 lg:col-span-3",
@@ -330,7 +330,7 @@ export function EuInspectionDashboard({
             View all outstanding rejections
             <ChevronRight size="16" />
           </button>
-        </div>
+        </div> */}
       </div>
     </section>
   );

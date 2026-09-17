@@ -14,6 +14,10 @@ type Props<T> = {
   trigger: (open: boolean, onOpenChange: (open: boolean) => void) => ReactNode;
 
   searchable?: boolean;
+  // after picking an item, fill the search box with its label — makes sense
+  // for single-select (confirms the pick) but not multi-select (you're
+  // often picking more than one, so the box shouldn't snap to the last one).
+  syncSearchOnCommit?: boolean;
 
   // extra chrome around the search input + list — a title/count row above,
   // a "clear all"/"done" row below. `close` lets footer actions (eg. Done)
@@ -43,6 +47,7 @@ export function Dropdown<T = string>({
   getKey = getLabel,
   trigger,
   searchable = false,
+  syncSearchOnCommit = true,
   header,
   footer,
   galleryItem,
@@ -85,7 +90,7 @@ export function Dropdown<T = string>({
     // wherever focus goes next.
     // inputRef.current?.focus();
     onCommit(option);
-    setSearch(getLabel(option));
+    if (syncSearchOnCommit) setSearch(getLabel(option));
   };
 
   const { htmlInputProps, ...restTextInputProps } = textInputProps ?? {};

@@ -67,10 +67,9 @@ export function FloatingNav({ items, logoutLabel, onLogout }: Props) {
                   aria-current={item.active ? "page" : undefined}
                   className={cn(
                     "flex h-11 w-full items-center gap-3 whitespace-nowrap px-3 text-sm",
-                    "rounded-lg transition-colors",
+                    "rounded-lg transition-colors cursor-pointer",
                     item.active ? "bg-accent/10 text-accent" : "hover:bg-fg/5",
-                    item.disabled &&
-                      "pointer-events-none cursor-default opacity-40",
+                    item.disabled && "pointer-events-none opacity-40",
                   )}
                 >
                   <span aria-hidden className="[&_svg]:size-5">

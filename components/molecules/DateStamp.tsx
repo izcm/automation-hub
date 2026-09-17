@@ -6,8 +6,6 @@ type Props = {
 };
 
 const dotColor = {
-  // no shadow rn just leaving it maybe relevant later
-  // neutral: "bg-neutral shadow-[0_0_4px_var(--neutral)]",
   safe: "bg-safe shadow-[0_0_3px_var(--safe)]",
   advisory: "bg-advisory shadow-[0_0_3px_var(--advisory)]",
   caution: "bg-caution shadow-[0_0_3px_var(--caution)]",
