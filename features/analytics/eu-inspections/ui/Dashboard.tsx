@@ -1,19 +1,12 @@
-import Link from "next/link";
-import { useEffect, useLayoutEffect, useMemo } from "react";
+import { useMemo } from "react";
 
-import { IconLink } from "@a2zb/next";
 import { getDaysUntil } from "@a2zb/lib";
 
 import { cn } from "@/lib/cn";
 import { Calendar, ChevronRight, GoTo } from "@/components/icons";
 import { PanelHeader } from "@/components/molecules";
 
-import {
-  applyFilters,
-  toQueryParams,
-  useFilters,
-  type Filter,
-} from "@/features/filtering/predicate";
+import { applyFilters, type Filter } from "@/features/filtering/predicate";
 
 import { EuInspectionRow } from "../types";
 
@@ -35,7 +28,6 @@ import { EuInspectionsTable } from "./tables/EuInspectionsTable";
 import { ResponsibleEmployeesTable } from "./tables/ResponsibleEmployeesTable";
 
 import { OutstandingRejectionsCard } from "./cards/OutstandingRejectionsCard";
-import { buildFilters } from "@/features/eu-inspections/logic/filters";
 
 const panel = "flex flex-col gap-1 border border-extra-faint rounded p-2";
 
@@ -51,52 +43,28 @@ function formatDateRange(from: Date, to: Date): string {
 
 type Props = {
   items: EuInspectionRow[];
+  filters: Filter<EuInspectionRow>[];
+  setFilters: (
+    updater: (current: Filter<EuInspectionRow>[]) => Filter<EuInspectionRow>[],
+  ) => void;
+  addFilter: (
+    filterId: string,
+    predicateId: string,
+    predicate: (item: EuInspectionRow) => boolean,
+  ) => void;
+  // filters/view live one level up (EuInspectionsWorkspace) so dashboard and
+  // workspace list share one filter state instead of each parsing its own
+  // copy from the URL — this just flips which one is shown.
+  onViewList: () => void;
 };
 
-// "others" isn't a real employee id — it's every employee outside the top
-// N, so it needs expanding into the actual list of ids before it can be
-// used as a URL/query filter value.
-function buildFilterObj(
-  filters: Filter<EuInspectionRow>[],
-  otherIds: string[],
-): Record<string, string[]> {
-  return Object.fromEntries(
-    filters.map((filter) => {
-      if (filter.id === "responsible") {
-        return [
-          filter.id,
-          filter.predicates.flatMap((p) =>
-            p.id === "others" ? otherIds : p.id,
-          ),
-        ];
-      }
-
-      return [filter.id, filter.predicates.map((p) => p.id)];
-    }),
-  );
-}
-
-// todo: get generic stuff from here
-// eg. parsing params and applying filters before render
-// useLayoutEffect, reading URL, window.replaceState etc.
-// can likely be abstracted into reusable hook.
-// just one thing: what to do with filterObj?
-// do we have a nicer solution?
-export function EuInspectionDashboard({ items }: Props) {
-  const { filters, setFilters, addFilter } = useFilters<EuInspectionRow>();
-
-  // read params once at mount and set filters accordingly
-  useLayoutEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const rawFilters: Record<string, string | string[]> = {};
-
-    for (const key of params.keys()) {
-      rawFilters[key] = params.getAll(key);
-    }
-
-    setFilters(buildFilters(rawFilters));
-  }, [setFilters]);
-
+export function EuInspectionDashboard({
+  items,
+  filters,
+  setFilters,
+  addFilter,
+  onViewList,
+}: Props) {
   // apply filters on every dimension
   // use this result in elements that do not apply filters themselves:
   // eg. EuInspectionTable
@@ -126,16 +94,6 @@ export function EuInspectionDashboard({ items }: Props) {
     topEmployeeIds,
   );
 
-  const otherIds = [
-    ...new Set(
-      items
-        .map((item) => item.vehicle.maintenanceResponsibleId)
-        .filter((id): id is string => id != null),
-    ),
-  ].filter((id) => !topEmployeeIds.includes(id));
-
-  const filterObj = buildFilterObj(filters, otherIds);
-
   // time bucket and bar chart stuff
   const allTimeBucketEntries = aggregateByTimeBucket(items);
   const filteredTimeBucketRows = aggregateByTimeBucket(
@@ -158,18 +116,6 @@ export function EuInspectionDashboard({ items }: Props) {
   const today = new Date();
   const in8Weeks = new Date(today);
   in8Weeks.setDate(today.getDate() + 56);
-
-  const query = toQueryParams(filterObj).toString();
-
-  const workspaceHref = (extra: Record<string, string | string[]> = {}) => {
-    const params = toQueryParams({ ...filterObj, ...extra });
-    return `eu-inspections?${params}`;
-  };
-
-  useEffect(() => {
-    if (!query) return;
-    window.history.replaceState(null, "", `?${query}`);
-  }, [query]);
 
   return (
     <section className="flex flex-col gap-3 raised-outline bg-raised/40 w-full p-3">
@@ -194,21 +140,22 @@ export function EuInspectionDashboard({ items }: Props) {
           }
         /> */}
 
-        <IconLink
-          className="btn btn-secondary"
-          href={workspaceHref()}
-          icon={<GoTo size={14} />}
+        <button
+          type="button"
+          className="flex btn justify-between text-sm text-fg btn-secondary"
+          onClick={onViewList}
         >
           Drill to workspace
-        </IconLink>
+          <span aria-hidden="true">
+            <GoTo size={14} />
+          </span>
+        </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <EuInspectionsKPIs
-          rows={filteredItems}
-          selectedStatuses={selectedStatuses}
-        />
-      </div>
+      <EuInspectionsKPIs
+        rows={filteredItems}
+        selectedStatuses={selectedStatuses}
+      />
 
       {/* FILTER APPLIERS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-center">
@@ -309,13 +256,16 @@ export function EuInspectionDashboard({ items }: Props) {
             heading="Inspection records"
             subtitle="Records matching dashboard filters, ordered by due date."
             action={
-              <IconLink
-                className="text-sm text-accent hover:text-accent-strong h-4"
-                href={workspaceHref()}
-                icon={<GoTo size={14} />}
+              <button
+                type="button"
+                className="flex btn justify-between text-sm text-accent hover:text-accent-strong h-4"
+                onClick={onViewList}
               >
                 View in workspace
-              </IconLink>
+                <span aria-hidden="true">
+                  <GoTo size={14} />
+                </span>
+              </button>
             }
           />
 
@@ -325,7 +275,6 @@ export function EuInspectionDashboard({ items }: Props) {
               remaining={
                 filteredItems.length - filteredItems.slice(0, 4).length
               }
-              workspaceHref={workspaceHref()}
             />
           </div>
         </div>
@@ -340,28 +289,44 @@ export function EuInspectionDashboard({ items }: Props) {
         >
           <PanelHeader
             heading="Outstanding rejections"
-            subtitle="Rejected inspections with no new workshop booked."
+            subtitle="Rejected inspections."
           />
 
           <OutstandingRejectionsCard
             inspectionRows={filteredItems}
             relevant={
               selectedStatuses.length === 0 ||
-              selectedStatuses.includes("rejectedUnbooked")
+              selectedStatuses.includes("rejected")
             }
           />
 
-          <Link
-            href={workspaceHref({ status: "rejectedUnbooked" })}
+          <button
+            type="button"
+            onClick={() => {
+              setFilters((current) => [
+                ...current.filter((filter) => filter.id !== "status"),
+                {
+                  id: "status",
+                  predicates: [
+                    {
+                      id: "rejected",
+                      predicate: (inspection) =>
+                        getInspectionStatus(inspection) === "rejected",
+                    },
+                  ],
+                },
+              ]);
+              onViewList();
+            }}
             className="
-              btn btn-secondary bg-transparent 
-              hover:text-accent-strong hover:border-accent-strong 
+              btn btn-secondary bg-transparent
+              hover:text-accent-strong hover:border-accent-strong
               mt-2 text-sm
               "
           >
             View all outstanding rejections
             <ChevronRight size="16" />
-          </Link>
+          </button>
         </div>
       </div>
     </section>

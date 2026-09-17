@@ -11,8 +11,6 @@ import { useLanguage } from "@/lib/contexts/LanguageContext";
 
 import { Employee } from "@/types";
 
-import Link from "next/link";
-
 import { Dashboard, Notify, User } from "@components/icons";
 import { ResourceManagementView } from "@/components/organisms";
 
@@ -25,11 +23,7 @@ import {
   EU_INSPECTIONS_LABELS,
 } from "@/features/eu-inspections";
 
-import {
-  applyFilters,
-  toQueryParams,
-  useFilters,
-} from "@/features/filtering/predicate";
+import { applyFilters, type Filter } from "@/features/filtering/predicate";
 
 import { EuInspectionRow as EuInspectionRowCard } from "./EuInspectionRow";
 import { SidePanel } from "./SidePanel";
@@ -41,10 +35,7 @@ import {
   sendEuInspectionNotifications,
   markEuInspectionsStatus,
 } from "../server-actions/mutate";
-import {
-  buildFilters,
-  EU_INSPECTION_PREDICATE_BUILDERS,
-} from "../logic/filters";
+import { EU_INSPECTION_PREDICATE_BUILDERS } from "../logic/filters";
 import { FilterBar } from "./FilterBar";
 import { buildFilterRegistry } from "./filter-registry";
 
@@ -59,7 +50,6 @@ function normalizeSearchPlateNumber(input: string): string {
 
 type Props = {
   allInspections: EuInspectionRow[];
-  rawFilters?: Record<string, string | string[]>;
   employees: Employee[];
 
   errors?: string[];
@@ -67,35 +57,32 @@ type Props = {
   // demo related
   isDemo: boolean;
   alternativeReceiver?: string;
+
+  // filters/view live one level up (EuInspectionsWorkspace) so this and the
+  // dashboard share one filter state instead of each parsing its own copy
+  // from the URL.
+  filters: Filter<EuInspectionRow>[];
+  addFilter: (
+    filterId: string,
+    predicateId: string,
+    predicate: (item: EuInspectionRow) => boolean,
+  ) => void;
+  removeFilterPredicate: (filterId: string, predicateId: string) => void;
+  onViewDashboard: () => void;
 };
 
 export function EUInspectionView({
   allInspections, // may or may not implement pagination here later
-  rawFilters, // since dataset is small we filter on client instead of pagination
   alternativeReceiver, // static
   employees, // static
   isDemo, // static
+  filters,
+  addFilter,
+  removeFilterPredicate,
+  onViewDashboard,
 }: Props) {
   // const []
   // const [searchInput, setSearchInput] = useState<string>("");
-  const { filters, addFilter, removeFilterPredicate } = useFilters(
-    rawFilters ? buildFilters(rawFilters) : undefined,
-  );
-
-  // keep the URL in sync with the current filters, same as the dashboard
-  const filterObj: Record<string, string[]> = Object.fromEntries(
-    (filters ?? []).map((filter) => [
-      filter.id,
-      filter.predicates.map((p) => p.id),
-    ]),
-  );
-  const filterQuery = toQueryParams(filterObj).toString();
-
-  useEffect(() => {
-    if (!filterQuery) return;
-    window.history.replaceState(null, "", `?${filterQuery}`);
-  }, [filterQuery]);
-
   const [inspections, setInspections] = useState(allInspections);
 
   const visibleInspections = useMemo(() => {
@@ -220,20 +207,21 @@ export function EUInspectionView({
                 }
               />
 
-              <Link
-                href={filterQuery ? `/?${filterQuery}` : "/"}
-                aria-disabled={!filterQuery}
+              <button
+                type="button"
+                onClick={onViewDashboard}
+                aria-disabled={filters.length === 0}
                 className={cn(
                   "btn btn-secondary rounded-xl",
                   "border border-accent/20 text-accent transition-colors",
-                  filterQuery
+                  filters.length > 0
                     ? "hover:text-accent-strong"
                     : "opacity-40 pointer-events-none",
                 )}
                 title="View in dashboard"
               >
                 <Dashboard size={20} />
-              </Link>
+              </button>
             </div>
           )
         }

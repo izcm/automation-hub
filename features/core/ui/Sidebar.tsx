@@ -7,7 +7,6 @@ import { postJsonOrThrow } from "@a2zb/lib";
 import { rejectWith } from "@/lib/toast";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
 
-import { Home } from "@/components/icons";
 import {
   CORE_UI_LABELS_BY_LANGUAGE,
   type Language,
@@ -25,23 +24,14 @@ export function Sidebar() {
 
   if (pathname === "/login") return null;
 
-  const items: NavItem[] = [
-    {
-      id: "home",
-      href: "/",
-      icon: <Home />,
-      label: LABELS.home.goHome,
-      active: pathname === "/",
-    },
-    ...modules.map((item) => ({
-      id: item,
-      href: item !== "eu-inspections" ? "#" : `/${item}`,
-      icon: moduleIcons[item],
-      label: LABELS.home.modules[item].title,
-      active: pathname.startsWith(`/${item}`),
-      disabled: item !== "eu-inspections",
-    })),
-  ];
+  const items: NavItem[] = modules.map((item) => ({
+    id: item,
+    href: item !== "eu-inspections" ? "#" : `/${item}`,
+    icon: moduleIcons[item],
+    label: LABELS.home.modules[item].title,
+    active: pathname.startsWith(`/${item}`),
+    disabled: item !== "eu-inspections",
+  }));
 
   async function handleLogout() {
     try {

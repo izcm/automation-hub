@@ -13,7 +13,7 @@ type BadgeProps = {
     | "advisory"
     | "caution"
     | "critical"
-    | "pending";
+    | "safe";
   className?: string;
 };
 
@@ -41,7 +41,7 @@ type IconBadgeProps = {
     | "advisory"
     | "caution"
     | "critical"
-    | "pending";
+    | "safe";
   children?: React.ReactNode;
   className?: string;
 };

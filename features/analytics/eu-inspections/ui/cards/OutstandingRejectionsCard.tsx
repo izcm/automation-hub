@@ -16,7 +16,7 @@ export function OutstandingRejectionsCard({ inspectionRows, relevant }: Props) {
   in8Weeks.setDate(today.getDate() + 56);
 
   const rejected = inspectionRows.filter(
-    (row) => getInspectionStatus(row) === "rejectedUnbooked",
+    (row) => getInspectionStatus(row) === "rejected",
   );
 
   const dueInPeriod = rejected.filter((row) => {

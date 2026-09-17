@@ -2,13 +2,13 @@ type Props = {
   date?: Date | string;
   // no room for a full badge on this component — a tiny corner dot is the
   // only indicator that fits
-  status?: "pending" | "advisory" | "caution" | "critical";
+  status?: "safe" | "advisory" | "caution" | "critical";
 };
 
 const dotColor = {
   // no shadow rn just leaving it maybe relevant later
   // neutral: "bg-neutral shadow-[0_0_4px_var(--neutral)]",
-  pending: "bg-pending shadow-[0_0_3px_var(--pending)]",
+  safe: "bg-safe shadow-[0_0_3px_var(--safe)]",
   advisory: "bg-advisory shadow-[0_0_3px_var(--advisory)]",
   caution: "bg-caution shadow-[0_0_3px_var(--caution)]",
   critical: "bg-critical shadow-[0_0_3px_var(--critical)]",

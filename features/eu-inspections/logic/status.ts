@@ -1,5 +1,4 @@
 import {
-  Calendar,
   CircleAlert,
   CircleCheck,
   Clock,
@@ -12,8 +11,7 @@ import type { EuInspectionRow } from "../types";
 
 export type Status =
   | "approved"
-  | "rejectedBooked"
-  | "rejectedUnbooked"
+  | "rejected"
   | "firstAttempt"
   | "unresolved"
   | "unexpectedCase";
@@ -21,11 +19,11 @@ export type Status =
 // two families, not one ranked scale:
 // - advisory/caution/critical: is this a problem, and how urgently does it
 //   need attention?
-// - neutral/pending: not a problem at all — is there anything to act on
-//   right now? neutral = no, it's done. pending = no, not yet.
+// - neutral/safe: not a problem at all — is there anything to act on right
+//   now? neutral = no, it's done. safe = no, all clear.
 export type StatusColor =
   | "neutral"
-  | "pending"
+  | "safe"
   | "advisory"
   | "caution"
   | "critical";
@@ -39,35 +37,29 @@ export const STATUS_INFO: Record<
   Status,
   { label: string; color: StatusColor; sort: number; icon: LucideIcon }
 > = {
-  approved: { label: "Approved", color: "neutral", sort: 0, icon: CircleCheck },
+  approved: { label: "Approved", color: "safe", sort: 0, icon: CircleCheck },
   firstAttempt: {
     label: "First attempt",
-    color: "pending",
+    color: "advisory",
     sort: 1,
     icon: Clock,
   },
-  rejectedBooked: {
-    label: "Rejected (with booking)",
-    color: "advisory",
-    sort: 2,
-    icon: Calendar,
-  },
-  rejectedUnbooked: {
-    label: "Rejected (no booking)",
+  rejected: {
+    label: "Rejected",
     color: "critical",
-    sort: 3,
+    sort: 2,
     icon: CircleAlert,
   },
   unresolved: {
     label: "Unresolved",
     color: "caution",
-    sort: 4,
+    sort: 3,
     icon: TriangleAlert,
   },
   unexpectedCase: {
     label: "Unexpected case",
     color: "neutral",
-    sort: 5,
+    sort: 4,
     icon: Info,
   },
 } as const;
@@ -101,10 +93,6 @@ export const STATUS_OPTIONS = Object.entries(STATUS_INFO).map(
 
 // classifies a single inspection into one bucket, based on its latest
 // attempt (and the one before it, for the rejected-then-rebooked case).
-// "rejected" isn't one state — a rejection with a new workshop already
-// booked is a very different situation from one with nothing scheduled,
-// so that split lives here rather than as a second lookup callers have to
-// remember to do.
 export function getInspectionStatus(inspection: EuInspectionRow): Status {
   const attempts = [...inspection.attempts].sort((a, b) =>
     b.date.localeCompare(a.date),
@@ -119,12 +107,11 @@ export function getInspectionStatus(inspection: EuInspectionRow): Status {
     return "approved";
   }
 
-  if (latest.status === "rejected") {
-    return "rejectedUnbooked";
-  }
-
-  if (latest.status === "upcoming" && previous?.status === "rejected") {
-    return "rejectedBooked";
+  if (
+    latest.status === "rejected" ||
+    (latest.status === "upcoming" && previous?.status === "rejected")
+  ) {
+    return "rejected";
   }
 
   if (latest.status === "upcoming" && !previous) {

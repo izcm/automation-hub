@@ -170,9 +170,9 @@
     background: var(--critical-weak);
   }
 
-  .badge--pending {
-    color: var(--pending);
-    background: var(--pending-weak);
+  .badge--safe {
+    color: var(--safe);
+    background: var(--safe-weak);
   }
 
   .text-input {

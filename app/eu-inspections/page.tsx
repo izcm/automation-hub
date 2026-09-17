@@ -1,6 +1,6 @@
 import { IS_DEMO } from "@/server/config/app";
 
-import { EUInspectionView } from "@/features/eu-inspections/ui/EUInspectionView";
+import { EuInspectionsWorkspace } from "@/features/eu-inspections/ui/EuInspectionsWorkspace";
 import { getEuInspections } from "@/features/eu-inspections/server-actions/queries";
 
 import { getEmailStorage, getEmployees } from "@/features/core/server-actions";
@@ -12,10 +12,13 @@ export default async function EuInspectionsPage({
 }) {
   const params = await searchParams;
 
+  const initialView = params.view === "list" ? "list" : "dashboard";
+
   const rawFilters: Record<string, string[]> = Object.fromEntries(
     Object.entries(params)
       .filter(
-        (entry): entry is [string, string | string[]] => entry[1] !== undefined,
+        (entry): entry is [string, string | string[]] =>
+          entry[0] !== "view" && entry[1] !== undefined,
       )
       .map(([key, value]) => [key, Array.isArray(value) ? value : [value]]),
   );
@@ -38,9 +41,10 @@ export default async function EuInspectionsPage({
   }
 
   return (
-    <EUInspectionView
+    <EuInspectionsWorkspace
       allInspections={inspectionsResult.ok ? inspectionsResult.data : []}
       rawFilters={rawFilters}
+      initialView={initialView}
       employees={employeesResult.ok ? employeesResult.data : []}
       errors={errors}
       alternativeReceiver={demouserEmail}

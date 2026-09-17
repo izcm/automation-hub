@@ -10,7 +10,6 @@ export type EmployeeInspectionRow = {
   firstAttempt: number;
   approved: number;
   rejected: number;
-  rejectedBooked: number;
   unresolved: number;
 };
 
@@ -63,7 +62,6 @@ export function ResponsibleEmployeesTable({
         due: 0,
         rejected: 0,
         approved: 0,
-        rejectedBooked: 0,
         unresolved: 0,
         firstAttempt: 0,
       })}
@@ -85,40 +83,21 @@ export function ResponsibleEmployeesTable({
             key="firstAttempt"
             className={cn(
               "tabular-nums",
-              stats.firstAttempt === 0 ? "text-subtle" : "text-pending",
+              stats.firstAttempt === 0 ? "text-subtle" : "text-advisory",
             )}
           >
             {cell("firstAttempt", stats.firstAttempt)}
           </span>,
 
-          <div key="rejected" className="flex items-center gap-3">
-            {cell(
-              ["rejectedBooked", "rejectedUnbooked"],
-              <>
-                <span
-                  className={cn(
-                    "tabular-nums",
-                    stats.rejected === 0 ? "text-subtle" : "text-critical",
-                  )}
-                >
-                  {stats.rejected}
-                </span>
-
-                {stats.rejected > 0 && (
-                  <span
-                    className={cn(
-                      "text-xs rounded-full border px-1.5 py-0.5",
-                      stats.rejectedBooked > 0
-                        ? "text-advisory border-advisory/40 bg-advisory/10"
-                        : "text-critical border-critical/40 bg-critical/10",
-                    )}
-                  >
-                    {stats.rejectedBooked} booked
-                  </span>
-                )}
-              </>,
+          <span
+            key="rejected"
+            className={cn(
+              "tabular-nums",
+              stats.rejected === 0 ? "text-subtle" : "text-critical",
             )}
-          </div>,
+          >
+            {cell("rejected", stats.rejected)}
+          </span>,
 
           <span
             key="unresolved"

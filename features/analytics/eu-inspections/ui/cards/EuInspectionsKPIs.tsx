@@ -69,27 +69,22 @@ const UNSORTED_KPIS: {
 }[] = [
   {
     key: "approved",
-    descr: "Latest attempt was approved.",
+    descr: "Latest attempt approved",
     info: "Example: inspection passed at the workshop on its most recent attempt — nothing more to do.",
   },
   {
     key: "firstAttempt",
-    descr: "No earlier attempt, and has an upcoming booking.",
+    descr: "No earlier attempt",
     info: "Example: due in 3 weeks, workshop already booked, no prior attempts yet.",
   },
   {
-    key: "rejectedBooked",
-    descr: "Rejected, but a new workshop is already booked.",
-    info: "Example: failed inspection last week, already rebooked for next Tuesday.",
-  },
-  {
-    key: "rejectedUnbooked",
-    descr: "Rejected, and nothing new is booked yet.",
-    info: "Example: failed inspection two weeks ago, no new appointment scheduled — needs action.",
+    key: "rejected",
+    descr: "Latest attempt rejected",
+    info: "Example: failed inspection at the workshop — needs a new attempt booked.",
   },
   {
     key: "unresolved",
-    descr: "No attempts, no booking. Just closing due.",
+    descr: "No attempts, just closing due",
     info: "Example: due date is approaching, no inspection attempted and nothing booked yet.",
   },
 ];
@@ -123,7 +118,7 @@ export function EuInspectionsKPIs({ rows, selectedStatuses }: Props) {
     selectedStatuses.length > 0 ? [...selectedStatuses, "due"] : [];
 
   return (
-    <>
+    <div className="grid grid-cols-5 gap-3">
       <KPI
         title={
           <KPITitle info="Example: a vehicle's EU inspection is due in 40 days — counted here regardless of status.">
@@ -133,13 +128,13 @@ export function EuInspectionsKPIs({ rows, selectedStatuses }: Props) {
         value={rows.length}
         color="neutral"
         icon={Inspection}
-        descr="EU inspections due the next 8 weeks."
+        descr="Total inspections tracked"
       />
 
       <SmartKPIs
         kpis={toKpiProps(inspectionStateCounts)}
         relevantKeys={relevantStatuses}
       />
-    </>
+    </div>
   );
 }

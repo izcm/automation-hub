@@ -12,10 +12,11 @@
   --color-critical: var(--critical);
 
   /* family 2 — not a problem at all, just information: is there anything
-     to act on right now? "neutral" = no, it's done/resolved. "pending" =
-     no, not yet — scheduled for later. These don't rank against family 1. */
+     to act on right now? "neutral" = no, it's done/resolved. "safe" =
+     all clear — approved, nothing outstanding. These don't rank against
+     family 1. */
   --color-neutral: var(--neutral);
-  --color-pending: var(--pending);
+  --color-safe: var(--safe);
 
   /* subtle self-shaded gradients — KPI tiles, bar chart bars */
   --gradient-critical: linear-gradient(
@@ -33,10 +34,10 @@
     var(--advisory) 0%,
     color-mix(in oklab, var(--advisory) 85%, black) 100%
   );
-  --gradient-pending: linear-gradient(
+  --gradient-safe: linear-gradient(
     160deg,
-    var(--pending) 0%,
-    color-mix(in oklab, var(--pending) 85%, black) 100%
+    var(--safe) 0%,
+    color-mix(in oklab, var(--safe) 85%, black) 100%
   );
   --gradient-neutral: linear-gradient(
     160deg,
@@ -62,9 +63,9 @@
     color-mix(in oklab, var(--advisory-weak) 25%, transparent) 0%,
     transparent 100%
   );
-  --gradient-pending-weak: linear-gradient(
+  --gradient-safe-weak: linear-gradient(
     160deg,
-    color-mix(in oklab, var(--pending-weak) 25%, transparent) 0%,
+    color-mix(in oklab, var(--safe-weak) 25%, transparent) 0%,
     transparent 100%
   );
   --gradient-neutral-weak: linear-gradient(
@@ -79,12 +80,12 @@
   --background-image-gradient-critical: var(--gradient-critical);
   --background-image-gradient-caution: var(--gradient-caution);
   --background-image-gradient-advisory: var(--gradient-advisory);
-  --background-image-gradient-pending: var(--gradient-pending);
+  --background-image-gradient-safe: var(--gradient-safe);
   --background-image-gradient-neutral: var(--gradient-neutral);
   --background-image-gradient-critical-weak: var(--gradient-critical-weak);
   --background-image-gradient-caution-weak: var(--gradient-caution-weak);
   --background-image-gradient-advisory-weak: var(--gradient-advisory-weak);
-  --background-image-gradient-pending-weak: var(--gradient-pending-weak);
+  --background-image-gradient-safe-weak: var(--gradient-safe-weak);
   --background-image-gradient-neutral-weak: var(--gradient-neutral-weak);
 
   /* weak = same base color, --weak-opacity applied (theme-tuned, see below) */
@@ -111,9 +112,9 @@
   --advisory-weak: var(--success-weak);
   --caution-weak: var(--warning-weak);
   --critical-weak: var(--failure-weak);
-  --pending-weak: color-mix(
+  --safe-weak: color-mix(
     in oklab,
-    var(--pending) var(--weak-opacity),
+    var(--safe) var(--weak-opacity),
     transparent
   );
 }
@@ -193,9 +194,10 @@
   --critical: var(--failure);
 
   /* family 2 — not-actionable info. "neutral" already defined above (gray).
-     "pending" reuses accent-neutral — a blue distinct from --accent itself,
-     since accent is this app's general-purpose chrome color, not a status. */
-  --pending: var(--accent-neutral);
+     "safe" (all clear — approved, nothing outstanding) reuses accent-neutral
+     — a blue distinct from --accent itself, since accent is this app's
+     general-purpose chrome color, not a status. */
+  --safe: var(--accent-neutral);
 
   --panel-shadow:
     0 1px 2px rgba(15, 21, 28, 0.04), 0 8px 24px rgba(15, 21, 28, 0.06);
@@ -259,12 +261,12 @@
   --critical: var(--failure);
 
   /* family 2 — not-actionable info. "neutral" = done/resolved (gray).
-     "pending" = not yet — scheduled for later; reuses accent-neutral, a
-     blue distinct from --accent itself, since accent is this app's
-     general-purpose chrome color, not a status. */
+     "safe" = all clear — approved, nothing outstanding; reuses
+     accent-neutral, a blue distinct from --accent itself, since accent is
+     this app's general-purpose chrome color, not a status. */
   --neutral: #91a7b8;
 
-  --pending: var(--accent-neutral);
+  --safe: var(--accent-neutral);
 
   --panel-shadow:
     0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(91, 157, 255, 0.06);

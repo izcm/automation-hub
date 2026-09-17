@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { sessionStore } from "./server/di/auth";
+import { modules } from "@/features/core/config/modules";
 
 const UNUSED_ENDPOINTS: { method: string; pattern: RegExp }[] = [
   { method: "GET", pattern: /^\/api\/vehicles$/ },
@@ -19,8 +20,17 @@ export async function proxy(request: NextRequest) {
   }
 
   const session = request.cookies.get("session")?.value;
-
   const authenticated = await isAuthenticated(session);
+
+  // already logged in? don't show the login page again — send them straight
+  // through. Not logged in? let them through to actually log in (this is
+  // the one page that must stay reachable while unauthenticated).
+  if (request.nextUrl.pathname === "/login") {
+    return authenticated
+      ? NextResponse.redirect(new URL(`/${modules[0]}`, request.url))
+      : NextResponse.next();
+  }
+
   if (!authenticated) {
     if (request.nextUrl.pathname.startsWith("/api/")) {
       return Response.json(
@@ -30,6 +40,10 @@ export async function proxy(request: NextRequest) {
     }
 
     return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  if (request.nextUrl.pathname === "/") {
+    return NextResponse.redirect(new URL(`/${modules[0]}`, request.url));
   }
 
   return NextResponse.next();
@@ -47,9 +61,11 @@ export const config = {
      * - landing.jpg (public background image, needed on the unauthenticated
      *   /login page)
      *
-     * Run proxy for all other routes.
+     * /login IS matched (unlike the others above) — the proxy needs to see
+     * it to redirect an already-authenticated visitor away from it; the
+     * function itself lets unauthenticated requests through.
      */
-    "/((?!login|api/auth|_next/static|_next/image|favicon.ico|landing\\.jpg).*)",
+    "/((?!api/auth|_next/static|_next/image|favicon.ico|landing\\.jpg).*)",
   ],
 };
 

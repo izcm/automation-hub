@@ -13,16 +13,16 @@ export type KPIProps = {
   fallback?: ReactNode;
   descr?: string;
   // two families: advisory/caution/critical rank how bad a real problem is.
-  // neutral/pending are the opposite — not a problem, just "is there
-  // anything to act on right now?" (neutral = no, it's done; pending = no,
-  // not yet). They don't rank against the first group.
+  // neutral/safe are the opposite — not a problem, just "is there anything
+  // to act on right now?" (neutral = no, it's done; safe = no, all clear).
+  // They don't rank against the first group.
   //
   // "empty" is different from all of those — it means "nothing to signal
   // at all", not "the category is neutral". Reach for it for a zero count,
-  // never for "neutral" — neutral is itself a real category's color (e.g.
-  // Approved), and reusing it for "zero of something else" makes that
-  // something else look like it IS the neutral category, which it isn't.
-  color: "neutral" | "pending" | "advisory" | "caution" | "critical" | "empty";
+  // never for "neutral" — neutral is itself a real category's color, and
+  // reusing it for "zero of something else" makes that something else look
+  // like it IS the neutral category, which it isn't.
+  color: "neutral" | "safe" | "advisory" | "caution" | "critical" | "empty";
 };
 
 // zero of a real problem (advisory/caution/critical) is a good outcome —
@@ -45,9 +45,9 @@ const kpiColorClasses: Record<
     card: "border-neutral/40 bg-gradient-neutral-weak border-l-neutral/80",
     badge: "bg-neutral/15 text-neutral",
   },
-  pending: {
-    card: "border-pending/40 bg-gradient-pending-weak border-l-pending/80",
-    badge: "bg-pending/15 text-pending",
+  safe: {
+    card: "border-safe/40 bg-gradient-safe-weak border-l-safe/80",
+    badge: "bg-safe/15 text-safe",
   },
   advisory: {
     card: "border-advisory/40 bg-gradient-advisory-weak border-l-advisory/80",
