@@ -1,6 +1,7 @@
 // repos
 import { vehicleRepo } from "../db/postgres/vehicles/repo";
 import { employeeRepo } from "../db/postgres/employees/repo";
+import { assignmentRepo } from "../db/postgres/assignments/repo";
 import { notificationRepo } from "../db/postgres/notifications/repo";
 import { euInspectionRepo } from "../db/postgres/eu-inspections/repo";
 
@@ -18,6 +19,7 @@ import { AppResources } from "@/lib/resources";
 const readers: Readers<AppResources> = {
   vehicles: vehicleRepo,
   employees: employeeRepo,
+  assignments: assignmentRepo,
   notifications: notificationRepo,
   euInspections: euInspectionRepo,
 };

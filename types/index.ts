@@ -1,3 +1,4 @@
+export * from "./assignment";
 export * from "./employee";
 export * from "./eu-inspection";
 export * from "./eu-inspection-attempt";

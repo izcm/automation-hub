@@ -105,6 +105,62 @@ export function aggregateByEmployee(
   return [...top, others];
 }
 
+export type AssignmentInspectionRow = {
+  id: string;
+  name: string;
+  total: number;
+  approved: number;
+  rejected: number;
+  unresolved: number;
+  firstAttempt: number;
+};
+
+// one row per assignment a vehicle carries, tallying inspections by state.
+// A vehicle can carry more than one assignment (many-to-many), so a single
+// inspection can land in more than one row here — unlike aggregateByEmployee
+// this isn't a partition of the fleet, it's "how much is on this
+// assignment's plate". Inspections whose vehicle has no assignment at all
+// are skipped, same reasoning as aggregateByEmployee skipping no-employee.
+// No top-N/"others" folding here — the assignment list is small and curated,
+// unlike the open-ended employee list.
+export function aggregateByAssignment(
+  rows: EuInspectionRow[],
+): AssignmentInspectionRow[] {
+  const byAssignment = new Map<
+    string,
+    AssignmentInspectionRow & { unexpectedCase: number }
+  >();
+
+  for (const item of rows) {
+    for (const assignment of item.vehicle.assignments ?? []) {
+      const entry = byAssignment.get(assignment.id) ?? {
+        id: assignment.id,
+        name: assignment.name,
+        total: 0,
+        approved: 0,
+        rejected: 0,
+        firstAttempt: 0,
+        unresolved: 0,
+        unexpectedCase: 0,
+      };
+
+      entry.total++;
+      entry[getInspectionStatus(item)]++;
+      byAssignment.set(assignment.id, entry);
+    }
+  }
+
+  return [...byAssignment.values()].map((entry) => ({
+    id: entry.id,
+    name: entry.name,
+    total: entry.total,
+    approved: entry.approved,
+    rejected: entry.rejected,
+    firstAttempt: entry.firstAttempt,
+    unresolved: entry.unresolved,
+  }));
+}
+
 function emptyTimeBucketEntry(timeBucket: (typeof timeBuckets)[number]) {
   return {
     timeBucket,

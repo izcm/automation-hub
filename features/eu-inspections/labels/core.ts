@@ -6,7 +6,7 @@ const en = {
   searchPlaceholder: "Search plate number",
   invalidPlateNumber: "Must be 2 letters + 4-5 digits",
   dueDate: "Due",
-  notify: (n: number) => `Notify group`,
+  notify: (n: number) => `Notify responsible`,
   assignTo: "Assign to",
   openInWorkspace: "Inspect",
   inWorkspace: "Inspecting",

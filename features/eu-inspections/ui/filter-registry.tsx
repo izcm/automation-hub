@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 
 import { capitalize } from "@a2zb/lib";
 
-import { Employee } from "@/types";
+import { Employee, Assignment } from "@/types";
 import { InitialsBadge } from "@/components/molecules";
 import { timeBuckets } from "@/lib/time-bucket";
 
@@ -16,6 +16,7 @@ import { ResourceFilterRegistry } from "./FilterBar";
 
 export function buildFilterRegistry(
   employees: Employee[],
+  assignments: Assignment[],
 ): ResourceFilterRegistry {
   return {
     status: {
@@ -59,6 +60,16 @@ export function buildFilterRegistry(
       searchable: false,
       options: timeBuckets.map((bucket) => ({ id: bucket, label: bucket })),
       renderLabel: (predicateId: string) => capitalize(predicateId),
+    },
+    assignment: {
+      searchable: true,
+      options: assignments.map((assignment) => ({
+        id: assignment.id,
+        label: assignment.name,
+      })),
+      renderLabel: (predicateId: string) =>
+        assignments.find((a) => a.id === predicateId)?.name ??
+        "Unknown assignment",
     },
   };
 }

@@ -11,7 +11,7 @@ import { applyFilters, type Filter } from "@/features/filtering/predicate";
 import { EuInspectionRow } from "../types";
 
 import {
-  aggregateByEmployee,
+  aggregateByAssignment,
   aggregateByTimeBucket,
   getInspectionStatus,
   getTimeBucket,
@@ -25,11 +25,12 @@ import { EuInspectionsKPIs } from "./cards/EuInspectionsKPIs";
 import { InteractiveBarChart } from "../../ui/InteractiveBarChart";
 
 import { EuInspectionsTable } from "./tables/EuInspectionsTable";
-import { ResponsibleEmployeesTable } from "./tables/ResponsibleEmployeesTable";
+import { AssignmentsTable } from "./tables/AssignmentsTable";
 
 import { OutstandingRejectionsCard } from "./cards/OutstandingRejectionsCard";
 
-const panel = "flex flex-col gap-1 border border-extra-faint rounded p-2";
+const panel =
+  "flex flex-col gap-1 border border-extra-faint rounded bg-raised-gradient p-2";
 
 (Object.keys(STATUS_COLOR) as Status[]).filter(
   (status) => status !== "unexpectedCase",
@@ -73,25 +74,18 @@ export function EuInspectionDashboard({
     [filters, items],
   );
 
-  // for filter appliers, here: the page's bar chart and employee responsible table
+  // for filter appliers, here: the page's bar chart and assignments table
   // create a dataset
 
-  // ALL employees — keeps the employee list stable
-  const allEmployeeRows = aggregateByEmployee(items);
+  // ALL assignments — keeps the row set stable
+  const allAssignmentRows = aggregateByAssignment(items);
 
-  // the top employee ids are settled once
-  const topEmployeeIds = allEmployeeRows
-    .filter((row) => row.id !== "others")
-    .map((row) => row.id);
-
-  // filter employees without "responsible" filter
-  // (its own dimension)
-  const filteredEmployeeRows = aggregateByEmployee(
+  // filter without the "assignment" dimension itself (its own dimension)
+  const filteredAssignmentRows = aggregateByAssignment(
     applyFilters(
       items,
-      filters.filter((filter) => filter.id !== "responsible"),
+      filters.filter((filter) => filter.id !== "assignment"),
     ),
-    topEmployeeIds,
   );
 
   // time bucket and bar chart stuff
@@ -114,18 +108,18 @@ export function EuInspectionDashboard({
     .flatMap((filter) => filter.predicates.map((p) => p.id));
 
   const today = new Date();
-  const in8Weeks = new Date(today);
-  in8Weeks.setDate(today.getDate() + 56);
+  const in3Months = new Date(today);
+  in3Months.setDate(today.getDate() + 90);
 
   return (
-    <section className="flex flex-col gap-3 raised-outline bg-raised/40 w-full p-3">
+    <section className="flex flex-col gap-3 max-w-[1440px] mx-auto p-3">
       {/* HEADER & FILTER CHIPS */}
       <div className="flex justify-between h-8">
         <h2 className="font-semibold inline-flex items-center gap-3">
-          EU Inspections dues next 8 weeks{" "}
+          EU Inspections dues next 3 months{" "}
           <span className="text-xs text-subtle tabular-nums inline-flex gap-1">
             <Calendar size={14} />
-            {formatDateRange(today, in8Weeks)}
+            {formatDateRange(today, in3Months)}
           </span>
         </h2>
 
@@ -207,40 +201,31 @@ export function EuInspectionDashboard({
           </div>
         </div>
 
-        {/* RESPONSIBLE EMPLOYEES */}
+        {/* ASSIGNMENTS */}
         <div className={cn(panel, "p-2")}>
           <PanelHeader
-            heading="Employee responsible"
-            subtitle="Inspections grouped by the responsible employee."
+            heading="Assignments"
+            subtitle="Inspections grouped by assignment."
           />
 
           <div className={"h-80"}>
-            <ResponsibleEmployeesTable
+            <AssignmentsTable
               selectedIds={
                 filters
-                  .find((filter) => filter.id === "responsible")
+                  .find((filter) => filter.id === "assignment")
                   ?.predicates.map((p) => p.id) ?? []
               }
-              rows={allEmployeeRows}
-              filteredRows={filteredEmployeeRows}
+              rows={allAssignmentRows}
+              filteredRows={filteredAssignmentRows}
               relevantColumns={selectedStatuses}
               onRowClick={(id) =>
                 addFilter(
-                  "responsible",
+                  "assignment",
                   id,
-                  id === "others"
-                    ? // "others" isn't a real employee id — it's every
-                      // employee that didn't get its own row above
-                      (inspection) => {
-                        const responsibleId =
-                          inspection.vehicle.maintenanceResponsibleId;
-                        return (
-                          responsibleId != null &&
-                          !topEmployeeIds.includes(responsibleId)
-                        );
-                      }
-                    : (inspection) =>
-                        inspection.vehicle.maintenanceResponsibleId === id,
+                  (inspection) =>
+                    inspection.vehicle.assignments?.some(
+                      (assignment) => assignment.id === id,
+                    ) ?? false,
                 )
               }
             />
@@ -283,7 +268,7 @@ export function EuInspectionDashboard({
         <div
           className={cn(
             panel,
-            "lg:order-1 lg:col-span-3 max-w-[500px]",
+            "lg:order-1 lg:col-span-3",
             "flex flex-col justify-between",
           )}
         >

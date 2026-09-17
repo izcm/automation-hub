@@ -50,27 +50,27 @@
      instead of self-shaded black */
   --gradient-critical-weak: linear-gradient(
     160deg,
-    color-mix(in oklab, var(--critical-weak) 25%, transparent) 0%,
+    color-mix(in oklab, var(--critical-weak) 35%, transparent) 0%,
     transparent 100%
   );
   --gradient-caution-weak: linear-gradient(
     160deg,
-    color-mix(in oklab, var(--caution-weak) 25%, transparent) 0%,
+    color-mix(in oklab, var(--caution-weak) 35%, transparent) 0%,
     transparent 100%
   );
   --gradient-advisory-weak: linear-gradient(
     160deg,
-    color-mix(in oklab, var(--advisory-weak) 25%, transparent) 0%,
+    color-mix(in oklab, var(--advisory-weak) 35%, transparent) 0%,
     transparent 100%
   );
   --gradient-safe-weak: linear-gradient(
     160deg,
-    color-mix(in oklab, var(--safe-weak) 25%, transparent) 0%,
+    color-mix(in oklab, var(--safe-weak) 35%, transparent) 0%,
     transparent 100%
   );
   --gradient-neutral-weak: linear-gradient(
     160deg,
-    color-mix(in oklab, var(--neutral-weak) 25%, transparent) 0%,
+    color-mix(in oklab, var(--neutral-weak) 35%, transparent) 0%,
     transparent 100%
   );
 

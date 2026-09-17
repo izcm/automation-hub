@@ -9,7 +9,7 @@ import { cn } from "@/lib/cn";
 import { confirmWith, rejectWith, warningWith } from "@/lib/toast";
 import { useLanguage } from "@/lib/contexts/LanguageContext";
 
-import { Employee } from "@/types";
+import { Employee, Assignment } from "@/types";
 
 import { Dashboard, Notify, User } from "@components/icons";
 import { ResourceManagementView } from "@/components/organisms";
@@ -51,6 +51,7 @@ function normalizeSearchPlateNumber(input: string): string {
 type Props = {
   allInspections: EuInspectionRow[];
   employees: Employee[];
+  assignments: Assignment[];
 
   errors?: string[];
 
@@ -75,6 +76,7 @@ export function EUInspectionView({
   allInspections, // may or may not implement pagination here later
   alternativeReceiver, // static
   employees, // static
+  assignments, // static
   isDemo, // static
   filters,
   addFilter,
@@ -183,7 +185,7 @@ export function EUInspectionView({
     searchbarRef.current?.focus();
   }, []);
 
-  const filterRegistry = buildFilterRegistry(employees);
+  const filterRegistry = buildFilterRegistry(employees, assignments);
 
   return (
     <>
@@ -214,9 +216,6 @@ export function EUInspectionView({
                 className={cn(
                   "btn btn-secondary rounded-xl",
                   "border border-accent/20 text-accent transition-colors",
-                  filters.length > 0
-                    ? "hover:text-accent-strong"
-                    : "opacity-40 pointer-events-none",
                 )}
                 title="View in dashboard"
               >

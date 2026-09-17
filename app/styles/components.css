@@ -28,13 +28,21 @@
   .btn-primary {
     color: var(--color-fg);
     font-weight: 600;
-    background: color-mix(in oklab, var(--accent) 16%, var(--raised));
+    background: linear-gradient(
+      160deg,
+      color-mix(in oklab, var(--accent) 18%, var(--raised)) 0%,
+      color-mix(in oklab, var(--accent) 13%, var(--raised)) 100%
+    );
     border: 1px solid color-mix(in oklab, var(--accent) 35%, var(--line));
     box-shadow: none;
   }
 
   .btn-primary:hover {
-    background: color-mix(in oklab, var(--accent) 22%, var(--raised));
+    background: linear-gradient(
+      160deg,
+      color-mix(in oklab, var(--accent) 24%, var(--raised)) 0%,
+      color-mix(in oklab, var(--accent) 18%, var(--raised)) 100%
+    );
     border-color: color-mix(in oklab, var(--accent) 40%, var(--line));
   }
 
@@ -49,13 +57,17 @@
   .btn-secondary {
     color: color-mix(in oklab, var(--fg) 40%, var(--accent));
     border-color: color-mix(in oklab, var(--accent) 40%, var(--line));
-    background: light-dark(var(--raised), var(--raised));
+    background: var(--raised-gradient);
     box-shadow: none;
   }
 
   .btn-secondary:hover {
     color: var(--accent-strong);
-    background: color-mix(in oklab, var(--accent) 8%, transparent);
+    background: linear-gradient(
+      160deg,
+      color-mix(in oklab, var(--accent) 10%, var(--raised)) 0%,
+      color-mix(in oklab, var(--accent) 6%, var(--elevated)) 100%
+    );
     box-shadow: none;
   }
 
@@ -69,7 +81,7 @@
   .btn-neutral {
     color: var(--fg);
     border-color: var(--faint);
-    background: var(--ground);
+    background: linear-gradient(160deg, var(--ground) 0%, var(--lowered) 100%);
   }
 
   .btn-neutral:hover {

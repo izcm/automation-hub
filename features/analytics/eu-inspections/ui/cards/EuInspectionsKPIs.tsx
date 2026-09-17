@@ -122,7 +122,7 @@ export function EuInspectionsKPIs({ rows, selectedStatuses }: Props) {
       <KPI
         title={
           <KPITitle info="Example: a vehicle's EU inspection is due in 40 days — counted here regardless of status.">
-            Due
+            Total
           </KPITitle>
         }
         value={rows.length}

@@ -12,8 +12,8 @@ type Props = {
 // !relevant -> showing data is confusing because of filters set
 export function OutstandingRejectionsCard({ inspectionRows, relevant }: Props) {
   const today = new Date();
-  const in8Weeks = new Date(today);
-  in8Weeks.setDate(today.getDate() + 56);
+  const in3Months = new Date(today);
+  in3Months.setDate(today.getDate() + 90);
 
   const rejected = inspectionRows.filter(
     (row) => getInspectionStatus(row) === "rejected",
@@ -21,7 +21,7 @@ export function OutstandingRejectionsCard({ inspectionRows, relevant }: Props) {
 
   const dueInPeriod = rejected.filter((row) => {
     const dueDate = new Date(row.dueDate);
-    return dueDate >= today && dueDate <= in8Weeks;
+    return dueDate >= today && dueDate <= in3Months;
   });
 
   return (

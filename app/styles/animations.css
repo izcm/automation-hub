@@ -13,3 +13,19 @@
   animation: popoverIn 0.15s ease-out;
   transform-origin: top;
 }
+
+/* a full-page/content-area swap (e.g. dashboard <-> list) reads as too much
+   motion with popover-in's scale+translate at that size — plain opacity
+   only, no transform. */
+@keyframes viewIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.view-in {
+  animation: viewIn 0.12s ease-out;
+}

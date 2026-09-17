@@ -4,8 +4,10 @@ import { vehiclesTable as vehicles } from "./vehicles/schema";
 import { euInspectionsTable as euInspections } from "./eu-inspections/schema";
 import { notificationsTable as notifications } from "./notifications/schema";
 import { employeesTable as employees } from "./employees/schema";
+import { assignmentsTable as assignments } from "./assignments/schema";
 import { euInspectionNotificationsTable as euInspectionNotifications } from "./bridge-schemas/eu-inspection-notifications-schema";
 import { euInspectionAttemptsTable as euInspectionAttempts } from "./bridge-schemas/eu-inspection-attempts-schema";
+import { vehicleAssignmentsTable as vehicleAssignments } from "./bridge-schemas/vehicle-assignments-schema";
 
 // https://orm.drizzle.team/docs/relations
 //
@@ -19,8 +21,10 @@ export const appRelations = defineRelations(
     euInspections,
     notifications,
     employees,
+    assignments,
     euInspectionNotifications,
     euInspectionAttempts,
+    vehicleAssignments,
   },
   (r) => ({
     euInspections: {
@@ -55,6 +59,14 @@ export const appRelations = defineRelations(
       employee: r.one.employees({
         from: r.vehicles.maintenanceResponsibleId,
         to: r.employees.id,
+      }),
+
+      // many-to-many through the junction table, same shape as
+      // euInspections.notifications above — a vehicle can carry more than
+      // one assignment, and an assignment can cover more than one vehicle.
+      assignments: r.many.assignments({
+        from: r.vehicles.id.through(r.vehicleAssignments.vehicleId),
+        to: r.assignments.id.through(r.vehicleAssignments.assignmentId),
       }),
     },
   }),

@@ -12,7 +12,7 @@ const baseQueryFields = {
   sortField: "dueDate",
   sortDir: "asc",
   include: {
-    vehicle: { include: { employee: true } },
+    vehicle: { include: { employee: true, assignments: true } },
     notifications: { sortField: "createdAt", sortDir: "desc" },
     attempts: { sortField: "date", sortDir: "desc" },
   },

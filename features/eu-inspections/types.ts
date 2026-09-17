@@ -3,6 +3,7 @@ import type {
   Vehicle,
   Notification,
   Employee,
+  Assignment,
   EuInspectionAttempt,
 } from "@/types";
 
@@ -10,7 +11,7 @@ import type {
 // relations aren't typed) — this is the shape we actually expect back once
 // include[vehicle]/include[notifications]/include[attempts] are requested.
 export type EuInspectionRow = EuInspection & {
-  vehicle: Vehicle & { employee?: Employee };
+  vehicle: Vehicle & { employee?: Employee; assignments?: Assignment[] };
   notifications: Notification[];
   attempts: EuInspectionAttempt[];
 };

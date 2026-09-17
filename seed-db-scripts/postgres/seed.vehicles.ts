@@ -1,6 +1,8 @@
 import { db } from "@server/db/postgres/pool";
 import { vehiclesTable } from "@server/db/postgres/vehicles/schema";
 import { employeesTable } from "@server/db/postgres/employees/schema";
+import { assignmentsTable } from "@server/db/postgres/assignments/schema";
+import { vehicleAssignmentsTable } from "@server/db/postgres/bridge-schemas/vehicle-assignments-schema";
 import { generateId } from "@/server/shared/id";
 
 // Why "IOQ" and leading-zero plates are safe to use here: see
@@ -75,6 +77,17 @@ async function seed() {
   }
   const employeeIds = employeeRows.map((e) => e.id);
 
+  // Need assignments to link vehicles to. Seed them first.
+  const assignmentRows = await db
+    .select({ id: assignmentsTable.id })
+    .from(assignmentsTable);
+  if (assignmentRows.length === 0) {
+    throw new Error(
+      "No assignments found — run `npm run seed:pg:assignments` first.",
+    );
+  }
+  const assignmentIds = assignmentRows.map((a) => a.id);
+
   // weighted, not round-robin — a few employees carry most of the fleet,
   // the rest carry a handful, so the responsible-employees table has
   // something real to sort/trim by instead of everyone tied at 2.
@@ -90,13 +103,34 @@ async function seed() {
     maintenanceResponsibleId: employeeIds[responsibleByVehicle[i]!],
   }));
 
+  // vehicle_assignments references vehicles — clear it first so the
+  // vehicles wipe below doesn't hit a FK constraint on re-run.
+  await db.delete(vehicleAssignmentsTable);
   await db.delete(vehiclesTable); // wipe first so re-running is idempotent
   const res = await db
     .insert(vehiclesTable)
     .values(rows)
     .returning({ id: vehiclesTable.id });
 
-  console.log(`✅ seeded ${res.length} vehicles (linked to employees)`);
+  // a handful of vehicles get 0, 1, or 2 assignments — enough variety to
+  // exercise both "unassigned" and "multiple assignments" on the same fleet
+  const ASSIGNMENT_COUNTS = [0, 1, 1, 2, 0, 1, 2, 1, 0, 1];
+  const assignmentLinks = res.flatMap((vehicle, i) => {
+    const count = ASSIGNMENT_COUNTS[i % ASSIGNMENT_COUNTS.length]!;
+    return Array.from({ length: count }, (_, j) => ({
+      id: generateId(),
+      vehicleId: vehicle.id,
+      assignmentId: assignmentIds[(i + j) % assignmentIds.length]!,
+    }));
+  });
+
+  if (assignmentLinks.length > 0) {
+    await db.insert(vehicleAssignmentsTable).values(assignmentLinks);
+  }
+
+  console.log(
+    `✅ seeded ${res.length} vehicles (linked to employees, ${assignmentLinks.length} assignment links)`,
+  );
   process.exit(0);
 }
 

@@ -1,4 +1,4 @@
-import { Vehicle, Employee, Notification, EuInspection } from "@/types";
+import { Vehicle, Employee, Notification, EuInspection, Assignment } from "@/types";
 
 export type AppResources = {
   vehicles: {
@@ -7,6 +7,10 @@ export type AppResources = {
   };
   employees: {
     type: Employee;
+    key: string;
+  };
+  assignments: {
+    type: Assignment;
     key: string;
   };
   notifications: {

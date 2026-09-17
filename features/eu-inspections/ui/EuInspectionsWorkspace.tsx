@@ -9,7 +9,7 @@ import {
 } from "@/features/filtering/predicate";
 
 import type { EuInspectionRow } from "../types";
-import { Employee } from "@/types";
+import { Employee, Assignment } from "@/types";
 
 import { aggregateByEmployee } from "@/features/analytics/eu-inspections/logic";
 import { EuInspectionDashboard } from "@/features/analytics/eu-inspections/ui/Dashboard";
@@ -48,6 +48,7 @@ type Props = {
   allInspections: EuInspectionRow[];
   rawFilters?: Record<string, string | string[]>;
   employees: Employee[];
+  assignments: Assignment[];
   initialView: View;
 
   errors?: string[];
@@ -65,6 +66,7 @@ export function EuInspectionsWorkspace({
   allInspections,
   rawFilters,
   employees,
+  assignments,
   initialView,
   errors,
   isDemo,
@@ -107,27 +109,32 @@ export function EuInspectionsWorkspace({
 
   if (view === "list") {
     return (
-      <EUInspectionView
-        allInspections={allInspections}
-        employees={employees}
-        errors={errors}
-        isDemo={isDemo}
-        alternativeReceiver={alternativeReceiver}
-        filters={filters}
-        addFilter={addFilter}
-        removeFilterPredicate={removeFilterPredicate}
-        onViewDashboard={() => setView("dashboard")}
-      />
+      <div key="list" className="view-in">
+        <EUInspectionView
+          allInspections={allInspections}
+          employees={employees}
+          assignments={assignments}
+          errors={errors}
+          isDemo={isDemo}
+          alternativeReceiver={alternativeReceiver}
+          filters={filters}
+          addFilter={addFilter}
+          removeFilterPredicate={removeFilterPredicate}
+          onViewDashboard={() => setView("dashboard")}
+        />
+      </div>
     );
   }
 
   return (
-    <EuInspectionDashboard
-      items={allInspections}
-      filters={filters}
-      setFilters={setFilters}
-      addFilter={addFilter}
-      onViewList={() => setView("list")}
-    />
+    <div key="dashboard" className="view-in">
+      <EuInspectionDashboard
+        items={allInspections}
+        filters={filters}
+        setFilters={setFilters}
+        addFilter={addFilter}
+        onViewList={() => setView("list")}
+      />
+    </div>
   );
 }

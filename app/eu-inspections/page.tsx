@@ -3,7 +3,11 @@ import { IS_DEMO } from "@/server/config/app";
 import { EuInspectionsWorkspace } from "@/features/eu-inspections/ui/EuInspectionsWorkspace";
 import { getEuInspections } from "@/features/eu-inspections/server-actions/queries";
 
-import { getEmailStorage, getEmployees } from "@/features/core/server-actions";
+import {
+  getEmailStorage,
+  getEmployees,
+  getAssignments,
+} from "@/features/core/server-actions";
 
 export default async function EuInspectionsPage({
   searchParams,
@@ -29,7 +33,10 @@ export default async function EuInspectionsPage({
   // for editing maintenance responsible
   const employeesResult = await getEmployees();
 
-  const errors = [inspectionsResult, employeesResult]
+  // for the assignment filter's option list
+  const assignmentsResult = await getAssignments();
+
+  const errors = [inspectionsResult, employeesResult, assignmentsResult]
     .filter((r) => !r.ok)
     .map((r) => r.error);
 
@@ -46,6 +53,7 @@ export default async function EuInspectionsPage({
       rawFilters={rawFilters}
       initialView={initialView}
       employees={employeesResult.ok ? employeesResult.data : []}
+      assignments={assignmentsResult.ok ? assignmentsResult.data : []}
       errors={errors}
       alternativeReceiver={demouserEmail}
       isDemo={IS_DEMO}
