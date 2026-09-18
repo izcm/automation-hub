@@ -78,12 +78,11 @@ type Props = {
   // dashboard share one filter state instead of each parsing its own copy
   // from the URL.
   filters: Filter<EuInspectionRow>[];
-  addFilter: (
+  toggleFilterPredicate: (
     filterId: string,
     predicateId: string,
     predicate: (item: EuInspectionRow) => boolean,
   ) => void;
-  removeFilterPredicate: (filterId: string, predicateId: string) => void;
   onViewDashboard: () => void;
 };
 
@@ -95,8 +94,7 @@ export function ListView({
   assignments, // static
   isDemo, // static
   filters,
-  addFilter,
-  removeFilterPredicate,
+  toggleFilterPredicate,
   onViewDashboard,
 }: Props) {
   // const []
@@ -235,9 +233,8 @@ export function ListView({
               <FilterBar
                 filterGroups={filters}
                 filterRegistry={filterRegistry}
-                onRemove={removeFilterPredicate}
-                onAdd={(filterId, predicateId) =>
-                  addFilter(
+                onToggle={(filterId, predicateId) =>
+                  toggleFilterPredicate(
                     filterId,
                     predicateId,
                     EU_INSPECTION_PREDICATE_BUILDERS[filterId]!(predicateId),

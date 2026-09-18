@@ -20,7 +20,11 @@
    * orange border + orange text on a transparent ground (the "Filtre" look). */
   /* Match every button's corner radius to the text input's rounded */
   .btn {
-    @apply rounded py-2;
+    @apply rounded min-w-16 min-h-10;
+    transition:
+      border-color 0.15s ease,
+      color 0.15s ease,
+      box-shadow 0.15s ease;
   }
 
   /* Solid, strong primary: orange fill + black text */
@@ -30,18 +34,19 @@
     font-weight: 600;
     background: linear-gradient(
       160deg,
-      color-mix(in oklab, var(--accent) 18%, var(--raised)) 0%,
-      color-mix(in oklab, var(--accent) 13%, var(--raised)) 100%
+      color-mix(in oklab, var(--accent) 22%, var(--raised)) 0%,
+      color-mix(in oklab, var(--accent) 15%, var(--raised)) 100%
     );
     border: 1px solid color-mix(in oklab, var(--accent) 35%, var(--line));
-    box-shadow: none;
+    /* glossy top edge — a little more dimensionality on the "strong" CTA */
+    box-shadow: inset 0 1px 0 color-mix(in oklab, white 15%, transparent);
   }
 
   .btn-primary:hover {
     background: linear-gradient(
       160deg,
-      color-mix(in oklab, var(--accent) 24%, var(--raised)) 0%,
-      color-mix(in oklab, var(--accent) 18%, var(--raised)) 100%
+      color-mix(in oklab, var(--accent) 28%, var(--raised)) 0%,
+      color-mix(in oklab, var(--accent) 20%, var(--raised)) 100%
     );
     border-color: color-mix(in oklab, var(--accent) 40%, var(--line));
   }
@@ -81,7 +86,11 @@
   .btn-neutral {
     color: var(--fg);
     border-color: var(--faint);
-    background: linear-gradient(160deg, var(--ground) 0%, var(--lowered) 100%);
+    background: linear-gradient(
+      160deg,
+      var(--ground) 0%,
+      color-mix(in oklab, var(--lowered) 92%, var(--accent)) 100%
+    );
   }
 
   .btn-neutral:hover {
@@ -109,11 +118,12 @@
 
   .btn-menu {
     border: none;
-    font-weight: 400;
-    transition:
-      background-color 0.15s ease,
-      border-color 0.15s ease,
-      color 0.15s ease;
+    letter-spacing: normal;
+    /* font-weight: 400; */
+    /* border-color/color transitions come from the shared .btn now —
+       this is the one variant whose hover changes a flat color (not a
+       gradient), so it's the only one that can actually animate it. */
+    transition: background-color 0.15s ease;
   }
 
   /* hover: let the accent border carry it; just a whisper of fill (both themes) */

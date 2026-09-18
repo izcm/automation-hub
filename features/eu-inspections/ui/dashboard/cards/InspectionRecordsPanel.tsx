@@ -19,7 +19,7 @@ export function InspectionRecordsPanel({ items, onViewList }: Props) {
         action={
           <button
             type="button"
-            className="flex btn justify-between text-sm text-accent hover:text-accent-strong h-4"
+            className="flex btn btn-menu"
             onClick={onViewList}
           >
             See in list view
@@ -30,7 +30,10 @@ export function InspectionRecordsPanel({ items, onViewList }: Props) {
         }
       />
 
-      <EuInspectionsTable rows={visible} remaining={items.length - visible.length} />
+      <EuInspectionsTable
+        rows={visible}
+        remaining={items.length - visible.length}
+      />
     </>
   );
 }

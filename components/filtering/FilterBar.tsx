@@ -32,15 +32,13 @@ export type ResourceFilterRegistry = Record<
 type Props<T> = {
   filterGroups: Filter<T>[];
   filterRegistry: ResourceFilterRegistry;
-  onRemove: (filterId: string, predicateId: string) => void;
-  onAdd: (filterId: string, predicateId: string) => void;
+  onToggle: (filterId: string, predicateId: string) => void;
 };
 
 export function FilterBar<T>({
   filterGroups,
   filterRegistry,
-  onRemove,
-  onAdd,
+  onToggle,
 }: Props<T>) {
   const activeFilterIds = new Set(filterGroups.map((filter) => filter.id));
   const isActive = (filter: string) => (activeFilterIds.has(filter) ? 1 : 0);
@@ -64,14 +62,7 @@ export function FilterBar<T>({
             content: filterRegistry[filter.id]?.renderLabel(option.id),
           }))}
           isChecked={(id) => filter.predicates.some((p) => p.id === id)}
-          onCheckedChange={(predicateId, checked) =>
-            checked
-              ? onAdd(filter.id, predicateId)
-              : onRemove(filter.id, predicateId)
-          }
-          onRemove={() =>
-            filter.predicates.forEach((p) => onRemove(filter.id, p.id))
-          }
+          onCheckedChange={(predicateId) => onToggle(filter.id, predicateId)}
           getLabel={
             filterRegistry[filter.id]?.searchable
               ? (id) =>
@@ -188,7 +179,7 @@ export function FilterBar<T>({
                   className="btn btn-primary"
                   onClick={() => {
                     stagedPredicateIds.forEach((id) =>
-                      onAdd(pickedFilterId, id),
+                      onToggle(pickedFilterId, id),
                     );
                     setPickedFilterId(null);
                     setStagedPredicateIds([]);

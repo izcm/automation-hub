@@ -57,7 +57,7 @@ export function Workspace({
   isDemo,
   alternativeReceiver,
 }: Props) {
-  const { filters, addFilter, removeFilterPredicate, toggleOthers } =
+  const { filters, toggleFilterPredicate, toggleOthers } =
     useFilters<EuInspectionRow>(
       rawFilters ? buildFilters(rawFilters) : undefined,
     );
@@ -100,8 +100,7 @@ export function Workspace({
           isDemo={isDemo}
           alternativeReceiver={alternativeReceiver}
           filters={filters}
-          addFilter={addFilter}
-          removeFilterPredicate={removeFilterPredicate}
+          toggleFilterPredicate={toggleFilterPredicate}
           onViewDashboard={() => setView("dashboard")}
         />
       </div>
@@ -113,7 +112,7 @@ export function Workspace({
       <EuInspectionDashboard
         items={inspections}
         filters={filters}
-        addFilter={addFilter}
+        toggleFilterPredicate={toggleFilterPredicate}
         toggleOthers={toggleOthers}
         onViewList={() => setView("list")}
       />

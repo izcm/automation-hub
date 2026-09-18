@@ -10,7 +10,7 @@ export function useFilters<T>(initialFilters: Filter<T>[] = []) {
   // toggles one (filterId, predicateId) pair on/off. Different filterIds
   // AND together; same filterId with different predicateIds OR together
   // (mirrors applyFilters' semantics in ../logic/apply-filters).
-  function addFilter(
+  function toggleFilterPredicate(
     filterId: string,
     predicateId: string,
     predicate: (item: T) => boolean,
@@ -52,23 +52,6 @@ export function useFilters<T>(initialFilters: Filter<T>[] = []) {
     });
   }
 
-  function removeFilterPredicate(filterId: string, predicateId: string) {
-    setFilters((prevFilters) =>
-      prevFilters
-        ?.map((filter) =>
-          filter.id === filterId
-            ? {
-                ...filter,
-                predicates: filter.predicates.filter(
-                  (p) => p.id !== predicateId,
-                ),
-              }
-            : filter,
-        )
-        .filter((filter) => filter.predicates.length > 0),
-    );
-  }
-
   function removeFilter(filterId: string) {
     setFilters((current) => current.filter((filter) => filter.id !== filterId));
   }
@@ -77,7 +60,7 @@ export function useFilters<T>(initialFilters: Filter<T>[] = []) {
   // dashboard table's "Others" row) — selects all of `otherIds` at once if
   // NONE of them are currently selected, otherwise deselects all of them
   // (so "some selected" acts as "on" too — clicking it resets, same as
-  // clicking a fully-selected row would). `addFilter` can't do this: it
+  // clicking a fully-selected row would). `toggleFilterPredicate` can't do this: it
   // only toggles one id based on its own current state, which would flip a
   // partially-selected group into a different, arbitrary partial state
   // instead of a clean all-or-nothing one.
@@ -139,9 +122,8 @@ export function useFilters<T>(initialFilters: Filter<T>[] = []) {
   return {
     filters,
     setFilters,
-    addFilter,
+    toggleFilterPredicate,
     removeFilter,
-    removeFilterPredicate,
     toggleOthers,
   };
 }

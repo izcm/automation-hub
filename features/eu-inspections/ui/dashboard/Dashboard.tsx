@@ -39,7 +39,7 @@ function formatDateRange(from: Date, to: Date): string {
 type Props = {
   items: EuInspectionRow[];
   filters: Filter<EuInspectionRow>[];
-  addFilter: (
+  toggleFilterPredicate: (
     filterId: string,
     predicateId: string,
     predicate: (item: EuInspectionRow) => boolean,
@@ -58,7 +58,7 @@ type Props = {
 export function EuInspectionDashboard({
   items,
   filters,
-  addFilter,
+  toggleFilterPredicate,
   toggleOthers,
   onViewList,
 }: Props) {
@@ -134,7 +134,7 @@ export function EuInspectionDashboard({
               employeeBreakdown.otherIds,
               EU_INSPECTION_PREDICATE_BUILDERS.responsible!,
             )
-          : addFilter(
+          : toggleFilterPredicate(
               "responsible",
               id,
               EU_INSPECTION_PREDICATE_BUILDERS.responsible!(id),
@@ -153,25 +153,46 @@ export function EuInspectionDashboard({
       />
 
       <div className={cn(`${panel} gap-3`)}>
-        <div className="flex justify-between ">
-          <h2 className="font-medium  inline-flex items-center gap-3 tracking-wide px-2">
-            EU Inspections dues next 3 months{" "}
-            <span className="inline-flex flex-center gap-1 text-sm text-subtle tabular-nums">
-              <Calendar size={14} />
-              {formatDateRange(today, in3Months)}
+        <div className="flex justify-between items-center">
+          <h2 className="font-medium inline-flex items-center gap-3 tracking-wide px-2">
+            <span className="inline-flex items-center justify-center rounded-md bg-accent/10 p-1.5 text-accent">
+              <Calendar size={16} />
             </span>
+            EU Inspections dues next 3 months{" "}
           </h2>
 
-          <button
-            type="button"
-            className="flex btn justify-between text-sm text-fg btn-secondary"
-            onClick={onViewList}
-          >
-            Drill to workspace
-            <span aria-hidden="true">
-              <GoTo size={14} />
-            </span>
-          </button>
+          <div className="flex gap-3 items-center self-end text-sm">
+            <div className="flex items-center gap-3 text-accent">
+              <span>{filters.length} filters active</span>
+              <div className="vertical-line h-4 self-center" />
+              <button
+                onClick={() =>
+                  filters.forEach((filter) =>
+                    filter.predicates.forEach((p) =>
+                      toggleFilterPredicate(filter.id, p.id, p.predicate),
+                    ),
+                  )
+                }
+                className="btn btn-menu px-2"
+              >
+                Clear all
+              </button>
+            </div>
+
+            <button
+              type="button"
+              className="
+                  flex justify-between
+                  btn text-fg btn-secondary rounded-lg
+                "
+              onClick={onViewList}
+            >
+              Drill to workspace
+              <span aria-hidden="true">
+                <GoTo size={14} />
+              </span>
+            </button>
+          </div>
         </div>
 
         <EuInspectionsKPIs
@@ -190,13 +211,13 @@ export function EuInspectionDashboard({
             selectedStatuses={selectedStatuses}
             selectedTimeBuckets={selectedTimeBuckets}
             onCategoryClick={(bucket) =>
-              addFilter("timeBucket", bucket, (inspection) => {
+              toggleFilterPredicate("timeBucket", bucket, (inspection) => {
                 const id = getTimeBucket(getDaysUntil(inspection.dueDate));
                 return id === bucket;
               })
             }
             onLegendClick={(status) =>
-              addFilter("status", status, (inspection) => {
+              toggleFilterPredicate("status", status, (inspection) => {
                 const id = getInspectionStatus(inspection);
                 return id === status;
               })
@@ -223,7 +244,7 @@ export function EuInspectionDashboard({
                     assignmentBreakdown.otherIds,
                     EU_INSPECTION_PREDICATE_BUILDERS.assignment!,
                   )
-                : addFilter(
+                : toggleFilterPredicate(
                     "assignment",
                     id,
                     EU_INSPECTION_PREDICATE_BUILDERS.assignment!(id),
@@ -233,9 +254,9 @@ export function EuInspectionDashboard({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[325px_1fr] gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-3">
         {/* RESPONSIBLE EMPLOYEES — desktop: grouped with Inspection records at lg+ */}
-        <div className={cn(panel, "order-2 lg:order-1 max-w-[350px]")}>
+        <div className={cn(panel, "order-2 lg:order-1 max-w-[400px]")}>
           {responsibleEmployeesContent}
         </div>
 

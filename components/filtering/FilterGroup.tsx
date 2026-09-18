@@ -18,8 +18,6 @@ export type FilterGroupProps = {
   isChecked: (id: string) => boolean;
   // toggling one value on/off in the dropdown list
   onCheckedChange: (id: string, checked: boolean) => void;
-  // clearing the whole chip (the "x" on the trigger) — no id, removes everything
-  onRemove: () => void;
   // plain text to search against, given a value's id — omit for filters
   // that shouldn't be searchable at all (searchable = this being defined)
   getLabel?: (id: string) => string;
@@ -35,13 +33,21 @@ export function FilterGroup({
   values,
   isChecked,
   onCheckedChange,
-  onRemove,
   getLabel,
 }: FilterGroupProps) {
   const capitalizedFilterLabel = capitalize(label);
 
   const checkedCount = values.filter((v) => isChecked(v.id)).length;
   const searchable = getLabel !== undefined;
+
+  // clearing the whole chip (the "x" on the trigger, "Clear all" in the
+  // footer) — no separate onRemove callback needed: uncheck everything
+  // that's currently checked, same as clicking each one individually.
+  function clearAll() {
+    values
+      .filter((v) => isChecked(v.id))
+      .forEach((v) => onCheckedChange(v.id, false));
+  }
 
   // checked items first, so they group together above a divider
   const sortedValues = [...values].sort(
@@ -76,8 +82,8 @@ export function FilterGroup({
         footer={(close) => (
           <div className="flex flex-col gap-3 py-1">
             <div className="horizontal-line" />
-            <div className="flex justify-between">
-              <button onClick={onRemove} className="text-accent">
+            <div className="flex items-center justify-between">
+              <button onClick={clearAll} className="btn btn-menu">
                 Clear all
               </button>
 
@@ -115,7 +121,7 @@ export function FilterGroup({
               className="hover:text-accent-strong h-full grid place-items-center"
               onClick={(e) => {
                 e.stopPropagation();
-                onRemove();
+                clearAll();
               }}
             >
               <Cancel size={18} />
