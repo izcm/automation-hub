@@ -12,7 +12,7 @@ import { useLanguage } from "@/lib/contexts/LanguageContext";
 import { Employee, Assignment } from "@/types";
 
 import { Dashboard, Notify, User } from "@components/icons";
-import { ResourceManagementView } from "@/components/organisms";
+import { ResourceListView } from "@/components/workspace/resource-management";
 
 import {
   getListViewLabels,
@@ -213,7 +213,7 @@ export function ListView({
 
   return (
     <>
-      <ResourceManagementView
+      <ResourceListView
         items={visibleInspections}
         getId={(v) => v.id}
         labels={RESOURCE_MANAGEMENT_VIEW_LABELS}
@@ -236,9 +236,8 @@ export function ListView({
               <button
                 type="button"
                 onClick={() => {
-                  if (filters.length > 0) onViewDashboard();
+                  onViewDashboard();
                 }}
-                aria-disabled={filters.length === 0}
                 className={cn(
                   "btn btn-secondary rounded-xl disabled-look",
                   "border border-accent/20 text-accent transition-colors",

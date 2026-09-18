@@ -5,6 +5,7 @@ import { getDaysUntil } from "@a2zb/lib";
 import { cn } from "@/lib/cn";
 import { Calendar, ChevronRight, GoTo } from "@/components/icons";
 import { PanelHeader } from "@/components/molecules";
+import { ResourceHeader } from "@/components/workspace/resource-management";
 
 import { applyFilters, type Filter } from "@/features/filtering/predicate";
 
@@ -28,8 +29,6 @@ import { InteractiveBarChart } from "@/components/analytics/InteractiveBarChart"
 
 import { EuInspectionsTable } from "./tables/EuInspectionsTable";
 import { AssignmentsTable } from "./tables/AssignmentsTable";
-
-import { OutstandingRejectionsCard } from "./cards/OutstandingRejectionsCard";
 
 const panel =
   "flex flex-col gap-1 border border-extra-faint rounded bg-raised-gradient p-2";
@@ -122,7 +121,12 @@ export function EuInspectionDashboard({
   in3Months.setDate(today.getDate() + 90);
 
   return (
-    <section className="flex flex-col gap-3 max-w-[1440px] mx-auto p-3">
+    <section className="flex flex-col gap-3 max-w-[1440px] mx-auto p-2 lg:p-6">
+      <ResourceHeader
+        title="EU Inspections"
+        desc="Keep your fleet compliant. See what's due and where to take action."
+        tabs={["Overview", "Background processes"]}
+      />
       {/* HEADER & FILTER CHIPS */}
       <div className="flex justify-between h-8">
         <h2 className="font-semibold inline-flex items-center gap-3">
@@ -132,17 +136,6 @@ export function EuInspectionDashboard({
             {formatDateRange(today, in3Months)}
           </span>
         </h2>
-
-        {/* <FilterChips
-          filters={filters.map((filter) => ({
-            id: filter.id,
-            label: filter.id,
-            values: filter.predicates.map((predicate) => predicate.id),
-          }))}
-          onRemove={(id) =>
-            setFilters((current) => current.filter((f) => f.id !== id))
-          }
-        /> */}
 
         <button
           type="button"

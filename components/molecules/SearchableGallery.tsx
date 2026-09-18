@@ -96,10 +96,11 @@ export function SearchableGallery<T = string>({
         galleryItem={(option) => galleryItem(option, handleCommit)}
         className={{
           arrowList: cn("flex flex-col gap-0.5", galleryClassName?.arrowList),
-          arrowRow: cn(
-            "inset-focus rounded disabled-look",
-            galleryClassName?.arrowRow,
-          ),
+          arrowRow: (state) =>
+            cn(
+              "inset-focus rounded disabled-look",
+              galleryClassName?.arrowRow?.(state),
+            ),
         }}
       />
     </>

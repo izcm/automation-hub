@@ -29,8 +29,6 @@ type Props = {
   mode?: "inspection" | "batchSelect";
 };
 
-// Important read! : https://tailwindcss.com/docs/responsive-design
-// also: https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Containment/Container_queries
 export function Row({
   item,
   picked,
@@ -50,11 +48,11 @@ export function Row({
         "items-center gap-4",
         "rounded border border-extra-faint bg-raised",
 
-        // narrow container
+        // small screen: card
         "grid-cols-[auto_minmax(0,1fr)]",
 
-        // wide container
-        "@min-[512px]:grid-cols-[36%_auto_minmax(0,1fr)]",
+        // sm+: full row
+        "sm:grid-cols-[36%_auto_minmax(0,1fr)]",
 
         // conditional styling
         picked && "border border-accent/60", // picked = when member of batch select
@@ -132,13 +130,13 @@ export function Row({
 
       <IconBtn
         className={cn(
-          // narrow container
+          // small screen: card
           "h-10 px-2 hover:text-accent justify-self-end",
           "col-span-full w-full rounded-t-none mr-auto",
           "bg-[light-dark(var(--elevated-alt),var(--lowered))]",
 
-          // wide container
-          "@min-[512px]:py-1 @min-[512px]:col-span-1 @min-[512px]:w-auto @min-[512px]:bg-transparent @min-[512px]:rounded @min-[512px]:mr-1",
+          // sm+: full row
+          "sm:py-1 sm:col-span-1 sm:w-auto sm:bg-transparent sm:rounded sm:mr-1",
 
           activeId === item.id &&
             "[&>svg]:!text-muted text-subtle cursor-default pointer-events-none hover:text-muted",

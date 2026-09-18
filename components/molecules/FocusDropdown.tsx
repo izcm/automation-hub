@@ -107,7 +107,7 @@ export function FocusDropdown<T = string>({
           galleryItem={(option) => galleryItem(option, handleCommit)}
           className={{
             arrowList: "flex flex-col gap-0.5 max-h-[240px]",
-            arrowRow: "inset-focus",
+            arrowRow: () => "inset-focus",
           }}
         />
       </Popover>

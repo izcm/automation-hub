@@ -5,16 +5,14 @@ import { Checkbox, Gallery } from "@a2zb/react";
 
 import { cn } from "@/lib/cn";
 import { Pagination } from "@/components/molecules";
-import {
-  BatchAction,
-  BatchSelect,
-  WorkspaceLayout,
-  WorkspacePanel,
-} from "@/components/organisms";
+import { BatchAction, BatchSelect } from "@/components/organisms";
+
+import { WorkspaceLayout } from "../WorkspaceLayout";
+import { WorkspacePanel } from "../WorkspacePanel";
 
 const PAGE_SIZE = 25;
 
-export type ResourceManagementLabels = {
+export type ResourceListLabels = {
   title: ReactNode;
   searchBar: {
     placeholder: string;
@@ -49,14 +47,14 @@ type Props<T> = {
     activeId: string | undefined,
     openInWorkspace: () => void,
   ) => ReactNode;
-  labels: ResourceManagementLabels;
+  labels: ResourceListLabels;
   // extra classes for the row wrapper Gallery/BatchSelect render around each item
   itemClassName?: (isSelected: boolean) => string;
   filterChips?: ReactNode;
   detailsPanel: (item: T) => ReactNode;
 };
 
-export function ResourceManagementView<T>({
+export function ResourceListView<T>({
   items,
   getId,
   batchActions,

@@ -59,9 +59,8 @@ export function FloatingNav({ items, logoutLabel, onLogout }: Props) {
               direction="vertical"
               className={{
                 arrowList: "flex flex-col gap-1",
-                arrowRow: "focus-inset",
+                arrowRow: () => "focus-inset rounded-lg outline-none",
               }}
-              itemClassName={() => "rounded-lg outline-none"}
               galleryItem={(item) => (
                 <div
                   aria-current={item.active ? "page" : undefined}

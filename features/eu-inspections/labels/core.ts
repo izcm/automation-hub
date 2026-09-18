@@ -19,6 +19,7 @@ const en = {
     "Do you want to notify those too, or only the ones that aren't approved yet?",
   confirmNotifySkipApproved: "Skip approved",
   confirmNotifySendAll: "Notify all selected",
+  moduleOperational: "Module status: fully operational",
 };
 
 const no: typeof en = {
@@ -39,6 +40,7 @@ const no: typeof en = {
     "Vil du varsle disse også, eller kun de som ikke er godkjent ennå?",
   confirmNotifySkipApproved: "Hopp over godkjente",
   confirmNotifySendAll: "Varsle alle valgte",
+  moduleOperational: "Modulstatus: fullt operativ",
 };
 
 export const EU_INSPECTIONS_LABELS = { en, no } satisfies Record<

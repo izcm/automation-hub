@@ -1,4 +1,4 @@
-import type { ResourceManagementLabels } from "@/components/organisms/ResourceManagementView";
+import type { ResourceListLabels } from "@/components/workspace/resource-management/ResourceListView";
 
 export type Language = "en" | "no";
 
@@ -63,6 +63,7 @@ const en = {
 
   batchSelect: {
     label: "batch select",
+    selectMultiple: "Select multiple",
   },
 };
 
@@ -125,6 +126,7 @@ const no: typeof en = {
 
   batchSelect: {
     label: "flervalg",
+    selectMultiple: "Velg flere",
   },
 };
 
@@ -133,13 +135,13 @@ export const CORE_UI_LABELS_BY_LANGUAGE = { en, no } satisfies Record<
   typeof en
 >;
 
-// Reusable ResourceManagementView labels — shared across any list view.
+// Reusable ResourceListView labels — shared across any list view.
 // Each page passes its own search placeholder text.
 export function getListViewLabels(
   language: Language,
   searchPlaceholder: string,
   title: string,
-): ResourceManagementLabels {
+): ResourceListLabels {
   const l = CORE_UI_LABELS_BY_LANGUAGE[language];
 
   return {
@@ -152,7 +154,7 @@ export function getListViewLabels(
     batching: {
       selected: l.list.selected,
       clearSelection: l.list.clearSelection,
-      enableMobile: `${l.toggle.enable} ${l.batchSelect.label}`,
+      enableMobile: l.batchSelect.selectMultiple,
       disableMobile: `${l.toggle.disable} ${l.batchSelect.label}`,
     },
     pagination: {

@@ -56,7 +56,7 @@ export function FilterGroup({
   )?.id;
 
   return (
-    <div className="flex items-center gap-1.5 rounded-full text-sm">
+    <div className="chip-in flex items-center gap-1.5 rounded-full text-sm">
       <span className="font-medium mr-1.5">{capitalizedFilterLabel}:</span>
       <Dropdown
         options={sortedValues}
