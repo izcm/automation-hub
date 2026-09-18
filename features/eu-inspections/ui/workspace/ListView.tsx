@@ -1,6 +1,14 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import { toast } from "sonner";
 
 import { useRegexValidatedInput } from "@a2zb/react";
@@ -52,7 +60,11 @@ function normalizeSearchPlateNumber(input: string): string {
 }
 
 type Props = {
-  allInspections: EuInspectionRow[];
+  // owned by Workspace, not local — dashboard and list both need to see
+  // the same live data, so mutations here (notify, mark status, change
+  // responsible) have to update the shared copy, not a local one.
+  inspections: EuInspectionRow[];
+  setInspections: Dispatch<SetStateAction<EuInspectionRow[]>>;
   employees: Employee[];
   assignments: Assignment[];
 
@@ -76,7 +88,8 @@ type Props = {
 };
 
 export function ListView({
-  allInspections, // may or may not implement pagination here later
+  inspections,
+  setInspections,
   alternativeReceiver, // static
   employees, // static
   assignments, // static
@@ -88,7 +101,6 @@ export function ListView({
 }: Props) {
   // const []
   // const [searchInput, setSearchInput] = useState<string>("");
-  const [inspections, setInspections] = useState(allInspections);
 
   const visibleInspections = useMemo(() => {
     if (!filters) return inspections;

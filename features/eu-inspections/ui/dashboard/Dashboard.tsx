@@ -111,7 +111,7 @@ export function EuInspectionDashboard({
   );
 
   // ALL responsible employees — keeps the row set stable
-  const allEmployeeRows = aggregateByEmployee(items, DASHBOARD_TABLE_LIMIT);
+  const allEmployeeRows = aggregateByEmployee(items, DASHBOARD_TABLE_LIMIT - 1); // looks prettier with one less row
 
   // the top employee ids are settled once
   const topEmployeeIds = allEmployeeRows
@@ -134,7 +134,7 @@ export function EuInspectionDashboard({
       items,
       filters.filter((filter) => filter.id !== "responsible"),
     ),
-    DASHBOARD_TABLE_LIMIT,
+    DASHBOARD_TABLE_LIMIT - 1,
     topEmployeeIds,
   );
 

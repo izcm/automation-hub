@@ -62,6 +62,12 @@ export function Workspace({
       rawFilters ? buildFilters(rawFilters) : undefined,
     );
 
+  // owned here, not in ListView — dashboard and list are two views over
+  // the same persistent component now (no navigation between them), so a
+  // mutation (notify, mark status, change responsible) has to update state
+  // both views can see, not a copy local to whichever view made it.
+  const [inspections, setInspections] = useState(allInspections);
+
   const [view, setView] = useState<View>(initialView);
 
   // keep the URL in sync with filters + view (only when not the default),
@@ -86,7 +92,8 @@ export function Workspace({
     return (
       <div key="list" className="view-in">
         <ListView
-          allInspections={allInspections}
+          inspections={inspections}
+          setInspections={setInspections}
           employees={employees}
           assignments={assignments}
           errors={errors}
@@ -104,7 +111,7 @@ export function Workspace({
   return (
     <div key="dashboard" className="view-in">
       <EuInspectionDashboard
-        items={allInspections}
+        items={inspections}
         filters={filters}
         addFilter={addFilter}
         toggleOthers={toggleOthers}
