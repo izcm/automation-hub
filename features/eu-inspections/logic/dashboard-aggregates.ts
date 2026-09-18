@@ -7,13 +7,22 @@ import type { EmployeeInspectionRow } from "../ui/dashboard/tables/ResponsibleEm
 import { getInspectionStatus } from "./status";
 import { getTimeBucket, timeBuckets } from "@/lib/time-bucket";
 
+// dashboard summary tables (assignments, responsible employees) cap
+// themselves to this many rows so they stay a fixed height regardless of
+// fleet size — everyone else folds into a single "Others" row. Shared by
+// both Dashboard (rendering the tables) and Workspace (computing the same
+// cutoff so "others" expands to the exact set of ids the table is standing
+// in for) — must stay a single constant, not re-hardcoded per call site.
+export const DASHBOARD_TABLE_LIMIT = 5;
+
 // one row per employee responsible for a vehicle, tallying their inspections
 // by state. Inspections with no responsible employee are skipped — nobody
-// to attribute them to in this table. Capped to the top 4 by due count so
+// to attribute them to in this table. Capped to `limit` by due count so
 // the table stays a fixed height regardless of fleet size — everyone else
 // folds into a single "Others" row.
 export function aggregateByEmployee(
   rows: EuInspectionRow[],
+  limit: number,
   // when given, every id not in this list gets folded into "others" instead
   // of being ranked by due count. Needed because Dashboard aggregates two
   // different datasets (all rows vs. filtered rows) but wants both results
@@ -66,8 +75,8 @@ export function aggregateByEmployee(
     rest = perEmployee.filter((row) => !topIds.includes(row.id));
   } else {
     const sorted = perEmployee.sort((a, b) => b.due - a.due);
-    top = sorted.slice(0, 4);
-    rest = sorted.slice(4);
+    top = sorted.slice(0, limit);
+    rest = sorted.slice(limit);
   }
 
   if (rest.length === 0) return top;
@@ -111,11 +120,12 @@ export type AssignmentInspectionRow = {
 // this isn't a partition of the fleet, it's "how much is on this
 // assignment's plate". Inspections whose vehicle has no assignment at all
 // are skipped, same reasoning as aggregateByEmployee skipping no-employee.
-// Same top-4/"others" folding as aggregateByEmployee too, for the same
+// Same limit/"others" folding as aggregateByEmployee too, for the same
 // reason — keeps the table a fixed height regardless of how many
 // assignments exist.
 export function aggregateByAssignment(
   rows: EuInspectionRow[],
+  limit: number,
   // see aggregateByEmployee's topIds param — same reasoning.
   topIds?: string[],
 ): AssignmentInspectionRow[] {
@@ -163,8 +173,8 @@ export function aggregateByAssignment(
     rest = perAssignment.filter((row) => !topIds.includes(row.id));
   } else {
     const sorted = perAssignment.sort((a, b) => b.total - a.total);
-    top = sorted.slice(0, 4);
-    rest = sorted.slice(4);
+    top = sorted.slice(0, limit);
+    rest = sorted.slice(limit);
   }
 
   if (rest.length === 0) return top;

@@ -16,6 +16,11 @@ type Props = {
   rows: EmployeeInspectionRow[];
   filteredRows: EmployeeInspectionRow[];
   selectedIds: string[];
+  // true when some but not all of the ids folded into "Others" are
+  // selected — the row still shows as selected either way (it's in
+  // selectedIds), this only decides whether its label calls that out.
+  othersPartiallySelected?: boolean;
+  othersSelectedCount?: number;
   onRowClick?: (id: string) => void;
 };
 
@@ -23,6 +28,8 @@ export function ResponsibleEmployeesTable({
   rows,
   filteredRows,
   selectedIds,
+  othersPartiallySelected,
+  othersSelectedCount,
   onRowClick,
 }: Props) {
   const displayRows = rows.map((row) => ({
@@ -40,7 +47,9 @@ export function ResponsibleEmployeesTable({
         ) : (
           <InitialsBadge size="sm" label={row.name} />
         )}
-        {row.name}
+        {row.id === "others" && othersPartiallySelected
+          ? `${row.name} — ${othersSelectedCount} selected`
+          : row.name}
       </div>
     ),
     stats: filteredRows.find((filtered) => filtered.id === row.id),

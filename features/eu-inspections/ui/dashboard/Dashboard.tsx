@@ -15,6 +15,7 @@ import {
   aggregateByAssignment,
   aggregateByEmployee,
   aggregateByTimeBucket,
+  DASHBOARD_TABLE_LIMIT,
 } from "../../logic/dashboard-aggregates";
 import {
   getInspectionStatus,
@@ -23,6 +24,7 @@ import {
   STATUS_LABELS,
   type Status,
 } from "../../logic/status";
+import { EU_INSPECTION_PREDICATE_BUILDERS } from "../../logic/filters";
 import { getTimeBucket } from "@/lib/time-bucket";
 
 import { EuInspectionsKPIs } from "./cards/EuInspectionsKPIs";
@@ -48,14 +50,15 @@ function formatDateRange(from: Date, to: Date): string {
 type Props = {
   items: EuInspectionRow[];
   filters: Filter<EuInspectionRow>[];
-  displayFilters: Filter<EuInspectionRow>[];
-  setFilters: (
-    updater: (current: Filter<EuInspectionRow>[]) => Filter<EuInspectionRow>[],
-  ) => void;
   addFilter: (
     filterId: string,
     predicateId: string,
     predicate: (item: EuInspectionRow) => boolean,
+  ) => void;
+  toggleOthers: (
+    filterId: string,
+    otherIds: string[],
+    buildPredicate: (id: string) => (item: EuInspectionRow) => boolean,
   ) => void;
   // filters/view live one level up (Workspace) so dashboard and
   // workspace list share one filter state instead of each parsing its own
@@ -66,9 +69,8 @@ type Props = {
 export function EuInspectionDashboard({
   items,
   filters,
-  displayFilters,
-  setFilters,
   addFilter,
+  toggleOthers,
   onViewList,
 }: Props) {
   // apply filters on every dimension
@@ -83,12 +85,20 @@ export function EuInspectionDashboard({
   // create a dataset
 
   // ALL assignments — keeps the row set stable
-  const allAssignmentRows = aggregateByAssignment(items);
+  const allAssignmentRows = aggregateByAssignment(items, DASHBOARD_TABLE_LIMIT);
 
   // the top assignment ids are settled once
   const topAssignmentIds = allAssignmentRows
     .filter((row) => row.id !== "others")
     .map((row) => row.id);
+
+  // every real assignment id folded into the table's "Others" row — needed
+  // to expand a click on that row into real predicates (see toggleOthers).
+  const otherAssignmentIds = [
+    ...new Set(
+      items.flatMap((item) => item.vehicle.assignments?.map((a) => a.id) ?? []),
+    ),
+  ].filter((id) => !topAssignmentIds.includes(id));
 
   // filter without the "assignment" dimension itself (its own dimension)
   const filteredAssignmentRows = aggregateByAssignment(
@@ -96,16 +106,27 @@ export function EuInspectionDashboard({
       items,
       filters.filter((filter) => filter.id !== "assignment"),
     ),
+    DASHBOARD_TABLE_LIMIT,
     topAssignmentIds,
   );
 
   // ALL responsible employees — keeps the row set stable
-  const allEmployeeRows = aggregateByEmployee(items);
+  const allEmployeeRows = aggregateByEmployee(items, DASHBOARD_TABLE_LIMIT);
 
   // the top employee ids are settled once
   const topEmployeeIds = allEmployeeRows
     .filter((row) => row.id !== "others")
     .map((row) => row.id);
+
+  // every real employee id folded into the table's "Others" row — needed
+  // to expand a click on that row into real predicates (see toggleOthers).
+  const otherEmployeeIds = [
+    ...new Set(
+      items
+        .map((item) => item.vehicle.maintenanceResponsibleId)
+        .filter((id): id is string => id != null),
+    ),
+  ].filter((id) => !topEmployeeIds.includes(id));
 
   // filter without the "responsible" dimension itself (its own dimension)
   const filteredEmployeeRows = aggregateByEmployee(
@@ -113,6 +134,7 @@ export function EuInspectionDashboard({
       items,
       filters.filter((filter) => filter.id !== "responsible"),
     ),
+    DASHBOARD_TABLE_LIMIT,
     topEmployeeIds,
   );
 
@@ -134,6 +156,37 @@ export function EuInspectionDashboard({
   const selectedStatuses = filters
     .filter((filter) => filter.id === "status")
     .flatMap((filter) => filter.predicates.map((p) => p.id));
+
+  // for the "Others" row's own highlight: real ids currently selected in
+  // each dimension, and whether any/all of the "other" group is covered by
+  // that — "others" itself is never a real predicate id in `filters`, so
+  // this is how the row knows to show as selected at all. `some` drives
+  // the highlight + matches toggleOthers' own "some counts as on" rule;
+  // `all` is only used to tell "fully selected" apart from "partially
+  // selected" for the row's label text.
+  const selectedAssignmentIds =
+    filters
+      .find((filter) => filter.id === "assignment")
+      ?.predicates.map((p) => p.id) ?? [];
+  const otherAssignmentsSelectedCount = otherAssignmentIds.filter((id) =>
+    selectedAssignmentIds.includes(id),
+  ).length;
+  const someOtherAssignmentsSelected = otherAssignmentsSelectedCount > 0;
+  const allOtherAssignmentsSelected =
+    otherAssignmentIds.length > 0 &&
+    otherAssignmentsSelectedCount === otherAssignmentIds.length;
+
+  const selectedEmployeeIds =
+    filters
+      .find((filter) => filter.id === "responsible")
+      ?.predicates.map((p) => p.id) ?? [];
+  const otherEmployeesSelectedCount = otherEmployeeIds.filter((id) =>
+    selectedEmployeeIds.includes(id),
+  ).length;
+  const someOtherEmployeesSelected = otherEmployeesSelectedCount > 0;
+  const allOtherEmployeesSelected =
+    otherEmployeeIds.length > 0 &&
+    otherEmployeesSelectedCount === otherEmployeeIds.length;
 
   const today = new Date();
   const in3Months = new Date(today);
@@ -177,7 +230,7 @@ export function EuInspectionDashboard({
       </div>
 
       {/* FILTER APPLIERS */}
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,3fr)_minmax(560px,2fr)] gap-3 items-center">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,3fr)_minmax(560px,2fr)] gap-3 items-center">
         {/* BARCHART */}
 
         <div className={panel}>
@@ -236,30 +289,29 @@ export function EuInspectionDashboard({
           <div className={"h-80"}>
             <AssignmentsTable
               selectedIds={
-                filters
-                  .find((filter) => filter.id === "assignment")
-                  ?.predicates.map((p) => p.id) ?? []
+                someOtherAssignmentsSelected
+                  ? [...selectedAssignmentIds, "others"]
+                  : selectedAssignmentIds
               }
+              othersPartiallySelected={
+                someOtherAssignmentsSelected && !allOtherAssignmentsSelected
+              }
+              othersSelectedCount={otherAssignmentsSelectedCount}
               rows={allAssignmentRows}
               filteredRows={filteredAssignmentRows}
               relevantColumns={selectedStatuses}
               onRowClick={(id) =>
-                addFilter(
-                  "assignment",
-                  id,
-                  id === "others"
-                    ? // "others" isn't a real assignment id — it's every
-                      // assignment that didn't get its own row above
-                      (inspection) =>
-                        inspection.vehicle.assignments?.some(
-                          (assignment) =>
-                            !topAssignmentIds.includes(assignment.id),
-                        ) ?? false
-                    : (inspection) =>
-                        inspection.vehicle.assignments?.some(
-                          (assignment) => assignment.id === id,
-                        ) ?? false,
-                )
+                id === "others"
+                  ? toggleOthers(
+                      "assignment",
+                      otherAssignmentIds,
+                      EU_INSPECTION_PREDICATE_BUILDERS.assignment!,
+                    )
+                  : addFilter(
+                      "assignment",
+                      id,
+                      EU_INSPECTION_PREDICATE_BUILDERS.assignment!(id),
+                    )
               }
             />
           </div>
@@ -276,24 +328,28 @@ export function EuInspectionDashboard({
 
           <ResponsibleEmployeesTable
             selectedIds={
-              filters
-                .find((filter) => filter.id === "responsible")
-                ?.predicates.map((p) => p.id) ?? []
+              someOtherEmployeesSelected
+                ? [...selectedEmployeeIds, "others"]
+                : selectedEmployeeIds
             }
+            othersPartiallySelected={
+              someOtherEmployeesSelected && !allOtherEmployeesSelected
+            }
+            othersSelectedCount={otherEmployeesSelectedCount}
             rows={allEmployeeRows}
             filteredRows={filteredEmployeeRows}
             onRowClick={(id) =>
-              addFilter(
-                "responsible",
-                id,
-                id === "others"
-                  ? // "others" isn't a real employee id — it's every
-                    // responsible employee that didn't get its own row above
-                    (inspection) =>
-                      inspection.vehicle.employee != null &&
-                      !topEmployeeIds.includes(inspection.vehicle.employee.id)
-                  : (inspection) => inspection.vehicle.employee?.id === id,
-              )
+              id === "others"
+                ? toggleOthers(
+                    "responsible",
+                    otherEmployeeIds,
+                    EU_INSPECTION_PREDICATE_BUILDERS.responsible!,
+                  )
+                : addFilter(
+                    "responsible",
+                    id,
+                    EU_INSPECTION_PREDICATE_BUILDERS.responsible!(id),
+                  )
             }
           />
         </div>

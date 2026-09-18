@@ -8,6 +8,11 @@ type Props = {
   rows: AssignmentInspectionRow[];
   filteredRows: AssignmentInspectionRow[];
   selectedIds: string[];
+  // true when some but not all of the ids folded into "Others" are
+  // selected — the row still shows as selected either way (it's in
+  // selectedIds), this only decides whether its label calls that out.
+  othersPartiallySelected?: boolean;
+  othersSelectedCount?: number;
   relevantColumns?: string[];
   onRowClick?: (id: string) => void;
 };
@@ -16,12 +21,17 @@ export function AssignmentsTable({
   rows,
   filteredRows,
   selectedIds,
+  othersPartiallySelected,
+  othersSelectedCount,
   relevantColumns,
   onRowClick,
 }: Props) {
   const displayRows = rows.map((row) => ({
     id: row.id,
-    label: row.name,
+    label:
+      row.id === "others" && othersPartiallySelected
+        ? `${row.name} — ${othersSelectedCount} selected`
+        : row.name,
     stats: filteredRows.find((filtered) => filtered.id === row.id),
   }));
 
