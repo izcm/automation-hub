@@ -1,6 +1,6 @@
 import { ComponentProps, ReactNode, useState } from "react";
 
-import { Gallery, TextInput } from "@a2zb/react";
+import { TextInput } from "@a2zb/react";
 import { cn } from "@/lib/cn";
 
 import { Popover } from "./FocusDropdown";
@@ -41,7 +41,7 @@ type Props<T> = {
     "align" | "contentClassName"
   >;
   textInputProps?: ComponentProps<typeof TextInput>;
-  galleryClassName?: ComponentProps<typeof Gallery>["className"];
+  galleryClassName?: ComponentProps<typeof SearchableGallery>["galleryClassName"];
 };
 
 export function Dropdown<T = string>({

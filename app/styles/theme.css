@@ -3,51 +3,26 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  --radius: 0.3125rem;
-
-  /* family 1 — is this a problem, and how bad? same colors as
-     success/warning/failure, just named by urgency instead of outcome. */
-  --color-advisory: var(--advisory);
-  --color-caution: var(--caution);
-  --color-critical: var(--critical);
-
-  /* family 2 — not a problem at all, just information: is there anything
-     to act on right now? "neutral" = no, it's done/resolved. "safe" =
-     all clear — approved, nothing outstanding. These don't rank against
-     family 1. */
-  --color-neutral: var(--neutral);
+  /* "safe" (all clear — approved, nothing outstanding) is this app's own
+     name for @a2zb/styles's "pending" family-2 status — everything below
+     exists only because of that naming difference, or because it has no
+     equivalent upstream at all (gradient/-weak variants, panel/header
+     gradients). Anything @a2zb/styles' own @theme already covers under a
+     shared name (radius, advisory/caution/critical/neutral colors, their
+     gradients, ground/raised/elevated background-images, success/warning/
+     failure/neutral -weak) isn't repeated here. */
   --color-safe: var(--safe);
 
-  /* subtle self-shaded gradients — KPI tiles, bar chart bars */
-  --gradient-critical: linear-gradient(
-    160deg,
-    var(--critical) 0%,
-    color-mix(in oklab, var(--critical) 85%, black) 100%
-  );
-  --gradient-caution: linear-gradient(
-    160deg,
-    var(--caution) 0%,
-    color-mix(in oklab, var(--caution) 85%, black) 100%
-  );
-  --gradient-advisory: linear-gradient(
-    160deg,
-    var(--advisory) 0%,
-    color-mix(in oklab, var(--advisory) 85%, black) 100%
-  );
   --gradient-safe: linear-gradient(
     160deg,
     var(--safe) 0%,
     color-mix(in oklab, var(--safe) 85%, black) 100%
   );
-  --gradient-neutral: linear-gradient(
-    160deg,
-    var(--neutral) 0%,
-    color-mix(in oklab, var(--neutral) 85%, black) 100%
-  );
 
   /* weak = same direction, faded from the existing -weak tint (cut down
      further — this is a background tint, not a badge) to transparent
-     instead of self-shaded black */
+     instead of self-shaded black. @a2zb/styles has no gradient-weak
+     variants at all (only flat -weak colors), so all five stay local. */
   --gradient-critical-weak: linear-gradient(
     160deg,
     color-mix(in oklab, var(--critical-weak) 35%, transparent) 0%,
@@ -74,44 +49,16 @@
     transparent 100%
   );
 
-  --background-image-ground-gradient: var(--ground-gradient);
-  --background-image-raised-gradient: var(--raised-gradient);
-  --background-image-elevated-gradient: var(--elevated-gradient);
-  --background-image-gradient-critical: var(--gradient-critical);
-  --background-image-gradient-caution: var(--gradient-caution);
-  --background-image-gradient-advisory: var(--gradient-advisory);
+  /* dashboard panels + resource header glow — this app's own, no upstream equivalent */
+  --background-image-panel-gradient: var(--panel-gradient);
+  --background-image-resource-header-gradient: var(--resource-header-gradient);
   --background-image-gradient-safe: var(--gradient-safe);
-  --background-image-gradient-neutral: var(--gradient-neutral);
   --background-image-gradient-critical-weak: var(--gradient-critical-weak);
   --background-image-gradient-caution-weak: var(--gradient-caution-weak);
   --background-image-gradient-advisory-weak: var(--gradient-advisory-weak);
   --background-image-gradient-safe-weak: var(--gradient-safe-weak);
   --background-image-gradient-neutral-weak: var(--gradient-neutral-weak);
 
-  /* weak = same base color, --weak-opacity applied (theme-tuned, see below) */
-  --success-weak: color-mix(
-    in oklab,
-    var(--success) var(--weak-opacity),
-    transparent
-  );
-  --warning-weak: color-mix(
-    in oklab,
-    var(--warning) var(--weak-opacity),
-    transparent
-  );
-  --failure-weak: color-mix(
-    in oklab,
-    var(--failure) var(--weak-opacity),
-    transparent
-  );
-  --neutral-weak: color-mix(
-    in oklab,
-    var(--neutral) var(--weak-opacity),
-    transparent
-  );
-  --advisory-weak: var(--success-weak);
-  --caution-weak: var(--warning-weak);
-  --critical-weak: var(--failure-weak);
   --safe-weak: color-mix(
     in oklab,
     var(--safe) var(--weak-opacity),
@@ -154,10 +101,20 @@
     color-mix(in oklab, var(--accent) 4%, transparent),
     transparent
   );
+  --resource-header-gradient: radial-gradient(
+    900px 350px at 65% 0%,
+    color-mix(in oklab, var(--accent) 8%, transparent),
+    transparent 70%
+  );
   --raised-gradient: linear-gradient(
     160deg,
     var(--raised) 0%,
     var(--elevated) 100%
+  );
+  --panel-gradient: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--raised) 95%, var(--ground)) 0%,
+    color-mix(in oklab, var(--elevated) 95%, var(--ground)) 100%
   );
   --elevated-gradient: linear-gradient(
     160deg,
@@ -220,10 +177,20 @@
     color-mix(in oklab, var(--accent) 5%, transparent),
     transparent
   );
+  --resource-header-gradient: radial-gradient(
+    700px 350px at 65% 0%,
+    color-mix(in oklab, var(--accent) 8%, transparent),
+    transparent 70%
+  );
   --raised-gradient: linear-gradient(
     160deg,
     var(--raised) 0%,
     var(--elevated) 100%
+  );
+  --panel-gradient: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--raised) 95%, var(--ground)) 0%,
+    color-mix(in oklab, var(--elevated) 95%, var(--ground)) 100%
   );
   --elevated-gradient: linear-gradient(
     160deg,
@@ -270,4 +237,52 @@
 
   --panel-shadow:
     0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(91, 157, 255, 0.06);
+}
+
+/* @a2zb/styles' "void"/"runtime"/"swh" themes don't know about panel-gradient
+   or resource-header-gradient — those are this app's own additions, not
+   upstream ones — so supplement each with the same formula light/dark use,
+   which resolves against that theme's own --raised/--elevated/--ground/--accent. */
+:root[data-theme="void"] {
+  --resource-header-gradient: linear-gradient(
+    155deg,
+    transparent 35%,
+    color-mix(in oklab, var(--accent) 10%, transparent) 70%,
+    color-mix(in oklab, var(--accent) 16%, transparent) 100%
+  );
+
+  --panel-gradient: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--raised) 95%, var(--ground)) 0%,
+    color-mix(in oklab, var(--elevated) 95%, var(--ground)) 100%
+  );
+  --safe: var(--accent-neutral);
+}
+
+:root[data-theme="runtime"] {
+  --resource-header-gradient: radial-gradient(
+    700px 350px at 65% 0%,
+    color-mix(in oklab, var(--accent) 8%, transparent),
+    transparent 70%
+  );
+  --panel-gradient: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--raised) 95%, var(--ground)) 0%,
+    color-mix(in oklab, var(--elevated) 95%, var(--ground)) 100%
+  );
+  --safe: var(--accent-neutral);
+}
+
+:root[data-theme="swh"] {
+  --resource-header-gradient: radial-gradient(
+    700px 350px at 65% 0%,
+    color-mix(in oklab, var(--accent) 8%, transparent),
+    transparent 70%
+  );
+  --panel-gradient: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--raised) 95%, var(--ground)) 0%,
+    color-mix(in oklab, var(--elevated) 95%, var(--ground)) 100%
+  );
+  --safe: var(--accent-neutral);
 }

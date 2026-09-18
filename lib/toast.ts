@@ -8,7 +8,7 @@ export function confirmWith(
   description?: string,
   opts?: ToastOpts,
 ) {
-  return toast.success(title, { description, ...opts });
+  return toast.info(title, { description, ...opts });
 }
 
 export function rejectWith(

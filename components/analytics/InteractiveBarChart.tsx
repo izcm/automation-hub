@@ -20,9 +20,9 @@ type Series<T> = {
   sort: number;
 };
 
-// custom instead of recharts' <Legend> so each item can become a filter
-// toggle later (click a status to isolate/exclude it from the chart) —
-// not wired up yet, onClick is a no-op placeholder for that.
+// custom instead of recharts' <Legend> so each item is a filter toggle
+// (click a status to toggle it in/out of the active status filter,
+// narrowing the chart/list down to matching rows).
 function BarChartLegend<T>({
   series,
   relevantKeys,
@@ -40,16 +40,12 @@ function BarChartLegend<T>({
         "
     >
       {series.map((serie) => (
-        <li
-          key={serie.key}
-          className="flex-auto"
-          onClick={() => onClick?.(serie.key)}
-        >
+        <li key={serie.key} className="flex-auto">
           <button
             type="button"
-            onClick={() => {}}
+            onClick={() => onClick?.(serie.key)}
             className={cn(
-              "flex items-center gap-2 whitespace-nowrap bg-lowered px-3 py-2 w-full text-xs text-fg/80",
+              "flex items-center gap-2 whitespace-nowrap px-3 py-2 w-full text-xs text-fg/80",
               !relevantKeys.includes(serie.key) && "opacity-40",
             )}
           >

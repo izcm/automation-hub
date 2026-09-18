@@ -97,6 +97,8 @@ export function FilterGroup({
             <button
               className="flex items-center gap-6 flex-1 h-full"
               type="button"
+              aria-haspopup="listbox"
+              aria-expanded={open}
               onClick={() => onOpenChange(!open)}
             >
               <span>
@@ -108,6 +110,8 @@ export function FilterGroup({
             <div className="w-px bg-accent/20 h-1/2 self-center" />
 
             <button
+              type="button"
+              aria-label={`Remove ${capitalizedFilterLabel} filter`}
               className="hover:text-accent-strong h-full grid place-items-center"
               onClick={(e) => {
                 e.stopPropagation();
@@ -125,7 +129,7 @@ export function FilterGroup({
               {option.id === dividerBeforeId && (
                 <div className="horizontal-line my-1" />
               )}
-              <label className="flex items-center gap-3 h-10 rounded cursor-pointer hover:bg-lowered">
+              <label className="flex items-center gap-3 h-10 rounded cursor-pointer hover:bg-lowered/60">
                 <Checkbox
                   checked={checked}
                   onChange={() => onCheckedChange(option.id, !checked)}

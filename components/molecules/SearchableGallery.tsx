@@ -26,7 +26,13 @@ type Props<T> = {
   isDisabled?: (option: T) => boolean;
 
   textInputProps?: ComponentProps<typeof TextInput>;
-  galleryClassName?: ComponentProps<typeof Gallery>["className"];
+  galleryClassName?: {
+    arrowList?: string;
+    arrowRow?: (state: {
+      isSelected: boolean;
+      isDisabled?: boolean;
+    }) => string;
+  };
 };
 
 // the search box + filtered list that Dropdown wraps in a popover — pulled
@@ -94,14 +100,15 @@ export function SearchableGallery<T = string>({
         onEnter={handleCommit}
         isDisabled={isDisabled}
         galleryItem={(option) => galleryItem(option, handleCommit)}
-        className={{
-          arrowList: cn("flex flex-col gap-0.5", galleryClassName?.arrowList),
-          arrowRow: (state) =>
-            cn(
-              "inset-focus rounded disabled-look",
-              galleryClassName?.arrowRow?.(state),
-            ),
+        htmlUlElementProps={{
+          className: cn("flex flex-col gap-0.5", galleryClassName?.arrowList),
         }}
+        htmlLiElementProps={(state) => ({
+          className: cn(
+            "inset-focus rounded disabled-look",
+            galleryClassName?.arrowRow?.(state),
+          ),
+        })}
       />
     </>
   );

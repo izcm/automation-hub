@@ -46,6 +46,7 @@ export {
   CircleAlert,
   TriangleAlert,
   FileSignature as Contract,
+  Users,
 } from "lucide-react";
 
 export type { LucideIcon } from "lucide-react";

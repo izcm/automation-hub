@@ -90,6 +90,9 @@ export function FilterBar<T>({
         isOptionDisabled={(option) => isActive(option) === 1}
         trigger={(open, onOpenChange) => (
           <button
+            type="button"
+            aria-haspopup="listbox"
+            aria-expanded={open}
             onClick={() => {
               if (!open) {
                 setPickedFilterId(null);
@@ -126,7 +129,7 @@ export function FilterBar<T>({
             onClick={() => handleCommit(option)}
             className={cn(
               "flex items-center gap-3 py-2 px-2 cursor-pointer",
-              "hover:bg-lowered",
+              "hover:bg-lowered/60",
               option !== filtersSorted[filtersSorted.length - 1] &&
                 "border-b border-faint",
             )}
@@ -159,7 +162,7 @@ export function FilterBar<T>({
                 galleryItem={(option) => {
                   const checked = stagedPredicateIds.includes(option.id);
                   return (
-                    <label className="flex items-center gap-3 h-10 rounded cursor-pointer hover:bg-lowered">
+                    <label className="flex items-center gap-3 h-10 rounded cursor-pointer hover:bg-lowered/60">
                       <Checkbox
                         checked={checked}
                         onChange={() =>

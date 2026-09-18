@@ -2,6 +2,7 @@
 
 // import { Modal } from "@a2zb/react";
 import type { ComponentProps, ReactNode } from "react";
+import { useId } from "react";
 import { Modal } from "@a2zb/react";
 
 import { cn } from "@/lib/cn";
@@ -30,8 +31,14 @@ export function AppModal({
   className,
   hideCancelBtn = false,
   onClose,
+  ariaLabelledBy,
   ...props
 }: Props) {
+  // give the dialog an accessible name from its own title, so callers don't
+  // have to remember to wire ariaLabelledBy themselves — an explicit
+  // ariaLabelledBy/ariaLabel from the caller still wins (spread after).
+  const titleId = useId();
+
   return (
     <Modal
       onClose={onClose}
@@ -41,16 +48,26 @@ export function AppModal({
         className,
       )}
       hideCancelBtn={true} // can just as well remove this from modal in shared packages
+      ariaLabelledBy={ariaLabelledBy ?? (title ? titleId : undefined)}
       {...props}
     >
       <div className="flex flex-col gap-4">
         <div className="flex w-full">
-          {title && <h2 className="flex-1 text-lg font-semibold">{title}</h2>}
+          {title && (
+            <h2 id={titleId} className="flex-1 text-lg font-semibold">
+              {title}
+            </h2>
+          )}
 
           {!hideCancelBtn && (
-            <div className="cursor-pointer h-8 w-8" onClick={() => onClose()}>
+            <button
+              type="button"
+              aria-label="Close"
+              className="cursor-pointer h-8 w-8"
+              onClick={() => onClose()}
+            >
               <Cancel size={16} className="ml-auto hover:text-accent" />
-            </div>
+            </button>
           )}
         </div>
         {children}

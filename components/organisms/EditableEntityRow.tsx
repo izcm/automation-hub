@@ -67,6 +67,7 @@ export function EditableEntityRow({
         ) : (
           <button
             onClick={() => setIsUpdating(!isUpdating)}
+            aria-label={isUpdating ? "Cancel" : "Edit"}
             className="p-1 rounded text-accent hover:text-accent-strong"
           >
             {isUpdating ? <Cancel size={20} /> : <Edit size={20} />}

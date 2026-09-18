@@ -1,7 +1,6 @@
-import { ReactNode } from "react";
-
-import { cn } from "@/lib/cn";
 import { Table, th } from "@/components/analytics/Table";
+import { InitialsBadge } from "@/components/molecules";
+import { Users } from "@/components/icons";
 
 export type EmployeeInspectionRow = {
   id: string;
@@ -17,7 +16,6 @@ type Props = {
   rows: EmployeeInspectionRow[];
   filteredRows: EmployeeInspectionRow[];
   selectedIds: string[];
-  relevantColumns?: string[];
   onRowClick?: (id: string) => void;
 };
 
@@ -25,36 +23,37 @@ export function ResponsibleEmployeesTable({
   rows,
   filteredRows,
   selectedIds,
-  relevantColumns,
   onRowClick,
 }: Props) {
   const displayRows = rows.map((row) => ({
     id: row.id,
-    label: row.name,
+    label: (
+      <div className="flex items-center gap-4">
+        {row.id === "others" ? (
+          // "Others (N)" isn't a real name — deriving initials from it
+          // (e.g. "O(") reads as broken, and even a clean 2-letter result
+          // (e.g. "OT") could be mistaken for a real employee's initials.
+          // An icon can't be confused with letters either way.
+          <div className="flex items-center justify-center rounded-full bg-ground/25 border border-accent/25 size-8">
+            <Users size={14} className="text-accent-strong" />
+          </div>
+        ) : (
+          <InitialsBadge size="sm" label={row.name} />
+        )}
+        {row.name}
+      </div>
+    ),
     stats: filteredRows.find((filtered) => filtered.id === row.id),
   }));
 
   return (
     <Table
-      relevantColumns={relevantColumns}
       headers={[
-        <th key="employee" className={`${th} w-1/3`}>
+        <th key="employee" className={`${th} w-2/3`}>
           Employee
         </th>,
-        // <th key="due" className={th}>
-        //   Due
-        // </th>,
-        // <th key="approved" className={`${th} truncate`}>
-        //   Approved
-        // </th>,
-        <th key="firstAttempt" className={`${th} truncate`}>
-          First attempt
-        </th>,
-        <th key="rejected" className={`${th}`}>
-          Rejected
-        </th>,
-        <th key="unresolved" className={`${th} truncate`}>
-          Unresolved
+        <th key="due" className={th}>
+          Total
         </th>,
       ]}
       rows={displayRows}
@@ -66,50 +65,11 @@ export function ResponsibleEmployeesTable({
         firstAttempt: 0,
       })}
       selectedIds={selectedIds}
-      getCells={(stats, isRelevant) => {
-        const cell = (keys: string | string[], content: ReactNode) =>
-          isRelevant(keys) ? content : <span className="text-subtle">–</span>;
-
-        return [
-          // <span key="due" className="tabular-nums">
-          //   {stats.due}
-          // </span>,
-
-          // <span key="approved" className="tabular-nums text-subtle">
-          //   {cell("approved", stats.approved)}
-          // </span>,
-
-          <span
-            key="firstAttempt"
-            className={cn(
-              "tabular-nums",
-              stats.firstAttempt === 0 ? "text-subtle" : "text-advisory",
-            )}
-          >
-            {cell("firstAttempt", stats.firstAttempt)}
-          </span>,
-
-          <span
-            key="rejected"
-            className={cn(
-              "tabular-nums",
-              stats.rejected === 0 ? "text-subtle" : "text-critical",
-            )}
-          >
-            {cell("rejected", stats.rejected)}
-          </span>,
-
-          <span
-            key="unresolved"
-            className={cn(
-              "tabular-nums",
-              stats.unresolved === 0 ? "text-subtle" : "text-caution",
-            )}
-          >
-            {cell("unresolved", stats.unresolved)}
-          </span>,
-        ];
-      }}
+      getCells={(stats) => [
+        <span key="due" className="tabular-nums text-subtle">
+          {stats.due}
+        </span>,
+      ]}
       onRowClick={(row) => onRowClick?.(row.id)}
       className={"w-full table-fixed [&_td]:px-2 [&_th]:px-2 [&_td]:truncate"}
     />

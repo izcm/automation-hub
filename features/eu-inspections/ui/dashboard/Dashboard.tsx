@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { getDaysUntil } from "@a2zb/lib";
 
 import { cn } from "@/lib/cn";
-import { Calendar, ChevronRight, GoTo } from "@/components/icons";
+import { Calendar, GoTo } from "@/components/icons";
 import { PanelHeader } from "@/components/molecules";
 import { ResourceHeader } from "@/components/workspace/resource-management";
 
@@ -13,6 +13,7 @@ import { EuInspectionRow } from "../../types";
 
 import {
   aggregateByAssignment,
+  aggregateByEmployee,
   aggregateByTimeBucket,
 } from "../../logic/dashboard-aggregates";
 import {
@@ -29,9 +30,10 @@ import { InteractiveBarChart } from "@/components/analytics/InteractiveBarChart"
 
 import { EuInspectionsTable } from "./tables/EuInspectionsTable";
 import { AssignmentsTable } from "./tables/AssignmentsTable";
+import { ResponsibleEmployeesTable } from "./tables/ResponsibleEmployeesTable";
 
 const panel =
-  "flex flex-col gap-1 border border-extra-faint rounded bg-raised-gradient p-2";
+  "flex flex-col gap-1 border border-extra-faint rounded bg-panel-gradient p-2";
 
 (Object.keys(STATUS_COLOR) as Status[]).filter(
   (status) => status !== "unexpectedCase",
@@ -97,6 +99,23 @@ export function EuInspectionDashboard({
     topAssignmentIds,
   );
 
+  // ALL responsible employees — keeps the row set stable
+  const allEmployeeRows = aggregateByEmployee(items);
+
+  // the top employee ids are settled once
+  const topEmployeeIds = allEmployeeRows
+    .filter((row) => row.id !== "others")
+    .map((row) => row.id);
+
+  // filter without the "responsible" dimension itself (its own dimension)
+  const filteredEmployeeRows = aggregateByEmployee(
+    applyFilters(
+      items,
+      filters.filter((filter) => filter.id !== "responsible"),
+    ),
+    topEmployeeIds,
+  );
+
   // time bucket and bar chart stuff
   const allTimeBucketEntries = aggregateByTimeBucket(items);
   const filteredTimeBucketRows = aggregateByTimeBucket(
@@ -121,47 +140,50 @@ export function EuInspectionDashboard({
   in3Months.setDate(today.getDate() + 90);
 
   return (
-    <section className="flex flex-col gap-3 max-w-[1440px] mx-auto p-2 lg:p-6">
+    <section className="flex flex-col gap-3 max-w-[1440px] mx-auto p-2 lg:p-4">
+      {/*HEADER*/}
       <ResourceHeader
         title="EU Inspections"
         desc="Keep your fleet compliant. See what's due and where to take action."
         tabs={["Overview", "Background processes"]}
       />
-      {/* HEADER & FILTER CHIPS */}
-      <div className="flex justify-between h-8">
-        <h2 className="font-semibold inline-flex items-center gap-3">
-          EU Inspections dues next 3 months{" "}
-          <span className="text-xs text-subtle tabular-nums inline-flex gap-1">
-            <Calendar size={14} />
-            {formatDateRange(today, in3Months)}
-          </span>
-        </h2>
 
-        <button
-          type="button"
-          className="flex btn justify-between text-sm text-fg btn-secondary"
-          onClick={onViewList}
-        >
-          Drill to workspace
-          <span aria-hidden="true">
-            <GoTo size={14} />
-          </span>
-        </button>
+      <div className={cn(`${panel} gap-3`)}>
+        <div className="flex justify-between ">
+          <h2 className="font-medium  inline-flex items-center gap-3 tracking-wide px-2">
+            EU Inspections dues next 3 months{" "}
+            <span className="inline-flex flex-center gap-1 text-sm text-subtle tabular-nums">
+              <Calendar size={14} />
+              {formatDateRange(today, in3Months)}
+            </span>
+          </h2>
+
+          <button
+            type="button"
+            className="flex btn justify-between text-sm text-fg btn-secondary"
+            onClick={onViewList}
+          >
+            Drill to workspace
+            <span aria-hidden="true">
+              <GoTo size={14} />
+            </span>
+          </button>
+        </div>
+
+        <EuInspectionsKPIs
+          rows={filteredItems}
+          selectedStatuses={selectedStatuses}
+        />
       </div>
 
-      <EuInspectionsKPIs
-        rows={filteredItems}
-        selectedStatuses={selectedStatuses}
-      />
-
       {/* FILTER APPLIERS */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 items-center">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,3fr)_minmax(560px,2fr)] gap-3 items-center">
         {/* BARCHART */}
 
-        <div className={`${panel} lg:col-span-3`}>
+        <div className={panel}>
           <PanelHeader
             heading="Inspection timeline"
-            subtitle="Inspections grouped by due date and status."
+            subtitle="Inspections grouped by time bucket and status."
           />
 
           <div
@@ -205,10 +227,10 @@ export function EuInspectionDashboard({
         </div>
 
         {/* ASSIGNMENTS */}
-        <div className={cn(panel, "lg:col-span-2")}>
+        <div className={panel}>
           <PanelHeader
             heading="Assignments"
-            subtitle="Inspections grouped by assignment."
+            subtitle="Inspections grouped by vehicle assignment."
           />
 
           <div className={"h-80"}>
@@ -244,8 +266,38 @@ export function EuInspectionDashboard({
         </div>
       </div>
 
-      {/* REACTS TO FILTERS */}
-      <div className="grid grid-cols-1 lg:grid-cols-8 gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-7 gap-3">
+        {/* RESPONSIBLE EMPLOYEES */}
+        <div className={cn(panel, "lg:order-1 lg:col-span-2")}>
+          <PanelHeader
+            heading="Responsible employees"
+            subtitle="Inspections grouped by responsible employee."
+          />
+
+          <ResponsibleEmployeesTable
+            selectedIds={
+              filters
+                .find((filter) => filter.id === "responsible")
+                ?.predicates.map((p) => p.id) ?? []
+            }
+            rows={allEmployeeRows}
+            filteredRows={filteredEmployeeRows}
+            onRowClick={(id) =>
+              addFilter(
+                "responsible",
+                id,
+                id === "others"
+                  ? // "others" isn't a real employee id — it's every
+                    // responsible employee that didn't get its own row above
+                    (inspection) =>
+                      inspection.vehicle.employee != null &&
+                      !topEmployeeIds.includes(inspection.vehicle.employee.id)
+                  : (inspection) => inspection.vehicle.employee?.id === id,
+              )
+            }
+          />
+        </div>
+
         {/* EU INSPECTION ROWS */}
         <div className={cn(panel, "lg:order-2 lg:col-span-5")}>
           <PanelHeader
@@ -257,7 +309,7 @@ export function EuInspectionDashboard({
                 className="flex btn justify-between text-sm text-accent hover:text-accent-strong h-4"
                 onClick={onViewList}
               >
-                View in workspace
+                See in list view
                 <span aria-hidden="true">
                   <GoTo size={14} />
                 </span>
@@ -265,65 +317,11 @@ export function EuInspectionDashboard({
             }
           />
 
-          <div className="h-64">
-            <EuInspectionsTable
-              rows={filteredItems.slice(0, 4)}
-              remaining={
-                filteredItems.length - filteredItems.slice(0, 4).length
-              }
-            />
-          </div>
+          <EuInspectionsTable
+            rows={filteredItems.slice(0, 4)}
+            remaining={filteredItems.length - filteredItems.slice(0, 4).length}
+          />
         </div>
-
-        {/* OUTSTANDING REJECTIONS */}
-        {/* <div
-          className={cn(
-            panel,
-            "lg:order-1 lg:col-span-3",
-            "flex flex-col justify-between",
-          )}
-        >
-          <PanelHeader
-            heading="Outstanding rejections"
-            subtitle="Rejected inspections."
-          />
-
-          <OutstandingRejectionsCard
-            inspectionRows={filteredItems}
-            relevant={
-              selectedStatuses.length === 0 ||
-              selectedStatuses.includes("rejected")
-            }
-          />
-
-          <button
-            type="button"
-            onClick={() => {
-              setFilters((current) => [
-                ...current.filter((filter) => filter.id !== "status"),
-                {
-                  id: "status",
-                  predicates: [
-                    {
-                      id: "rejected",
-                      predicate: (inspection) =>
-                        getInspectionStatus(inspection) === "rejected",
-                    },
-                  ],
-                },
-              ]);
-              onViewList();
-            }}
-            className="
-              btn btn-secondary bg-transparent
-              hover:text-accent-strong hover:border-accent-strong
-              mt-2 text-sm
-              "
-          >
-            View all outstanding rejections
-            <ChevronRight size="16" />
-          </button>
-        </div> */}
       </div>
     </section>
   );

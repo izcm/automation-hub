@@ -122,20 +122,19 @@ export function ResourceListView<T>({
           <h1 className="flex-1 text-center font-medium text-fg/90 mt-1">
             {labels.title}
           </h1>
-          <div
+          <label
             className={cn(
               "absolute right-0 items-center flex gap-3 cursor-pointer px-2 tracking-wide hidden",
               !activeId && "sm:flex",
               batchSelectMobile && "flex",
             )}
-            onClick={toggleMaxBatch}
           >
-            <Checkbox checked={hasMaxBatchSelect} readOnly />
+            <Checkbox checked={hasMaxBatchSelect} onChange={toggleMaxBatch} />
             <span className="text-fg/90 inline-flex gap-2 text-sm">
               Select all rows
               <span className="text-subtle">({items.length})</span>
             </span>
-          </div>
+          </label>
         </div>
 
         {filterChips}
@@ -165,16 +164,19 @@ export function ResourceListView<T>({
               actions={batchActions}
               galleryItem={(item, picked, selectedCount, toggle) => (
                 <div className="flex gap-4">
-                  <div
+                  <label
                     className={cn(
                       "hidden",
                       "w-10 h-10 my-auto place-items-center",
                       checkboxClassName,
                     )}
-                    onClick={() => toggle(getId(item))}
                   >
-                    <Checkbox checked={picked} readOnly />
-                  </div>
+                    <Checkbox
+                      checked={picked}
+                      onChange={() => toggle(getId(item))}
+                      aria-label={`Select ${getId(item)}`}
+                    />
+                  </label>
 
                   <div
                     className="@container flex-1 min-w-0"

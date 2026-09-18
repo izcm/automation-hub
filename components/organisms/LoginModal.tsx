@@ -96,6 +96,7 @@ export function LoginModal({
             htmlInputProps={{
               name: "username",
               placeholder: "Email address",
+              "aria-label": "Email address",
               required: true,
             }}
             startIcon={<Mail size={16} />}
@@ -105,6 +106,7 @@ export function LoginModal({
             htmlInputProps={{
               name: "password",
               placeholder: "Password",
+              "aria-label": "Password",
               type: "password",
               required: true,
             }}

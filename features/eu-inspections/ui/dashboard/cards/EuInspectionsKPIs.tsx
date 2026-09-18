@@ -74,7 +74,7 @@ const UNSORTED_KPIS: {
   },
   {
     key: "firstAttempt",
-    descr: "No earlier attempt",
+    descr: "Has booked first attempt",
     info: "Example: due in 3 weeks, workshop already booked, no prior attempts yet.",
   },
   {

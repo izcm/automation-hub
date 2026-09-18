@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 
 type TableRow<T> = {
   id: string;
-  label: string;
+  label: ReactNode;
   stats: T | undefined;
 };
 

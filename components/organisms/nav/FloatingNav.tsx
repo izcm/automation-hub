@@ -57,10 +57,10 @@ export function FloatingNav({ items, logoutLabel, onLogout }: Props) {
               onSelect={setFocused}
               onEnter={go}
               direction="vertical"
-              className={{
-                arrowList: "flex flex-col gap-1",
-                arrowRow: () => "focus-inset rounded-lg outline-none",
-              }}
+              htmlUlElementProps={{ className: "flex flex-col gap-1" }}
+              htmlLiElementProps={() => ({
+                className: "focus-inset rounded-lg outline-none",
+              })}
               galleryItem={(item) => (
                 <div
                   aria-current={item.active ? "page" : undefined}
@@ -102,6 +102,7 @@ export function FloatingNav({ items, logoutLabel, onLogout }: Props) {
         <button
           onClick={() => setActive(!active)}
           aria-expanded={active}
+          aria-label={active ? "Close menu" : "Open menu"}
           className="
             grid size-14 place-items-center rounded-full
             border border-accent/60 bg-raised shadow-lg

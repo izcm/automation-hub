@@ -1,6 +1,7 @@
 import {
   ComponentProps,
   ReactNode,
+  useId,
   useLayoutEffect,
   useRef,
   useState,
@@ -91,6 +92,9 @@ export function FocusDropdown<T = string>({
 
               onFocus: () => onOpenChange(true),
 
+              "aria-haspopup": "listbox",
+              "aria-expanded": open,
+
               className: "text-fg",
               ...htmlInputProps,
             }}
@@ -105,10 +109,15 @@ export function FocusDropdown<T = string>({
           onSelect={setHighlighted}
           onEnter={handleCommit}
           galleryItem={(option) => galleryItem(option, handleCommit)}
-          className={{
-            arrowList: "flex flex-col gap-0.5 max-h-[240px]",
-            arrowRow: () => "inset-focus",
+          htmlUlElementProps={{
+            role: "listbox",
+            className: "flex flex-col gap-0.5 max-h-[240px]",
           }}
+          htmlLiElementProps={({ isSelected }) => ({
+            role: "option",
+            "aria-selected": isSelected,
+            className: "inset-focus",
+          })}
         />
       </Popover>
     </>

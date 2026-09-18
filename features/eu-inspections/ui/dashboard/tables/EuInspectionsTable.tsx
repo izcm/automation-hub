@@ -38,13 +38,13 @@ function getNextInspectionAt(row: EuInspectionRow): string | null {
   return upcoming[0]?.date ?? null;
 }
 
-export function EuInspectionsTable({ rows, remaining, workspaceHref }: Props) {
+export function EuInspectionsTable({ rows, remaining }: Props) {
   return (
     <>
       <table
         className="
         w-full table-fixed [&_td]:px-2 [&_th]:px-2 [&_td]:truncate text-sm
-        text-sm [&_th]:h-10 [&_td]:h-10
+        text-sm [&_th]:h-12 [&_td]:h-12
     "
       >
         <thead>
