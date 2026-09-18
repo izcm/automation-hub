@@ -120,8 +120,8 @@ export function EuInspectionsKPIs({ rows, selectedStatuses }: Props) {
   const kpis = toKpiProps(inspectionStateCounts);
 
   return (
-    <div className="grid grid-cols-1 gap-3 lg:grid-cols-5">
-      <div className="grid grid-cols-2 gap-3 lg:col-span-2">
+    <div className="grid grid-cols-3 gap-3 lg:grid-cols-5">
+      <div className="col-span-2 lg:col-span-1">
         <KPI
           title={
             <KPITitle info="Example: a vehicle's EU inspection is due in 40 days — counted here regardless of status.">
@@ -132,12 +132,10 @@ export function EuInspectionsKPIs({ rows, selectedStatuses }: Props) {
           color="neutral"
           icon={Inspection}
           descr="Total inspections tracked"
+          className="h-full"
         />
-        <SmartKPIs kpis={kpis.slice(0, 1)} relevantKeys={relevantStatuses} />
       </div>
-      <div className="grid grid-cols-3 gap-3 lg:col-span-3">
-        <SmartKPIs kpis={kpis.slice(1)} relevantKeys={relevantStatuses} />
-      </div>
+      <SmartKPIs kpis={kpis} relevantKeys={relevantStatuses} />
     </div>
   );
 }

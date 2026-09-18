@@ -4,6 +4,8 @@ import { getDaysUntil } from "@a2zb/lib";
 import { aggregateBy } from "@/lib/analytics/aggregate";
 import type { EmployeeInspectionRow } from "../ui/dashboard/tables/ResponsibleEmployeesTable";
 
+import { applyFilters, type Filter } from "@/features/filtering/predicate";
+
 import { getInspectionStatus } from "./status";
 import { getTimeBucket, timeBuckets } from "@/lib/time-bucket";
 
@@ -200,6 +202,83 @@ export function aggregateByAssignment(
   );
 
   return [...top, others];
+}
+
+export type DimensionBreakdown<Row extends { id: string }> = {
+  allRows: Row[];
+  filteredRows: Row[];
+  // every real id folded into the table's "Others" row — needed to expand
+  // a click on that row into real predicates (see toggleOthers).
+  otherIds: string[];
+  selectedIds: string[];
+  // "others" itself is never a real predicate id in `filters` — these tell
+  // the row's highlight/label whether any/all of the ids it stands in for
+  // are currently selected.
+  someOtherSelected: boolean;
+  allOtherSelected: boolean;
+  otherSelectedCount: number;
+  // selectedIds, plus "others" when some (but maybe not all) of its ids
+  // are selected — what the table's own `selectedIds` prop expects.
+  tableSelectedIds: string[];
+};
+
+// shared shape behind every dashboard summary table (Assignments,
+// Responsible employees): rank by `aggregate`, fold everyone past `limit`
+// into "others", and track which real ids that "others" row stands in for.
+export function buildDimensionBreakdown<Row extends { id: string }>(
+  items: EuInspectionRow[],
+  filters: Filter<EuInspectionRow>[],
+  filterId: string,
+  aggregate: (
+    items: EuInspectionRow[],
+    limit: number,
+    topIds?: string[],
+  ) => Row[],
+  limit: number,
+  getRealIds: (item: EuInspectionRow) => string[],
+): DimensionBreakdown<Row> {
+  const allRows = aggregate(items, limit);
+
+  const topIds = allRows
+    .filter((row) => row.id !== "others")
+    .map((row) => row.id);
+
+  const otherIds = [...new Set(items.flatMap(getRealIds))].filter(
+    (id) => !topIds.includes(id),
+  );
+
+  const filteredRows = aggregate(
+    applyFilters(
+      items,
+      filters.filter((filter) => filter.id !== filterId),
+    ),
+    limit,
+    topIds,
+  );
+
+  const selectedIds =
+    filters.find((filter) => filter.id === filterId)?.predicates.map((p) => p.id) ??
+    [];
+
+  const otherSelectedCount = otherIds.filter((id) =>
+    selectedIds.includes(id),
+  ).length;
+  const someOtherSelected = otherSelectedCount > 0;
+  const allOtherSelected =
+    otherIds.length > 0 && otherSelectedCount === otherIds.length;
+
+  return {
+    allRows,
+    filteredRows,
+    otherIds,
+    selectedIds,
+    someOtherSelected,
+    allOtherSelected,
+    otherSelectedCount,
+    tableSelectedIds: someOtherSelected
+      ? [...selectedIds, "others"]
+      : selectedIds,
+  };
 }
 
 function emptyTimeBucketEntry(timeBucket: (typeof timeBuckets)[number]) {

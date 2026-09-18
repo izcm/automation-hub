@@ -23,6 +23,7 @@ export type KPIProps = {
   // reusing it for "zero of something else" makes that something else look
   // like it IS the neutral category, which it isn't.
   color: "neutral" | "safe" | "advisory" | "caution" | "critical" | "empty";
+  className?: string;
 };
 
 // zero of a real problem (advisory/caution/critical) is a good outcome —
@@ -74,12 +75,14 @@ export function KPI({
   color = "empty",
   descr,
   icon: Icon,
+  className,
 }: KPIProps) {
   return (
     <div
       className={cn(
         "flex gap-3 p-3 border rounded border-l-2",
         kpiColorClasses[color].card,
+        className,
       )}
     >
       {Icon && (

@@ -44,7 +44,7 @@ export function WorkspaceLayout({ open, children }: Props) {
           "motion-reduce:transition-none",
           open ? PANE_WIDTH : "w-0",
           // below 900px: float on top of the main pane instead of squeezing it
-          "max-[900px]:fixed max-[900px]:inset-y-0 max-[900px]:right-0 max-[900px]:z-20",
+          "max-lg:fixed max-lg:inset-y-0 max-lg:right-0 max-lg:z-20",
         )}
       >
         {/* fixed inner width so the panel content never reflows mid-animation;
