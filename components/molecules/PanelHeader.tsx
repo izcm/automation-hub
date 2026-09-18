@@ -12,9 +12,9 @@ export function PanelHeader({ heading, subtitle, action }: Props) {
   return (
     <div className="flex items-center justify-between px-1 h-12">
       <div>
-        <h2 className="font-medium">{heading}</h2>
+        <h2 className="font-semibold tracking-tight">{heading}</h2>
         {subtitle && (
-          <span className="block text-sm text-subtle">{subtitle}</span>
+          <span className="block text-xs text-subtle">{subtitle}</span>
         )}
       </div>
 

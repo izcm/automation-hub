@@ -118,10 +118,18 @@ export function EuInspectionsKPIs({ rows, selectedStatuses }: Props) {
     selectedStatuses.length > 0 ? [...selectedStatuses, "due"] : [];
 
   const kpis = toKpiProps(inspectionStateCounts);
+  const approvedKpi = kpis.filter((kpi) => kpi.key === "approved");
+  const otherKpis = kpis.filter((kpi) => kpi.key !== "approved");
 
   return (
-    <div className="grid grid-cols-3 gap-3 lg:grid-cols-5">
-      <div className="col-span-2 lg:col-span-1">
+    <div className="grid gap-3 grid-cols-3 lg:grid-cols-5">
+      <div
+        className="
+          grid gap-3 
+          grid-cols-5 col-span-3
+          lg:grid-cols-2 lg:col-span-2
+        "
+      >
         <KPI
           title={
             <KPITitle info="Example: a vehicle's EU inspection is due in 40 days — counted here regardless of status.">
@@ -132,10 +140,20 @@ export function EuInspectionsKPIs({ rows, selectedStatuses }: Props) {
           color="neutral"
           icon={Inspection}
           descr="Total inspections tracked"
-          className="h-full"
+          className="col-span-3 lg:col-span-1"
+        />
+        <SmartKPIs
+          kpis={approvedKpi.map((kpi) => ({
+            ...kpi,
+            className: "col-span-2 lg:col-span-1",
+          }))}
+          relevantKeys={relevantStatuses}
         />
       </div>
-      <SmartKPIs kpis={kpis} relevantKeys={relevantStatuses} />
+
+      <div className="grid grid-cols-3 col-span-3 gap-3 lg:col-span-3">
+        <SmartKPIs kpis={otherKpis} relevantKeys={relevantStatuses} />
+      </div>
     </div>
   );
 }
