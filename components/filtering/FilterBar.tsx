@@ -1,13 +1,23 @@
+import { useState } from "react";
+import { capitalize } from "@a2zb/lib";
+import { Checkbox } from "@a2zb/react";
+
+import { cn } from "@/lib/cn";
+
 import { FilterGroup as FilterChip } from "./FilterGroup";
 import { Filter } from "@/features/filtering/predicate";
 
-import { Funnel, Plus } from "lucide-react";
+import { ChevronRight, Funnel, Search } from "lucide-react";
 import { ReactNode } from "react";
+import { Dropdown } from "../molecules/Dropdown";
+import { SearchableGallery } from "../molecules/SearchableGallery";
 
 export type ResourceFilterRegistry = Record<
   string,
   {
     searchable: boolean;
+    // shown next to the filter's name in the "+ Add filter" dimension list
+    icon?: ReactNode;
     // every value that can be picked for this filter — not just the ones
     // currently active. `label` here is plain text used only for the
     // dropdown's search box; `renderLabel` owns the actual visual row
@@ -32,6 +42,16 @@ export function FilterBar<T>({
   onRemove,
   onAdd,
 }: Props<T>) {
+  const activeFilterIds = new Set(filterGroups.map((filter) => filter.id));
+  const isActive = (filter: string) => (activeFilterIds.has(filter) ? 1 : 0);
+
+  const filtersSorted = Object.keys(filterRegistry).sort(
+    (f1, f2) => isActive(f1) - isActive(f2),
+  );
+
+  const [pickedFilterId, setPickedFilterId] = useState<string | null>(null);
+  const [stagedPredicateIds, setStagedPredicateIds] = useState<string[]>([]);
+
   return (
     <>
       {filterGroups.map((filter) => (
@@ -64,29 +84,125 @@ export function FilterBar<T>({
 
       <div className="vertical-line h-6 self-center" />
 
-      <button
-        className="
-        group relative chip border-transparent
-        flex items-center gap-3
-        px-3 rounded-full text-sm h-10
-        hover:border hover:border-accent/20"
-      >
-        <svg className="pointer-events-none absolute inset-0 size-full group-hover:hidden">
-          <rect
-            x="0.5"
-            y="0.5"
-            width="calc(100% - 1px)"
-            height="calc(100% - 1px)"
-            rx="24"
-            fill="none"
-            stroke="var(--accent)"
-            strokeWidth="1"
-            strokeDasharray="8 6"
-            opacity={0.4}
-          />
-        </svg>
-        <Funnel size={16} className="text-accent" />+ Add filter
-      </button>
+      <Dropdown
+        options={pickedFilterId ? [] : filtersSorted}
+        onCommit={(option) => setPickedFilterId(option)}
+        isOptionDisabled={(option) => isActive(option) === 1}
+        trigger={(open, onOpenChange) => (
+          <button
+            onClick={() => {
+              if (!open) {
+                setPickedFilterId(null);
+                setStagedPredicateIds([]);
+              }
+              onOpenChange(!open);
+            }}
+            className="
+              group relative chip border-transparent
+              flex items-center gap-3
+              px-4 rounded-full text-sm h-10
+              hover:border hover:border-accent/20"
+          >
+            <svg className="pointer-events-none absolute inset-0 size-full group-hover:hidden">
+              <rect
+                x="0.5"
+                y="0.5"
+                width="calc(100% - 1px)"
+                height="calc(100% - 1px)"
+                rx="24"
+                fill="none"
+                stroke="var(--accent)"
+                strokeWidth="1"
+                strokeDasharray="8 6"
+                opacity={0.4}
+              />
+            </svg>
+            <Funnel size={16} className="text-accent" />+ Add filter
+          </button>
+        )}
+        galleryItem={(option, handleCommit) => (
+          <div
+            role="button"
+            onClick={() => handleCommit(option)}
+            className={cn(
+              "flex items-center gap-3 py-2 px-2 cursor-pointer",
+              "hover:bg-lowered",
+              option !== filtersSorted[filtersSorted.length - 1] &&
+                "border-b border-faint",
+            )}
+          >
+            <span className="text-accent/60 [&>svg]:size-4 [&>svg]:stroke-1.5">
+              {filterRegistry[option]?.icon}
+            </span>
+            {capitalize(option)}
+            <ChevronRight className="ml-auto text-muted" size={16} />
+          </div>
+        )}
+        footer={(close) =>
+          pickedFilterId && (
+            <div className="flex flex-col gap-2 text-sm">
+              <SearchableGallery
+                options={filterRegistry[pickedFilterId]!.options}
+                getLabel={(option) => option.label}
+                getKey={(option) => option.id}
+                searchable={filterRegistry[pickedFilterId]!.searchable}
+                syncSearchOnCommit={false}
+                onCommit={() => {}}
+                textInputProps={{
+                  htmlInputProps: {
+                    autoFocus: true,
+                    // placeholder: "Search status...",
+                  },
+                  startIcon: <Search size={16} />,
+                  className: "filter-search-input h-9",
+                }}
+                galleryItem={(option) => {
+                  const checked = stagedPredicateIds.includes(option.id);
+                  return (
+                    <label className="flex items-center gap-3 h-10 rounded cursor-pointer hover:bg-lowered">
+                      <Checkbox
+                        checked={checked}
+                        onChange={() =>
+                          setStagedPredicateIds((prev) =>
+                            checked
+                              ? prev.filter((id) => id !== option.id)
+                              : [...prev, option.id],
+                          )
+                        }
+                      />
+                      {filterRegistry[pickedFilterId]!.renderLabel(option.id)}
+                    </label>
+                  );
+                }}
+              />
+
+              <div className="horizontal-line" />
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-subtle">
+                  {stagedPredicateIds.length} selected
+                </span>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => {
+                    stagedPredicateIds.forEach((id) =>
+                      onAdd(pickedFilterId, id),
+                    );
+                    setPickedFilterId(null);
+                    setStagedPredicateIds([]);
+                    close();
+                  }}
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          )
+        }
+        popoverProps={{
+          align: "left",
+          contentClassName: "filter-popover",
+        }}
+      />
     </>
   );
 }

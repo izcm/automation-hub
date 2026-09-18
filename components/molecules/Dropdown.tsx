@@ -1,9 +1,10 @@
-import { ComponentProps, ReactNode, useRef, useState } from "react";
+import { ComponentProps, ReactNode, useState } from "react";
 
 import { Gallery, TextInput } from "@a2zb/react";
 import { cn } from "@/lib/cn";
 
 import { Popover } from "./FocusDropdown";
+import { SearchableGallery } from "./SearchableGallery";
 
 type Props<T> = {
   options: T[];
@@ -29,6 +30,8 @@ type Props<T> = {
 
   onCommit: (option: T) => void;
 
+  isOptionDisabled?: (option: T) => boolean;
+
   // omit both to let Dropdown manage its own open state internally
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -52,6 +55,7 @@ export function Dropdown<T = string>({
   footer,
   galleryItem,
   onCommit,
+  isOptionDisabled,
   open: openProp,
   onOpenChange: onOpenChangeProp,
   popoverProps,
@@ -62,85 +66,33 @@ export function Dropdown<T = string>({
   const open = openProp ?? internalOpen;
   const onOpenChange = onOpenChangeProp ?? setInternalOpen;
 
-  const [search, setSearch] = useState("");
-
-  // track which item is selected in dropdown
-  const [highlighted, setHighlighted] = useState<T | undefined>(undefined);
-
-  // const inputRef = useRef<HTMLInputElement>(null);
-
-  // match if the query starts any word in the label — "e" matches "erik"
-  // and "issi engel" (second word starts with e), but not "irek"
-  const applicable = () => {
-    const query = search.toLowerCase();
-    if (!query || !searchable) return options;
-
-    return options.filter((option) =>
-      getLabel(option)
-        .toLowerCase()
-        .split(/\s+/)
-        .some((word) => word.startsWith(query)),
-    );
-  };
-
-  const handleCommit = (option: T) => {
-    // keep focus on the input across a commit — otherwise the item you just
-    // picked (often the thing with focus, eg. via keyboard nav) disappears
-    // when onCommit closes the list, and the browser is left to pick
-    // wherever focus goes next.
-    // inputRef.current?.focus();
-    onCommit(option);
-    if (syncSearchOnCommit) setSearch(getLabel(option));
-  };
-
-  const { htmlInputProps, ...restTextInputProps } = textInputProps ?? {};
-
   return (
-    <>
-      <Popover
-        open={open}
-        onOpenChange={onOpenChange}
-        align={popoverProps?.align}
-        contentClassName={cn(
-          "w-max rounded shadow-panel",
-          popoverProps?.contentClassName,
-        )}
-        trigger={trigger(open, onOpenChange)}
-      >
-        {header}
+    <Popover
+      open={open}
+      onOpenChange={onOpenChange}
+      align={popoverProps?.align}
+      contentClassName={cn(
+        "w-max rounded shadow-panel",
+        popoverProps?.contentClassName,
+      )}
+      trigger={trigger(open, onOpenChange)}
+    >
+      {header}
 
-        {searchable && (
-          <TextInput
-            {...restTextInputProps}
-            value={search}
-            htmlInputProps={{
-              // ref: inputRef,
-              onChange: (e) => setSearch(e.currentTarget.value),
+      <SearchableGallery
+        options={options}
+        getLabel={getLabel}
+        getKey={getKey}
+        searchable={searchable}
+        syncSearchOnCommit={syncSearchOnCommit}
+        galleryItem={galleryItem}
+        onCommit={onCommit}
+        textInputProps={textInputProps}
+        galleryClassName={galleryClassName}
+        isDisabled={isOptionDisabled}
+      />
 
-              onFocus: () => onOpenChange(true),
-
-              className: "text-fg",
-              ...htmlInputProps,
-            }}
-            className={cn("h-10 w-full", restTextInputProps.className)}
-          />
-        )}
-
-        <Gallery
-          items={applicable()}
-          getId={getKey}
-          selected={highlighted}
-          onSelect={setHighlighted}
-          onEnter={handleCommit}
-          galleryItem={(option) => galleryItem(option, handleCommit)}
-          className={{
-            arrowList: cn("flex flex-col gap-0.5", galleryClassName?.arrowList),
-            arrowRow: cn("inset-focus rounded", galleryClassName?.arrowRow),
-          }}
-        />
-
-        {footer?.(() => onOpenChange(false))}
-      </Popover>
-    </>
+      {footer?.(() => onOpenChange(false))}
+    </Popover>
   );
 }

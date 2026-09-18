@@ -40,3 +40,21 @@
     bg-raised border border-faint/60 text-fg/80
     transition-colors hover:bg-lowered hover:text-fg;
 }
+
+/* dropdown popover content for filter bar dropdowns — value lists and the
+   "add filter" list share this shell */
+@utility filter-popover {
+  @apply flex flex-col gap-1 py-2 px-4
+    bg-elevated-gradient rounded-lg border-extra-faint min-w-[300px];
+}
+
+/* search input inside a filter dropdown's value list */
+@utility filter-search-input {
+  @apply h-9 rounded-xl bg-accent/4 my-1 mx-auto;
+}
+
+/* visually disables a non-form element (div/button) driven by aria-disabled
+   — pair with a guarded onClick, since aria-disabled doesn't block clicks */
+@utility disabled-look {
+  @apply aria-disabled:opacity-40 aria-disabled:pointer-events-none aria-disabled:cursor-not-allowed;
+}

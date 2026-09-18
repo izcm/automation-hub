@@ -235,10 +235,12 @@ export function ListView({
 
               <button
                 type="button"
-                onClick={onViewDashboard}
+                onClick={() => {
+                  if (filters.length > 0) onViewDashboard();
+                }}
                 aria-disabled={filters.length === 0}
                 className={cn(
-                  "btn btn-secondary rounded-xl",
+                  "btn btn-secondary rounded-xl disabled-look",
                   "border border-accent/20 text-accent transition-colors",
                 )}
                 title="View in dashboard"

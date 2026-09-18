@@ -5,6 +5,7 @@ import { capitalize } from "@a2zb/lib";
 import { Employee, Assignment } from "@/types";
 import { InitialsBadge } from "@/components/molecules";
 import { timeBuckets } from "@/lib/time-bucket";
+import { Calendar, Contract, Inspection, User } from "@/components/icons";
 
 import {
   STATUS_COLOR,
@@ -21,6 +22,7 @@ export function buildFilterRegistry(
   return {
     status: {
       searchable: false,
+      icon: <Inspection />,
       options: STATUS_OPTIONS.map((option) => ({
         id: option.status,
         label: option.label,
@@ -39,6 +41,7 @@ export function buildFilterRegistry(
     },
     responsible: {
       searchable: true,
+      icon: <User />,
       options: employees.map((employee) => ({
         id: employee.id,
         label: employee.name,
@@ -58,11 +61,13 @@ export function buildFilterRegistry(
     },
     timeBucket: {
       searchable: false,
+      icon: <Calendar />,
       options: timeBuckets.map((bucket) => ({ id: bucket, label: bucket })),
       renderLabel: (predicateId: string) => capitalize(predicateId),
     },
     assignment: {
       searchable: true,
+      icon: <Contract />,
       options: assignments.map((assignment) => ({
         id: assignment.id,
         label: assignment.name,

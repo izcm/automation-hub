@@ -138,16 +138,15 @@ export function FilterGroup({
         textInputProps={{
           htmlInputProps: {
             autoFocus: true,
-            placeholder: "Search status...",
+            // placeholder: "Search status...",
           },
           startIcon: <Search size={16} />,
-          className: "h-9 rounded-xl bg-accent/4 my-1 mx-auto",
+          className: "filter-search-input h-9",
         }}
         searchable={searchable}
         popoverProps={{
           align: "left",
-          contentClassName:
-            "flex flex-col gap-1 py-2 px-4 bg-elevated-gradient rounded-lg border-extra-faint min-w-[300px]",
+          contentClassName: "filter-popover",
         }}
       />
     </div>
