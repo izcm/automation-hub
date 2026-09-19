@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { getDaysUntil } from "@a2zb/lib";
 
 import { cn } from "@/lib/cn";
-import { Calendar, GoTo } from "@/components/icons";
+import { Calendar, ClearFilters, GoTo } from "@/components/icons";
 import { ResourceHeader } from "@/components/workspace/resource-management";
 
 import { applyFilters, type Filter } from "@/features/filtering/predicate";
@@ -17,7 +17,7 @@ import {
   buildDimensionBreakdown,
   DASHBOARD_TABLE_LIMIT,
 } from "../../logic/dashboard-aggregates";
-import { getInspectionStatus, type Status } from "../../logic/status";
+import { getInspectionStatus, STATUS_INFO, type Status } from "../../logic/status";
 import { EU_INSPECTION_PREDICATE_BUILDERS } from "../../logic/filters";
 import { getTimeBucket } from "@/lib/time-bucket";
 
@@ -49,6 +49,7 @@ type Props = {
     otherIds: string[],
     buildPredicate: (id: string) => (item: EuInspectionRow) => boolean,
   ) => void;
+  removeFilter: (filterId: string) => void;
   // filters/view live one level up (Workspace) so dashboard and
   // workspace list share one filter state instead of each parsing its own
   // copy from the URL — this just flips which one is shown.
@@ -60,6 +61,7 @@ export function EuInspectionDashboard({
   filters,
   toggleFilterPredicate,
   toggleOthers,
+  removeFilter,
   onViewList,
 }: Props) {
   // apply filters on every dimension
@@ -109,9 +111,28 @@ export function EuInspectionDashboard({
     .filter((filter) => filter.id === "status")
     .flatMap((filter) => filter.predicates.map((p) => p.id)) as Status[];
 
+  const ALL_STATUSES = (Object.keys(STATUS_INFO) as Status[]).filter(
+    (status) => status !== "unexpectedCase",
+  );
+
   const today = new Date();
   const in3Months = new Date(today);
   in3Months.setDate(today.getDate() + 90);
+
+  // predicts whether THIS click would complete the set (every row now
+  // looking selected) — checking current state alone is one click too
+  // late, since the click that finishes the set still sees the
+  // pre-click breakdown. isAdding: is this click turning something on
+  // (vs. off)? Only an "on" click can ever complete the set.
+  function clickWouldSelectEverything(
+    breakdown: { allRows: { id: string }[]; tableSelectedIds: string[] },
+    isAdding: boolean,
+  ) {
+    return (
+      isAdding &&
+      breakdown.tableSelectedIds.length + 1 === breakdown.allRows.length
+    );
+  }
 
   // rendered twice below — grouped with Assignments below lg, with
   // Inspection records at lg+ — since an element can only have one DOM
@@ -127,19 +148,30 @@ export function EuInspectionDashboard({
         !employeeBreakdown.allOtherSelected
       }
       othersSelectedCount={employeeBreakdown.otherSelectedCount}
-      onRowClick={(id) =>
-        id === "others"
-          ? toggleOthers(
-              "responsible",
-              employeeBreakdown.otherIds,
-              EU_INSPECTION_PREDICATE_BUILDERS.responsible!,
-            )
-          : toggleFilterPredicate(
-              "responsible",
-              id,
-              EU_INSPECTION_PREDICATE_BUILDERS.responsible!(id),
-            )
-      }
+      onRowClick={(id) => {
+        const isAdding =
+          id === "others"
+            ? !employeeBreakdown.someOtherSelected
+            : !employeeBreakdown.selectedIds.includes(id);
+
+        if (clickWouldSelectEverything(employeeBreakdown, isAdding)) {
+          removeFilter("responsible");
+          return;
+        }
+        if (id === "others") {
+          toggleOthers(
+            "responsible",
+            employeeBreakdown.otherIds,
+            EU_INSPECTION_PREDICATE_BUILDERS.responsible!,
+          );
+          return;
+        }
+        toggleFilterPredicate(
+          "responsible",
+          id,
+          EU_INSPECTION_PREDICATE_BUILDERS.responsible!(id),
+        );
+      }}
     />
   );
 
@@ -156,7 +188,7 @@ export function EuInspectionDashboard({
         <div className="flex justify-between items-center">
           <h2 className="font-medium inline-flex items-center gap-3 tracking-wide px-2">
             <span className="inline-flex items-center justify-center rounded-md bg-accent/10 p-1.5 text-accent">
-              <Calendar size={16} />
+              <Calendar size={18} />
             </span>
             EU Inspections dues next 3 months{" "}
           </h2>
@@ -166,6 +198,7 @@ export function EuInspectionDashboard({
               <span>{filters.length} filters active</span>
               <div className="vertical-line h-4 self-center" />
               <button
+                disabled={filters.length === 0}
                 onClick={() =>
                   filters.forEach((filter) =>
                     filter.predicates.forEach((p) =>
@@ -173,8 +206,9 @@ export function EuInspectionDashboard({
                     ),
                   )
                 }
-                className="btn btn-menu px-2"
+                className="flex items-center gap-1.5 btn btn-menu px-2"
               >
+                <ClearFilters size={14} />
                 Clear all
               </button>
             </div>
@@ -216,12 +250,20 @@ export function EuInspectionDashboard({
                 return id === bucket;
               })
             }
-            onLegendClick={(status) =>
+            onLegendClick={(status) => {
+              const isAdding = !selectedStatuses.includes(status as Status);
+              if (
+                isAdding &&
+                selectedStatuses.length + 1 === ALL_STATUSES.length
+              ) {
+                removeFilter("status");
+                return;
+              }
               toggleFilterPredicate("status", status, (inspection) => {
                 const id = getInspectionStatus(inspection);
                 return id === status;
-              })
-            }
+              });
+            }}
           />
         </div>
 
@@ -237,19 +279,30 @@ export function EuInspectionDashboard({
             }
             othersSelectedCount={assignmentBreakdown.otherSelectedCount}
             relevantColumns={selectedStatuses}
-            onRowClick={(id) =>
-              id === "others"
-                ? toggleOthers(
-                    "assignment",
-                    assignmentBreakdown.otherIds,
-                    EU_INSPECTION_PREDICATE_BUILDERS.assignment!,
-                  )
-                : toggleFilterPredicate(
-                    "assignment",
-                    id,
-                    EU_INSPECTION_PREDICATE_BUILDERS.assignment!(id),
-                  )
-            }
+            onRowClick={(id) => {
+              const isAdding =
+                id === "others"
+                  ? !assignmentBreakdown.someOtherSelected
+                  : !assignmentBreakdown.selectedIds.includes(id);
+
+              if (clickWouldSelectEverything(assignmentBreakdown, isAdding)) {
+                removeFilter("assignment");
+                return;
+              }
+              if (id === "others") {
+                toggleOthers(
+                  "assignment",
+                  assignmentBreakdown.otherIds,
+                  EU_INSPECTION_PREDICATE_BUILDERS.assignment!,
+                );
+                return;
+              }
+              toggleFilterPredicate(
+                "assignment",
+                id,
+                EU_INSPECTION_PREDICATE_BUILDERS.assignment!(id),
+              );
+            }}
           />
         </div>
       </div>

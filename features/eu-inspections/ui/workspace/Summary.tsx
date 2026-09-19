@@ -176,8 +176,9 @@ function AttemptRows({ attempts }: { attempts: EuInspectionAttempt[] }) {
   );
 }
 
-// one MetaRow per assignment, simple key:value (ordinal -> name), "see
-// all" toggle past 3 — same interaction as AttemptRows/NotificationList.
+// one MetaRow per assignment, simple key:value (ordinal -> name), capped at
+// exactly 1 row by default (same as AttemptRows) so every panel is the same
+// height regardless of how many assignments a vehicle carries.
 function AssignmentRows({ assignments }: { assignments: Assignment[] }) {
   const [expanded, setExpanded] = useState(false);
 
@@ -189,7 +190,7 @@ function AssignmentRows({ assignments }: { assignments: Assignment[] }) {
     );
   }
 
-  const initialCount = 3;
+  const initialCount = 1;
   const remaining = assignments.length - initialCount;
   const hasMore = remaining > 0;
   const visible = expanded ? assignments : assignments.slice(0, initialCount);

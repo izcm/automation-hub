@@ -7,7 +7,7 @@ import type { EmployeeInspectionRow } from "../ui/dashboard/tables/ResponsibleEm
 import { applyFilters, type Filter } from "@/features/filtering/predicate";
 
 import { getInspectionStatus } from "./status";
-import { getTimeBucket, timeBuckets } from "@/lib/time-bucket";
+import { getTimeBucket, getTimeBuckets } from "@/lib/time-bucket";
 
 // dashboard summary tables (assignments, responsible employees) cap
 // themselves to this many rows so they stay a fixed height regardless of
@@ -281,7 +281,7 @@ export function buildDimensionBreakdown<Row extends { id: string }>(
   };
 }
 
-function emptyTimeBucketEntry(timeBucket: (typeof timeBuckets)[number]) {
+function emptyTimeBucketEntry(timeBucket: string) {
   return {
     timeBucket,
     approved: 0,
@@ -292,16 +292,19 @@ function emptyTimeBucketEntry(timeBucket: (typeof timeBuckets)[number]) {
   };
 }
 
-export function aggregateByTimeBucket(rows: EuInspectionRow[]) {
+export function aggregateByTimeBucket(
+  rows: EuInspectionRow[],
+  today: Date = new Date(),
+) {
   const aggregated = aggregateBy(
     rows,
 
     // getKey – time bucket
-    (row) => getTimeBucket(getDaysUntil(row.dueDate)),
+    (row) => getTimeBucket(getDaysUntil(row.dueDate), today),
 
     // create – one counter per Status, so entry[state]++ below always has
     // somewhere to land
-    (row) => emptyTimeBucketEntry(getTimeBucket(getDaysUntil(row.dueDate))),
+    (row) => emptyTimeBucketEntry(getTimeBucket(getDaysUntil(row.dueDate), today)),
 
     // aggregate
     (entry, row) => {
@@ -311,7 +314,7 @@ export function aggregateByTimeBucket(rows: EuInspectionRow[]) {
 
   // aggregateBy only creates an entry for a bucket that actually occurs —
   // fill in the rest as zero so every bucket always shows on the x-axis.
-  return timeBuckets.map(
+  return getTimeBuckets(today).map(
     (timeBucket) =>
       aggregated.find((entry) => entry.timeBucket === timeBucket) ??
       emptyTimeBucketEntry(timeBucket),

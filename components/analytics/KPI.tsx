@@ -43,23 +43,23 @@ const kpiColorClasses: Record<
   { card: string; badge: string }
 > = {
   neutral: {
-    card: "border-neutral/40 bg-gradient-neutral-weak border-l-neutral/80",
+    card: "border-neutral/40 bg-gradient-neutral-weak ",
     badge: "bg-neutral/15 text-neutral",
   },
   safe: {
-    card: "border-safe/40 bg-gradient-safe-weak border-l-safe/80",
+    card: "border-safe/40 bg-gradient-safe-weak",
     badge: "bg-safe/15 text-safe",
   },
   advisory: {
-    card: "border-advisory/40 bg-gradient-advisory-weak border-l-advisory/80",
+    card: "border-advisory/40 bg-gradient-advisory-weak",
     badge: "bg-advisory/15 text-advisory",
   },
   caution: {
-    card: "border-caution/40 bg-gradient-caution-weak border-l-caution/80",
+    card: "border-caution/40 bg-gradient-caution-weak",
     badge: "bg-caution/15 text-caution",
   },
   critical: {
-    card: "border-critical/40 bg-gradient-critical-weak border-l-critical/80",
+    card: "border-critical/40 bg-gradient-critical-weak",
     badge: "bg-critical/15 text-critical",
   },
   empty: {

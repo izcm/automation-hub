@@ -1,5 +1,8 @@
 import { PanelHeader } from "@/components/molecules";
-import { InteractiveBarChart } from "@/components/analytics/InteractiveBarChart";
+import {
+  Legend,
+  InteractiveBarChart,
+} from "@/components/analytics/InteractiveBarChart";
 
 import {
   STATUS_COLOR,
@@ -28,6 +31,15 @@ export function InspectionTimelinePanel({
   onCategoryClick,
   onLegendClick,
 }: Props) {
+  const series = (Object.keys(STATUS_INFO) as Status[])
+    .filter((status) => status !== "unexpectedCase")
+    .map((key) => ({
+      key,
+      label: STATUS_LABELS[key],
+      color: STATUS_COLOR[key],
+      sort: STATUS_INFO[key].sort,
+    }));
+
   return (
     <>
       <PanelHeader
@@ -35,23 +47,33 @@ export function InspectionTimelinePanel({
         subtitle="Inspections grouped by time bucket and status."
       />
 
-      <div className="flex flex-col lg:flex-row lg:gap-3 h-64 lg:h-80">
+      <div className="flex flex-col lg:gap-3 h-64 lg:h-80">
         <InteractiveBarChart
           rows={rows}
           filteredRows={filteredRows}
           dataKey="timeBucket"
-          series={(Object.keys(STATUS_INFO) as Status[])
-            .filter((status) => status !== "unexpectedCase")
-            .map((key) => ({
-              key,
-              label: STATUS_LABELS[key],
-              color: STATUS_COLOR[key],
-              sort: STATUS_INFO[key].sort,
-            }))}
+          series={series}
           selectedSeriesKeys={selectedStatuses}
           selectedCategories={selectedTimeBuckets}
           onCategoryClick={onCategoryClick}
-          onLegendClick={onLegendClick}
+          legend={({ series, relevantKeys }) => (
+            <ul
+              className="
+                flex justify-around gap-2
+              "
+            >
+              {series.map((serie) => (
+                <li key={serie.key} className="flex-auto">
+                  <Legend
+                    serie={serie}
+                    relevantKeys={relevantKeys}
+                    hasSelection={relevantKeys.length < series.length}
+                    onClick={onLegendClick}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
         />
       </div>
     </>

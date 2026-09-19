@@ -12,6 +12,7 @@ import {
   type DataKey,
 } from "recharts";
 import { cn } from "@/lib/cn";
+import { ReactNode } from "react";
 
 type Series<T> = {
   key: Extract<DataKey<T, number>, string>;
@@ -22,44 +23,51 @@ type Series<T> = {
 
 // custom instead of recharts' <Legend> so each item is a filter toggle
 // (click a status to toggle it in/out of the active status filter,
-// narrowing the chart/list down to matching rows).
-function BarChartLegend<T>({
-  series,
+// narrowing the chart/list down to matching rows). Just the single button —
+// the caller owns the list/wrapper markup around it (see the `legend`
+// render prop on InteractiveBarChart below).
+export function Legend<T>({
+  serie,
   relevantKeys,
+  hasSelection,
   onClick,
 }: {
-  series: Series<T>[];
+  serie: Series<T>;
   relevantKeys: string[];
+  // whether ANY item is currently selected — without this, "relevant" is
+  // true for everyone when nothing's selected, which would make every
+  // button light up with its own color as if all were individually chosen.
+  hasSelection: boolean;
   onClick?: (item: string) => void;
 }) {
+  const isSelected = hasSelection && relevantKeys.includes(serie.key);
+  const isDimmed = hasSelection && !isSelected;
+
   return (
-    <ul
-      className="
-        flex justify-around gap-2
-        lg:flex-col lg:shrink-0 lg:justify-start lg:h-56
-        "
+    <button
+      type="button"
+      onClick={() => onClick?.(serie.key)}
+      style={
+        isSelected
+          ? {
+              backgroundColor: `color-mix(in oklab, var(--${serie.color}) 10%, transparent)`,
+            }
+          : undefined
+      }
+      className={cn(
+        "flex items-center btn p-1 gap-2 w-full rounded text-xs font-medium",
+        "transition-colors hover:bg-accent/8 hover:text-fg",
+        isDimmed ? "text-subtle" : "text-fg",
+      )}
     >
-      {series.map((serie) => (
-        <li key={serie.key} className="flex-auto">
-          <button
-            type="button"
-            onClick={() => onClick?.(serie.key)}
-            className={cn(
-              "flex items-center gap-2 whitespace-nowrap px-3 py-2 w-full text-xs text-fg/80",
-              !relevantKeys.includes(serie.key) && "opacity-40",
-            )}
-          >
-            <span
-              className="size-3 shrink-0 rounded-full"
-              style={{
-                backgroundColor: `var(--${serie.color})`,
-              }}
-            />
-            {serie.label}
-          </button>
-        </li>
-      ))}
-    </ul>
+      <span
+        className="size-3 shrink-0 rounded-full"
+        style={{
+          backgroundColor: `var(--${serie.color})`,
+        }}
+      />
+      {serie.label}
+    </button>
   );
 }
 
@@ -99,7 +107,7 @@ export function InteractiveBarChart<T>({
   selectedCategories = [],
   selectedSeriesKeys = [],
   onCategoryClick,
-  onLegendClick,
+  legend,
 }: {
   rows: T[];
   filteredRows: T[];
@@ -108,7 +116,14 @@ export function InteractiveBarChart<T>({
   selectedCategories?: string[];
   selectedSeriesKeys?: Series<T>["key"][];
   onCategoryClick?: (value: string) => void;
-  onLegendClick?: (value: string) => void;
+  // render prop instead of a hardcoded <BarChartLegend>: relevantKeys is
+  // derived once below (same computation the bars use for opacity) and
+  // handed back here, so the caller controls placement/markup but never
+  // has to re-derive which keys are relevant itself.
+  legend?: (props: {
+    series: Series<T>[];
+    relevantKeys: string[];
+  }) => ReactNode;
 }) {
   // all series are relevant unless there is a selection and it is NOT included in that selection
   // no selection -> all are relevant, even if there are 0 filtered items with cette status
@@ -202,11 +217,10 @@ export function InteractiveBarChart<T>({
         </BarChart>
       </ResponsiveContainer>
 
-      <BarChartLegend
-        series={series}
-        relevantKeys={relevantSeries.map((serie) => serie.key)}
-        onClick={onLegendClick}
-      />
+      {legend?.({
+        series,
+        relevantKeys: relevantSeries.map((serie) => serie.key),
+      })}
     </>
   );
 }

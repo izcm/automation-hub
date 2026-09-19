@@ -47,6 +47,7 @@ export {
   TriangleAlert,
   FileSignature as Contract,
   Users,
+  FunnelX as ClearFilters,
 } from "lucide-react";
 
 export type { LucideIcon } from "lucide-react";

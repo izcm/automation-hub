@@ -55,7 +55,7 @@ async function seed() {
 
   const today = new Date().toISOString().slice(0, 10);
 
-  const SPAN_DAYS = 91;
+  const SPAN_DAYS = 12 * 7;
 
   // one pile in the middle of the window; days right next to it stay close
   // behind, tapering down to baseline further out — a distance-based
@@ -85,7 +85,7 @@ async function seed() {
     return cumulativeWeight.findIndex((cum) => cum >= target);
   }
 
-  // one inspection per vehicle, spread across the next 90 days by each
+  // one inspection per vehicle, spread across the next 12 weeks by each
   // vehicle's own plate number, instead of reusing the vehicle's own (much
   // wider) dueDate range.
   const rows = vehicleRows.map((v) => {

@@ -7,7 +7,7 @@ import { LogOut } from "@/components/icons";
 import { ThemeToggleLabels } from "@/components/organisms";
 
 const navbarBtn =
-  "rounded-lg p-2 hover:bg-accent/10 btn text-subtle hover:text-accent-strong cursor-pointer";
+  "rounded-lg hover:bg-accent/10 btn text-subtle hover:text-accent-strong cursor-pointer";
 
 export type NavItem = {
   id: string;

@@ -4,7 +4,7 @@ import { capitalize } from "@a2zb/lib";
 
 import { Employee, Assignment } from "@/types";
 import { InitialsBadge } from "@/components/molecules";
-import { timeBuckets } from "@/lib/time-bucket";
+import { getTimeBuckets } from "@/lib/time-bucket";
 import { Calendar, Contract, Inspection, User } from "@/components/icons";
 
 import {
@@ -62,7 +62,7 @@ export function buildFilterRegistry(
     timeBucket: {
       searchable: false,
       icon: <Calendar />,
-      options: timeBuckets.map((bucket) => ({ id: bucket, label: bucket })),
+      options: getTimeBuckets().map((bucket) => ({ id: bucket, label: bucket })),
       renderLabel: (predicateId: string) => capitalize(predicateId),
     },
     assignment: {

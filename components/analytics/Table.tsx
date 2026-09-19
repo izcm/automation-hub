@@ -94,7 +94,7 @@ export function Table<T>({
               onClick={() => onRowClick?.(row)}
               className={cn(
                 "cursor-pointer border-b border-extra-faint transition-colors",
-                "hover:bg-accent/2",
+                "hover:bg-fg/4",
                 "border-l-3 border-l-transparent",
 
                 selected && "border-l-3 border-l-fg/40 bg-accent/4",

@@ -20,7 +20,7 @@
    * orange border + orange text on a transparent ground (the "Filtre" look). */
   /* Match every button's corner radius to the text input's rounded */
   .btn {
-    @apply rounded min-w-16 min-h-10;
+    @apply rounded min-w-10 min-h-10;
     transition:
       border-color 0.15s ease,
       color 0.15s ease,
