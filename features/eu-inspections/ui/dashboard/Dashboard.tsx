@@ -17,7 +17,11 @@ import {
   buildDimensionBreakdown,
   DASHBOARD_TABLE_LIMIT,
 } from "../../logic/dashboard-aggregates";
-import { getInspectionStatus, STATUS_INFO, type Status } from "../../logic/status";
+import {
+  getInspectionStatus,
+  STATUS_INFO,
+  type Status,
+} from "../../logic/status";
 import { EU_INSPECTION_PREDICATE_BUILDERS } from "../../logic/filters";
 import { getTimeBucket } from "@/lib/time-bucket";
 
@@ -26,6 +30,7 @@ import { InspectionTimelinePanel } from "./cards/InspectionTimelinePanel";
 import { AssignmentsPanel } from "./cards/AssignmentsPanel";
 import { ResponsibleEmployeesPanel } from "./cards/ResponsibleEmployeesPanel";
 import { InspectionRecordsPanel } from "./cards/InspectionRecordsPanel";
+import { BackgroundWorkersCard } from "./cards/BackgroundWorkersCard";
 
 const panel =
   "flex flex-col gap-1 border border-extra-faint rounded bg-panel-gradient p-2";
@@ -307,18 +312,39 @@ export function EuInspectionDashboard({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-3">
+      <div
+        className="
+          grid grid-cols-3 gap-3 
+          lg:grid-cols-[360px_1fr]
+        "
+      >
         {/* RESPONSIBLE EMPLOYEES — desktop: grouped with Inspection records at lg+ */}
-        <div className={cn(panel, "order-2 lg:order-1 max-w-[400px]")}>
+        <div
+          className={cn(
+            panel,
+            "col-span-3 md:col-span-1 lg:order-1 lg:max-w-[400px] order-2 ",
+          )}
+        >
           {responsibleEmployeesContent}
         </div>
 
         {/* EU INSPECTION ROWS */}
-        <div className={cn(`${panel} min-h-92 lg:order-2`)}>
+        <div
+          className={cn(
+            `${panel} min-h-92 col-span-3 lg:col-span-1 lg:order-2`,
+          )}
+        >
           <InspectionRecordsPanel
             items={filteredItems}
             onViewList={onViewList}
           />
+        </div>
+        <div
+          className={cn(
+            `${panel} col-span-3 md:col-span-2 order-3 lg:col-span-2`,
+          )}
+        >
+          <BackgroundWorkersCard />
         </div>
       </div>
     </section>

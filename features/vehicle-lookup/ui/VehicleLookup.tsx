@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { DetailField, Spinner, TextInput } from "@a2zb/react";
+import { Spinner, TextInput } from "@a2zb/react";
 import { usePlateNumberLookup } from "../hooks/use-plate-number-lookup";
 
 // internal type – essential characteristics
@@ -48,7 +48,7 @@ export function VehicleLookup({ onDone }: Props) {
             },
           ]}
         /> */}
-        {(
+        {/* {(
           [
             { label: "Plate number", getValue: (v) => v.reg },
             { label: "Make", getValue: (v) => v.make },
@@ -82,8 +82,8 @@ export function VehicleLookup({ onDone }: Props) {
             onClick={() => onDone(vehicle.reg)}
           >
             Yes
-          </button>
-        </div>
+          </button> */}
+        {/* </div> */}
       </div>
     );
   }

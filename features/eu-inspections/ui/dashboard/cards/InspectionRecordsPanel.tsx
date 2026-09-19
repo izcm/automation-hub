@@ -22,7 +22,7 @@ export function InspectionRecordsPanel({ items, onViewList }: Props) {
             className="flex btn btn-menu"
             onClick={onViewList}
           >
-            See in list view
+            View in workspace
             <span aria-hidden="true">
               <GoTo size={14} />
             </span>
