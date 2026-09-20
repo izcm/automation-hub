@@ -1,9 +1,20 @@
+import { sql } from "drizzle-orm";
 import { db } from "@server/db/postgres/pool";
 import { vehiclesTable } from "@server/db/postgres/vehicles/schema";
 import { employeesTable } from "@server/db/postgres/employees/schema";
 import { assignmentsTable } from "@server/db/postgres/assignments/schema";
-import { vehicleAssignmentsTable } from "@server/db/postgres/bridge-schemas/vehicle-assignments-schema";
 import { generateId } from "@/server/shared/id";
+
+// the small set of assignments this fleet is split across — a vehicle now
+// carries at most one, so these are seeded here rather than as their own
+// step (there's nothing else to seed them for).
+const ASSIGNMENT_NAMES = [
+  "Oslo depot",
+  "Bergen depot",
+  "Long-haul Nordics",
+  "Airport shuttle",
+  "Reserve fleet",
+];
 
 // Why "IOQ" and leading-zero plates are safe to use here: see
 // seed-db-scripts/DEMO_DATA_SAFETY.md
@@ -107,15 +118,13 @@ async function seed() {
   }
   const employeeIds = employeeRows.map((e) => e.id);
 
-  // Need assignments to link vehicles to. Seed them first.
+  // wipe first (CASCADE also clears vehicles, which reference assignments)
+  // so re-running is idempotent, then seed the fixed set of assignments.
+  await db.execute(sql`TRUNCATE TABLE ${assignmentsTable} CASCADE`);
   const assignmentRows = await db
-    .select({ id: assignmentsTable.id })
-    .from(assignmentsTable);
-  if (assignmentRows.length === 0) {
-    throw new Error(
-      "No assignments found — run `npm run seed:pg:assignments` first.",
-    );
-  }
+    .insert(assignmentsTable)
+    .values(ASSIGNMENT_NAMES.map((name) => ({ id: generateId(), name })))
+    .returning({ id: assignmentsTable.id });
   const assignmentIds = assignmentRows.map((a) => a.id);
 
   // weighted, not round-robin — a few employees carry most of the fleet,
@@ -126,40 +135,41 @@ async function seed() {
     Array(weight).fill(i % employeeIds.length),
   );
 
-  const rows = seedVehicles.map((v, i) => ({
-    ...v,
-    id: generateId(),
-    withSvvData: true,
-    maintenanceResponsibleId: employeeIds[responsibleByVehicle[i]!],
-  }));
+  // weighted like RESPONSIBLE_WEIGHTS above — Long-haul Nordics (index 2)
+  // carries most of the fleet, the rest taper off, and a handful stay
+  // unassigned (null) to exercise the dashboard's "Unassigned" row too.
+  const ASSIGNMENT_WEIGHTS: { index: number | null; count: number }[] = [
+    { index: 2, count: 16 }, // Long-haul Nordics
+    { index: 0, count: 12 }, // Oslo depot
+    { index: 1, count: 8 }, // Bergen depot
+    { index: 3, count: 6 }, // Airport shuttle
+    { index: 4, count: 4 }, // Reserve fleet
+    { index: null, count: 4 }, // unassigned
+  ]; // counts sum to seedVehicles.length
+  const assignmentByVehicle = ASSIGNMENT_WEIGHTS.flatMap(({ index, count }) =>
+    Array(count).fill(index),
+  );
 
-  // vehicle_assignments references vehicles — clear it first so the
-  // vehicles wipe below doesn't hit a FK constraint on re-run.
-  await db.delete(vehicleAssignmentsTable);
+  const rows = seedVehicles.map((v, i) => {
+    const assignmentIdx = assignmentByVehicle[i]!;
+    return {
+      ...v,
+      id: generateId(),
+      withSvvData: true,
+      maintenanceResponsibleId: employeeIds[responsibleByVehicle[i]!],
+      assignmentId:
+        assignmentIdx === null ? null : assignmentIds[assignmentIdx],
+    };
+  });
+
   await db.delete(vehiclesTable); // wipe first so re-running is idempotent
   const res = await db
     .insert(vehiclesTable)
     .values(rows)
     .returning({ id: vehiclesTable.id });
 
-  // a handful of vehicles get 0, 1, or 2 assignments — enough variety to
-  // exercise both "unassigned" and "multiple assignments" on the same fleet
-  const ASSIGNMENT_COUNTS = [0, 1, 1, 2, 0, 1, 2, 1, 0, 1];
-  const assignmentLinks = res.flatMap((vehicle, i) => {
-    const count = ASSIGNMENT_COUNTS[i % ASSIGNMENT_COUNTS.length]!;
-    return Array.from({ length: count }, (_, j) => ({
-      id: generateId(),
-      vehicleId: vehicle.id,
-      assignmentId: assignmentIds[(i + j) % assignmentIds.length]!,
-    }));
-  });
-
-  if (assignmentLinks.length > 0) {
-    await db.insert(vehicleAssignmentsTable).values(assignmentLinks);
-  }
-
   console.log(
-    `✅ seeded ${res.length} vehicles (linked to employees, ${assignmentLinks.length} assignment links)`,
+    `✅ seeded ${res.length} vehicles (linked to employees and assignments)`,
   );
   process.exit(0);
 }

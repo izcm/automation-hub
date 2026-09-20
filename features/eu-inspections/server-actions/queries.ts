@@ -12,7 +12,7 @@ const baseQueryFields = {
   sortField: "dueDate",
   sortDir: "asc",
   include: {
-    vehicle: { include: { employee: true, assignments: true } },
+    vehicle: { include: { employee: true, assignment: true } },
     notifications: { sortField: "createdAt", sortDir: "desc" },
     attempts: { sortField: "date", sortDir: "desc" },
   },
@@ -20,19 +20,8 @@ const baseQueryFields = {
 
 // Server-side loader: calls the domain read function directly — no HTTP
 // hop, so no self-fetch/cookie issue (see getEuInspections history).
-export async function getEuInspections() {
+export async function getEuInspections(filters?: Record<string, unknown>) {
   return safeAction(async () => {
-    const today = new Date();
-    const twelveWeeksOut = new Date(today);
-    twelveWeeksOut.setDate(today.getDate() + 12 * 7);
-
-    const filters = {
-      dueDate: {
-        gte: today.toISOString().slice(0, 10),
-        lte: twelveWeeksOut.toISOString().slice(0, 10),
-      },
-    };
-
     // no pagination since dataset is tiny (once date-bounded), just fetch all
     const count = await readCount("euInspections", { filters });
 

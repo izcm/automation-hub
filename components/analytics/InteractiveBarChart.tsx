@@ -163,18 +163,21 @@ export function InteractiveBarChart<T>({
             dataKey={dataKey}
             axisLine={false}
             tickLine={false}
+            height={60}
+            interval={0}
             tick={({ x, y, payload }) => (
               <text
                 x={x}
                 y={y}
                 dy={16}
-                textAnchor="middle"
+                textAnchor="end"
+                transform={`rotate(-10, ${x}, ${y})`}
                 fill={
                   isCategoryRelevant(payload.value)
                     ? "var(--subtle)"
                     : "var(--faint)"
                 }
-                fontSize={12}
+                fontSize={11}
                 style={{ cursor: "pointer" }}
                 onClick={() => onCategoryClick?.(payload.value)}
               >

@@ -83,16 +83,19 @@ export function EuInspectionDashboard({
     "assignment",
     aggregateByAssignment,
     DASHBOARD_TABLE_LIMIT,
-    (item) => item.vehicle.assignments?.map((a) => a.id) ?? [],
+    // "unassigned" counts as a real id here (unlike responsible below) —
+    // it's its own bucket in aggregateByAssignment and can fold into
+    // "Others", so a click on "Others" needs to filter it in too when it
+    // does.
+    (item) => [item.vehicle.assignmentId ?? "unassigned"],
   );
 
-  // one less row than Assignments — looks prettier
   const employeeBreakdown = buildDimensionBreakdown(
     items,
     filters,
     "responsible",
     aggregateByEmployee,
-    DASHBOARD_TABLE_LIMIT - 1,
+    DASHBOARD_TABLE_LIMIT,
     (item) =>
       item.vehicle.maintenanceResponsibleId
         ? [item.vehicle.maintenanceResponsibleId]
@@ -243,7 +246,7 @@ export function EuInspectionDashboard({
       {/* FILTER APPLIERS */}
       <div className="grid grid-cols-1 min-[1152]:grid-cols-[minmax(0,3fr)_minmax(560px,2fr)] gap-3">
         {/* BARCHART */}
-        <div className={panel}>
+        <div className={`${panel} h-96`}>
           <InspectionTimelinePanel
             rows={allTimeBucketEntries}
             filteredRows={filteredTimeBucketRows}
@@ -273,7 +276,7 @@ export function EuInspectionDashboard({
         </div>
 
         {/* ASSIGNMENTS */}
-        <div className={panel}>
+        <div className={`${panel}`}>
           <AssignmentsPanel
             rows={assignmentBreakdown.allRows}
             filteredRows={assignmentBreakdown.filteredRows}

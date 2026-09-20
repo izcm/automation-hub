@@ -47,35 +47,33 @@ export function InspectionTimelinePanel({
         subtitle="Inspections grouped by time bucket and status."
       />
 
-      <div className="flex flex-col lg:gap-3 h-64 lg:h-80">
-        <InteractiveBarChart
-          rows={rows}
-          filteredRows={filteredRows}
-          dataKey="timeBucket"
-          series={series}
-          selectedSeriesKeys={selectedStatuses}
-          selectedCategories={selectedTimeBuckets}
-          onCategoryClick={onCategoryClick}
-          legend={({ series, relevantKeys }) => (
-            <ul
-              className="
+      <InteractiveBarChart
+        rows={rows}
+        filteredRows={filteredRows}
+        dataKey="timeBucket"
+        series={series}
+        selectedSeriesKeys={selectedStatuses}
+        selectedCategories={selectedTimeBuckets}
+        onCategoryClick={onCategoryClick}
+        legend={({ series, relevantKeys }) => (
+          <ul
+            className="
                 flex justify-around gap-2
               "
-            >
-              {series.map((serie) => (
-                <li key={serie.key} className="flex-auto">
-                  <Legend
-                    serie={serie}
-                    relevantKeys={relevantKeys}
-                    hasSelection={relevantKeys.length < series.length}
-                    onClick={onLegendClick}
-                  />
-                </li>
-              ))}
-            </ul>
-          )}
-        />
-      </div>
+          >
+            {series.map((serie) => (
+              <li key={serie.key} className="flex-auto">
+                <Legend
+                  serie={serie}
+                  relevantKeys={relevantKeys}
+                  hasSelection={relevantKeys.length < series.length}
+                  onClick={onLegendClick}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+      />
     </>
   );
 }

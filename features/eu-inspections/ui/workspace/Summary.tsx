@@ -176,52 +176,21 @@ function AttemptRows({ attempts }: { attempts: EuInspectionAttempt[] }) {
   );
 }
 
-// one MetaRow per assignment, simple key:value (ordinal -> name), capped at
-// exactly 1 row by default (same as AttemptRows) so every panel is the same
-// height regardless of how many assignments a vehicle carries.
-function AssignmentRows({ assignments }: { assignments: Assignment[] }) {
-  const [expanded, setExpanded] = useState(false);
-
-  if (assignments.length === 0) {
-    return (
-      <dl className="text-[13px] text-subtle">
-        <MetaRow label="—" value="No assignments" last />
-      </dl>
-    );
-  }
-
-  const initialCount = 1;
-  const remaining = assignments.length - initialCount;
-  const hasMore = remaining > 0;
-  const visible = expanded ? assignments : assignments.slice(0, initialCount);
-
+// single MetaRow — a vehicle carries at most one assignment now.
+function AssignmentRow({ assignment }: { assignment?: Assignment }) {
   return (
     <dl className="text-[13px] text-subtle">
-      {visible.map((assignment, i) => {
-        const isLastVisible = i === visible.length - 1;
-
-        return (
-          <MetaRow
-            key={assignment.id}
-            label={`Assignment ${i + 1}`}
-            value={
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-fg">{assignment.name}</span>
-                {isLastVisible && (hasMore || expanded) && (
-                  <button
-                    type="button"
-                    onClick={() => setExpanded(!expanded)}
-                    className="shrink-0 text-xs text-accent hover:text-accent-strong"
-                  >
-                    {expanded ? "See less" : `See ${remaining} more`}
-                  </button>
-                )}
-              </div>
-            }
-            last={isLastVisible}
-          />
-        );
-      })}
+      <MetaRow
+        label="—"
+        value={
+          assignment ? (
+            <span className="text-fg">{assignment.name}</span>
+          ) : (
+            "No assignment"
+          )
+        }
+        last
+      />
     </dl>
   );
 }
@@ -325,10 +294,10 @@ export function Summary({ item }: Props) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Eyebrow>Assignments</Eyebrow>
+        <Eyebrow>Assignment</Eyebrow>
 
         <div className="raised-outline-panel">
-          <AssignmentRows assignments={vehicle.assignments ?? []} />
+          <AssignmentRow assignment={vehicle.assignment} />
         </div>
       </div>
     </>

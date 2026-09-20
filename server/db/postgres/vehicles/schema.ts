@@ -2,6 +2,7 @@ import { boolean, date, integer, pgTable, text } from "drizzle-orm/pg-core";
 
 import { timestampColumns } from "../shared/schemas";
 import { employeesTable } from "../employees/schema";
+import { assignmentsTable } from "../assignments/schema";
 
 // Inferred from ../types/vehicle-row.ts (the previous raw-SQL row shape) —
 // verify against the real migration if one turns up.
@@ -27,6 +28,9 @@ export const vehiclesTable = pgTable("vehicles", {
   maintenanceResponsibleId: text("maintenance_responsible_id").references(
     () => employeesTable.id,
   ),
+  // one assignment per vehicle, direct FK — replaces the old
+  // vehicle_assignments many-to-many for dashboard simplicity.
+  assignmentId: text("assignment_id").references(() => assignmentsTable.id),
   withSvvData: boolean("with_svv_data").notNull(),
   ...timestampColumns,
 });

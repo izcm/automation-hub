@@ -15,7 +15,7 @@ import { getTimeBucket, getTimeBuckets } from "@/lib/time-bucket";
 // both Dashboard (rendering the tables) and Workspace (computing the same
 // cutoff so "others" expands to the exact set of ids the table is standing
 // in for) — must stay a single constant, not re-hardcoded per call site.
-export const DASHBOARD_TABLE_LIMIT = 5;
+export const DASHBOARD_TABLE_LIMIT = 4;
 
 // one row per employee responsible for a vehicle, tallying their inspections
 // by state. Inspections with no responsible employee are skipped — nobody
@@ -81,7 +81,9 @@ export function aggregateByEmployee(
     rest = sorted.slice(limit);
   }
 
-  if (rest.length === 0) return top;
+  // a group of one is just that one row — folding it into "Others (1)"
+  // hides a real name behind a useless label for no benefit.
+  if (rest.length <= 1) return [...top, ...rest];
 
   const others = rest.reduce<EmployeeInspectionRow>(
     (acc, row) => ({
@@ -116,46 +118,48 @@ export type AssignmentInspectionRow = {
   firstAttempt: number;
 };
 
-// one row per assignment a vehicle carries, tallying inspections by state.
-// A vehicle can carry more than one assignment (many-to-many), so a single
-// inspection can land in more than one row here — unlike aggregateByEmployee
-// this isn't a partition of the fleet, it's "how much is on this
-// assignment's plate". Inspections whose vehicle has no assignment at all
-// are skipped, same reasoning as aggregateByEmployee skipping no-employee.
-// Same limit/"others" folding as aggregateByEmployee too, for the same
-// reason — keeps the table a fixed height regardless of how many
-// assignments exist.
+// sentinel id for vehicles with no assignmentId — a bucket like any other
+// (see below), never dropped, so the rows are a real partition of `rows`
+// and sum to the true total. It ranks alongside real assignments for a
+// top-N slot, same as everyone else — if it's small, it folds into
+// "others" too, keeping the table's fixed-height guarantee.
+const UNASSIGNED_ID = "unassigned";
+
+// one row per assignment, tallying inspections by state — a straight
+// partition of the fleet now that a vehicle carries at most one assignment
+// (unlike aggregateByEmployee, "no assignment" isn't skipped: it's its own
+// "Unassigned" bucket instead, so the rows stay honestly summable to the
+// total inspection count).
 export function aggregateByAssignment(
   rows: EuInspectionRow[],
   limit: number,
   // see aggregateByEmployee's topIds param — same reasoning.
   topIds?: string[],
 ): AssignmentInspectionRow[] {
-  const byAssignment = new Map<
-    string,
-    AssignmentInspectionRow & { unexpectedCase: number }
-  >();
+  const perAssignment = aggregateBy(
+    rows,
 
-  for (const item of rows) {
-    for (const assignment of item.vehicle.assignments ?? []) {
-      const entry = byAssignment.get(assignment.id) ?? {
-        id: assignment.id,
-        name: assignment.name,
-        total: 0,
-        approved: 0,
-        rejected: 0,
-        firstAttempt: 0,
-        unresolved: 0,
-        unexpectedCase: 0,
-      };
+    // getKey
+    (item) => item.vehicle.assignmentId ?? UNASSIGNED_ID,
 
+    // create
+    (item) => ({
+      id: item.vehicle.assignmentId ?? UNASSIGNED_ID,
+      name: item.vehicle.assignment?.name ?? "Unassigned",
+      total: 0,
+      approved: 0,
+      rejected: 0,
+      firstAttempt: 0,
+      unresolved: 0,
+      unexpectedCase: 0,
+    }),
+
+    // aggregate
+    (entry, item) => {
       entry.total++;
       entry[getInspectionStatus(item)]++;
-      byAssignment.set(assignment.id, entry);
-    }
-  }
-
-  const perAssignment = [...byAssignment.values()].map((entry) => ({
+    },
+  ).map((entry) => ({
     id: entry.id,
     name: entry.name,
     total: entry.total,
@@ -179,7 +183,9 @@ export function aggregateByAssignment(
     rest = sorted.slice(limit);
   }
 
-  if (rest.length === 0) return top;
+  // a group of one is just that one row — folding it into "Others (1)"
+  // hides a real name behind a useless label for no benefit.
+  if (rest.length <= 1) return [...top, ...rest];
 
   const others = rest.reduce<AssignmentInspectionRow>(
     (acc, row) => ({
@@ -257,8 +263,9 @@ export function buildDimensionBreakdown<Row extends { id: string }>(
   );
 
   const selectedIds =
-    filters.find((filter) => filter.id === filterId)?.predicates.map((p) => p.id) ??
-    [];
+    filters
+      .find((filter) => filter.id === filterId)
+      ?.predicates.map((p) => p.id) ?? [];
 
   const otherSelectedCount = otherIds.filter((id) =>
     selectedIds.includes(id),
@@ -304,7 +311,8 @@ export function aggregateByTimeBucket(
 
     // create – one counter per Status, so entry[state]++ below always has
     // somewhere to land
-    (row) => emptyTimeBucketEntry(getTimeBucket(getDaysUntil(row.dueDate), today)),
+    (row) =>
+      emptyTimeBucketEntry(getTimeBucket(getDaysUntil(row.dueDate), today)),
 
     // aggregate
     (entry, row) => {

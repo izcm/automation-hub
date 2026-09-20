@@ -20,12 +20,12 @@ export const EU_INSPECTION_PREDICATE_BUILDERS: PredicateBuilders<EuInspectionRow
       inspection.vehicle.maintenanceResponsibleId === value,
     timeBucket: (value) => (inspection) =>
       getTimeBucket(getDaysUntil(inspection.dueDate)) === value,
-    // a vehicle can carry more than one assignment, so this is a membership
-    // check, not equality like the single-value filters above.
+    // "unassigned" is a sentinel id (see aggregateByAssignment) for
+    // vehicles with no assignmentId — not a real assignments row.
     assignment: (value) => (inspection) =>
-      inspection.vehicle.assignments?.some(
-        (assignment) => assignment.id === value,
-      ) ?? false,
+      value === "unassigned"
+        ? inspection.vehicle.assignmentId == null
+        : inspection.vehicle.assignmentId === value,
   };
 
 export function buildFilters(rawFilters: Record<string, string | string[]>) {

@@ -11,10 +11,7 @@ const attemptsInclude = z.union([coercedBoolean, pageQueryBase]);
 
 const employeeInclude = z.union([coercedBoolean, pageQueryBase]);
 
-// vehicles.assignments is many-to-many (through the junction table), same
-// as euInspections.notifications above — points straight at real
-// assignment rows, so this needs no separate nested hop either.
-const assignmentsInclude = z.union([coercedBoolean, pageQueryBase]);
+const assignmentInclude = z.union([coercedBoolean, pageQueryBase]);
 
 const vehicleInclude = z.union([
   coercedBoolean,
@@ -22,7 +19,7 @@ const vehicleInclude = z.union([
     include: z
       .strictObject({
         employee: employeeInclude,
-        assignments: assignmentsInclude,
+        assignment: assignmentInclude,
       })
       .optional(),
   }),

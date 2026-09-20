@@ -28,17 +28,15 @@ export function AssignmentsPanel({
         subtitle="Inspections grouped by vehicle assignment."
       />
 
-      <div className="lg:h-80">
-        <AssignmentsTable
-          rows={rows}
-          filteredRows={filteredRows}
-          selectedIds={selectedIds}
-          othersPartiallySelected={othersPartiallySelected}
-          othersSelectedCount={othersSelectedCount}
-          relevantColumns={relevantColumns}
-          onRowClick={onRowClick}
-        />
-      </div>
+      <AssignmentsTable
+        rows={rows}
+        filteredRows={filteredRows}
+        selectedIds={selectedIds}
+        othersPartiallySelected={othersPartiallySelected}
+        othersSelectedCount={othersSelectedCount}
+        relevantColumns={relevantColumns}
+        onRowClick={onRowClick}
+      />
     </>
   );
 }

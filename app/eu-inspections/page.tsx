@@ -27,8 +27,17 @@ export default async function EuInspectionsPage({
       .map(([key, value]) => [key, Array.isArray(value) ? value : [value]]),
   );
 
+  const today = new Date();
+  const twelveWeeksOut = new Date(today);
+  twelveWeeksOut.setDate(today.getDate() + 12 * 7);
+
   // default sort is on eu date + desc
-  const inspectionsResult = await getEuInspections();
+  const inspectionsResult = await getEuInspections({
+    dueDate: {
+      gte: today.toISOString().slice(0, 10),
+      lte: twelveWeeksOut.toISOString().slice(0, 10),
+    },
+  });
 
   // for editing maintenance responsible
   const employeesResult = await getEmployees();

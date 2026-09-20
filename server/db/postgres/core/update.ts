@@ -33,10 +33,7 @@ export const makeUpdate = <TTable extends PgTable>(
     fields: Partial<InferInsertModel<TTable>>,
   ): Promise<void> {
     try {
-      await db
-        .update(table)
-        .set(fields)
-        .where(eq(keyColumn, id));
+      await db.update(table).set(fields).where(eq(keyColumn, id));
     } catch (error) {
       if (isPgForeignKeyError(error) && error.constraint) {
         throw new ForeignKeyViolationError(error.constraint);

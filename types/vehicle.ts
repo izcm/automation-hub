@@ -34,6 +34,10 @@ export type Vehicle = EnrichProgress & {
   /** employeeId of who's responsible for maintenance — a reference into
    *  `employees` (not denormalized). Resolve to an email at notify time. */
   maintenanceResponsibleId?: string;
+
+  /** assignmentId this vehicle carries — a reference into `assignments`
+   *  (not denormalized). One per vehicle. */
+  assignmentId?: string;
 };
 
 type EnrichProgress = {
