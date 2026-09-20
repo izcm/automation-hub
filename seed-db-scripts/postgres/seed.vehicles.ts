@@ -150,13 +150,26 @@ async function seed() {
     Array(count).fill(index),
   );
 
+  // seed.eu-inspections.ts places due dates by plate-number rank (low plate
+  // = early date, roughly). If we handed out employee/assignment groups in
+  // plate-number order too, every vehicle in one group would land in a
+  // narrow date range — every assignment would look like it belongs to a
+  // single time bucket on the dashboard. Scrambling which slot each vehicle
+  // draws from breaks that correlation while keeping the exact same group
+  // sizes. 7 is coprime with 50 (seedVehicles.length), so this is a full
+  // permutation, not a lossy hash.
+  function scrambleIndex(i: number): number {
+    return (i * 7) % seedVehicles.length;
+  }
+
   const rows = seedVehicles.map((v, i) => {
-    const assignmentIdx = assignmentByVehicle[i]!;
+    const slot = scrambleIndex(i);
+    const assignmentIdx = assignmentByVehicle[slot]!;
     return {
       ...v,
       id: generateId(),
       withSvvData: true,
-      maintenanceResponsibleId: employeeIds[responsibleByVehicle[i]!],
+      maintenanceResponsibleId: employeeIds[responsibleByVehicle[slot]!],
       assignmentId:
         assignmentIdx === null ? null : assignmentIds[assignmentIdx],
     };
