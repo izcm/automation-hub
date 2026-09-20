@@ -11,6 +11,7 @@ const createPool = () => {
 
   return new Pool({
     connectionString: readEnvOrThrow("POSTGRES_CONNECTION_STR"),
+    max: 5,
   });
 };
 

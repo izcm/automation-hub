@@ -1,5 +1,5 @@
 {
-  "name": "eu-kontroll",
+  "name": "hubben",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -20,12 +20,12 @@
     "clean": "rm -rf .next node_modules"
   },
   "dependencies": {
-    "@a2zb/lib": "file:../../izblocks/shared-packages/lib",
-    "@a2zb/next": "file:../../izblocks/shared-packages/next",
-    "@a2zb/node": "file:../../izblocks/shared-packages/node",
-    "@a2zb/react": "file:../../izblocks/shared-packages/react",
-    "@a2zb/styles": "file:../../izblocks/shared-packages/styles",
-    "@a2zb/types": "file:../../izblocks/shared-packages/types",
+    "@a2zb/lib": "0.100.0-reset",
+    "@a2zb/next": "0.100.0-reset",
+    "@a2zb/node": "0.100.0-reset",
+    "@a2zb/react": "0.100.0-reset",
+    "@a2zb/styles": "0.100.0-reset",
+    "@a2zb/types": "0.100.0-reset",
     "@tanstack/react-query": "^5.101.4",
     "clsx": "^2.1.1",
     "drizzle-orm": "^1.0.0-rc.4",
