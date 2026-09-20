@@ -177,7 +177,7 @@ export function InteractiveBarChart<T>({
                     ? "var(--subtle)"
                     : "var(--faint)"
                 }
-                fontSize={11}
+                fontSize={12}
                 style={{ cursor: "pointer" }}
                 onClick={() => onCategoryClick?.(payload.value)}
               >
