@@ -241,7 +241,7 @@ export function EuInspectionDashboard({
       </div>
 
       {/* FILTER APPLIERS */}
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,3fr)_minmax(560px,2fr)] gap-3">
+      <div className="grid grid-cols-1 min-[1152]:grid-cols-[minmax(0,3fr)_minmax(560px,2fr)] gap-3">
         {/* BARCHART */}
         <div className={panel}>
           <InspectionTimelinePanel
