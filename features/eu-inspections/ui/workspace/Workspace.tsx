@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 
 import {
   toQueryParams,
+  toUrlFilterObj,
   useFilters,
-  type Filter,
 } from "@/features/filtering/predicate";
 
 import type { EuInspectionRow } from "../../types";
@@ -17,17 +17,6 @@ import { ListView } from "./ListView";
 import { buildFilters } from "../../logic/filters";
 
 type View = "dashboard" | "list";
-
-function toUrlFilterObj(
-  filters: Filter<EuInspectionRow>[],
-): Record<string, string[]> {
-  return Object.fromEntries(
-    filters.map((filter) => [
-      filter.id,
-      filter.predicates.map((p) => p.id),
-    ]),
-  );
-}
 
 type Props = {
   allInspections: EuInspectionRow[];
@@ -57,10 +46,15 @@ export function Workspace({
   isDemo,
   alternativeReceiver,
 }: Props) {
-  const { filters, toggleFilterPredicate, toggleOthers, removeFilter } =
-    useFilters<EuInspectionRow>(
-      rawFilters ? buildFilters(rawFilters) : undefined,
-    );
+  const {
+    filters,
+    setFilters,
+    toggleFilterPredicate,
+    toggleOthers,
+    removeFilter,
+  } = useFilters<EuInspectionRow>(
+    rawFilters ? buildFilters(rawFilters) : undefined,
+  );
 
   // owned here, not in ListView — dashboard and list are two views over
   // the same persistent component now (no navigation between them), so a
@@ -102,6 +96,10 @@ export function Workspace({
           filters={filters}
           toggleFilterPredicate={toggleFilterPredicate}
           onViewDashboard={() => setView("dashboard")}
+          onBack={(backFilters) => {
+            setFilters(backFilters);
+            setView("dashboard");
+          }}
         />
       </div>
     );

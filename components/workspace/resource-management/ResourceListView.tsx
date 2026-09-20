@@ -1,7 +1,8 @@
 "use client";
 
 import { ReactNode, useRef, useState } from "react";
-import { Checkbox, Gallery } from "@a2zb/react";
+
+import { Checkbox } from "@a2zb/react";
 
 import { cn } from "@/lib/cn";
 import { Pagination } from "@/components/molecules";
@@ -52,6 +53,10 @@ type Props<T> = {
   itemClassName?: (isSelected: boolean) => string;
   filterChips?: ReactNode;
   detailsPanel: (item: T) => ReactNode;
+  // caller-provided back button/link — navigation target and styling are
+  // the caller's call (eg. eu-inspections goes back to the dashboard with
+  // its filters, not just browser history)
+  back: ReactNode;
 };
 
 export function ResourceListView<T>({
@@ -60,6 +65,7 @@ export function ResourceListView<T>({
   batchActions,
   listItem,
   labels,
+  back,
   itemClassName,
   filterChips,
   detailsPanel,
@@ -125,6 +131,7 @@ export function ResourceListView<T>({
             "
       >
         <div className={cn("relative flex items-center")}>
+          {back}
           <h1 className="flex-1 text-center font-medium text-fg/90 mt-1">
             {labels.title}
           </h1>

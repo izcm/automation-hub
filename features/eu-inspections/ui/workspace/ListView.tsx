@@ -19,7 +19,7 @@ import { useLanguage } from "@/lib/contexts/LanguageContext";
 
 import { Employee, Assignment } from "@/types";
 
-import { Dashboard, Notify, User } from "@components/icons";
+import { Back, Dashboard, Notify, User } from "@components/icons";
 import { ResourceListView } from "@/components/workspace/resource-management";
 
 import {
@@ -84,6 +84,10 @@ type Props = {
     predicate: (item: EuInspectionRow) => boolean,
   ) => void;
   onViewDashboard: () => void;
+  // like onViewDashboard, but also resets filters to the given snapshot —
+  // used by the back button to undo any filter edits made while in list
+  // view, not just switch views.
+  onBack: (filters: Filter<EuInspectionRow>[]) => void;
 };
 
 export function ListView({
@@ -96,6 +100,7 @@ export function ListView({
   filters,
   toggleFilterPredicate,
   onViewDashboard,
+  onBack,
 }: Props) {
   // const []
   // const [searchInput, setSearchInput] = useState<string>("");
@@ -221,12 +226,30 @@ export function ListView({
 
   const filterRegistry = buildFilterRegistry(employees, assignments);
 
+  // filters as they were when the list view was opened — not the live
+  // `filters` prop, which can change while the user is in here (adding a
+  // chip via the FilterBar below). Back undoes navigating into the list,
+  // not in-list filter edits.
+  const [initialFilters] = useState(filters);
+
   return (
     <>
       <ResourceListView
         items={visibleInspections}
         getId={(v) => v.id}
         labels={RESOURCE_MANAGEMENT_VIEW_LABELS}
+        back={
+          <button
+            type="button"
+            className="btn group"
+            onClick={() => onBack(initialFilters)}
+          >
+            <Back
+              className="text-accent group-hover:text-accent-strong group-hover:bg-accent/4 rounded-full"
+              size={20}
+            />
+          </button>
+        }
         filterChips={
           filters && (
             <div className="flex flex-wrap gap-3">
