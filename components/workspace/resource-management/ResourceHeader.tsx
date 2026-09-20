@@ -25,7 +25,7 @@ export function ResourceHeader({ title, desc, tabs }: Props) {
       {/* HEADER TEXT */}
       <div className="flex-1 flex flex-col justify-end gap-2">
         <span className="text-sm text-accent-muted font-semibold tracking-wide">
-          THE HUB
+          HUBBEN
         </span>
         <h1 className="text-5xl font-semibold tracking-loose">{title}</h1>
         <span className="text-subtle text-sm">{desc}</span>

@@ -5,7 +5,7 @@ export type Language = "en" | "no";
 // UI copy — one place for every display string, per language.
 // Interpolated strings are functions so they stay easy to adjust.
 const en = {
-  appTitle: "The Hub",
+  appTitle: "Hubben",
 
   skipToContent: "Skip to content",
 

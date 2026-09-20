@@ -1,7 +1,7 @@
 "use client";
 
-import { ComponentProps, ReactNode } from "react";
-import { TextInput } from "@a2zb/react";
+import { ComponentProps, ReactNode, useState } from "react";
+import { Spinner, TextInput } from "@a2zb/react";
 
 import { cn } from "@/lib/cn";
 import { Lock, Mail } from "@/components/icons";
@@ -29,6 +29,8 @@ export function LoginModal({
   oidcProviders,
   onCredentialsSubmit,
 }: Props) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   return (
     <div
       aria-label="Log in"
@@ -79,6 +81,7 @@ export function LoginModal({
         className="flex flex-col gap-4"
         onSubmit={async (e) => {
           e.preventDefault();
+          setIsSubmitting(true);
           try {
             const formData = new FormData(e.currentTarget);
             await onCredentialsSubmit(formData);
@@ -87,6 +90,8 @@ export function LoginModal({
               "Couldn't log in.",
               typeof err === "string" ? err : "There was an issue logging in.",
             );
+          } finally {
+            setIsSubmitting(false);
           }
         }}
       >
@@ -114,7 +119,12 @@ export function LoginModal({
           />
         </div>
 
-        <button type="submit" className="btn btn-primary">
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={isSubmitting}
+        >
+          {isSubmitting && <Spinner size={16} />}
           Log In
         </button>
       </form>

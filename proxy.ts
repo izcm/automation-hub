@@ -57,7 +57,7 @@ export const config = {
      * - api/auth so user can authenticate
      * - _next/static (static build output)
      * - _next/image (image optimization files)
-     * - favicon.ico (metadata files)
+     * - favicon.ico, icon.svg (metadata files)
      * - landing.jpg (public background image, needed on the unauthenticated
      *   /login page)
      *
@@ -65,7 +65,7 @@ export const config = {
      * it to redirect an already-authenticated visitor away from it; the
      * function itself lets unauthenticated requests through.
      */
-    "/((?!api/auth|_next/static|_next/image|favicon.ico|landing\\.jpg).*)",
+    "/((?!api/auth|_next/static|_next/image|favicon.ico|icon\\.svg|landing\\.jpg).*)",
   ],
 };
 

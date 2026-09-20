@@ -36,7 +36,10 @@ export function Pagination({
         <button
           className={step}
           disabled={page === 1}
-          onClick={() => onChange(page - 1)}
+          onClick={(e) => {
+            e.currentTarget.blur(); // allows consumer to defined scroll behaviour
+            onChange(page - 1);
+          }}
           aria-label="Previous page"
         >
           <Prev size={16} />
@@ -57,7 +60,10 @@ export function Pagination({
         <button
           className={step}
           disabled={page === pageCount}
-          onClick={() => onChange(page + 1)}
+          onClick={(e) => {
+            e.currentTarget.blur(); // allows consumer to defined scroll behaviour
+            onChange(page + 1);
+          }}
           aria-label="Next page"
         >
           <Next size={16} />

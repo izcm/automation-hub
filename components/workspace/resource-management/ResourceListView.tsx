@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
 import { Checkbox, Gallery } from "@a2zb/react";
 
 import { cn } from "@/lib/cn";
@@ -71,6 +71,12 @@ export function ResourceListView<T>({
   const [batchSelectMobile, setBatchSelectMobile] = useState(false);
 
   const [page, setPage] = useState(1);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  function handlePageChange(nextPage: number) {
+    setPage(nextPage);
+    scrollContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   function toggleBatchSelectMobile() {
     const next = !batchSelectMobile;
@@ -151,7 +157,10 @@ export function ResourceListView<T>({
           </button>
         )}
 
-        <div className="flex flex-col h-full overflow-y-scroll scrollbar-hide">
+        <div
+          ref={scrollContainerRef}
+          className="flex flex-col h-full overflow-y-scroll scrollbar-hide"
+        >
           <div className="flex flex-col gap-2 mb-3">
             <BatchSelect
               items={pageItems}
@@ -200,7 +209,7 @@ export function ResourceListView<T>({
               pageCount={pageCount}
               total={items.length}
               pageSize={PAGE_SIZE}
-              onChange={setPage}
+              onChange={handlePageChange}
               label={labels.pagination.showing}
             />
           </div>
