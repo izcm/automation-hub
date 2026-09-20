@@ -22,11 +22,23 @@ const baseQueryFields = {
 // hop, so no self-fetch/cookie issue (see getEuInspections history).
 export async function getEuInspections() {
   return safeAction(async () => {
-    // no pagination since dataset is tiny, just fetch all
-    const count = await readCount("euInspections");
+    const today = new Date();
+    const twelveWeeksOut = new Date(today);
+    twelveWeeksOut.setDate(today.getDate() + 12 * 7);
+
+    const filters = {
+      dueDate: {
+        gte: today.toISOString().slice(0, 10),
+        lte: twelveWeeksOut.toISOString().slice(0, 10),
+      },
+    };
+
+    // no pagination since dataset is tiny (once date-bounded), just fetch all
+    const count = await readCount("euInspections", { filters });
 
     const page = await getEuInspectionsPage({
       limit: count,
+      filters,
       ...baseQueryFields,
     });
 
