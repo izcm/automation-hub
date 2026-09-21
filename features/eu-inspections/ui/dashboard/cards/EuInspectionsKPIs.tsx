@@ -151,8 +151,6 @@ export function EuInspectionsKPIs({ rows, selectedStatuses }: Props) {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 col-span-3 gap-3 lg:col-span-3">
-        <SmartKPIs kpis={otherKpis} relevantKeys={relevantStatuses} />
-
         <SmartKPIs
           kpis={approvedKpi.map((kpi) => ({
             ...kpi,
@@ -160,6 +158,8 @@ export function EuInspectionsKPIs({ rows, selectedStatuses }: Props) {
           }))}
           relevantKeys={relevantStatuses}
         />
+
+        <SmartKPIs kpis={otherKpis} relevantKeys={relevantStatuses} />
       </div>
     </div>
   );
