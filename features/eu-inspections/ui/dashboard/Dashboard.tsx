@@ -183,17 +183,43 @@ export function EuInspectionDashboard({
     />
   );
 
+  const clearFilterSection = (
+    <div className="flex items-center gap-3 text-accent">
+      <span>{filters.length} filters active</span>
+      <div className="vertical-line h-4 self-center" />
+      <button
+        disabled={filters.length === 0}
+        onClick={() =>
+          filters.forEach((filter) =>
+            filter.predicates.forEach((p) =>
+              toggleFilterPredicate(filter.id, p.id, p.predicate),
+            ),
+          )
+        }
+        className="flex items-center gap-1.5 btn btn-menu px-2"
+      >
+        <ClearFilters size={14} />
+        Clear all
+      </button>
+    </div>
+  );
+
   return (
     <section className="flex flex-col gap-3 max-w-[1440px] mx-auto p-2 lg:p-4">
       {/*HEADER*/}
       <ResourceHeader
         title="EU Inspections"
         desc="Keep your fleet compliant. See what's due and where to take action."
-        tabs={["Overview", "Background processes"]}
+        tabs={["Overview"]}
       />
 
       <div className={cn(`${panel} gap-3`)}>
-        <div className="flex justify-between items-center">
+        <div
+          className="
+            flex flex-col gap-3 items-center
+            md:flex-row md:justify-between
+          "
+        >
           <h2 className="font-medium inline-flex items-center gap-3 tracking-wide px-2">
             <span className="inline-flex items-center justify-center rounded-md bg-accent/10 p-1.5 text-accent">
               <Calendar size={18} />
@@ -201,25 +227,13 @@ export function EuInspectionDashboard({
             EU Inspections dues next 12 weeks
           </h2>
 
-          <div className="flex gap-3 items-center self-end text-sm">
-            <div className="flex items-center gap-3 text-accent">
-              <span>{filters.length} filters active</span>
-              <div className="vertical-line h-4 self-center" />
-              <button
-                disabled={filters.length === 0}
-                onClick={() =>
-                  filters.forEach((filter) =>
-                    filter.predicates.forEach((p) =>
-                      toggleFilterPredicate(filter.id, p.id, p.predicate),
-                    ),
-                  )
-                }
-                className="flex items-center gap-1.5 btn btn-menu px-2"
-              >
-                <ClearFilters size={14} />
-                Clear all
-              </button>
-            </div>
+          <div
+            className="
+            flex flex-col-reverse items-center text-sm
+            md:flex-row gap-3 md:items-center md:self-end
+            "
+          >
+            <div>{clearFilterSection}</div>
 
             <button
               type="button"

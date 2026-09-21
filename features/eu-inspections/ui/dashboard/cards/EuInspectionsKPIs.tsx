@@ -122,11 +122,10 @@ export function EuInspectionsKPIs({ rows, selectedStatuses }: Props) {
   const otherKpis = kpis.filter((kpi) => kpi.key !== "approved");
 
   return (
-    <div className="grid gap-3 grid-cols-3 lg:grid-cols-5">
+    <div className="grid gap-3 lg:grid-cols-5">
       <div
         className="
-          grid gap-3 
-          grid-cols-5 col-span-3
+          grid gap-3 grid-cols-5 col-span-3
           lg:grid-cols-2 lg:col-span-2
         "
       >
@@ -140,19 +139,27 @@ export function EuInspectionsKPIs({ rows, selectedStatuses }: Props) {
           color="neutral"
           icon={Inspection}
           descr="Total inspections tracked"
-          className="col-span-3 lg:col-span-1"
+          className="col-span-5 md:col-span-3 lg:col-span-1"
         />
         <SmartKPIs
           kpis={approvedKpi.map((kpi) => ({
             ...kpi,
-            className: "col-span-2 lg:col-span-1",
+            className: "hidden md:flex col-span-1 md:col-span-2 lg:col-span-1",
           }))}
           relevantKeys={relevantStatuses}
         />
       </div>
 
-      <div className="grid grid-cols-3 col-span-3 gap-3 lg:col-span-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 col-span-3 gap-3 lg:col-span-3">
         <SmartKPIs kpis={otherKpis} relevantKeys={relevantStatuses} />
+
+        <SmartKPIs
+          kpis={approvedKpi.map((kpi) => ({
+            ...kpi,
+            className: "flex md:hidden col-span-1",
+          }))}
+          relevantKeys={relevantStatuses}
+        />
       </div>
     </div>
   );

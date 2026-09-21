@@ -1,11 +1,14 @@
-import { ReactNode } from "react";
+import { ComponentType, ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
-import type { LucideIcon } from "@/components/icons";
+
+// any icon component KPI can render, not just lucide's — all it needs is
+// the two props KPI actually passes down.
+export type Icon = ComponentType<{ size?: number; className?: string }>;
 
 export type KPIProps = {
   title: ReactNode;
-  icon?: LucideIcon;
+  icon?: Icon;
   // undefined here usually means "zero matches" (e.g. countFieldValues
   // only sets keys that occurred at least once) — <span>{undefined}</span>
   // renders blank, not "0", so it falls back to `fallback` instead.
@@ -98,7 +101,7 @@ export function KPI({
       <div className="flex flex-col gap-2">
         <div className="text-sm text-fg/80">{title}</div>
         <span className="text-3xl font-semibold">{value ?? fallback}</span>
-        <p className="text-xs text-subtle">{descr}</p>
+        <p className="text-xs text-subtle hidden md:inline-block">{descr}</p>
       </div>
     </div>
   );
