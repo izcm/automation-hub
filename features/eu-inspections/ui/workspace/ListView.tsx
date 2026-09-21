@@ -11,7 +11,7 @@ import {
 } from "react";
 import { toast } from "sonner";
 
-import { useRegexValidatedInput } from "@a2zb/react";
+import { Spinner, useRegexValidatedInput } from "@a2zb/react";
 
 import { cn } from "@/lib/cn";
 import { confirmWith, rejectWith, warningWith } from "@/lib/toast";
@@ -193,6 +193,7 @@ export function ListView({
   }, []);
 
   const [assignTargetIds, setAssignTargetIds] = useState<string[] | null>(null);
+  const [isAssigning, setIsAssigning] = useState(false);
   const clearAssignSelectionRef = useRef<() => void>(() => {});
 
   const [pendingNotifyIds, setPendingNotifyIds] = useState<string[] | null>(
@@ -253,6 +254,13 @@ export function ListView({
         filterChips={
           filters && (
             <div className="flex flex-wrap gap-3">
+              {isAssigning && (
+                <span className="inline-flex items-center gap-2 text-sm text-subtle">
+                  <Spinner size={14} />
+                  Updating…
+                </span>
+              )}
+
               <FilterBar
                 filterGroups={filters}
                 filterRegistry={filterRegistry}
@@ -351,6 +359,7 @@ export function ListView({
         employees={employees}
         setEuInspections={setInspections}
         onLoadingChange={(loading) => {
+          setIsAssigning(loading);
           if (!loading) clearAssignSelectionRef.current();
         }}
       />

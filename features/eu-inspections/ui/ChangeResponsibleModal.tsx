@@ -60,7 +60,14 @@ export function ChangeResponsibleModal({
     setEuInspections((prev) =>
       prev.map((item) =>
         succeededIds.has(item.id)
-          ? { ...item, vehicle: { ...item.vehicle, employee: dropdownChoice } }
+          ? {
+              ...item,
+              vehicle: {
+                ...item.vehicle,
+                employee: dropdownChoice,
+                maintenanceResponsibleId: dropdownChoice.id,
+              },
+            }
           : item,
       ),
     );
