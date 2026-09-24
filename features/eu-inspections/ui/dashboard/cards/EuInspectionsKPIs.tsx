@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useRef, useState } from "react";
 
 import { Inspection, Info } from "@/components/icons";
 import type { EuInspectionRow } from "../../../types";
@@ -20,6 +20,9 @@ type Props = {
   selectedStatuses: string[];
 };
 
+// min gap kept between the info tooltip and the viewport edge
+const VIEWPORT_MARGIN = 8;
+
 // title + an info icon that reveals `info` on hover or press (tap focuses
 // the button, which is enough — no JS state needed). descr on the KPI
 // itself still always shows; this is additional, opt-in detail.
@@ -30,10 +33,32 @@ function KPITitle({
   children: ReactNode;
   info: ReactNode;
 }) {
+  const anchorRef = useRef<HTMLSpanElement>(null);
+  const tooltipRef = useRef<HTMLSpanElement>(null);
+  const [shiftX, setShiftX] = useState(0);
+
+  // the tooltip is left-anchored under the icon — nudge it back inside the
+  // viewport if that would push it past either edge. Measured on hover /
+  // focus, right before it shows (invisible still has layout, so width is real).
+  function fitToViewport() {
+    const anchor = anchorRef.current;
+    const tooltip = tooltipRef.current;
+    if (!anchor || !tooltip) return;
+
+    const left = anchor.getBoundingClientRect().left;
+    const maxLeft = window.innerWidth - VIEWPORT_MARGIN - tooltip.offsetWidth;
+    setShiftX(Math.max(VIEWPORT_MARGIN, Math.min(left, maxLeft)) - left);
+  }
+
   return (
     <span className="inline-flex items-center gap-2">
       {children}
-      <span className="group relative inline-flex">
+      <span
+        ref={anchorRef}
+        className="group relative inline-flex"
+        onPointerEnter={fitToViewport}
+        onFocus={fitToViewport}
+      >
         <button
           type="button"
           className="text-subtle outline-none hover:text-fg focus:text-fg"
@@ -42,7 +67,9 @@ function KPITitle({
           <Info size={14} />
         </button>
         <span
+          ref={tooltipRef}
           role="tooltip"
+          style={{ marginLeft: shiftX }}
           className="
             pointer-events-none absolute top-full left-0 z-10 mt-1 w-56
             invisible rounded border border-faint bg-raised p-2 text-xs

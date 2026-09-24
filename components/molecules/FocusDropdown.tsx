@@ -124,6 +124,9 @@ export function FocusDropdown<T = string>({
   );
 }
 
+// min gap kept between the popover and the viewport edge
+const VIEWPORT_MARGIN = 8;
+
 type PopoverProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -147,21 +150,34 @@ export function Popover({
   const contentRef = useRef<HTMLDivElement>(null);
 
   // default to opening below; flip above only if it would overflow the
-  // viewport and there's actually more room up there. Runs before paint
-  // (useLayoutEffect) so there's no visible flash of the wrong placement.
+  // viewport and there's actually more room up there. Horizontally, nudge
+  // it back inside the viewport if its aligned edge would push it past one.
+  // Runs before paint (useLayoutEffect) so there's no visible flash of the
+  // wrong placement.
   const [placement, setPlacement] = useState<"top" | "bottom">("bottom");
+  const [shiftX, setShiftX] = useState(0);
 
   useLayoutEffect(() => {
     if (!open) return;
     const el = contentRef.current;
-    if (!el) return;
+    const anchor = ref.current;
+    if (!el || !anchor) return;
 
-    const rect = el.getBoundingClientRect();
-    const overflowsBottom = rect.bottom > window.innerHeight;
-    const moreRoomAbove = rect.top > window.innerHeight - rect.bottom;
+    // measured against the trigger, not the content's current rect — the
+    // content may still carry last open's placement/shift.
+    const trigger = anchor.getBoundingClientRect();
+    const { offsetWidth: width, offsetHeight: height } = el;
 
-    setPlacement(overflowsBottom && moreRoomAbove ? "top" : "bottom");
-  }, [open]);
+    const spaceBelow = window.innerHeight - trigger.bottom - VIEWPORT_MARGIN;
+    const spaceAbove = trigger.top - VIEWPORT_MARGIN;
+    setPlacement(height > spaceBelow && spaceAbove > spaceBelow ? "top" : "bottom");
+
+    // where the content would sit horizontally with no shift applied
+    const left = align === "right" ? trigger.right - width : trigger.left;
+    const maxLeft = window.innerWidth - VIEWPORT_MARGIN - width;
+    const clampedLeft = Math.max(VIEWPORT_MARGIN, Math.min(left, maxLeft));
+    setShiftX(clampedLeft - left);
+  }, [open, align]);
 
   useClickOutside(ref, () => onOpenChange(false), open);
 
@@ -179,6 +195,8 @@ export function Popover({
             // align === "right" ? "-right-3" : "-left-3",
             contentClassName,
           )}
+          // margin, not transform — popover-in animates transform
+          style={{ marginLeft: shiftX }}
         >
           {children}
         </div>
