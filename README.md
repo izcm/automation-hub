@@ -1,158 +1,174 @@
 # Automation Hub
 
-A demonstration of automated workflows across business systems — PowerOffice and more to come — covering things like automated notifications/messaging and employee onboarding/offboarding.
+A demonstration of automated workflows across business systems — covering things like automated notifications/messaging and employee onboarding/offboarding.
 
-The first showcased workflow is vehicle EU-kontroll inspections: keeping track of upcoming deadlines and notifying the right people when action is needed. It's one example of the pattern, not the whole scope.
+The first showcased workflow is vehicle EU-kontroll inspections: tracking upcoming deadlines, assigning responsible employees and notifying them when action is needed.
 
-The demo intentionally contains no third-party integrations. In a real implementation, modules like these can connect to existing fleet, ERP, accounting, or other business systems — using the data and workflows your company already has rather than replacing them.
+The demo intentionally contains no live third-party business integrations. In a real deployment these modules would connect to existing fleet, ERP or accounting systems.
 
-<!-- TODO: one screenshot -->
+<!-- TODO: screenshot -->
 
-## Getting started
+**Contents** — [Setup](#setup) · [Features](#features) · [Backend](#backend) · [Components](#components)
+
+---
+
+## Setup
+
+### Dependencies
+
+| Tool   | Version | Notes                     |
+| ------ | ------- | ------------------------- |
+| Node   | ≥ 22    |                           |
+| Docker |         | Postgres runs via compose |
+
+### Environment variables
+
+Read from `.env.local`.
+
+| VAR                       | Description                                      | Required |
+| ------------------------- | ------------------------------------------------ | -------- |
+| `POSTGRES_CONNECTION_STR` | Postgres connection string                       | Yes      |
+| `OIDC_REDIRECT_URI`       | the app's OIDC callback route                    | Yes      |
+| `MSFT_OIDC_ISSUER`        | Microsoft OIDC issuer URL                        | Yes      |
+| `MSFT_CLIENT_ID`          | Microsoft app client id                          | Yes      |
+| `MSFT_CLIENT_SECRET`      | Microsoft app client secret                      | Yes      |
+| `EMAIL_HOST`              | SMTP host for outgoing notifications             | No       |
+| `SMTP_USER`               | SMTP user                                        | No       |
+| `SMTP_PASSWORD`           | SMTP password                                    | No       |
+| `VEGVESEN_API_KEY`        | Statens vegvesen API key, used by vehicle lookup | No       |
+| `POWER_OFFICE_*`          | PowerOffice API credentials                      | No       |
+| `IS_DEMO`                 | `true` enables demo-only behaviour               | No       |
+
+If the SMTP variables are missing, sends fail and the notification is marked `failed`. The app still runs.
+
+### Run
 
 ```bash
 npm install
-
-# .env.local
-#   MONGODB_URI=...           (required)
-#   DB_NAME=miniapp_db        (optional, defaults to miniapp_db)
-#   SEED_EMAIL=you@example.com (for seed:mongo:employees / seed:pg:employees)
-
-npm run seed:mongo:employees -- you@example.com   # seed 4 employees (all → this inbox)
-npm run seed:mongo:vehicles                       # seed vehicles (needs employees first)
-
-npm run seed:pg:employees -- you@example.com      # same, against Postgres
-npm run seed:pg:vehicles
-
-npm run dev             # http://localhost:3000
+npm run start:postgres   # compose up → db:push → seed all tables
+npm run dev              # http://localhost:3000
 ```
 
-## Tech stack
+---
 
-- **Next.js** (app router) — note: a customized build, see `AGENTS.md`
-- **MongoDB** (`@a2zb/mongo` helpers)
-- **React Query** for client mutations/queries
-- **Tailwind v4** + `@a2zb/styles` design system
-- **Zod** for request validation
+## Features
 
-## Project structure
+Features live in `features/`. Each one holds its UI, hooks, labels and server actions.
 
+| Feature        | Description                                                                          | Lives in                  |
+| -------------- | ------------------------------------------------------------------------------------ | ------------------------- |
+| EU Inspections | dashboard + workspace for upcoming inspections; notify, change status/responsible    | `features/eu-inspections` |
+| Notifications  | lists sent notifications, polls status while any are still `queued`                  | `features/notifications`  |
+| Filtering      | search-bar syntax (`key=v1,v2`) + predicate filters (AND across, OR within a filter) | `features/filtering`      |
+| Vehicle lookup | look up a plate number against Statens vegvesen                                      | `features/vehicle-lookup` |
+
+---
+
+## Backend
+
+The backend is designed to be framework-agnostic. Next.js only reaches it through server actions and API routes, and those go through `boundry`.
+
+```txt
+server/
+  boundry   -> validation schemas + entry points called by server actions / routes
+  domain    -> ports + actions
+  read      -> read layer
+  db        -> drizzle schemas + repos
+  di        -> startup wiring
+  auth      -> oidc + sessions
+  external  -> third-party clients (email, vegvesen, power-office)
 ```
-app/            routes + API route handlers
-components/      UI — atoms / molecules / organisms (+ barrels)
-features/        feature-scoped UI + hooks (VehiclesView, notifications, …)
-server/          backend
-  <domain>/       port.ts (interface) + actions.ts (business logic)
-  mongo/<domain>/ repository.ts (adapter) + *-doc.ts (persistence shape)
-  di/             wires repos + adapters into actions
-lib/            shared client/server utils (http, cn, toast)
-types/          domain entities — the shared contract
-scripts/        seeds
-notes/          working design notes (not the source of truth)
-```
 
-## Architecture
+### Domain
 
-### Ports & adapters (hexagonal)
+Each domain model lives in `server/domain/<x>/`. Entity types are shared with the client, so they live in `types/`.
 
-Each domain model is the same five shapes:
+| File         | Description                                              |
+| ------------ | -------------------------------------------------------- |
+| `port.ts`    | interface for persistence — what the repo must implement |
+| `actions.ts` | what happens when something occurs — orchestrates ports  |
 
-| shape            | lives in                         | knows about               |
-| ---------------- | -------------------------------- | ------------------------- |
-| entity           | `types/<x>.ts`                   | nothing (shared contract) |
-| port (interface) | `server/<x>/port.ts`             | the entity                |
-| actions (logic)  | `server/<x>/actions.ts`          | the port, other ports     |
-| repo (adapter)   | `server/mongo/<x>/repository.ts` | Mongo + the port          |
-| doc (row shape)  | `server/mongo/<x>/*-doc.ts`      | Mongo                     |
+**Actions**
 
-Actions depend on **ports**, never on repos. `server/di` is the only place
-ports meet concrete Mongo adapters — swap the DB by changing DI, nothing else.
+Actions are built by factories (`makeXActions(deps)`). They depend on ports, never on concrete repos.
 
-### Adding a new domain model
+For example, `notifyAboutInspection` looks up the inspection and asks `notify` for a reminder. It then links the new notification to the inspection through the bridge table. The eu-inspections domain never knows how messages are built or sent.
 
-1. `types/<x>.ts` — the entity
-2. `server/<x>/port.ts` — the interface
-3. `server/mongo/<x>/{repository,*-doc}.ts` — the Mongo adapter
-4. add the collection in `server/mongo/collections.ts`
-5. wire it in `server/di`
+Notifications are saved as `queued`, and emails are sent after the response via Next's `after()`. Each notification then flips to `sent` or `failed`.
 
-<!-- TODO: link a real example commit -->
+### Read
 
-## Data model
+The read layer sits between the entry points and the repos. It depends only on the read interfaces (`ByKey`, `Pageable`, `Countable`) and not on full repos.
 
-- `vehicles` — the fleet; `maintenanceResponsibleId` references a user
-- `users` — `{ id, email }`
-- `notifications` — one per recipient per send; `queued → sent | failed`
-- `controlNotifications` — junction: `{ vehicleId, controlDate, notificationId }`
-  (report "how many notified per vehicle per control")
+| Function                                   | Description                                         |
+| ------------------------------------------ | --------------------------------------------------- |
+| `readByKey` / `readByKeys`                 | one or many records by key                          |
+| `readPage`                                 | a cursor-paginated page                             |
+| `readCount`                                | count matching filters                              |
+| `readPageRelational` / `readOneRelational` | same, with related resources attached via `include` |
 
-## Architecture decisions
+### Repos
 
-Running log — append as we decide things. Format: decision + why.
+Repos are the only layer that talks to the database. They're composed from generic builders in `server/db/postgres/core`:
 
-### 1. Client sends identifiers; the server resolves authoritative data
+| Builder                   | Description                                    |
+| ------------------------- | ---------------------------------------------- |
+| `makeReadRepo`            | `findByKey`, `findByKeys`, `findPage`, `count` |
+| `relational.makeReadRepo` | same reads, resolving drizzle relations        |
+| `makeEnsure`              | upsert on a unique target                      |
+| `makeUpdate`              | partial update by key                          |
 
-The client posts `{ vehicleIds }` only — never `userId`, `email`, or `dueDate`.
-The server looks those up from the vehicle row.
-**Why:** trust boundary (client input is attacker-controllable — letting it pick
-recipients is a hole), freshness (server value can't be stale), and single
-source of truth (derived data stays consistent with the vehicle record).
+Domain ids are app-generated (`generateId`) before insert. Matching rows back never depends on the order the DB returns them in.
 
-### 2. Notifications are decoupled from vehicles
+### Drizzle
 
-`ingestNotificationRequests` takes `userIds`, not `vehicleIds`. Vehicles are the
-_incidental_ reason; the recipient (a user) is _intrinsic_.
-**Why:** coupling to the reason (vehicle) would re-tie the domain every time a new
-trigger appears. Coupling to the recipient (user) is honest and reusable. The
-vehicle↔notification link lives in the `controlNotifications` junction instead.
+Schemas live next to their repo (`server/db/postgres/<x>/schema.ts`). Relations are defined in one place, `server/db/postgres/relations.ts`, using drizzle's `defineRelations`, and are passed to the client in `pool.ts`.
 
-### 3. `Result` at the core, `throw` at the React-Query boundary
+| Command             | Description                           |
+| ------------------- | ------------------------------------- |
+| `npm run db:push`   | push schemas to the database          |
+| `npm run seed:pg:*` | seed a table (see `seed-db-scripts/`) |
 
-Helpers/actions return `Result` (explicit, typed). The one place that throws is
-inside a `mutationFn`, because React Query signals failure by throwing.
-**Why:** libraries return values; the app decides where to throw. Keeps the core
-explicit while giving React Query the error contract it expects.
+### Auth
 
-### 4. Domain types live in neutral `types/`, not `server/`
+Login uses Microsoft OIDC with PKCE. After the callback a server-side session is created, stored in Postgres and referenced by a `session` cookie. Sessions expire after 1 hour.
 
-`Vehicle`, `User`, `Notification` are a contract shared by client and server.
-**Why:** they're not server code. A neutral location removes the "client imports
-from server" hazard without a re-export layer. Persistence-only shapes (`*Doc`,
-`WithTimestamps`) stay in `server/mongo`.
+| Part     | Lives in               | Description                                                            |
+| -------- | ---------------------- | ---------------------------------------------------------------------- |
+| OIDC     | `server/auth/oidc`     | builds the auth request, stores state + verifier, handles callback     |
+| Sessions | `server/auth/sessions` | create / get / destroy                                                 |
+| Proxy    | `proxy.ts`             | redirects to `/login` or returns 401 for `/api/*` when unauthenticated |
 
-### 5. Junction/link data gets a repo, not an actions layer
+### Dependency Injection
 
-`controlNotifications` is glue, not behavior.
-**Why:** the port/actions ceremony is for models that _do_ things. A pure link
-just needs write + read. The write folds into the orchestrator that already has
-both vehicle and notification context.
+`server/di` is the only place that imports concrete repos and external clients.
 
-### 6. Domain ids are app-generated UUIDs, not DB-assigned keys
-
-Every domain object gets a UUID generated **before** it's written, used as the
-document's `_id`:
+| File                   | Wires                                                 |
+| ---------------------- | ----------------------------------------------------- |
+| `server/di/read.ts`    | repos → read functions                                |
+| `server/di/actions.ts` | repos + email / vegvesen / `after()` → domain actions |
+| `server/di/auth.ts`    | auth repos → `oidcLogin`, `sessionStore`              |
 
 ```ts
-const queued: NewNotification[] = requests.map((req) => ({
-  id: crypto.randomUUID(), // assigned here, before saveBatch — not by Mongo
-  to: req.to,
-  channel: req.channel,
-}));
-
-await notifications.saveBatch(queued);
-// each request already carries its own id — no need to zip on ids[i]
+export const euInspectionActions = makeEuInspectionActions({
+  euInspections: euInspectionRepo,
+  notify: notifyForEuInspectionReminder,
+  bridge: euInspectionNotificationsRepo,
+  generateId,
+});
 ```
 
-**Why:** correlating a saved row back to its request must not depend on the
-database returning rows _in input order_. Mongo's `insertMany` happens to
-guarantee that (`insertedIds` is index-keyed), but Postgres `RETURNING`,
-MySQL `LAST_INSERT_ID`, and most ORMs give weaker or no such promise. Generating
-the id app-side removes the dependency entirely: the id is known up front, travels
-_with_ each record, and the `NotificationActions` layer works identically on any
-database — no positional `ids[i]` zipping, no ordering assumption to break later.
+---
 
-## Notes
+## Components
 
-Design scratch lives in `notes/` (e.g. `NOTIF_BACKEND.md`,
-`NOTIFICATION_IMPORTANT.md`). These are thinking-in-progress, not authoritative —
-promote settled decisions up into "Architecture decisions" above.
+Shared UI in `components/`, built on `@a2zb/react` and `@a2zb/styles`. Feature-specific UI lives in `features/<x>/ui`.
+
+| Folder                 | Description                                                      |
+| ---------------------- | ---------------------------------------------------------------- |
+| `components/atoms`     | smallest building blocks                                         |
+| `components/molecules` | badges, dropdowns, pagination, date stamps …                     |
+| `components/organisms` | batch select, editable rows, nav, login modal, toaster           |
+| `components/analytics` | KPIs, bar chart, table                                           |
+| `components/filtering` | filter bar + groups                                              |
+| `components/workspace` | list/side-panel layout and `ResourceListView` for resource pages |
