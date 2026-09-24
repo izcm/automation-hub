@@ -179,7 +179,10 @@ export function InteractiveBarChart<T>({
                 }
                 fontSize={12}
                 style={{ cursor: "pointer" }}
-                onClick={() => onCategoryClick?.(payload.value)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCategoryClick?.(payload.value);
+                }}
               >
                 {payload.value}
               </text>
