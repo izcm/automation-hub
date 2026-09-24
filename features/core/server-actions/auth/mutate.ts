@@ -24,7 +24,7 @@ export async function loginWithDemoCredentials(formData: FormData) {
 
   cookieStore.set("session", session.id, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     expires: session.expiresAt,
   });
@@ -42,7 +42,7 @@ export async function setEmailStorage(formData: FormData) {
 
   cookieStore.set("storeEmail", String(storeEmail), {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
   });
 

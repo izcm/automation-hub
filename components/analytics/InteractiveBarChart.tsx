@@ -149,15 +149,7 @@ export function InteractiveBarChart<T>({
   return (
     <>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={chartData}
-          barCategoryGap="30%"
-          onClick={(state) => {
-            if (state?.activeLabel !== undefined)
-              onCategoryClick?.(String(state.activeLabel));
-          }}
-          style={{ cursor: "pointer" }}
-        >
+        <BarChart data={chartData} barCategoryGap="30%">
           <CartesianGrid vertical={false} stroke="var(--extra-faint)" />
           <XAxis
             dataKey={dataKey}
@@ -179,10 +171,7 @@ export function InteractiveBarChart<T>({
                 }
                 fontSize={12}
                 style={{ cursor: "pointer" }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onCategoryClick?.(payload.value);
-                }}
+                onClick={() => onCategoryClick?.(payload.value)}
               >
                 {payload.value}
               </text>
@@ -215,6 +204,11 @@ export function InteractiveBarChart<T>({
                     stroke={isCategoryRelevant(value) ? "none" : "var(--muted)"}
                     strokeOpacity={0.2}
                     strokeDasharray={8}
+                    // click reads the category off this bar's own payload —
+                    // not the chart-level activeLabel, which is derived from
+                    // hover state and goes stale on touch devices
+                    style={{ cursor: "pointer" }}
+                    onClick={() => onCategoryClick?.(value)}
                   />
                 );
               }}
