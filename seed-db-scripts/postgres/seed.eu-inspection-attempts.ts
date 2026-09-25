@@ -13,6 +13,12 @@ function shiftDays(date: string, days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
+// whole days from today to a "YYYY-MM-DD" date (both parsed as UTC midnight)
+function daysFromToday(date: string): number {
+  const today = new Date().toISOString().slice(0, 10);
+  return Math.round((Date.parse(date) - Date.parse(today)) / 86_400_000);
+}
+
 // plateNumber is "ZZ 00001" etc — the digits are already a stable, unique
 // number per vehicle. No Math.random(): the same plate always maps to the
 // same attempts, only "today" (and so the dates) moves.
@@ -56,6 +62,21 @@ async function seed() {
 
   for (const inspection of inspectionRows) {
     const n = numberFromPlate(inspection.plateNumber);
+
+    // weeks 5-6 (29+ days out): only "unresolved" (no attempts) or "first
+    // attempt" (one upcoming booking a few days before dueDate) — keyed on
+    // the same n % 2 as statusFor in seed.eu-inspections.ts so they agree.
+    if (daysFromToday(inspection.dueDate) >= 29) {
+      if (n % 2 === 0) continue;
+      rows.push({
+        id: generateId(),
+        euInspectionId: inspection.id,
+        date: shiftDays(inspection.dueDate, 3 + (n % 8)),
+        status: "upcoming",
+      });
+      continue;
+    }
+
     const count = ATTEMPT_COUNT_CYCLE[n % ATTEMPT_COUNT_CYCLE.length]!;
     if (count === 0) continue;
 

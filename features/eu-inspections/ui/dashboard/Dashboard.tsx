@@ -224,7 +224,7 @@ export function EuInspectionDashboard({
             <span className="inline-flex items-center justify-center rounded-md bg-accent/10 p-1.5 text-accent">
               <Calendar size={18} />
             </span>
-            EU Inspections dues next 12 weeks
+            EU Inspections dues next 6 weeks
           </h2>
 
           <div

@@ -9,6 +9,7 @@ import {
 import { Gallery, TextInput } from "@a2zb/react";
 import { cn } from "@/lib/cn";
 import { useClickOutside } from "@/lib/hooks/use-click-outside";
+import { useFitToViewport } from "@/lib/hooks/use-fit-to-viewport";
 
 type BaseProps<T> = {
   options: T[];
@@ -124,9 +125,6 @@ export function FocusDropdown<T = string>({
   );
 }
 
-// min gap kept between the popover and the viewport edge
-const VIEWPORT_MARGIN = 8;
-
 type PopoverProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -146,43 +144,20 @@ export function Popover({
   open,
   onOpenChange,
 }: PopoverProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const { anchorRef, contentRef, placement, shiftX, fit } = useFitToViewport<
+    HTMLDivElement,
+    HTMLDivElement
+  >(align);
 
-  // default to opening below; flip above only if it would overflow the
-  // viewport and there's actually more room up there. Horizontally, nudge
-  // it back inside the viewport if its aligned edge would push it past one.
-  // Runs before paint (useLayoutEffect) so there's no visible flash of the
-  // wrong placement.
-  const [placement, setPlacement] = useState<"top" | "bottom">("bottom");
-  const [shiftX, setShiftX] = useState(0);
-
+  // before paint, so there's no visible flash of the wrong placement
   useLayoutEffect(() => {
-    if (!open) return;
-    const el = contentRef.current;
-    const anchor = ref.current;
-    if (!el || !anchor) return;
+    if (open) fit();
+  }, [open, fit]);
 
-    // measured against the trigger, not the content's current rect — the
-    // content may still carry last open's placement/shift.
-    const trigger = anchor.getBoundingClientRect();
-    const { offsetWidth: width, offsetHeight: height } = el;
-
-    const spaceBelow = window.innerHeight - trigger.bottom - VIEWPORT_MARGIN;
-    const spaceAbove = trigger.top - VIEWPORT_MARGIN;
-    setPlacement(height > spaceBelow && spaceAbove > spaceBelow ? "top" : "bottom");
-
-    // where the content would sit horizontally with no shift applied
-    const left = align === "right" ? trigger.right - width : trigger.left;
-    const maxLeft = window.innerWidth - VIEWPORT_MARGIN - width;
-    const clampedLeft = Math.max(VIEWPORT_MARGIN, Math.min(left, maxLeft));
-    setShiftX(clampedLeft - left);
-  }, [open, align]);
-
-  useClickOutside(ref, () => onOpenChange(false), open);
+  useClickOutside(anchorRef, () => onOpenChange(false), open);
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={anchorRef} className="relative">
       {trigger}
 
       {open && (

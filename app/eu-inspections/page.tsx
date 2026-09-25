@@ -28,14 +28,14 @@ export default async function EuInspectionsPage({
   );
 
   const today = new Date();
-  const twelveWeeksOut = new Date(today);
-  twelveWeeksOut.setDate(today.getDate() + 12 * 7);
+  const sixWeeksOut = new Date(today);
+  sixWeeksOut.setDate(today.getDate() + 6 * 7);
 
   // default sort is on eu date + desc
   const inspectionsResult = await getEuInspections({
     dueDate: {
       gte: today.toISOString().slice(0, 10),
-      lte: twelveWeeksOut.toISOString().slice(0, 10),
+      lte: sixWeeksOut.toISOString().slice(0, 10),
     },
   });
 

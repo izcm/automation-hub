@@ -43,8 +43,8 @@ export function InspectionTimelinePanel({
   return (
     <>
       <PanelHeader
-        heading="Inspection timeline"
-        subtitle="Inspections grouped by time bucket and status."
+        heading="Inspection due dates timeline"
+        subtitle="Inspection grouped by time bucket and status."
       />
 
       <InteractiveBarChart

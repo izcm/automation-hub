@@ -1,10 +1,10 @@
-const BUCKET_DAYS = 14; // 2 weeks per bucket
-const BUCKET_COUNT = 6; // 12 weeks total
+const BUCKET_DAYS = 7; // 1 week per bucket
+const BUCKET_COUNT = 6; // 6 weeks total
 
 const formatBucketDate = (d: Date) =>
   d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 
-// index 0 = today..+13 days, index 1 = +14..+27 days, etc. — anything
+// index 0 = today..+6 days, index 1 = +7..+13 days, etc. — anything
 // overdue (daysUntil <= 0) or past the last bucket clamps to the nearest end.
 function getBucketIndex(daysUntil: number): number {
   const index = Math.floor((daysUntil - 1) / BUCKET_DAYS);

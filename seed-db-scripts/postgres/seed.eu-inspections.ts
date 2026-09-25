@@ -38,31 +38,41 @@ function numberFromPlate(plateNumber: string): number {
 // how due the dueDate is, so the raw data isn't nonsensical on its own.
 function statusFor(offset: number, n: number): EuInspectionStatus {
   if (offset <= 7) return "pending";
-  if (offset >= 45) return STATUS_CYCLE_LATE[n % STATUS_CYCLE_LATE.length]!;
+  // weeks 5-6: only unresolved (no attempts) or a first attempt booked —
+  // keyed on the same n % 2 as seed.eu-inspection-attempts.ts so they agree.
+  if (offset >= 29) return n % 2 === 0 ? "unresolved" : "pending";
+  if (offset >= 22) return STATUS_CYCLE_LATE[n % STATUS_CYCLE_LATE.length]!;
   return STATUS_CYCLE[n % STATUS_CYCLE.length]!;
 }
 
 async function seed() {
   // Need vehicles to attach inspections to. Seed them first.
-  const vehicleRows = await db
+  const allVehicleRows = await db
     .select({ id: vehiclesTable.id, plateNumber: vehiclesTable.plateNumber })
     .from(vehiclesTable);
-  if (vehicleRows.length === 0) {
+  if (allVehicleRows.length === 0) {
     throw new Error(
       "No vehicles found — run `npm run seed:pg:vehicles` first.",
     );
   }
 
+  // only the first INSPECTION_COUNT plates get an inspection — picked by
+  // plate number, not row order, so it's the same vehicles every run.
+  const INSPECTION_COUNT = 25;
+  const vehicleRows = allVehicleRows
+    .sort((a, b) => numberFromPlate(a.plateNumber) - numberFromPlate(b.plateNumber))
+    .slice(0, INSPECTION_COUNT);
+
   const today = new Date().toISOString().slice(0, 10);
 
-  const SPAN_DAYS = 12 * 7;
+  const SPAN_DAYS = 6 * 7;
 
   // one pile in the middle of the window; days right next to it stay close
   // behind, tapering down to baseline further out — a distance-based
   // falloff from the pile's center instead of hardcoded bands.
-  const PILE_CENTER = 53; // middle of the ~46-60 day pile
+  const PILE_CENTER = 26; // middle of the ~23-30 day pile
   const PILE_PEAK = 3; // relative weight at the center vs baseline (1)
-  const DAYS_FROM_CENTER_TO_BASELINE = 40; // distance at which weight reaches baseline
+  const DAYS_FROM_CENTER_TO_BASELINE = 20; // distance at which weight reaches baseline
 
   function weightAt(day: number): number {
     const distance = Math.abs(day - PILE_CENTER);
@@ -85,12 +95,12 @@ async function seed() {
     return cumulativeWeight.findIndex((cum) => cum >= target);
   }
 
-  // one inspection per vehicle, spread across the next 12 weeks by each
+  // one inspection per vehicle, spread across the next 6 weeks by each
   // vehicle's own plate number, instead of reusing the vehicle's own (much
   // wider) dueDate range.
-  const rows = vehicleRows.map((v) => {
+  const rows = vehicleRows.map((v, rank) => {
     const n = numberFromPlate(v.plateNumber);
-    const slot = chooseBaseDay(n - 1);
+    const slot = chooseBaseDay(rank);
     const jitter = (n % 5) - 2; // -2..2 days
     const offset = Math.min(SPAN_DAYS - 1, Math.max(0, slot + jitter));
     const dueDate = shiftDays(today, offset);
