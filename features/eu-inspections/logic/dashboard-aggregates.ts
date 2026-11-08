@@ -82,8 +82,13 @@ export function aggregateByEmployee(
   }
 
   // a group of one is just that one row — folding it into "Others (1)"
-  // hides a real name behind a useless label for no benefit.
-  if (rest.length <= 1) return [...top, ...rest];
+  // hides a real name behind a useless label for no benefit. Only when
+  // ranking, though: with topIds the caller's unfiltered pass already
+  // decided whether an "Others" row exists, and `rest` here is exactly what
+  // it stands in for. Unfolding a lone survivor (e.g. a filter leaves one
+  // of the folded employees) would hand back a row under its real id that
+  // the table never renders, and the "Others" row would read 0.
+  if (!topIds && rest.length <= 1) return [...top, ...rest];
 
   const others = rest.reduce<EmployeeInspectionRow>(
     (acc, row) => ({
@@ -183,9 +188,8 @@ export function aggregateByAssignment(
     rest = sorted.slice(limit);
   }
 
-  // a group of one is just that one row — folding it into "Others (1)"
-  // hides a real name behind a useless label for no benefit.
-  if (rest.length <= 1) return [...top, ...rest];
+  // see aggregateByEmployee — never unfold when topIds is given.
+  if (!topIds && rest.length <= 1) return [...top, ...rest];
 
   const others = rest.reduce<AssignmentInspectionRow>(
     (acc, row) => ({
