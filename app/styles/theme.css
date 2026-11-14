@@ -66,7 +66,8 @@
   );
 }
 
-:root[data-theme="dark"] {
+:root[data-theme="dark"],
+:root[data-theme="dark2"] {
   .landing-surface {
     background: #0e0e10;
   }
@@ -83,26 +84,98 @@
  * node_modules/@a2zb/styles/theme.css references them literally.
  * ------------------------------------------------------------------------- */
 
-/* light — blue */
+/* light — white + black / grey, no blue */
 :root[data-theme="light"] {
   color-scheme: light;
 
   /* surfaces */
-  --ground: #eef0f2;
+  --ground: #f6f6f6;
   --raised: #ffffff;
-  --lowered: #e4e7eb;
-
-  /* workspace can retain a TINY cool tint */
-  --elevated: #f0f3f7;
-  --elevated-alt: #fafbfc;
+  --lowered: #eeeeee;
+  --elevated: #ffffff;
+  --elevated-alt: #fafafa;
 
   --ground-gradient: radial-gradient(
     1200px 600px at 50% -10%,
-    color-mix(in oklab, var(--accent) 4%, transparent),
+    color-mix(in oklab, var(--accent) 6%, transparent),
     transparent
   );
   --resource-header-gradient: radial-gradient(
-    900px 350px at 65% 0%,
+    700px 350px at 65% 0%,
+    color-mix(in oklab, var(--accent) 8%, transparent),
+    transparent 70%
+  );
+  --raised-gradient: linear-gradient(
+    160deg,
+    var(--raised) 0%,
+    var(--elevated-alt) 100%
+  );
+  --panel-gradient: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--raised) 95%, var(--ground)) 0%,
+    color-mix(in oklab, var(--elevated-alt) 95%, var(--ground)) 100%
+  );
+  --elevated-gradient: linear-gradient(
+    160deg,
+    var(--elevated-alt) 0%,
+    var(--elevated) 100%
+  );
+
+  /* text / borders */
+  --fg: rgba(0, 0, 0, 0.9);
+  --line: rgba(0, 0, 0, 0.3);
+
+  --subtle: rgba(0, 0, 0, 0.7);
+  --muted: rgba(0, 0, 0, 0.5);
+  --faint: rgba(0, 0, 0, 0.25);
+  --extra-faint: rgba(0, 0, 0, 0.08);
+
+  /* accent */
+  --accent: #333333;
+  --accent-strong: #000000;
+  --accent-muted: color-mix(in oklab, var(--accent) 45%, var(--muted));
+  --accent-weak: rgba(51, 51, 51, 0.55);
+  /* --safe below depends on it */
+  --accent-neutral: #6f8fe6;
+
+  --weak-opacity: 14%;
+
+  /* status — darker than dark mode so they read on white */
+  --success: #12a05c;
+  --warning: #c98a00;
+  --failure: #d6334f;
+
+  --advisory: var(--success);
+  --caution: var(--warning);
+  --critical: var(--failure);
+
+  --neutral: #6b7f90;
+
+  --safe: var(--accent-neutral);
+
+  --panel-shadow:
+    0 8px 24px rgba(15, 30, 60, 0.08), 0 0 20px rgba(47, 111, 224, 0.05);
+}
+
+/* dark — dark grey + blue */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* surfaces */
+  /* --ground: #060f17; */
+  --ground: #080e18;
+  --raised: #0b1525;
+  --lowered: #070d16;
+  --elevated: #101c2e;
+  --elevated-alt: #142139;
+
+  --ground-gradient: radial-gradient(
+    1200px 600px at 50% -10%,
+    color-mix(in oklab, var(--accent) 5%, transparent),
+    transparent
+  );
+  --resource-header-gradient: radial-gradient(
+    700px 350px at 65% 0%,
     color-mix(in oklab, var(--accent) 8%, transparent),
     transparent 70%
   );
@@ -122,46 +195,50 @@
     var(--elevated) 100%
   );
 
-  /* ink */
-  --fg: rgba(15, 21, 28, 0.92);
-  --subtle: rgba(15, 21, 28, 0.62);
-  --muted: rgba(15, 21, 28, 0.46);
-  --faint: rgba(15, 21, 28, 0.28);
+  /* text / borders */
+  --fg: #e9edf6;
+  --line: rgba(129, 166, 211, 0.32);
 
-  --line: rgba(15, 21, 28, 0.16);
+  --subtle: rgba(201, 215, 233, 0.86);
+  --muted: rgba(171, 193, 220, 0.48);
+  --faint: rgba(143, 173, 207, 0.2);
+  --extra-faint: rgba(143, 173, 207, 0.09);
 
   /* accent */
-  --accent: #3f63e0;
-  --accent-strong: #2a49bf;
+  --accent: #8bb9ee;
+  --accent-strong: #abccf4;
   --accent-muted: color-mix(in oklab, var(--accent) 45%, var(--muted));
+  --accent-weak: rgba(139, 185, 238, 0.55);
+  /* carried over from dark2 — --safe below depends on it */
+  --accent-neutral: #7fb0ff;
+  --accent-neutral-weak: rgba(127, 176, 255, 0.5);
 
-  --accent-neutral: #6f8fe6;
+  --weak-opacity: 18%;
 
-  /* semantic */
-  --success: #1f9d64;
-  --warning: #c1860a;
-  --failure: #e0435f;
-  --neutral: #5f7290;
-
-  --weak-opacity: 12%;
+  /* status */
+  --success: #4cff9a;
+  --warning: #ffc12f;
+  --failure: #ff5470;
 
   /* family 1 — attention levels, same colors as success/warning/failure above */
   --advisory: var(--success);
   --caution: var(--warning);
   --critical: var(--failure);
 
-  /* family 2 — not-actionable info. "neutral" already defined above (gray).
-     "safe" (all clear — approved, nothing outstanding) reuses accent-neutral
-     — a blue distinct from --accent itself, since accent is this app's
-     general-purpose chrome color, not a status. */
+  /* family 2 — not-actionable info. "neutral" = done/resolved (gray).
+     "safe" = all clear — approved, nothing outstanding; reuses
+     accent-neutral, a blue distinct from --accent itself, since accent is
+     this app's general-purpose chrome color, not a status. */
+  --neutral: #91a7b8;
+
   --safe: var(--accent-neutral);
 
   --panel-shadow:
-    0 1px 2px rgba(15, 21, 28, 0.04), 0 8px 24px rgba(15, 21, 28, 0.06);
+    0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(91, 157, 255, 0.06);
 }
 
-/* dark — dark grey + blue */
-:root[data-theme="dark"] {
+/* dark2 — previous dark theme (dark grey + blue) */
+:root[data-theme="dark2"] {
   color-scheme: dark;
 
   /* surfaces */

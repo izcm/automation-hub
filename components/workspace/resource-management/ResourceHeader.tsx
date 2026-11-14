@@ -19,7 +19,7 @@ export function ResourceHeader({ title, desc, tabs }: Props) {
           own background (which is clipped to the header's box) */}
       <div
         aria-hidden
-        className="bg-resource-header-gradient pointer-events-none absolute -inset-x-8 -top-16 -bottom-16 -z-10"
+        className="pointer-events-none absolute -inset-x-8 -top-16 -bottom-16 -z-10"
       />
 
       {/* HEADER TEXT */}

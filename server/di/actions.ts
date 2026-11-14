@@ -54,7 +54,10 @@ async function notifyForEuInspectionReminder(
     channel,
     "eu-inspection-reminder",
   );
-  return notificationActions.ingestNotificationRequests(requests, overrideEmail);
+  return notificationActions.ingestNotificationRequests(
+    requests,
+    overrideEmail,
+  );
 }
 
 export const euInspectionActions = makeEuInspectionActions({

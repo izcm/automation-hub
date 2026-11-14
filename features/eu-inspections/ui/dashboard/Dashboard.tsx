@@ -33,7 +33,7 @@ import { InspectionRecordsPanel } from "./cards/InspectionRecordsPanel";
 import { BackgroundWorkersCard } from "./cards/BackgroundWorkersCard";
 
 const panel =
-  "flex flex-col gap-1 border border-extra-faint rounded bg-panel-gradient p-2";
+  "flex flex-col gap-1 border border-extra-faint rounded bg-raised p-2";
 
 function formatDateRange(from: Date, to: Date): string {
   const fmt = (d: Date) =>
