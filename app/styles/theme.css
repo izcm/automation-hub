@@ -158,7 +158,7 @@
 }
 
 /* dark — dark grey + blue */
-:root[data-theme="dark"] {
+:root[data-theme="dark2"] {
   color-scheme: dark;
 
   /* surfaces */
@@ -238,7 +238,7 @@
 }
 
 /* dark2 — previous dark theme (dark grey + blue) */
-:root[data-theme="dark2"] {
+:root[data-theme="dark"] {
   color-scheme: dark;
 
   /* surfaces */

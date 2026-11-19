@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 
 import { cn } from "@/lib/cn";
 
-import { LoginModal, type OIDCProvider } from "@/components/organisms";
+import { HubbenLogo } from "@/components/atoms";
+import { LoginForm, type OIDCProvider } from "@/components/organisms";
 import { MicrosoftIcon } from "@/components/icons";
 
 import { AppModal } from "@/features/core/ui/AppModal";
@@ -13,7 +14,6 @@ import {
   loginWithDemoCredentials,
   setEmailStorage,
 } from "@/features/core/server-actions";
-import { BackdropLayout } from "@/features/core/ui/BackdropLayout";
 
 const SUCCESS_REDIRECT_PATH = "/";
 
@@ -36,43 +36,58 @@ export default function LoginPage() {
     },
   ];
 
-  const sharedClasses =
-    "border border-line rounded bg-lowered [&:button]:base-element [&:input]:base-element";
-
   return (
     <>
-      <BackdropLayout>
-        <div className="flex flex-col justify-center gap-3 h-full mx-auto w-sm">
-          <LoginModal
-            containerClassName={sharedClasses}
-            oidcProviders={oidcProviders}
-            onCredentialsSubmit={async (formData) => {
-              await loginWithDemoCredentials(formData);
-              router.push(SUCCESS_REDIRECT_PATH);
-            }}
-          />
+      <main className="h-full w-full bg-ground">
+        <div className="grid h-full place-items-center p-4">
+          <div
+            className={cn(
+              "grid w-full max-w-5xl md:grid-cols-2 min-h-160",
+              "overflow-hidden rounded-2xl border border-line bg-lowered",
+              "shadow-[0_8px_32px_rgba(0,0,0,0.25)]",
+            )}
+          >
+            {/* left — brand pane, desktop only */}
+            <div className="landing-bg relative hidden bg-cover bg-center md:block">
+              <div className="absolute inset-0 bg-black/30" />
+              <HubbenLogo className="relative p-10 text-white" />
+            </div>
 
-          <div className={cn(sharedClasses, "p-4 flex flex-col gap-2")}>
-            <span className="text-xs text-subtle">
-              Microsoft Entra or sign in with the demo account
-            </span>
-            <div className="flex flex-col gap-1 text-sm">
-              <div className="flex items-center gap-2">
-                <span className="w-16 text-subtle">Username</span>
-                <code className="rounded bg-raised px-2 py-0.5 text-xs">
-                  demo
-                </code>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-16 text-subtle">Password</span>
-                <code className="rounded bg-raised px-2 py-0.5 text-xs">
-                  demo
-                </code>
+            {/* right — form */}
+            <div className="flex flex-col justify-center p-6 md:border-l md:border-line/20 md:p-10">
+              <div className="mx-auto flex w-full max-w-sm flex-col gap-6">
+                <HubbenLogo className="md:hidden" />
+
+                <LoginForm
+                  oidcProviders={oidcProviders}
+                  onCredentialsSubmit={async (formData) => {
+                    await loginWithDemoCredentials(formData);
+                    router.push(SUCCESS_REDIRECT_PATH);
+                  }}
+                />
+
+                <div className="flex flex-col gap-2 rounded-lg border border-line bg-raised p-4">
+                  <span className="text-sm font-semibold">Demo account</span>
+                  <div className="flex flex-col gap-1 text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="w-16 text-subtle">Username</span>
+                      <code className="rounded bg-raised px-2 py-0.5 text-xs">
+                        demo
+                      </code>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-16 text-subtle">Password</span>
+                      <code className="rounded bg-raised px-2 py-0.5 text-xs">
+                        demo
+                      </code>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </BackdropLayout>
+      </main>
 
       {showGdprConsent && (
         <AppModal
