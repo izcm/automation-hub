@@ -66,6 +66,7 @@ export function ResponsibleEmployeesTable({
         </th>,
       ]}
       rows={displayRows}
+      ariaLabel="Responsible employees"
       createEmpty={() => ({
         due: 0,
         rejected: 0,

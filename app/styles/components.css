@@ -62,17 +62,13 @@
   .btn-secondary {
     color: color-mix(in oklab, var(--fg) 40%, var(--accent));
     border-color: color-mix(in oklab, var(--accent) 40%, var(--line));
-    background: var(--raised-gradient);
+    background: var(--raised);
     box-shadow: none;
   }
 
   .btn-secondary:hover {
     color: var(--accent-strong);
-    background: linear-gradient(
-      160deg,
-      color-mix(in oklab, var(--accent) 10%, var(--raised)) 0%,
-      color-mix(in oklab, var(--accent) 6%, var(--elevated)) 100%
-    );
+    background: color-mix(in oklab, var(--accent) 8%, var(--raised));
     box-shadow: none;
   }
 

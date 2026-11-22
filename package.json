@@ -16,6 +16,7 @@
     "seed:pg:eu-inspection-attempts": "tsx --env-file=.env.local seed-db-scripts/postgres/seed.eu-inspection-attempts.ts",
     "seed:pg:notifications": "tsx --env-file=.env.local seed-db-scripts/postgres/seed.notifications.ts",
     "test": "vitest run",
+    "walkthrough": "WALKTHROUGH=1 playwright test --project=walkthrough",
     "clean": "rm -rf .next node_modules"
   },
   "dependencies": {
@@ -44,6 +45,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4",
     "@testcontainers/postgresql": "^12.1.0",
     "@testing-library/react": "^16.3.2",

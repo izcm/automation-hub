@@ -27,6 +27,8 @@ type TableProps<T> = {
   createEmpty: () => T;
   getCells: (stats: T, isRelevant: IsRelevant) => ReactNode[];
   onRowClick?: (row: TableRow<T>) => void;
+  // accessible name, e.g. for getByRole("table", { name: "Assignments" })
+  ariaLabel?: string;
   className?: string;
 };
 
@@ -50,6 +52,7 @@ export function Table<T>({
   relevantColumns,
   createEmpty,
   onRowClick,
+  ariaLabel,
   className,
 }: TableProps<T>) {
   const hasSelection = selectedIds.length > 0;
@@ -61,7 +64,10 @@ export function Table<T>({
       relevantColumns.includes(key),
     );
   return (
-    <table className={cn("text-sm [&_th]:h-12 [&_td]:h-12", className)}>
+    <table
+      aria-label={ariaLabel}
+      className={cn("text-sm [&_th]:h-12 [&_td]:h-12", className)}
+    >
       <thead>
         <tr className="border-b border-extra-faint text-[13px] text-subtle">
           {/* passing headers as react node so we easier can set width on columns */}

@@ -11,7 +11,7 @@ import { rejectWith } from "@/lib/toast";
 export type OIDCProvider = {
   label: ReactNode;
   icon?: ReactNode;
-  buttonProps: ComponentProps<"a">;
+  buttonProps: ComponentProps<"button">;
 };
 
 export type LoginFormProps = {
@@ -41,8 +41,9 @@ export function LoginForm({
       </div>
 
       {oidcProviders.map(({ label, icon, buttonProps }, i) => (
-        <a
+        <button
           key={i}
+          type="button"
           {...buttonProps}
           className={cn(
             "flex w-full btn btn-secondary text-fg py-2.5",
@@ -51,7 +52,7 @@ export function LoginForm({
         >
           {icon}
           <span>{label}</span>
-        </a>
+        </button>
       ))}
 
       <div className="flex flex-center gap-4">

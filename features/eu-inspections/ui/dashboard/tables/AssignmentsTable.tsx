@@ -37,6 +37,7 @@ export function AssignmentsTable({
 
   return (
     <Table
+      ariaLabel="Assignments"
       relevantColumns={relevantColumns}
       headers={[
         <th key="assignment" className={`${th} w-1/3`}>

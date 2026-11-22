@@ -3,6 +3,8 @@ import { useMemo } from "react";
 import { getDaysUntil } from "@a2zb/lib";
 
 import { cn } from "@/lib/cn";
+import { getTimeBucket } from "@/lib/time-bucket";
+
 import { Calendar, ClearFilters, GoTo } from "@/components/icons";
 import { ResourceHeader } from "@/components/workspace/resource-management";
 
@@ -23,14 +25,15 @@ import {
   type Status,
 } from "../../logic/status";
 import { EU_INSPECTION_PREDICATE_BUILDERS } from "../../logic/filters";
-import { getTimeBucket } from "@/lib/time-bucket";
 
-import { EuInspectionsKPIs } from "./cards/EuInspectionsKPIs";
-import { InspectionTimelinePanel } from "./cards/InspectionTimelinePanel";
-import { AssignmentsPanel } from "./cards/AssignmentsPanel";
-import { ResponsibleEmployeesPanel } from "./cards/ResponsibleEmployeesPanel";
-import { InspectionRecordsPanel } from "./cards/InspectionRecordsPanel";
-import { BackgroundWorkersCard } from "./cards/BackgroundWorkersCard";
+import {
+  AssignmentsPanel,
+  BackgroundWorkersCard,
+  EuInspectionsKPIs,
+  InspectionRecordsPanel,
+  InspectionTimelinePanel,
+  ResponsibleEmployeesPanel,
+} from "./cards";
 
 const panel =
   "flex flex-col gap-1 border border-extra-faint rounded bg-raised p-2";
