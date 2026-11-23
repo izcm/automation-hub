@@ -216,7 +216,7 @@ export function EuInspectionDashboard({
         tabs={["Overview"]}
       />
 
-      <div className={cn(`${panel} gap-3`)}>
+      <section className={cn(`${panel} gap-3`)} data-testid="overview-card">
         <div
           className="
             flex flex-col gap-3 items-center
@@ -258,12 +258,12 @@ export function EuInspectionDashboard({
           rows={filteredItems}
           selectedStatuses={selectedStatuses}
         />
-      </div>
+      </section>
 
       {/* FILTER APPLIERS */}
       <div className="grid grid-cols-1 min-[1152]:grid-cols-[minmax(0,3fr)_minmax(560px,2fr)] gap-3">
         {/* BARCHART */}
-        <div className={`${panel} h-96`}>
+        <section className={`${panel} h-96`} data-testid="timeline-card">
           <InspectionTimelinePanel
             rows={allTimeBucketEntries}
             filteredRows={filteredTimeBucketRows}
@@ -290,10 +290,10 @@ export function EuInspectionDashboard({
               });
             }}
           />
-        </div>
+        </section>
 
         {/* ASSIGNMENTS */}
-        <div className={`${panel}`}>
+        <section className={panel} data-testid="assignments-card">
           <AssignmentsPanel
             rows={assignmentBreakdown.allRows}
             filteredRows={assignmentBreakdown.filteredRows}
@@ -329,7 +329,7 @@ export function EuInspectionDashboard({
               );
             }}
           />
-        </div>
+        </section>
       </div>
 
       <div
@@ -339,33 +339,36 @@ export function EuInspectionDashboard({
         "
       >
         {/* RESPONSIBLE EMPLOYEES — desktop: grouped with Inspection records at lg+ */}
-        <div
+        <section
           className={cn(
             panel,
             "col-span-3 md:col-span-1 lg:order-1 lg:max-w-[400px] order-2 ",
           )}
+          data-testid="responsible-employees-card"
         >
           {responsibleEmployeesContent}
-        </div>
+        </section>
 
         {/* EU INSPECTION ROWS */}
-        <div
+        <section
           className={cn(
             `${panel} min-h-92 col-span-3 lg:col-span-1 lg:order-2`,
           )}
+          data-testid="inspection-records-card"
         >
           <InspectionRecordsPanel
             items={filteredItems}
             onViewList={onViewList}
           />
-        </div>
-        <div
+        </section>
+        <section
           className={cn(
             `${panel} col-span-3 md:col-span-2 order-3 lg:col-span-2`,
           )}
+          data-testid="background-workers-card"
         >
           <BackgroundWorkersCard />
-        </div>
+        </section>
       </div>
     </section>
   );

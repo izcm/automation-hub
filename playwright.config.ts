@@ -37,20 +37,20 @@ export default defineConfig({
     /* logs in once and saves the session, not recorded */
     {
       name: "setup",
-      testDir: "./walkthrough",
+      testDir: "./demo/walkthrough",
       testMatch: "auth.ts",
-      outputDir: "walkthrough/out",
+      outputDir: "demo/walkthrough/out",
       use: { baseURL: WALKTHROUGH_URL },
     },
 
     /* video clips for the walkthrough */
     {
       name: "walkthrough",
-      testDir: "./walkthrough",
+      testDir: "./demo/walkthrough",
       testMatch: "*.ts",
       testIgnore: "auth.ts",
       dependencies: ["setup"],
-      outputDir: "walkthrough/out",
+      outputDir: "demo/walkthrough/out",
       use: {
         ...devices["Desktop Chrome"],
         baseURL: WALKTHROUGH_URL,
