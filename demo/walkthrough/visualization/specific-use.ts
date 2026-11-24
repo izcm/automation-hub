@@ -8,6 +8,7 @@ import {
   showAndClick,
   showText,
 } from "../helpers";
+import { drillToWorkspace } from "../steps";
 
 function tableCard(page: Page, testId: string, rowName: string) {
   const section = page.getByTestId(testId);
@@ -66,7 +67,7 @@ export async function specificUse(page: Page) {
     await showAndClick(row);
   }
 
-  await showAndClick(page.getByRole("button", { name: "Drill to workspace" }));
+  await drillToWorkspace(page);
 
   await showText(page, "Disse oppføringene må vi gjøre noe med.");
 

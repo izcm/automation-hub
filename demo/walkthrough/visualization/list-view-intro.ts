@@ -7,6 +7,7 @@ import {
   pause,
   showText,
 } from "../helpers";
+import { backFromListView } from "../steps";
 
 // list view walkthrough, runs after drilling into the workspace
 export async function listViewIntro(page: Page) {
@@ -32,6 +33,6 @@ export async function listViewIntro(page: Page) {
 
   await pause(page, DELAY.long);
 
-  // back to the dashboard (icon-only arrow button, no accessible name)
-  await hoverAndClick(page.locator("button:has(svg.lucide-arrow-left)"));
+  // back to the dashboard
+  await backFromListView(page);
 }

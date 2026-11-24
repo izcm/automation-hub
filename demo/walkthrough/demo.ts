@@ -13,6 +13,7 @@ import {
   listViewIntro,
   specificUse as specificUseVisualization,
 } from "./visualization";
+import { backFromListView } from "./steps";
 
 async function specificUseInteractiveTools(page: Page) {
   await showText(page, "Vi velger alle og overfører dem til Mari.");
@@ -30,13 +31,20 @@ async function specificUseInteractiveTools(page: Page) {
   // get the textinput in change responsible modal
   const modal = page.getByRole("dialog", { name: "Assign responsibility" });
 
-  await modal.getByRole("textbox").pressSequentially("Mari", { delay: 100 }); // search box
+  await modal.getByRole("textbox").pressSequentially("Marte", { delay: 100 }); // search box
   await hoverAndClick(modal.getByRole("option", { name: /Marte/ })); // pick employee
+  // await showAndClick(
+  //   modal.getByRole("button", { name: "Assign", exact: true }),
+  // );
+
+  // temporary i dont wanna reseed the db
   await showAndClick(
-    modal.getByRole("button", { name: "Assign", exact: true }),
+    modal.getByRole("button", { name: "Cancel", exact: true }),
   );
 
   await pause(page, DELAY.long);
+
+  await backFromListView(page);
 }
 
 test("dashboard overview", async ({ page }) => {

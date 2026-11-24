@@ -105,10 +105,31 @@ export function ListView({
   // const []
   // const [searchInput, setSearchInput] = useState<string>("");
 
-  const visibleInspections = useMemo(() => {
-    if (!filters) return inspections;
-    return applyFilters(inspections, filters);
-  }, [inspections, filters]);
+  // rows edited by an action here stay visible even if they stop matching
+  // the filters, so they don't vanish mid-task. Cleared when filters change
+  // or via the "no longer match" button.
+  const [keptIds, setKeptIds] = useState<Set<string>>(new Set());
+  const [keptForFilters, setKeptForFilters] = useState(filters);
+  if (keptForFilters !== filters) {
+    setKeptForFilters(filters);
+    setKeptIds(new Set());
+  }
+  const keep = (ids: string[]) =>
+    setKeptIds((prev) => new Set([...prev, ...ids]));
+
+  const { visibleInspections, staleCount } = useMemo(() => {
+    if (!filters) return { visibleInspections: inspections, staleCount: 0 };
+
+    const matchingIds = new Set(
+      applyFilters(inspections, filters).map((i) => i.id),
+    );
+    return {
+      visibleInspections: inspections.filter(
+        (i) => matchingIds.has(i.id) || keptIds.has(i.id),
+      ),
+      staleCount: [...keptIds].filter((id) => !matchingIds.has(id)).length,
+    };
+  }, [inspections, filters, keptIds]);
 
   const language = useLanguage() as Language;
   const LABELS = EU_INSPECTIONS_LABELS[language];
@@ -150,6 +171,8 @@ export function ListView({
   ) {
     const result = await markEuInspectionsStatus(euInspectionIds, status);
     if (!result.ok) return;
+
+    keep(euInspectionIds);
 
     setInspections((prev) =>
       prev.map((item) =>
@@ -273,6 +296,16 @@ export function ListView({
                 }
               />
 
+              {staleCount > 0 && (
+                <button
+                  type="button"
+                  className="text-sm text-subtle hover:text-fg"
+                  onClick={() => setKeptIds(new Set())}
+                >
+                  {LABELS.noLongerMatchFilters(staleCount)}
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={() => {
@@ -318,6 +351,7 @@ export function ListView({
             label: LABELS.assignTo,
             icon: <User size={14} />,
             onClick: (euInspectionIds, clearSelection) => {
+              keep(euInspectionIds);
               setAssignTargetIds(euInspectionIds);
               clearAssignSelectionRef.current = clearSelection;
             },

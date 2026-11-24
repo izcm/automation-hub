@@ -1,6 +1,7 @@
 import { Page } from "@playwright/test";
 
 import { DELAY, pause, scrollToTop, showAndClick, showText } from "../helpers";
+import { drillToWorkspace } from "../steps";
 
 export async function dashboardIntro(page: Page) {
   await page
@@ -30,5 +31,5 @@ export async function dashboardIntro(page: Page) {
   await pause(page, DELAY.medium);
 
   // redirect focus to drilldown button
-  await showAndClick(page.getByRole("button", { name: "Drill to workspace" }));
+  await drillToWorkspace(page);
 }

@@ -8,6 +8,7 @@ const en = {
   dueDate: "Due",
   notify: (n: number) => `Notify responsible`,
   assignTo: "Assign to",
+  noLongerMatchFilters: (n: number) => `${n} no longer match filters · Hide`,
   openInWorkspace: "Inspect",
   inWorkspace: "Inspecting",
   addToBatch: "Add",
@@ -29,6 +30,8 @@ const no: typeof en = {
   dueDate: "Frist",
   notify: (n: number) => `Send varsler`,
   assignTo: "Tildel til",
+  noLongerMatchFilters: (n: number) =>
+    `${n} passer ikke lenger filtrene · Skjul`,
   openInWorkspace: "Inspiser",
   inWorkspace: "Inspiserer",
   addToBatch: "Legg til",
