@@ -37,7 +37,6 @@ type Props<T> = {
     selected: (count: number) => ReactNode;
     clearSelection: string;
   };
-  selfManagesCheckbox?: boolean;
 };
 
 export function BatchSelect<T>({

@@ -3,6 +3,7 @@ import { expect, Page, test } from "@playwright/test";
 import {
   addWalkthroughStyles,
   DELAY,
+  hoverAndClick,
   pause,
   showAndClick,
   showText,
@@ -25,6 +26,17 @@ async function specificUseInteractiveTools(page: Page) {
   // batch select menu is showing now
   const assignBtn = page.getByRole("button", { name: "Assign to" });
   await showAndClick(assignBtn);
+
+  // get the textinput in change responsible modal
+  const modal = page.getByRole("dialog", { name: "Assign responsibility" });
+
+  await modal.getByRole("textbox").pressSequentially("Mari", { delay: 100 }); // search box
+  await hoverAndClick(modal.getByRole("option", { name: /Marte/ })); // pick employee
+  await showAndClick(
+    modal.getByRole("button", { name: "Assign", exact: true }),
+  );
+
+  await pause(page, DELAY.long);
 }
 
 test("dashboard overview", async ({ page }) => {
