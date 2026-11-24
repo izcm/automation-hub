@@ -1,3 +1,5 @@
+import { useId } from "react";
+
 import { PanelHeader } from "@/components/molecules";
 import { AssignmentsTable } from "../tables/AssignmentsTable";
 import type { AssignmentInspectionRow } from "../../../logic/dashboard-aggregates";
@@ -21,14 +23,18 @@ export function AssignmentsPanel({
   relevantColumns,
   onRowClick,
 }: Props) {
+  const headingId = useId();
+
   return (
     <>
       <PanelHeader
+        headingId={headingId}
         heading="Assignments"
         subtitle="Inspections grouped by vehicle assignment."
       />
 
       <AssignmentsTable
+        aria-labelledby={headingId}
         rows={rows}
         filteredRows={filteredRows}
         selectedIds={selectedIds}

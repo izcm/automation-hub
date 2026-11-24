@@ -137,7 +137,7 @@ export function ResourceListView<T>({
           </h1>
           <label
             className={cn(
-              "absolute right-0 items-center flex gap-3 cursor-pointer px-2 tracking-wide hidden",
+              "absolute right-0 items-center gap-3 cursor-pointer px-2 tracking-wide hidden",
               !activeId && "sm:flex",
               batchSelectMobile && "flex",
             )}

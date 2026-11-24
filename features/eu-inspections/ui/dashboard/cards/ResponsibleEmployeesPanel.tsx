@@ -1,3 +1,5 @@
+import { useId } from "react";
+
 import { PanelHeader } from "@/components/molecules";
 import {
   ResponsibleEmployeesTable,
@@ -21,14 +23,18 @@ export function ResponsibleEmployeesPanel({
   othersSelectedCount,
   onRowClick,
 }: Props) {
+  const headingId = useId();
+
   return (
     <>
       <PanelHeader
+        headingId={headingId}
         heading="Responsible employees"
         subtitle="Inspections grouped by responsible employee."
       />
 
       <ResponsibleEmployeesTable
+        aria-labelledby={headingId}
         rows={rows}
         filteredRows={filteredRows}
         selectedIds={selectedIds}

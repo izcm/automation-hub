@@ -22,6 +22,7 @@ type Props = {
   othersPartiallySelected?: boolean;
   othersSelectedCount?: number;
   onRowClick?: (id: string) => void;
+  "aria-labelledby"?: string;
 };
 
 export function ResponsibleEmployeesTable({
@@ -31,6 +32,7 @@ export function ResponsibleEmployeesTable({
   othersPartiallySelected,
   othersSelectedCount,
   onRowClick,
+  "aria-labelledby": ariaLabelledBy,
 }: Props) {
   const displayRows = rows.map((row) => ({
     id: row.id,
@@ -57,6 +59,7 @@ export function ResponsibleEmployeesTable({
 
   return (
     <Table
+      aria-labelledby={ariaLabelledBy}
       headers={[
         <th key="employee" className={`${th} w-2/3`}>
           Employee
@@ -66,7 +69,6 @@ export function ResponsibleEmployeesTable({
         </th>,
       ]}
       rows={displayRows}
-      ariaLabel="Responsible employees"
       createEmpty={() => ({
         due: 0,
         rejected: 0,

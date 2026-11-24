@@ -15,6 +15,7 @@ type Props = {
   othersSelectedCount?: number;
   relevantColumns?: string[];
   onRowClick?: (id: string) => void;
+  "aria-labelledby"?: string;
 };
 
 export function AssignmentsTable({
@@ -25,6 +26,7 @@ export function AssignmentsTable({
   othersSelectedCount,
   relevantColumns,
   onRowClick,
+  "aria-labelledby": ariaLabelledBy,
 }: Props) {
   const displayRows = rows.map((row) => ({
     id: row.id,
@@ -37,7 +39,7 @@ export function AssignmentsTable({
 
   return (
     <Table
-      ariaLabel="Assignments"
+      aria-labelledby={ariaLabelledBy}
       relevantColumns={relevantColumns}
       headers={[
         <th key="assignment" className={`${th} w-1/3`}>

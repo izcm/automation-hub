@@ -104,6 +104,7 @@ export function FilterGroup({
               className="flex items-center gap-6 flex-1 h-full"
               type="button"
               aria-haspopup="listbox"
+              aria-label={`${capitalizedFilterLabel} ${checkedCount} selected`}
               aria-expanded={open}
               onClick={() => onOpenChange(!open)}
             >

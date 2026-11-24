@@ -46,9 +46,10 @@ export default defineConfig({
     /* video clips for the walkthrough */
     {
       name: "walkthrough",
+      timeout: 3 * 60_000, // clips are long by design
       testDir: "./demo/walkthrough",
       testMatch: "*.ts",
-      testIgnore: "auth.ts",
+      testIgnore: ["auth.ts", "**/helpers/**", "**/visualization/**"],
       dependencies: ["setup"],
       outputDir: "demo/walkthrough/out",
       use: {

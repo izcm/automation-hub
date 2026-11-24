@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactElement, type ReactNode } from "react";
+import { type ComponentProps, type ReactElement, type ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 
@@ -16,7 +16,8 @@ type TableRow<T> = {
 // Table doesn't know what the keys mean or how to render "not relevant".
 type IsRelevant = (keys: string | string[]) => boolean;
 
-type TableProps<T> = {
+// native <table> attributes (aria-label, id, …) are spread onto the <table>
+type TableProps<T> = Omit<ComponentProps<"table">, "children"> & {
   rows: TableRow<T>[];
   // real <th> elements, not plain nodes — lets a caller set width/className
   // per column, and lets Table itself reuse that className on the matching
@@ -27,9 +28,6 @@ type TableProps<T> = {
   createEmpty: () => T;
   getCells: (stats: T, isRelevant: IsRelevant) => ReactNode[];
   onRowClick?: (row: TableRow<T>) => void;
-  // accessible name, e.g. for getByRole("table", { name: "Assignments" })
-  ariaLabel?: string;
-  className?: string;
 };
 
 // base <th> styling — spread onto each header you pass in, e.g.
@@ -52,8 +50,8 @@ export function Table<T>({
   relevantColumns,
   createEmpty,
   onRowClick,
-  ariaLabel,
   className,
+  ...props
 }: TableProps<T>) {
   const hasSelection = selectedIds.length > 0;
 
@@ -65,7 +63,7 @@ export function Table<T>({
     );
   return (
     <table
-      aria-label={ariaLabel}
+      {...props}
       className={cn("text-sm [&_th]:h-12 [&_td]:h-12", className)}
     >
       <thead>
