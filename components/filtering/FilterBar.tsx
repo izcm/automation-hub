@@ -116,7 +116,6 @@ export function FilterBar<T>({
         )}
         galleryItem={(option, handleCommit) => (
           <div
-            role="button"
             onClick={() => handleCommit(option)}
             className={cn(
               "flex items-center gap-3 py-2 px-2 cursor-pointer",

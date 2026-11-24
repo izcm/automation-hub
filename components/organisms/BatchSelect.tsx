@@ -1,5 +1,5 @@
 import { ComponentProps, ReactNode, SetStateAction } from "react";
-import { Checkbox, Gallery } from "@a2zb/react";
+import { Gallery } from "@a2zb/react";
 import { cn } from "@/lib/cn";
 
 // most actions are a single button — pass label/icon/onClick and BatchSelect

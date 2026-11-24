@@ -1,6 +1,12 @@
 import { expect, Page, test } from "@playwright/test";
 
-import { addWalkthroughStyles, DELAY, pause, showText } from "./helpers";
+import {
+  addWalkthroughStyles,
+  DELAY,
+  pause,
+  showAndClick,
+  showText,
+} from "./helpers";
 import {
   dashboardIntro,
   listViewIntro,
@@ -8,14 +14,17 @@ import {
 } from "./visualization";
 
 async function specificUseInteractiveTools(page: Page) {
-  await showText(page, "Hubben er utstyrt med verktøyene vi trenger.");
+  await showText(page, "Vi velger alle og overfører dem til Mari.");
 
   const selectAllCheckbox = page.getByLabel(/Select all rows/);
   await selectAllCheckbox.check();
 
-  expect(selectAllCheckbox).toBeChecked();
-
+  await expect(selectAllCheckbox).toBeChecked();
   await pause(page, DELAY.medium);
+
+  // batch select menu is showing now
+  const assignBtn = page.getByRole("button", { name: "Assign to" });
+  await showAndClick(assignBtn);
 }
 
 test("dashboard overview", async ({ page }) => {

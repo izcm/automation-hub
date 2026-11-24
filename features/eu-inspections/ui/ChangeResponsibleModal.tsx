@@ -122,7 +122,6 @@ export function ChangeResponsibleModal({
             const isCurrentResponsible = emp.id === currentResponsibleId;
             return (
               <div
-                role="button"
                 onClick={() => handleCommit(emp)}
                 className={cn(
                   "flex items-center gap-3 h-14 px-2 hover:bg-accent/8 cursor-pointer",

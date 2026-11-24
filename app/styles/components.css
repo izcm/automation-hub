@@ -82,11 +82,7 @@
   .btn-neutral {
     color: var(--fg);
     border-color: var(--faint);
-    background: linear-gradient(
-      160deg,
-      var(--ground) 0%,
-      color-mix(in oklab, var(--lowered) 92%, var(--accent)) 100%
-    );
+    background: var(--ground);
   }
 
   .btn-neutral:hover {

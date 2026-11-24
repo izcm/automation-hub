@@ -101,9 +101,11 @@ export function SearchableGallery<T = string>({
         isDisabled={isDisabled}
         galleryItem={(option) => galleryItem(option, handleCommit)}
         htmlUlElementProps={{
+          role: "listbox",
           className: cn("flex flex-col gap-0.5", galleryClassName?.arrowList),
         }}
         htmlLiElementProps={(state) => ({
+          role: "option",
           className: cn(
             "inset-focus rounded disabled-look",
             galleryClassName?.arrowRow?.(state),
