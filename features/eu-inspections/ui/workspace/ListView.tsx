@@ -145,8 +145,12 @@ export function ListView({
     alternativeReceiver,
   });
 
-  async function sendNotification(euInspectionIds: string[]) {
-    const overrideEmail = isDemo ? await getEmailChoice() : undefined;
+  async function sendNotification(
+    euInspectionIds: string[],
+    { askForInbox = true } = {},
+  ) {
+    const overrideEmail =
+      isDemo && askForInbox ? await getEmailChoice() : undefined;
 
     const result = await sendEuInspectionNotifications(
       euInspectionIds,
@@ -190,7 +194,7 @@ export function ListView({
       const item = inspections.find((i) => i.id === id);
       return item && getInspectionStatus(item) !== "approved";
     });
-    if (toNotify.length > 0) sendNotification(toNotify);
+    if (toNotify.length > 0) sendNotification(toNotify, { askForInbox: false });
   }
 
   const resolvedToastIdRef = useRef<string | number | undefined>(undefined);
