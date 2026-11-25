@@ -181,6 +181,18 @@ export function ListView({
     );
   }
 
+  // runs after a new responsible is saved
+  function handleAssigned(savedIds: string[], changedIds: string[]) {
+    keep(savedIds);
+
+    // email the new responsible, except for approved inspections
+    const toNotify = changedIds.filter((id) => {
+      const item = inspections.find((i) => i.id === id);
+      return item && getInspectionStatus(item) !== "approved";
+    });
+    if (toNotify.length > 0) sendNotification(toNotify);
+  }
+
   const resolvedToastIdRef = useRef<string | number | undefined>(undefined);
 
   const { statusBySubjectId, addSent } = useNotifications(
@@ -351,7 +363,6 @@ export function ListView({
             label: LABELS.assignTo,
             icon: <User size={14} />,
             onClick: (euInspectionIds, clearSelection) => {
-              keep(euInspectionIds);
               setAssignTargetIds(euInspectionIds);
               clearAssignSelectionRef.current = clearSelection;
             },
@@ -382,6 +393,7 @@ export function ListView({
             setEuInspections={setInspections}
             sendNotification={sendNotification}
             markStatus={markStatus}
+            onAssigned={handleAssigned}
           />
         )}
       />
@@ -392,6 +404,7 @@ export function ListView({
         euInspectionIds={assignTargetIds ?? []}
         employees={employees}
         setEuInspections={setInspections}
+        onAssigned={handleAssigned}
         onLoadingChange={(loading) => {
           setIsAssigning(loading);
           if (!loading) clearAssignSelectionRef.current();

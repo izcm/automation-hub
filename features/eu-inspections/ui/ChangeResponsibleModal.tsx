@@ -23,6 +23,8 @@ type Props = {
   employees: Employee[];
   setEuInspections: Dispatch<SetStateAction<EuInspectionRow[]>>;
   onLoadingChange: (loading: boolean) => void;
+  // savedIds: every saved row, changedIds: the ones that got a new responsible
+  onAssigned: (savedIds: string[], changedIds: string[]) => void;
 };
 
 export function ChangeResponsibleModal({
@@ -33,6 +35,7 @@ export function ChangeResponsibleModal({
   employees,
   setEuInspections,
   onLoadingChange,
+  onAssigned,
 }: Props) {
   const [dropdownChoice, setDropdownChoice] = useState<Employee | undefined>();
   const [openDropdown, setOpenDropdown] = useState(false);
@@ -45,13 +48,21 @@ export function ChangeResponsibleModal({
     const results = await Promise.all(
       euInspectionIds.map(async (id) => {
         const inspectionResult = await getEuInspection(id);
-        if (!inspectionResult.ok) return { id, ok: false as const };
+        if (!inspectionResult.ok) {
+          return { id, ok: false as const, changed: false };
+        }
 
         const updateResult = await updateMaintenanceResponsible(
           inspectionResult.data.vehicle.id,
           dropdownChoice.id,
         );
-        return { id, ok: updateResult.ok };
+        return {
+          id,
+          ok: updateResult.ok,
+          changed:
+            inspectionResult.data.vehicle.maintenanceResponsibleId !==
+            dropdownChoice.id,
+        };
       }),
     );
 
@@ -71,6 +82,11 @@ export function ChangeResponsibleModal({
           : item,
       ),
     );
+
+    const changedIds = results
+      .filter((r) => r.ok && r.changed)
+      .map((r) => r.id);
+    if (succeededIds.size > 0) onAssigned([...succeededIds], changedIds);
 
     const failed = results.length - succeededIds.size;
     const success = succeededIds.size;

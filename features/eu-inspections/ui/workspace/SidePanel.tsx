@@ -26,6 +26,7 @@ type Props = {
     euInspectionIds: string[],
     status: "approved" | "rejected",
   ) => Promise<void>;
+  onAssigned: (savedIds: string[], changedIds: string[]) => void;
 };
 
 export function SidePanel({
@@ -34,6 +35,7 @@ export function SidePanel({
   statusBySubjectId,
   setEuInspections,
   sendNotification,
+  onAssigned,
 }: Props) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -64,6 +66,7 @@ export function SidePanel({
                     employees={employees}
                     setEuInspections={setEuInspections}
                     onLoadingChange={setIsLoading}
+                    onAssigned={onAssigned}
                   />
                 )}
                 isLoading={isLoading}
