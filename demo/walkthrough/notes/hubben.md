@@ -77,9 +77,9 @@ _Vis en kort tekstskjerm._
 
 **Tekst:**
 
-«Sindre er ikke tilgjengelig de neste fire ukene. Vi må finne kjøretøyene han har ansvar for.»
+«Erik er ikke tilgjengelig de neste fire ukene. Vi må finne kjøretøyene han har ansvar for.»
 
-_Filtrer på ansvarlig ansatt: Sindre._
+_Filtrer på ansvarlig ansatt: Erik._
 
 _Velg perioden: de neste fire ukene._
 
@@ -119,9 +119,9 @@ _Velg «Assign employee»._
 
 **Tekst:**
 
-«Mari er tilgjengelig i perioden og overtar ansvaret.»
+«Marte er tilgjengelig i perioden og overtar ansvaret.»
 
-_Velg Mari som ny ansvarlig._
+_Velg Marte som ny ansvarlig._
 
 _Bekreft endringen._
 
@@ -131,7 +131,7 @@ _La suksessmeldingen være synlig et øyeblikk._
 
 ### Del B – Oppdater filtrerte resultater
 
-_Vis at oppføringene fortsatt ligger i listen, men nå har Mari som ansvarlig._
+_Vis at oppføringene fortsatt ligger i listen, men nå har Marte som ansvarlig._
 
 _Fremhev meldingen «Results no longer match filters»._
 
@@ -153,17 +153,13 @@ _Vis at KPI-ene nå viser 0 for det aktive utvalget._
 
 _Fjern filtrene._
 
-_Filtrer på Mari._
-
-_Vis at de aktuelle oppføringene nå er knyttet til henne._
-
 **Tekst:**
 
-«Mari har overtatt ansvaret.»
+«Marte har overtatt ansvaret.»
 
 ### Del C – Varsling
 
-_Vis en kort bekreftelse eller en e-post til Mari._
+_Vis en kort bekreftelse eller en e-post til Marte._
 
 **Tekst:**
 
@@ -213,11 +209,11 @@ _Vis at kontrollstatusen endres til «Approved»._
 
 ### Del B – Automatisering av ansvarsfordeling
 
-_Vis en kort tekstskjerm som viser tilbake til eksempelet med Sindre._
+_Vis en kort tekstskjerm som viser tilbake til eksempelet med Erik._
 
 **Tekst:**
 
-«Tidligere omfordelte vi ansvaret fra Sindre til Mari manuelt.»
+«Tidligere omfordelte vi ansvaret fra Erik til Marte manuelt.»
 
 _Vis gjerne et kort klipp fra massehandlingen._
 
@@ -259,7 +255,7 @@ _Avslutt med logoen og eventuelt swh.no._
 
 - [ ] Vis bare noen få sekunder av dashboardet før første interaksjon.
 - [ ] Bruk korte tekstforklaringer, ikke lange avsnitt.
-- [ ] Behold den samme Sindre/Mari-historien gjennom visualisering og interaktive verktøy.
+- [ ] Behold den samme Erik/Marte-historien gjennom visualisering og interaktive verktøy.
 - [ ] Vis at filtrerte resultater ikke forsvinner før filtrene brukes på nytt.
 - [ ] Vis resultatet av automatiseringen, ikke cron-konfigurasjon eller Docker-infrastruktur.
 - [ ] Unngå unødvendige overganger midt i en sammenhengende oppgave.

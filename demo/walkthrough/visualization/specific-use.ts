@@ -8,7 +8,7 @@ import {
   showAndClick,
   showText,
 } from "../helpers";
-import { drillToWorkspace } from "../steps";
+import { clearDashboardFilters, drillToWorkspace } from "../steps";
 
 function tableCard(page: Page, testId: string, rowName: string) {
   const section = page.getByTestId(testId);
@@ -20,16 +20,12 @@ function tableCard(page: Page, testId: string, rowName: string) {
 
 export async function specificUse(page: Page) {
   // start the example from a clean dashboard
-  await hoverAndClick(
-    page
-      .getByTestId("overview-card")
-      .getByRole("button", { name: "Clear all" }),
-  );
+  await clearDashboardFilters(page);
 
   await showText(page, "Vi tar et konkret eksempel");
   await showText(
     page,
-    "Sindre er ikke tilgjengelig de fire neste ukene.\n Vi vil overføre ansvaret for inspeksjonene som har frist i denne perioden fra han til en annen ansatt.",
+    "Erik er ikke tilgjengelig de fire neste ukene.\n Vi vil overføre ansvaret for inspeksjonene som har frist i denne perioden fra han til en annen ansatt.",
     DELAY.long * 2,
   );
 

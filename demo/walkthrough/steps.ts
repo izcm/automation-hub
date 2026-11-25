@@ -12,3 +12,16 @@ export async function backFromListView(page: Page) {
 export async function drillToWorkspace(page: Page) {
   await showAndClick(page.getByRole("button", { name: "Drill to workspace" }));
 }
+
+// opens the first list item's detail pane
+export async function inspectFirst(page: Page) {
+  await hoverAndClick(page.getByRole("button", { name: "Inspect" }).first());
+}
+
+export async function clearDashboardFilters(page: Page) {
+  await hoverAndClick(
+    page
+      .getByTestId("overview-card")
+      .getByRole("button", { name: "Clear all" }),
+  );
+}

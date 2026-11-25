@@ -17,6 +17,7 @@
     "seed:pg:notifications": "tsx --env-file=.env.local seed-db-scripts/postgres/seed.notifications.ts",
     "test": "vitest run",
     "walkthrough": "WALKTHROUGH=1 playwright test --project=walkthrough",
+    "walkthrough:demo": "npm run start:postgres && npm run walkthrough -- demo.ts",
     "clean": "rm -rf .next node_modules"
   },
   "dependencies": {

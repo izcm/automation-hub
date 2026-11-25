@@ -1,13 +1,7 @@
 import { Page } from "@playwright/test";
 
-import {
-  DELAY,
-  flashOutline,
-  hoverAndClick,
-  pause,
-  showText,
-} from "../helpers";
-import { backFromListView } from "../steps";
+import { DELAY, flashOutline, pause, showText } from "../helpers";
+import { backFromListView, inspectFirst } from "../steps";
 
 // list view walkthrough, runs after drilling into the workspace
 export async function listViewIntro(page: Page) {
@@ -27,9 +21,7 @@ export async function listViewIntro(page: Page) {
 
   await showText(page, "Sidepanelet viser detaljer per oppføring.");
 
-  // open first list items detail pane
-  const inspectBtn = page.getByRole("button", { name: "Inspect" }).first();
-  await hoverAndClick(inspectBtn);
+  await inspectFirst(page);
 
   await pause(page, DELAY.long);
 
