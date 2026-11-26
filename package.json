@@ -16,7 +16,6 @@
     "seed:pg:eu-inspection-attempts": "tsx --env-file=.env.local seed-db-scripts/postgres/seed.eu-inspection-attempts.ts",
     "seed:pg:notifications": "tsx --env-file=.env.local seed-db-scripts/postgres/seed.notifications.ts",
     "test": "vitest run",
-    "walkthrough": "WALKTHROUGH=1 playwright test --project=walkthrough",
     "walkthrough:demo": "npm run start:postgres && npm run walkthrough -- demo.ts",
     "clean": "rm -rf .next node_modules"
   },
@@ -57,7 +56,6 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "drizzle-kit": "^1.0.0-rc.5-ab785fc",
-    "esbuild": "^0.28.2",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
     "jsdom": "^30.0.1",

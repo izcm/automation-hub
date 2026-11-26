@@ -1,8 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
 
-/* the walkthrough records the live site, not the local dev server */
-const WALKTHROUGH_URL = "https://hubben.swh.no";
-
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -33,41 +30,12 @@ export default defineConfig({
       testDir: "./e2e",
       use: { ...devices["Desktop Chrome"] },
     },
-
-    /* logs in once and saves the session, not recorded */
-    {
-      name: "setup",
-      testDir: "./demo/walkthrough",
-      testMatch: "auth.ts",
-      outputDir: "demo/walkthrough/out",
-      use: { baseURL: WALKTHROUGH_URL },
-    },
-
-    /* video clips for the walkthrough */
-    {
-      name: "walkthrough",
-      timeout: 3 * 60_000, // clips are long by design
-      testDir: "./demo/walkthrough",
-      testMatch: ["demo.ts", "login.ts"],
-      dependencies: ["setup"],
-      outputDir: "demo/walkthrough/out",
-      use: {
-        ...devices["Desktop Chrome"],
-        baseURL: WALKTHROUGH_URL,
-        storageState: "playwright/.auth/demo.json",
-        viewport: { width: 1920, height: 1080 },
-        video: { mode: "on", size: { width: 1920, height: 1080 } },
-      },
-    },
   ],
 
-  /* Run your local dev server before starting the tests,
-     except for the walkthrough, which records the live site */
-  webServer: process.env.WALKTHROUGH
-    ? undefined
-    : {
-        command: "npm run dev",
-        url: "http://localhost:3000",
-        reuseExistingServer: true,
-      },
+  /* Run your local dev server before starting the tests */
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:3000",
+    reuseExistingServer: true,
+  },
 });
