@@ -1,6 +1,13 @@
 import { Page } from "@playwright/test";
 
-import { DELAY, pause, scrollToTop, showAndClick, showText } from "../helpers";
+import {
+  DELAY,
+  hoverAndClick,
+  pause,
+  scrollToTop,
+  showAndClick,
+  showText,
+} from "../helpers";
 import { drillToWorkspace } from "../steps";
 
 export async function dashboardIntro(page: Page) {
@@ -18,6 +25,24 @@ export async function dashboardIntro(page: Page) {
     page,
     "Dashboardet er interaktivt, trykk rundt for å sette filtre.",
   );
+
+  {
+    const timeline = page.getByTestId("timeline-card");
+
+    // just for show, the last click clears the status filter again
+    for (const name of [
+      "Approved",
+      "First attempt",
+      "Rejected",
+      "Unresolved",
+    ]) {
+      await hoverAndClick(
+        timeline.getByRole("button", { name, exact: true }),
+        DELAY.short,
+      );
+    }
+    await pause(page, DELAY.medium);
+  }
 
   {
     const rejectedLegend = page

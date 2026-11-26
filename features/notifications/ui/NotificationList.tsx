@@ -30,10 +30,8 @@ export function NotificationList({ notifications, initialCount }: Props) {
       <table className="w-full table-fixed text-sm">
         <thead>
           <tr className="border-b border-extra-faint text-[12px] text-subtle">
-            <th className="w-[220px] p-2 font-normal text-start">To</th>
-            <th className="w-[80px] min-w-0 p-2 font-normal text-start">
-              Status
-            </th>
+            <th className="w-55 p-2 font-normal text-start">To</th>
+            <th className="w-20 min-w-0 p-2 font-normal text-start">Status</th>
             <th className="w-auto truncate p-2 font-normal text-start">
               Created
             </th>

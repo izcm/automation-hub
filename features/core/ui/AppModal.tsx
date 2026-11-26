@@ -85,7 +85,7 @@ export function AppModal({
                   onClick={onClick}
                   className={cn(
                     "btn",
-                    variant === "primary" ? "btn-primary" : "btn-neutral",
+                    variant === "primary" ? "btn-primary" : "btn-secondary",
                     className,
                   )}
                   {...btnProps}

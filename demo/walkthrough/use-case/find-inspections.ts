@@ -18,7 +18,7 @@ function tableCard(page: Page, testId: string, rowName: string) {
   return { section, table, row };
 }
 
-export async function specificUse(page: Page) {
+export async function findInspections(page: Page) {
   // start the example from a clean dashboard
   await clearDashboardFilters(page);
 
@@ -64,8 +64,6 @@ export async function specificUse(page: Page) {
   }
 
   await drillToWorkspace(page);
-
-  await showText(page, "Disse oppføringene må vi gjøre noe med.");
 
   await pause(page, DELAY.medium);
 }

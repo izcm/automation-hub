@@ -1,93 +1,104 @@
-import { expect, Page, test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { build } from "esbuild";
 
-import {
-  addWalkthroughStyles,
-  DELAY,
-  flashOutline,
-  highlightByOutline,
-  hoverAndClick,
-  pause,
-  showAndClick,
-  showText,
-} from "./helpers";
-import {
-  dashboardIntro,
-  listViewIntro,
-  specificUse as specificUseVisualization,
-} from "./visualization";
-import { backFromListView, clearDashboardFilters, inspectFirst } from "./steps";
+import { addWalkthroughStyles, DELAY, pause, showText } from "./helpers";
+import { dashboardIntro, listViewIntro } from "./ui";
+import { findInspections, reassignInspections } from "./use-case";
 
-async function specificUseInteractiveTools(page: Page) {
-  await showText(page, "Vi velger alle og overfører dem til Marte.");
+test("walkthrough", async ({ page }) => {
+  await page.goto("/eu-inspections");
 
-  const selectAllCheckbox = page.getByLabel(/Select all rows/);
-  await selectAllCheckbox.check();
+  const { outputFiles } = await build({
+    stdin: {
+      contents: `
+        import React from "react";
+        import { createRoot } from "react-dom/client";
 
-  await expect(selectAllCheckbox).toBeChecked();
-  await pause(page, DELAY.medium);
+        function Diagram() {
+          return <div>HELLO</div>;
+        }
 
-  // batch select menu is showing now
-  const assignBtn = page.getByRole("button", { name: "Assign to" });
-  await showAndClick(assignBtn);
-
-  // get the textinput in change responsible modal
-  const modal = page.getByRole("dialog", { name: "Assign responsibility" });
-
-  await modal.getByRole("textbox").pressSequentially("Marte", { delay: 100 }); // search box
-  await hoverAndClick(modal.getByRole("option", { name: /Marte/ })); // pick employee
-  await showAndClick(
-    modal.getByRole("button", { name: "Assign", exact: true }),
-  ); // perform action
-
-  // temporary i dont wanna reseed the db
-  // await showAndClick(
-  //   modal.getByRole("button", { name: "Cancel", exact: true }),
-  // );
-
-  await pause(page, DELAY.long);
-  await inspectFirst(page);
-
-  const responsibleCard = page
-    .locator("aside")
-    .locator("section")
-    .filter({ hasText: "Maintenance responsible" })
-    .locator(".raised-outline-panel");
-
-  const removeOutline = await flashOutline(responsibleCard);
-  await pause(page, DELAY.long);
-  await removeOutline();
-
-  const syncFiltersBtn = page.getByRole("button", {
-    name: /no longer match filters/,
+        const el = document.createElement("div");
+        
+        el.id = "integrations-diagram";
+        el.style.cssText = "position:fixed;inset:0;z-index:999999;background:white";
+        
+        document.body.append(el);
+        
+        createRoot(el).render(<Diagram />);
+      `,
+      loader: "tsx",
+      resolveDir: process.cwd(),
+    },
+    bundle: true, // bundle dependencies
+    write: false, // write in-memory
+    format: "iife", // https://adhdecode.com/articles/esbuild/esbuild-iife-wrapping/
   });
 
-  await showText(
-    page,
-    "Marte er nå ansvarlig for inspeksjonene og har blitt varslet på epost.",
-  );
+  await page.addScriptTag({
+    content: outputFiles[0]?.text,
+  });
 
-  await hoverAndClick(syncFiltersBtn);
+  await expect(page.getByText("HELLO")).toBeVisible();
+  await page.locator("#integrations-diagram").evaluate((el) => el.remove());
 
-  await backFromListView(page);
-  await clearDashboardFilters(page);
-  await pause(page, DELAY.long);
-}
-
-async function responsibleEmails() {}
-
-test("dashboard overview", async ({ page }) => {
-  await page.goto("/eu-inspections");
   await addWalkthroughStyles(page);
 
   await showText(page, "I Hubben får man oversikt over kommende inspeksjoner.");
 
   await pause(page, DELAY.medium);
 
-  // visualization
+  // ui
   await dashboardIntro(page);
   await listViewIntro(page);
-  await specificUseVisualization(page);
 
-  // Interactive tools
-  await specificUseInteractiveTools(page);
+  // use case
+  await findInspections(page);
+  await reassignInspections(page);
 });
+
+// esbuild --bundle --format=iife --outfile=whatever/bundle.js <<'EOF'
+// const greeting = "Hello from the IIFE!";
+// console.log(greeting);
+
+// function privateHelper() {
+//   console.log("This is a private function.");
+// }
+
+// privateHelper();
+// EOF
+
+// ----------
+
+// import { test } from "@playwright/test";
+// import { build } from "esbuild";
+
+// test("walkthrough", async ({ page }) => {
+//   await page.goto("/eu-inspections");
+
+//   const { outputFiles } = await build({
+//     stdin: {
+//       contents: `
+//         import React from "react";
+//         import { createRoot } from "react-dom/client";
+
+//         function Diagram() {
+//           return <div>HELLO</div>;
+//         }
+
+//         const el = document.createElement("div");
+//         el.style.cssText = "position:fixed;inset:0;z-index:999999;background:white";
+//         document.body.append(el);
+//         createRoot(el).render(<Diagram />);
+//       `,
+//       loader: "tsx",
+//       resolveDir: process.cwd(),
+//     },
+//     bundle: true,
+//     write: false,
+//     platform: "browser",
+//     format: "iife", // https://adhdecode.com/articles/esbuild/esbuild-iife-wrapping/
+//   });
+
+//   await page.addScriptTag({ content: outputFiles[0].text });
+// });
